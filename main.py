@@ -3,8 +3,12 @@ import json
 import os
 from datetime import datetime
 from simulator import process_all_matches
+from flask import Flask, render_template
+# ... (todo tu código actual)
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+app = Flask(__name__)
+
+# ... (resto de tus rutas)
 
 VISIT_FILE = "visits.txt"
 HISTORY_FILE = "history.json"
