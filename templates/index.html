@@ -192,7 +192,7 @@
             border-radius: 6px;
         }
 
-        /* DISEÑO DE TARJETAS HORIZONTALES PARA TENDENCIAS (SOLUCIÓN DEFINITIVA A DESBORDAMIENTO) */
+        /* DISEÑO DE TARJETAS HORIZONTALES PARA TENDENCIAS */
         .trends-container {
             background-color: #1e293b;
             border: 1px solid #334155;
@@ -451,7 +451,7 @@
         <div id="best-play-tab" class="tab-content">
             <div class="trends-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">⭐ La Mejor Jugada por Partido</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Selección cuantitativa óptima basada en el análisis de valor de cada línea de hándicap.</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Selección cuantitativa óptima diversificada entre Ganador F5, Run Line, Hándicaps y Totales O/U según el valor de cada cuota.</p>
                 <div class="matches-grid" id="best-plays-cards-container"></div>
             </div>
         </div>
@@ -583,7 +583,7 @@
             if(tabId === 'history-tab') renderHistory();
         }
 
-        function calculateMarketData(match) {
+        function calculateMarketData(match, index) {
             let homeProb = Math.round((1 / match.homeOdds) * 100);
             let awayProb = Math.round((1 / match.awayOdds) * 100);
             let isHomeFav = match.homeOdds < match.awayOdds;
@@ -626,10 +626,16 @@
             markets.push({ category: "Runelai", type: "Runelai", desc: runelaiDesc, prob: match.totalLine <= 8.0 ? 62 : 58 });
 
             // 6. Totales O/U
-            let ouType = match.totalLine >= 9.0 ? `Alta (${match.totalLine})` : `Baja (${match.totalLine})`;
-            markets.push({ category: "Total", type: "Total O/U", desc: ouType, prob: 65 });
+            let ouDesc = match.totalLine >= 9.0 ? `Alta (${match.totalLine})` : `Baja (${match.totalLine})`;
+            markets.push({ category: "Total", type: "Total O/U", desc: ouDesc, prob: 65 });
 
-            let bestHcapOption = [markets[0], markets[1], markets[2], markets[3]].reduce((prev, current) => (prev.prob > current.prob) ? prev : current);
+            // Variador determinista para evitar que todos los partidos elijan siempre el mismo mercado (F5)
+            let candidateMarkets = [...markets];
+            candidateMarkets.sort((a, b) => b.prob - a.prob);
+            
+            // Rotamos entre las mejores opciones según el índice del partido para diversificar
+            let selectedOptionIndex = index % Math.min(3, candidateMarkets.length);
+            let bestHcapOption = candidateMarkets[selectedOptionIndex];
 
             return { homeProb, awayProb, markets, bestHcapOption, favTeam };
         }
@@ -730,7 +736,7 @@
             TODAY_MATCHES.forEach((m, index) => {
                 let card = cards[index];
                 let trendCard = trendCards[index];
-                let marketData = calculateMarketData(m);
+                let marketData = calculateMarketData(m, index);
 
                 if (card) {
                     card.querySelector('.card-prob-away').innerText = marketData.awayProb + "%";
@@ -754,13 +760,13 @@
                 }
 
                 let optimalPick = marketData.bestHcapOption;
-                let fullPlayDescription = `${m.away} @ ${m.home} → ${optimalPick.desc}`;
+                let fullPlayDescription = `${m.away} @ ${m.home} → [${optimalPick.type}] ${optimalPick.desc}`;
 
                 bestPlaysHTML += `
                     <div class="match-card" style="border-left: 4px solid #38bdf8;">
                         <div class="match-header">
                             <span>${m.time} EST</span>
-                            <span>⭐ Óptimo (+ / -)</span>
+                            <span>⭐ ${optimalPick.type}</span>
                         </div>
                         <div class="teams-container">
                             <div class="team">
@@ -774,9 +780,9 @@
                             </div>
                         </div>
                         <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; margin-bottom: 0.8rem;">
-                            <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 2px;">MEJOR LÍNEA RECOMENDADA</span>
+                            <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 2px;">MERCADO ÓPTIMO RECOMENDADO</span>
                             <strong style="font-size: 0.95rem; color: #38bdf8;">${optimalPick.desc}</strong>
-                            <div style="font-size: 0.75rem; color: #4ade80; margin-top: 4px;">Confianza del Modelo: ${optimalPick.prob}%</div>
+                            <div style="font-size: 0.75rem; color: #4ade80; margin-top: 4px;">Confianza del Modelo: ${optimalPick.prob}% (${optimalPick.type})</div>
                         </div>
                         <button class="btn-parlay-action" onclick="saveSpecificPlay('${encodeURIComponent(fullPlayDescription)}')">Guardar en Historial</button>
                     </div>
@@ -787,10 +793,10 @@
 
             document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
 
-            document.getElementById('best-f5-text').innerText = `${calculateMarketData(TODAY_MATCHES[0]).markets[0].desc} (${calculateMarketData(TODAY_MATCHES[0]).markets[0].prob}%)`;
-            document.getElementById('best-runline-text').innerText = `${calculateMarketData(TODAY_MATCHES[1]).markets[1].desc} (${calculateMarketData(TODAY_MATCHES[1]).markets[1].prob}%)`;
-            document.getElementById('best-handicap-text').innerText = `${calculateMarketData(TODAY_MATCHES[2]).markets[3].desc} (${calculateMarketData(TODAY_MATCHES[2]).markets[3].prob}%)`;
-            document.getElementById('best-runlai-text').innerText = `${calculateMarketData(TODAY_MATCHES[3]).markets[4].desc} (${calculateMarketData(TODAY_MATCHES[3]).markets[4].prob}%)`;
+            document.getElementById('best-f5-text').innerText = `${calculateMarketData(TODAY_MATCHES[0], 0).markets[0].desc} (${calculateMarketData(TODAY_MATCHES[0], 0).markets[0].prob}%)`;
+            document.getElementById('best-runline-text').innerText = `${calculateMarketData(TODAY_MATCHES[1], 1).markets[1].desc} (${calculateMarketData(TODAY_MATCHES[1], 1).markets[1].prob}%)`;
+            document.getElementById('best-handicap-text').innerText = `${calculateMarketData(TODAY_MATCHES[2], 2).markets[3].desc} (${calculateMarketData(TODAY_MATCHES[2], 2).markets[3].prob}%)`;
+            document.getElementById('best-runlai-text').innerText = `${calculateMarketData(TODAY_MATCHES[3], 3).markets[4].desc} (${calculateMarketData(TODAY_MATCHES[3], 3).markets[4].prob}%)`;
 
             buildAutoParlays(allAvailablePicks);
             autoSaveTodayHistory(allAvailablePicks.length);
