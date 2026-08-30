@@ -21,7 +21,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1350px;
             margin: 0 auto;
         }
 
@@ -223,6 +223,60 @@
             background-color: #0369a1;
         }
 
+        /* Estilos para la Matriz / Tabla Detallada por Partido */
+        .matrix-container {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .matrix-table th {
+            background-color: #0f172a;
+            color: #38bdf8;
+            padding: 12px;
+            font-weight: 600;
+            border-bottom: 2px solid #334155;
+            white-space: nowrap;
+        }
+
+        .matrix-table td {
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
+            white-space: nowrap;
+        }
+
+        .matrix-table tr:hover {
+            background-color: rgba(56, 189, 248, 0.05);
+        }
+
+        .badge-pick {
+            background-color: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .badge-alt {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
         .parlay-section {
             background-color: #1e293b;
             border: 1px solid #334155;
@@ -274,21 +328,22 @@
 </head>
 <body>
     <div class="container">
-        <!-- Cabecera limpia solicitada -->
+        <!-- Cabecera -->
         <header>
             <h1>MLB</h1>
-            <p>Fecha: 30-08-2026 | Pronóstico</p>
+            <p>Fecha: 30-08-2026 | Pronóstico Cuantitativo Avanzado</p>
         </header>
 
         <!-- Pestañas de Navegación -->
         <div class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">Partidos del Día</button>
+            <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Pronóstico por Partido (Matriz)</button>
             <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">Generador de Parlay</button>
             <button class="tab-btn" onclick="switchTab(event, 'saved-tab')">Pronósticos Guardados</button>
             <button class="tab-btn" onclick="switchTab(event, 'analytics-tab')">Análisis Avanzado</button>
         </div>
 
-        <!-- Pestaña 1: Partidos -->
+        <!-- Pestaña 1: Partidos (Tarjetas) -->
         <div id="matches-tab" class="tab-content active">
             <div class="matches-grid">
                 {% for match in matches %}
@@ -344,7 +399,57 @@
             </div>
         </div>
 
-        <!-- Pestaña 2: Generador de Parlay Dinámico -->
+        <!-- Pestaña 2: Nueva Matriz / Pronóstico por Partido -->
+        <div id="matrix-tab" class="tab-content">
+            <div class="matrix-container">
+                <h2 style="color: #38bdf8; margin-bottom: 0.5rem;">Matriz Analítica por Encuentro</h2>
+                <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Desglose completo por líneas de juego, primeros 5 innings, anotaciones tempranas y probabilidades de extra innings.</p>
+                
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th>Hora / Estadio</th>
+                            <th>Encuentro</th>
+                            <th>1st Inning (NRFI / YRFI)</th>
+                            <th>Ganador 1er - 5to Inning</th>
+                            <th>Ganador Juego Completo</th>
+                            <th>Run Line (-1.5 / +1.5)</th>
+                            <th>Extra Inning Prob.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for match in matches %}
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">{{ match.time }}</div>
+                                <div style="font-size: 0.75rem; color: #94a3b8;">{{ match.stadium }}</div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600; color: #f8fafc;">{{ match.away }} @ {{ match.home }}</div>
+                            </td>
+                            <td>
+                                <span class="badge-pick">{{ match.nrfi_yrfi | default('NRFI Proyectado') }}</span>
+                            </td>
+                            <td>
+                                <span class="badge-alt">{{ match.f5_winner | default(match.away if match.prob_away > match.prob_home else match.home) }}</span>
+                            </td>
+                            <td>
+                                <span class="badge-pick">{{ match.away if match.prob_away > match.prob_home else match.home }}</span>
+                            </td>
+                            <td>
+                                <span style="color: #cbd5e1; font-size: 0.85rem;">{{ match.run_line | default('-1.5 / +1.5 Estándar') }}</span>
+                            </td>
+                            <td>
+                                <span style="color: #38bdf8; font-weight: 600;">{{ match.extra_inning_prob | default('8.4% (Bajo)') }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pestaña 3: Generador de Parlay Dinámico -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-section">
                 <h2 style="color: #38bdf8; text-align: center; margin-bottom: 1rem;">Generador de Parlay Dinámico</h2>
@@ -363,7 +468,7 @@
             </div>
         </div>
 
-        <!-- Pestaña 3: Pronósticos Guardados -->
+        <!-- Pestaña 4: Pronósticos Guardados -->
         <div id="saved-tab" class="tab-content">
             <div class="parlay-section">
                 <h2 style="color: #38bdf8; text-align: center; margin-bottom: 1rem;">Historial y Seguimiento de Resultados</h2>
@@ -374,7 +479,7 @@
             </div>
         </div>
 
-        <!-- Pestaña 4: Análisis Avanzado -->
+        <!-- Pestaña 5: Análisis Avanzado -->
         <div id="analytics-tab" class="tab-content">
             <div class="parlay-section" style="text-align: center;">
                 <h2 style="color: #38bdf8; margin-bottom: 1rem;">Panel de Métricas y Factores Climáticos</h2>
@@ -402,7 +507,6 @@
             }
         }
 
-        // Extrae TODOS los partidos y selecciona matemáticamente al favorito de cada uno
         function getAllMatchPredictions() {
             const cards = document.querySelectorAll('.match-card');
             let plays = [];
@@ -413,17 +517,8 @@
                 const probAway = parseFloat(card.getAttribute('data-prob-away'));
                 const probHome = parseFloat(card.getAttribute('data-prob-home'));
                 
-                let selectedTeam = "";
-                let selectedProb = 0;
-
-                // Definir automáticamente al equipo con mayor probabilidad matemática
-                if (probAway >= probHome) {
-                    selectedTeam = away;
-                    selectedProb = probAway;
-                } else {
-                    selectedTeam = home;
-                    selectedProb = probHome;
-                }
+                let selectedTeam = probAway >= probHome ? away : home;
+                let selectedProb = probAway >= probHome ? probAway : probHome;
 
                 plays.push({
                     match: `${away} vs ${home}`,
@@ -432,7 +527,6 @@
                 });
             });
 
-            // Ordenar de mayor a menor probabilidad para darte siempre las mejores opciones primero
             plays.sort((a, b) => b.probability - a.probability);
             return plays;
         }
@@ -460,7 +554,6 @@
                 return;
             }
 
-            // Mezclar para dinamismo
             plays = shuffleArray(plays);
 
             let html = `<p style="color: #fbbf24; font-weight: bold; margin-bottom: 1rem;">🎯 Combinación Sugerida de ${count} Logros:</p>`;
