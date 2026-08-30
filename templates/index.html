@@ -558,6 +558,7 @@
             <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">🎲 Generador Parlay</button>
         </div>
 
+        <!-- PESTAÑA 1 -->
         <div id="matches-tab" class="tab-content active">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
                 <p style="color: #94a3b8; font-size: 0.85rem;">Ingresa el hándicap actual de tu casa de apuestas para cada encuentro y guarda los cambios.</p>
@@ -566,6 +567,7 @@
             <div class="matches-grid" id="matches-cards-container"></div>
         </div>
 
+        <!-- PESTAÑA 2 -->
         <div id="matrix-tab" class="tab-content">
             <div class="trends-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Análisis Cuantitativo Completo</h2>
@@ -574,6 +576,7 @@
             </div>
         </div>
 
+        <!-- PESTAÑA 3 -->
         <div id="best-play-tab" class="tab-content">
             <div class="trends-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">⭐ Selección Óptima por Partido</h2>
@@ -582,16 +585,18 @@
             </div>
         </div>
 
+        <!-- PESTAÑA 4 -->
         <div id="master-pick-tab" class="tab-content">
             <div class="master-pick-container" id="master-pick-display-container"></div>
         </div>
 
+        <!-- PESTAÑA 5: JUGADAS EN VIVO REAL (DINÁMICAS) -->
         <div id="live-standalone-tab" class="tab-content">
             <div class="live-standalone-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h2 style="color: #ef4444; font-size: 1.25rem; margin-bottom: 0.2rem;">🔴 Centro de Jugadas en Vivo (Actualización Automática)</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Conectado a la API oficial de la MLB. El pronóstico evoluciona dinámicamente con el inning y marcador:</p>
+                        <p style="color: #94a3b8; font-size: 0.8rem;">Conectado a la API oficial de la MLB. El pronóstico evoluciona dinámicamente con el inning real y marcador:</p>
                     </div>
                     <button class="btn-action" style="width: auto; padding: 0.5rem 1.2rem; background-color: #ef4444; color: #fff;" onclick="fetchRealLiveMLBData()">🔄 Consultar API Ahora</button>
                 </div>
@@ -602,6 +607,7 @@
             </div>
         </div>
 
+        <!-- PESTAÑA 6 -->
         <div id="history-tab" class="tab-content">
             <div class="history-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
@@ -617,6 +623,7 @@
             </div>
         </div>
 
+        <!-- PESTAÑA 7 -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado</h2>
@@ -951,14 +958,15 @@
         }
 
         // ==========================================
-        // MÓDULO API EN VIVO CON LÓGICA DINÁMICA ADAPTATIVA
+        // MÓDULO API EN VIVO (CORREGIDO PARA INNING REAL)
         // ==========================================
         async function fetchRealLiveMLBData() {
             let container = document.getElementById('live-standalone-cards-container');
             container.innerHTML = `<p style="color: #38bdf8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Consultando API en vivo de la MLB...</p>`;
 
             try {
-                let response = await fetch('https://statsapi.mlb.com/api/v1/schedule/games/?sportId=1&date=2026-08-30');
+                // CORRECCIÓN: Se agrega &hydrate=linescore para obligar a la API a devolver el inning y estado real
+                let response = await fetch('https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-08-30&hydrate=linescore');
                 let data = await response.json();
                 
                 let games = [];
@@ -981,10 +989,11 @@
                     let awayScore = g.teams.away.score || 0;
                     let homeScore = g.teams.home.score || 0;
 
-                    // Datos situacionales provistos por la API en vivo
+                    // Datos situacionales provistos por la API en vivo gracias a &hydrate=linescore
                     let linescore = g.linescore || {};
                     let inningNum = linescore.currentInning || 1;
-                    let inningHalf = linescore.inningHalf || "Top"; // "Top" o "Bottom"
+                    let inningState = linescore.inningState || ""; // "Top", "Bottom", "Middle", "End"
+                    let inningOrdinal = linescore.currentInningOrdinal || `${inningNum}°`;
                     let outsCount = linescore.outs !== undefined ? linescore.outs : 0;
                     
                     let balls = linescore.balls !== undefined ? linescore.balls : 0;
@@ -998,9 +1007,6 @@
                     let leadingTeamName = awayScore > homeScore ? awayTeam : homeTeam;
                     let trailingTeamName = awayScore > homeScore ? homeTeam : awayTeam;
 
-                    // ----------------------------------------------------
-                    // MOTOR DINÁMICO ADAPTATIVO (Cambia la jugada según el momento)
-                    // ----------------------------------------------------
                     let dynamicBestPlay = "";
                     let dynamicReason = "";
 
@@ -1011,30 +1017,27 @@
                         dynamicBestPlay = `Partido Finalizado (${awayScore} - ${homeScore})`;
                         dynamicReason = `Encuentro concluido oficialmente por la MLB.`;
                     } else {
-                        // Estado: LIVE (En juego) -> Cambia dinámicamente según inning y marcador
+                        // Estado: LIVE (En juego) -> Lee el inning real de la API
                         if (inningNum <= 3) {
-                            // Fase Temprana
                             if (runDiff === 0) {
                                 dynamicBestPlay = `Ganador F5: ${leadingTeamName} o Empate Técnico`;
-                                dynamicReason = `Inning temprano (${inningNum}°). Abridores estables, buscar valor en el primer tercio.`;
+                                dynamicReason = `Inning temprano (${inningOrdinal}). Abridores estables, buscar valor en el primer tercio.`;
                             } else {
                                 dynamicBestPlay = `Línea de Carreras (Alta / O/U)`;
                                 dynamicReason = `Rotación bajo presión temprano. El bullpen temprano dictará el ritmo.`;
                             }
                         } else if (inningNum >= 4 && inningNum <= 6) {
-                            // Fase Media
                             if (runDiff >= 2) {
                                 dynamicBestPlay = `Hándicap en Vivo (Run Line): ${leadingTeamName} (-0.5 / -1.5)`;
-                                dynamicReason = `Brecha establecida en el ${inningNum}° inning. El equipo líder controla el juego.`;
+                                dynamicReason = `Brecha establecida en el ${inningOrdinal} inning. El equipo líder controla el juego.`;
                             } else {
                                 dynamicBestPlay = `Ganador Directo (ML): ${leadingTeamName}`;
                                 dynamicReason = `Partido cerrado a la mitad del juego. Priorizar la cuota simple del equipo con mejor bullpen.`;
                             }
                         } else {
-                            // Fase Tardía (Innings 7 al 9)
                             if (runDiff <= 1) {
                                 dynamicBestPlay = `Apuesta de Cierre (Alta / O/U por Bullpen)`;
-                                dynamicReason = `Cierre tenso en el ${inningNum}° inning. El desfile de relevistas abre puertas a carreras tardías.`;
+                                dynamicReason = `Cierre tenso en el ${inningOrdinal} inning. El desfile de relevistas abre puertas a carreras tardías.`;
                             } else if (runDiff >= 3) {
                                 dynamicBestPlay = `Seguridad de Victoria (ML): ${leadingTeamName}`;
                                 dynamicReason = `Ventaja cómoda en zona de cierre. Alta probabilidad de retener el marcador.`;
@@ -1050,11 +1053,13 @@
                     let base2Color = hasOn2B ? "#38bdf8" : "#334155";
                     let base3Color = hasOn3B ? "#38bdf8" : "#334155";
 
+                    let inningDisplayLabel = gameState === "Live" ? `${inningState} del ${inningOrdinal}` : gameState;
+
                     liveCardsHTML += `
                     <div class="live-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-                            <span class="live-tag">${gameState === "Live" ? "En Vivo (" + (inningHalf === "Top" ? "▲" : "▼") + " " + inningNum + "°)" : gameState}</span>
-                            <span style="font-size: 0.75rem; color: #94a3b8;">${g.status.detailedState}</span>
+                            <span class="live-tag">${gameState === "Live" ? "En Vivo" : gameState}</span>
+                            <span style="font-size: 0.75rem; color: #38bdf8; font-weight: bold;">📍 ${inningDisplayLabel}</span>
                         </div>
 
                         <div class="live-scorebox">
