@@ -81,17 +81,23 @@ def extract_best_plays(simulated_matches):
                 "reason": f"Sólido rendimiento del abridor local {match.get('starter_home', '')}."
             })
             
-    # Ordenar por mayor confianza
     best_plays.sort(key=lambda x: x['confidence'], reverse=True)
     return best_plays
 
-def generate_parlay(best_plays):
-    """Selecciona hasta 3 de las mejores opciones para armar el Parlay del Día."""
-    if not best_plays:
-        return []
-    # Tomamos las mejores opciones (máximo 3)
-    parlay_picks = best_plays[:3]
-    return parlay_picks
+def generate_parlays_and_safe_pick(best_plays):
+    safest_pick = best_plays[0] if best_plays else None
+    
+    parlays = {}
+    if len(best_plays) >= 2:
+        parlays['2'] = best_plays[:2]
+    if len(best_plays) >= 3:
+        parlays['3'] = best_plays[:3]
+    if len(best_plays) >= 4:
+        parlays['4'] = best_plays[:4]
+    if len(best_plays) >= 5:
+        parlays['5'] = best_plays[:5]
+        
+    return safest_pick, parlays
 
 @app.route('/')
 def index():
@@ -102,7 +108,7 @@ def index():
         simulated_matches = process_all_matches(raw_matches)
         
         best_plays = extract_best_plays(simulated_matches)
-        parlay_picks = generate_parlay(best_plays)
+        safest_pick, parlays = generate_parlays_and_safe_pick(best_plays)
         
         return render_template(
             'index.html', 
@@ -110,7 +116,8 @@ def index():
             team_logos=data.get('team_logos', {}), 
             DAILY_ARCHIVE=data.get('DAILY_ARCHIVE', {}),
             best_plays=best_plays,
-            parlay_picks=parlay_picks,
+            safest_pick=safest_pick,
+            parlays=parlays,
             visits=total_visits
         )
     except Exception as e:
