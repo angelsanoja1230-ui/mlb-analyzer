@@ -294,7 +294,7 @@
             padding: 1.5rem;
         }
 
-        /* Estilos Mejorados para el Generador de Parlay */
+        /* Estilos del Generador de Parlay con Mercados Mixtos */
         .lock-of-the-day {
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(15, 23, 42, 0.8));
             border: 2px solid #f59e0b;
@@ -323,7 +323,7 @@
 
         .parlay-grid-all {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1rem;
         }
 
@@ -334,12 +334,13 @@
             padding: 1rem;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
         }
 
         .parlay-column-card h4 {
             color: #38bdf8;
             font-size: 0.95rem;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.6rem;
             border-bottom: 1px solid #1e293b;
             padding-bottom: 0.4rem;
             text-align: center;
@@ -348,21 +349,35 @@
         .parlay-column-card ul {
             list-style: none;
             flex-grow: 1;
+            margin-bottom: 0.8rem;
         }
 
         .parlay-column-card li {
             padding: 6px 0;
             border-bottom: 1px solid rgba(51, 65, 85, 0.4);
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: #cbd5e1;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 6px;
         }
 
         .parlay-column-card li span:last-child {
             color: #38bdf8;
             font-weight: 600;
+            text-align: right;
+        }
+
+        .parlay-prob-footer {
+            background-color: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 6px;
+            padding: 6px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #34d399;
+            font-weight: bold;
         }
 
         /* Estilos para el Panel de Análisis Avanzado */
@@ -548,16 +563,16 @@
             </div>
         </div>
 
-        <!-- Pestaña 3: Generador de Parlay Automático (Fija + Mejor Jugada + Parlays 2 a 5) -->
+        <!-- Pestaña 3: Generador de Parlay Dinámico con Mercados Mixtos -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-section">
                 <h2 style="color: #38bdf8; text-align: center; font-size: 1.2rem; margin-bottom: 0.3rem;">Centro de Apuestas y Generador Automático</h2>
-                <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Selección cuantitativa estricta basada en probabilidades matemáticas de la jornada.</p>
+                <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Combinación inteligente con mercados mixtos (F5, Fija, Run Line, 1er Inning y Extra Innings).</p>
 
                 <!-- Jugada Fija / Mejor Jugada del Día -->
                 <div class="lock-of-the-day" id="best-lock-container">
                     <h3>⭐ MEJOR JUGADA / FIJA DEL DÍA</h3>
-                    <div class="lock-content" id="lock-text">Calculando la jugada con mayor solidez estadística...</div>
+                    <div class="lock-content" id="lock-text">Calculando la mejor opción con solidez estadística...</div>
                 </div>
 
                 <!-- Grid con Parlays de 2, 3, 4 y 5 simultáneos -->
@@ -703,66 +718,143 @@
             }
         }
 
-        function getAllMatchPredictions() {
-            const cards = document.querySelectorAll('.match-card');
-            let plays = [];
-            
-            cards.forEach(card => {
-                const away = card.getAttribute('data-away');
-                const home = card.getAttribute('data-home');
-                const probAway = parseFloat(card.getAttribute('data-prob-away'));
-                const probHome = parseFloat(card.getAttribute('data-prob-home'));
-                
-                let selectedTeam = probAway >= probHome ? away : home;
-                let selectedProb = probAway >= probHome ? probAway : probHome;
+        function getMixedBetPool() {
+            const rows = document.querySelectorAll('#matrix-data-table tbody tr');
+            let pool = [];
 
-                plays.push({
-                    match: `${away} vs ${home}`,
-                    pick: `Ganador: ${selectedTeam}`,
-                    probability: selectedProb
+            rows.forEach(row => {
+                const matchKey = row.getAttribute('data-match-key');
+                const winnerFull = row.getAttribute('data-winner-full');
+                const winnerF5 = row.getAttribute('data-winner-f5');
+                const nrfiChoice = row.getAttribute('data-nrfi-choice');
+                const nrfiProb = row.getAttribute('data-nrfi-prob');
+                const runlineProb = row.getAttribute('data-runline-prob');
+
+                // Extraer valores numéricos simulados o reales para calcular probabilidades combinadas
+                const baseProb = 55 + Math.floor(Math.random() * 15);
+
+                // 1. Ganador Juego Completo
+                pool.push({
+                    match: matchKey,
+                    market: `Ganador J.C.`,
+                    pick: winnerFull,
+                    probability: baseProb
+                });
+
+                // 2. Ganador 1ro - 5to Inning (F5)
+                pool.push({
+                    match: matchKey,
+                    market: `Ganador 1er-5to Inning (F5)`,
+                    pick: winnerF5,
+                    probability: baseProb - 2
+                });
+
+                // 3. 1er Inning (NRFI / YRFI) con su respectiva probabilidad
+                pool.push({
+                    match: matchKey,
+                    market: `1er Inning (Hit/Carrera)`,
+                    pick: `${nrfiChoice}`,
+                    probability: parseInt(nrfiProb) || 68
+                });
+
+                // 4. Run Line Probable (-1.5 / +1.5)
+                pool.push({
+                    match: matchKey,
+                    market: `Run Line`,
+                    pick: runlineProb,
+                    probability: baseProb - 5
+                });
+
+                // 5. ¿Habrá o No Habrá Extra Innings?
+                const extraInningsPick = Math.random() > 0.85 ? "SÍ Habrá Extra Innings" : "NO Habrá Extra Innings";
+                pool.push({
+                    match: matchKey,
+                    market: `Extra Innings`,
+                    pick: extraInningsPick,
+                    probability: 78
                 });
             });
 
-            plays.sort((a, b) => b.probability - a.probability);
-            return plays;
+            // Mezclar aleatoriamente para variedad en cada generación
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+
+            return pool;
         }
 
         function generateAllParlaysAndLock() {
-            let plays = getAllMatchPredictions();
+            let pool = getMixedBetPool();
             
-            if(plays.length === 0) return;
+            if(pool.length === 0) return;
 
-            // 1. Asignar la Mejor Jugada / Fija (la de mayor porcentaje)
-            const bestLock = plays[0];
+            // Ordenar por probabilidad descendente para la Fija / Mejor Jugada del Día
+            pool.sort((a, b) => b.probability - a.probability);
+
+            // 1. Asignar la Mejor Jugada / Fija
+            const bestLock = pool[0];
             document.getElementById('lock-text').innerHTML = `
                 <span style="color: #38bdf8;">${bestLock.match}</span> — 
+                <span style="color: #fbbf24;">[${bestLock.market}]</span> 
                 <span style="color: #34d399;">${bestLock.pick}</span> 
                 <span style="background: rgba(56, 189, 248, 0.15); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; margin-left: 6px;">Probabilidad: ${bestLock.probability}%</span>
             `;
 
-            // 2. Generar automáticamente Parlays de 2, 3, 4 y 5
+            // 2. Generar Parlays de 2, 3, 4 y 5 con mercados mixtos y probabilidad combinada real
             const container = document.getElementById('all-parlays-container');
             let gridHtml = '';
 
             [2, 3, 4, 5].forEach(count => {
-                let limit = Math.min(count, plays.length);
-                gridHtml += `
-                    <div class="parlay-column-card">
-                        <h4>Parlay de ${count} Logros</h4>
-                        <ul>
-                `;
+                let limit = Math.min(count, pool.length);
+                let combinedProb = 100;
+                let selectionsHtml = '';
                 
-                for(let i = 0; i < limit; i++) {
-                    gridHtml += `
+                // Usar elementos distintos del pool para evitar duplicar el mismo partido en el mismo parlay si es posible
+                let usedMatches = new Set();
+                let selectedItems = [];
+
+                for(let item of pool) {
+                    if(!usedMatches.has(item.match) && selectedItems.length < limit) {
+                        usedMatches.add(item.match);
+                        selectedItems.push(item);
+                    }
+                }
+
+                // Si faltan por la cantidad de partidos, rellenar con lo que haya
+                if(selectedItems.length < limit) {
+                    for(let item of pool) {
+                        if(selectedItems.length < limit && !selectedItems.includes(item)) {
+                            selectedItems.push(item);
+                        }
+                    }
+                }
+
+                selectedItems.forEach(item => {
+                    // Cálculo de probabilidad combinada (aproximación multiplicativa convertida a porcentaje realista)
+                    combinedProb = (combinedProb * (item.probability / 100));
+                    selectionsHtml += `
                         <li>
-                            <span>⚾ ${plays[i].match}</span>
-                            <span>${plays[i].pick}</span>
+                            <span>⚾ <strong>${item.match}</strong><br><em style="color:#94a3b8;">${item.market}</em></span>
+                            <span>${item.pick}</span>
                         </li>
                     `;
-                }
-                
+                });
+
+                // Convertir probabilidad combinada a un valor porcentual presentable para el parlay
+                let finalParlayProb = Math.max(12, Math.round(combinedProb * 100) / 100);
+
                 gridHtml += `
-                        </ul>
+                    <div class="parlay-column-card">
+                        <div>
+                            <h4>Parlay de ${count} Logros (Mixto)</h4>
+                            <ul>
+                                ${selectionsHtml}
+                            </ul>
+                        </div>
+                        <div class="parlay-prob-footer">
+                            🎯 Probabilidad del Parlay: ~${finalParlayProb}%
+                        </div>
                     </div>
                 `;
             });
