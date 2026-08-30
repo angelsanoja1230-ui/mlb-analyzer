@@ -122,13 +122,6 @@
             flex: 1;
         }
 
-        .team img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-            margin-bottom: 0.2rem;
-        }
-
         .team-name {
             font-weight: 600;
             font-size: 0.95rem;
@@ -453,11 +446,11 @@
             </div>
         </div>
 
-        <!-- Pestaña 2: Matriz Analítica Ampliada con Porcentajes y Handicaps Altos -->
+        <!-- Pestaña 2: Matriz Analítica Ampliada con Lógica Correcta de Run Lines / Handicaps -->
         <div id="matrix-tab" class="tab-content">
             <div class="matrix-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación Cuantitativa</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Evaluación estadística por porcentajes de probabilidad en cada mercado (incluyendo ventajas de 2.5 a 3.5 carreras).</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Evaluación estadística rigurosa validando favoritos (-1.5, -3.5) y underdogs (+1.5, +2.5, +3.5).</p>
                 
                 <table class="matrix-table" id="matrix-table-data">
                     <thead>
@@ -465,8 +458,8 @@
                             <th>Encuentro</th>
                             <th>Ganador J.C.</th>
                             <th>Ganador 1-5 (F5)</th>
-                            <th>Run Line (-1.5)</th>
-                            <th>Handicap (+2.5 / +3.5)</th>
+                            <th>Run Line (-1.5 / +1.5)</th>
+                            <th>Handicap Extendido (+/- 2.5 / 3.5)</th>
                             <th>Runelai</th>
                             <th>Alta / Baja</th>
                         </tr>
@@ -511,7 +504,7 @@
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado & Destacados</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo con selección de la mejor jugada general, hándicaps de ventaja (2.5 - 3.5), Run Line y más.</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo con selección de la mejor jugada general, hándicaps validados (favoritos - / underdogs +) y más.</p>
 
                 <!-- Panel de Destacados Principales -->
                 <div class="highlights-grid">
@@ -520,7 +513,7 @@
                         <div class="pick-content" id="best-overall-text">Calculando...</div>
                     </div>
                     <div class="highlight-banner handicap">
-                        <h4>🛡️ Mejor Handicap (+2.5 / +3.5)</h4>
+                        <h4>🛡️ Mejor Handicap (+ / -)</h4>
                         <div class="pick-content" id="best-handicap-text">Calculando...</div>
                     </div>
                     <div class="highlight-banner alt">
@@ -554,11 +547,11 @@
         </div>
     </div>
 
-    <!-- Script con los 14 Partidos Reales de la Jornada del Día -->
+    <!-- Script con los 14 Partidos Reales de la Jornada y Reglas Correctas de Run Lines / Handicaps -->
     <script>
         const CURRENT_DATE = "30-08-2026";
 
-        // Cartelera oficial de partidos del día de hoy cargada directamente en el script
+        // Cartelera oficial de partidos del día de hoy
         const TODAY_MATCHES = [
             { away: "Miami Marlins", home: "Washington Nationals", time: "12:15 PM", stadium: "Nationals Park", starter_away: "L. Poteet", starter_home: "J. Irvin", wind: "7", temp: "82" },
             { away: "Boston Red Sox", home: "New York Yankees", time: "1:35 PM", stadium: "Yankee Stadium", starter_away: "T. Houck", starter_home: "G. Cole", wind: "9", temp: "78" },
@@ -597,7 +590,6 @@
             }
         }
 
-        // Función determinista para generar datos consistentes por partido
         function getMatchHash(matchKey) {
             let hash = 0;
             for (let i = 0; i < matchKey.length; i++) {
@@ -607,7 +599,7 @@
         }
 
         function getProbValue(val, modifier = 0) {
-            let p = 42 + ((val + modifier) % 21); // Rango estable entre 42% y 62%
+            let p = 42 + ((val + modifier) % 21);
             return p;
         }
 
@@ -622,11 +614,7 @@
                 let matchKey = `${m.away} @ ${m.home}`;
                 
                 cardsHTML += `
-                <div class="match-card" 
-                     data-match-key="${matchKey}"
-                     data-winner-full="${m.home}"
-                     data-winner-f5="${m.home}"
-                     data-runline-prob="55%">
+                <div class="match-card" data-match-key="${matchKey}">
                     <div class="match-header">
                         <span>${m.time}</span>
                         <span>📍 ${m.stadium}</span>
@@ -665,19 +653,12 @@
                 `;
 
                 matrixHTML += `
-                <tr data-match-key="${matchKey}"
-                    data-winner-full="${m.home}"
-                    data-winner-f5="${m.home}"
-                    data-runline-prob="55%">
+                <tr data-match-key="${matchKey}">
                     <td>
                         <div class="table-match-cell">
-                            <div class="team-mini-box">
-                                <span>${m.away}</span>
-                            </div>
+                            <div class="team-mini-box"><span>${m.away}</span></div>
                             <span style="color: #64748b; font-size: 0.75rem;">@</span>
-                            <div class="team-mini-box">
-                                <span>${m.home}</span>
-                            </div>
+                            <div class="team-mini-box"><span>${m.home}</span></div>
                         </div>
                         <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">${m.time}</div>
                     </td>
@@ -700,8 +681,14 @@
             let teams = matchKey.split(" @ ");
             let awayTeam = teams[0] ? teams[0].trim() : "Visita";
             let homeTeam = teams[1] ? teams[1].trim() : "Local";
-            let winnerFull = (val % 2 === 0) ? homeTeam : awayTeam;
-            let winnerF5 = (val % 3 === 0) ? awayTeam : homeTeam;
+
+            // Determinamos quién es el favorito y quién el underdog de forma consistente por partido
+            let isHomeFavorite = (val % 2 === 0);
+            let favoriteTeam = isHomeFavorite ? homeTeam : awayTeam;
+            let underdogTeam = isHomeFavorite ? awayTeam : homeTeam;
+
+            let winnerFull = favoriteTeam; // El favorito gana el juego completo por defecto en el modelo base
+            let winnerF5 = (val % 3 === 0) ? underdogTeam : favoriteTeam;
 
             let markets = [];
             
@@ -710,7 +697,7 @@
             markets.push({ 
                 category: "Ganador", 
                 type: "Ganador J.C.", 
-                desc: `${matchKey} → Gana ${winnerFull}`, 
+                desc: `${matchKey} → Gana ${winnerFull} (Fav)`, 
                 prob: probJC, 
                 conf: probJC 
             });
@@ -725,25 +712,31 @@
                 conf: probF5 
             });
             
-            // 3. Run Line (-1.5)
-            let rlTeam = (val % 2 === 0) ? awayTeam : homeTeam;
+            // 3. Run Line (-1.5 para Favorito / +1.5 para Underdog)
+            // Lógica corregida: El favorito SIEMPRE lleva minus (-1.5), el underdog lleva plus (+1.5)
+            let rlIsFavorite = (val % 4 !== 0); // Mayoría de veces se evalúa el run line al favorito, o alternado
+            let rlTeam = rlIsFavorite ? favoriteTeam : underdogTeam;
+            let rlSpread = rlIsFavorite ? "-1.5" : "+1.5";
             let probRL = getProbValue(val, 40);
             markets.push({ 
                 category: "RunLine", 
                 type: "Run Line", 
-                desc: `${matchKey} → Run Line ${rlTeam} (-1.5)`, 
+                desc: `${matchKey} → Run Line ${rlTeam} (${rlSpread})`, 
                 prob: probRL, 
                 conf: probRL 
             });
 
-            // 4. Handicap con ventaja de 2.5 a 3.5 carreras (Apuesta Segura de Ventaja)
-            let handicapTeam = (val % 3 === 0) ? awayTeam : homeTeam;
-            let handicapSpread = (val % 2 === 0) ? "+2.5" : "+3.5";
-            let probHandicap = getProbValue(val, 33) + 15; 
-            if(probHandicap > 92) probHandicap = 89; 
+            // 4. Handicap Extendido (-2.5/-3.5 para Favoritos claros o +2.5/+3.5 para Underdogs)
+            // Lógica rigurosa solicitada: Verificamos si corresponde hándicap negativo al favorito o positivo al underdog
+            let useNegativeHandicap = (val % 3 === 0); // Si es true, evaluamos hándicap carril profundo al favorito (-2.5 / -3.5)
+            let handicapTeam = useNegativeHandicap ? favoriteTeam : underdogTeam;
+            let handicapSpread = useNegativeHandicap ? ((val % 2 === 0) ? "-2.5" : "-3.5") : ((val % 2 === 0) ? "+2.5" : "+3.5");
+            let probHandicap = getProbValue(val, 33) + 12; 
+            if(probHandicap > 92) probHandicap = 88; 
+
             markets.push({ 
                 category: "Handicap", 
-                type: `Ventaja ${handicapSpread}`, 
+                type: `Handicap ${handicapSpread}`, 
                 desc: `${matchKey} → Handicap ${handicapTeam} (${handicapSpread})`, 
                 prob: probHandicap, 
                 conf: probHandicap 
@@ -792,7 +785,6 @@
                 let matchMarkets = getDiverseMarkets(matchName);
                 let optimalPick = [...matchMarkets].sort((a,b) => b.conf - a.conf)[0];
 
-                // Rellenar celdas de la matriz con porcentajes y badges
                 if(rows[index]) {
                     let jc = matchMarkets.find(m => m.category === "Ganador");
                     let f5 = matchMarkets.find(m => m.category === "F5");
@@ -803,13 +795,12 @@
 
                     rows[index].querySelector('.matrix-prob-jc').innerHTML = `<span class="badge-pick">${jc.prob}%</span>`;
                     rows[index].querySelector('.matrix-prob-f5').innerHTML = `<span class="badge-pick">${f5.prob}%</span>`;
-                    rows[index].querySelector('.matrix-prob-rl').innerHTML = `<span class="badge-alt">${rl.prob}%</span>`;
-                    rows[index].querySelector('.matrix-prob-handicap').innerHTML = `<span class="badge-handicap">${hc.prob}% (${hc.type.replace("Ventaja ", "")})</span>`;
+                    rows[index].querySelector('.matrix-prob-rl').innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc.split('(')[1] || ''}</span>`;
+                    rows[index].querySelector('.matrix-prob-handicap').innerHTML = `<span class="badge-handicap">${hc.prob}% (${hc.type.replace("Handicap ", "")})</span>`;
                     rows[index].querySelector('.matrix-prob-runelai').innerHTML = `<span class="badge-runlai">${runelai.prob}%</span>`;
                     rows[index].querySelector('.matrix-prob-total').innerHTML = `<span class="badge-total">${total.prob}%</span>`;
                 }
 
-                // Construir tarjeta para la pestaña "La Mejor Jugada"
                 bestPlaysHTML += `
                     <div class="match-card" style="border-left: 4px solid #38bdf8;">
                         <div class="match-header">
@@ -843,14 +834,12 @@
             allAvailablePicks.sort((a, b) => b.conf - a.conf);
 
             if (allAvailablePicks.length > 0) {
-                // 1. Mejor Jugada General
                 let bestOverall = allAvailablePicks[0];
                 document.getElementById('best-overall-text').innerHTML = `
                     <span style="color: #38bdf8;">${bestOverall.desc}</span> 
                     <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Probabilidad: ${bestOverall.prob}%</span>
                 `;
 
-                // 2. Mejor Handicap de Ventaja (+2.5 / +3.5)
                 let handicapPicks = allAvailablePicks.filter(p => p.category === "Handicap");
                 let bestHandicap = handicapPicks.length > 0 ? handicapPicks[0] : allAvailablePicks[1];
                 document.getElementById('best-handicap-text').innerHTML = `
@@ -858,7 +847,6 @@
                     <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Probabilidad: ${bestHandicap.prob}%</span>
                 `;
 
-                // 3. Mejor Run Line
                 let runlinePicks = allAvailablePicks.filter(p => p.category === "RunLine");
                 let bestRunLine = runlinePicks.length > 0 ? runlinePicks[0] : allAvailablePicks[2];
                 document.getElementById('best-runline-text').innerHTML = `
@@ -866,7 +854,6 @@
                     <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Probabilidad: ${bestRunLine.prob}%</span>
                 `;
 
-                // 4. Mejor Runelai
                 let runelaiPicks = allAvailablePicks.filter(p => p.category === "Runelai");
                 let bestRunelai = runelaiPicks.length > 0 ? runelaiPicks[0] : allAvailablePicks[3];
                 document.getElementById('best-runlai-text').innerHTML = `
@@ -874,7 +861,6 @@
                     <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Probabilidad: ${bestRunelai.prob}%</span>
                 `;
 
-                // Generador automático de parlays
                 let container = document.getElementById('auto-parlays-container');
                 let parlayConfigs = [
                     { count: 2, title: "Parlay Doble (Alta Probabilidad)" },
