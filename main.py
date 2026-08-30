@@ -72,46 +72,49 @@ def extract_best_plays(simulated_matches):
         prob_away = match.get('prob_away', 50)
         prob_home = match.get('prob_home', 50)
         
-        if prob_away >= 55:
+        # Seleccionar el ganador proyectado de cada encuentro
+        if prob_away >= prob_home:
             best_plays.append({
                 "match": f"{match['away']} @ {match['home']}",
                 "pick": f"Ganador: {match['away']}",
                 "confidence": prob_away,
                 "confidence_str": f"{prob_away}% Probabilidad",
                 "type": "Moneyline Visitante",
-                "reason": match.get('value_bet', 'Alta ventaja proyectada.')
+                "reason": match.get('value_bet', 'Alta ventaja proyectada por Monte Carlo.')
             })
-        elif prob_home >= 55:
+        else:
             best_plays.append({
                 "match": f"{match['away']} @ {match['home']}",
                 "pick": f"Ganador: {match['home']}",
                 "confidence": prob_home,
                 "confidence_str": f"{prob_home}% Probabilidad",
                 "type": "Moneyline Local",
-                "reason": match.get('value_bet', 'Alta ventaja proyectada.')
+                "reason": match.get('value_bet', 'Alta ventaja proyectada por Monte Carlo.')
             })
             
+        # Añadir opción de F5 (Primeras 5 entradas) si el usuario lo desea o para dar más variedad
         f5_away = match.get('f5_away', 50)
         f5_home = match.get('f5_home', 50)
-        if f5_away >= 56:
+        if f5_away > f5_home:
             best_plays.append({
                 "match": f"{match['away']} @ {match['home']}",
                 "pick": f"F5: {match['away']}",
                 "confidence": f5_away,
                 "confidence_str": f"{f5_away}% Probabilidad F5",
                 "type": "First 5 Innings",
-                "reason": f"Sólido rendimiento analítico del abridor visitante."
+                "reason": f"Sólido rendimiento analítico del abridor visitante en F5."
             })
-        elif f5_home >= 56:
+        else:
             best_plays.append({
                 "match": f"{match['away']} @ {match['home']}",
                 "pick": f"F5: {match['home']}",
                 "confidence": f5_home,
                 "confidence_str": f"{f5_home}% Probabilidad F5",
                 "type": "First 5 Innings",
-                "reason": f"Sólido rendimiento analítico del abridor local."
+                "reason": f"Sólido rendimiento analítico del abridor local en F5."
             })
             
+    # Ordenar de mayor a menor confianza para garantizar que los mejores lideren las listas y parlays
     best_plays.sort(key=lambda x: x['confidence'], reverse=True)
     return best_plays
 
