@@ -97,19 +97,6 @@
             border-radius: 10px;
             padding: 1.2rem;
             border: 1px solid #334155;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            position: relative;
-        }
-
-        .match-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        .mega-play-border {
-            border: 2px solid #f59e0b;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
-            background: linear-gradient(145deg, #1e293b, #263348);
         }
 
         .match-header {
@@ -194,22 +181,12 @@
             font-size: 0.8rem;
             text-align: center;
             font-weight: 600;
-            margin-bottom: 0;
-        }
-
-        .highlight-ev {
-            background-color: rgba(245, 158, 11, 0.15);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.4);
-        }
-
-        .normal-ev {
             background-color: #0f172a;
             color: #64748b;
             border: 1px solid #334155;
         }
 
-        /* Estilos Compactos para la Matriz / Tabla Detallada */
+        /* Matriz de Datos */
         .matrix-container {
             background-color: #1e293b;
             border: 1px solid #334155;
@@ -228,22 +205,18 @@
         .matrix-table th {
             background-color: #0f172a;
             color: #38bdf8;
-            padding: 8px 8px;
+            padding: 8px;
             font-weight: 600;
             border-bottom: 2px solid #334155;
             white-space: nowrap;
         }
 
         .matrix-table td {
-            padding: 8px 8px;
+            padding: 8px;
             border-bottom: 1px solid #334155;
             color: #cbd5e1;
             white-space: nowrap;
             vertical-align: middle;
-        }
-
-        .matrix-table tr:hover {
-            background-color: rgba(56, 189, 248, 0.04);
         }
 
         .badge-pick {
@@ -293,129 +266,6 @@
             border-radius: 10px;
             padding: 1.5rem;
         }
-
-        /* Estilos del Generador de Parlay con Mercados Mixtos */
-        .lock-of-the-day {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(15, 23, 42, 0.8));
-            border: 2px solid #f59e0b;
-            border-radius: 10px;
-            padding: 1.2rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
-        }
-
-        .lock-of-the-day h3 {
-            color: #fbbf24;
-            font-size: 1.1rem;
-            margin-bottom: 0.4rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .lock-content {
-            font-size: 0.95rem;
-            color: #f8fafc;
-            font-weight: 600;
-        }
-
-        .parlay-grid-all {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1rem;
-        }
-
-        .parlay-column-card {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .parlay-column-card h4 {
-            color: #38bdf8;
-            font-size: 0.95rem;
-            margin-bottom: 0.6rem;
-            border-bottom: 1px solid #1e293b;
-            padding-bottom: 0.4rem;
-            text-align: center;
-        }
-
-        .parlay-column-card ul {
-            list-style: none;
-            flex-grow: 1;
-            margin-bottom: 0.8rem;
-        }
-
-        .parlay-column-card li {
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(51, 65, 85, 0.4);
-            font-size: 0.78rem;
-            color: #cbd5e1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .parlay-column-card li span:last-child {
-            color: #38bdf8;
-            font-weight: 600;
-            text-align: right;
-        }
-
-        .parlay-prob-footer {
-            background-color: rgba(56, 189, 248, 0.08);
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            border-radius: 6px;
-            padding: 6px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #34d399;
-            font-weight: bold;
-        }
-
-        /* Estilos para el Panel de Análisis Avanzado */
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .analytics-card {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 1rem;
-        }
-
-        .analytics-card h3 {
-            color: #38bdf8;
-            font-size: 0.95rem;
-            margin-bottom: 0.6rem;
-            border-bottom: 1px solid #1e293b;
-            padding-bottom: 0.4rem;
-        }
-
-        .analytics-stat-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: #cbd5e1;
-            padding: 4px 0;
-            border-bottom: 1px dashed rgba(51, 65, 85, 0.5);
-        }
-
-        .analytics-stat-row span:last-child {
-            font-weight: 600;
-            color: #fbbf24;
-        }
     </style>
 </head>
 <body>
@@ -423,27 +273,20 @@
         <!-- Cabecera -->
         <header>
             <h1>MLB</h1>
-            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Pronóstico Cuantitativo Avanzado</p>
+            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Pronóstico Cuantitativo</p>
         </header>
 
         <!-- Pestañas de Navegación -->
         <div class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">Partidos del Día</button>
-            <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Matriz de Porcentajes y Jugadas</button>
-            <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">Generador de Parlay</button>
-            <button class="tab-btn" onclick="switchTab(event, 'saved-tab')">Pronósticos Guardados</button>
-            <button class="tab-btn" onclick="switchTab(event, 'analytics-tab')">Análisis Avanzado</button>
+            <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Matriz de Porcentajes</button>
         </div>
 
         <!-- Pestaña 1: Partidos (Tarjetas) -->
         <div id="matches-tab" class="tab-content active">
             <div class="matches-grid">
                 {% for match in matches %}
-                <div class="match-card {% if match.is_mega_play %}mega-play-border{% endif %}" 
-                     data-away="{{ match.away }}" 
-                     data-home="{{ match.home }}" 
-                     data-prob-away="{{ match.prob_away }}" 
-                     data-prob-home="{{ match.prob_home }}">
+                <div class="match-card">
                     <div class="match-header">
                         <span>{{ match.time }}</span>
                         <span>📍 {{ match.stadium }}</span>
@@ -481,7 +324,7 @@
                         <div><strong>Clima:</strong> Viento {{ match.wind_speed_mph }} mph | Temp: {{ match.temperature_f }}°F</div>
                     </div>
 
-                    <div class="recommendation-box {% if match.is_mega_play %}highlight-ev{% else %}normal-ev{% endif %}">
+                    <div class="recommendation-box">
                         {{ match.recommendation_text }}
                     </div>
                 </div>
@@ -489,35 +332,26 @@
             </div>
         </div>
 
-        <!-- Pestaña 2: Matriz Analítica Compacta con Logos -->
+        <!-- Pestaña 2: Matriz Analítica Compacta -->
         <div id="matrix-tab" class="tab-content">
             <div class="matrix-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Porcentajes y Recomendaciones</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Desglose optimizado para evitar desbordes en pantalla con integración visual de logotipos.</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Desglose estadístico general de la jornada.</p>
                 
-                <table class="matrix-table" id="matrix-data-table">
+                <table class="matrix-table">
                     <thead>
                         <tr>
                             <th>Encuentro</th>
-                            <th>Ganador Juego Completo (%)</th>
-                            <th>Ganador 1ro - 5to Inning (%)</th>
-                            <th>1er Inning (SÍ / NO)</th>
-                            <th>Jugada Sugerida 1er Inning (%)</th>
-                            <th>Run Line Probable (-1.5 / +1.5)</th>
+                            <th>Ganador Juego Completo</th>
+                            <th>Ganador 1ro - 5to Inning (F5)</th>
+                            <th>Run Line Probable</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for match in matches %}
-                        <tr data-match-key="{{ match.away }} @ {{ match.home }}"
-                            data-away-team="{{ match.away }}"
-                            data-home-team="{{ match.home }}"
-                            data-time="{{ match.time }}"
-                            data-winner-full="{{ match.winner_full_text }}"
-                            data-winner-f5="{{ match.winner_f5_text }}"
-                            data-runline-prob="{{ match.run_line_prob_text }}">
+                        <tr>
                             <td>
                                 <div class="table-match-cell">
-                                    <!-- Logotipo Visita -->
                                     <div class="team-mini-box">
                                         {% if team_logos and match.away in team_logos %}
                                         <img src="{{ team_logos[match.away] }}" alt="{{ match.away }}">
@@ -525,7 +359,6 @@
                                         <span>{{ match.away }}</span>
                                     </div>
                                     <span style="color: #64748b; font-size: 0.75rem;">@</span>
-                                    <!-- Logotipo Local -->
                                     <div class="team-mini-box">
                                         {% if team_logos and match.home in team_logos %}
                                         <img src="{{ team_logos[match.home] }}" alt="{{ match.home }}">
@@ -533,21 +366,13 @@
                                         <span>{{ match.home }}</span>
                                     </div>
                                 </div>
-                                <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">{{ match.time }} | {{ match.starter_away }} vs {{ match.starter_home }}</div>
+                                <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">{{ match.time }}</div>
                             </td>
                             <td>
                                 <span class="badge-pick">{{ match.winner_full_text }}</span>
                             </td>
                             <td>
                                 <span class="badge-alt">{{ match.winner_f5_text }}</span>
-                            </td>
-                            <td>
-                                <!-- Se asigna dinámicamente en JS para que varíe por partido -->
-                                <span class="matrix-nrfi-choice" style="font-weight: 700; font-size: 0.75rem;">Calculando...</span>
-                            </td>
-                            <td>
-                                <!-- Se asigna dinámicamente en JS -->
-                                <span class="badge-pick matrix-nrfi-badge" style="background-color: rgba(16, 185, 129, 0.12); color: #34d399;">Calculando...</span>
                             </td>
                             <td>
                                 <span class="badge-pick" style="background-color: rgba(245, 158, 11, 0.12); color: #fbbf24;">
@@ -560,114 +385,10 @@
                 </table>
             </div>
         </div>
-
-        <!-- Pestaña 3: Generador de Parlay Dinámico con Mercados Mixtos -->
-        <div id="parlay-tab" class="tab-content">
-            <div class="parlay-section">
-                <h2 style="color: #38bdf8; text-align: center; font-size: 1.2rem; margin-bottom: 0.3rem;">Centro de Apuestas y Generador Automático</h2>
-                <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Combinación inteligente con variedad de mercados (F5, Fija, Run Line, 1er Inning y Extra Innings con distribución real y variedad de equipos).</p>
-
-                <!-- Botón de actualización manual para cambiar jugadas al instante -->
-                <div style="text-align: center; margin-bottom: 1.2rem;">
-                    <button onclick="generateAllParlaysAndLock()" style="background-color: #38bdf8; color: #0f172a; border: none; padding: 0.5rem 1.2rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 10px rgba(56, 189, 248, 0.2);">🎲 Generar Nuevas Jugadas Variadas</button>
-                </div>
-
-                <!-- Jugada Fija / Mejor Jugada del Día -->
-                <div class="lock-of-the-day" id="best-lock-container">
-                    <h3>⭐ MEJOR JUGADA / FIJA DEL DÍA</h3>
-                    <div class="lock-content" id="lock-text">Calculando la mejor opción con solidez estadística...</div>
-                </div>
-
-                <!-- Grid con Parlays de 2, 3, 4 y 5 simultáneos -->
-                <div class="parlay-grid-all" id="all-parlays-container">
-                    <!-- Se llena dinámicamente con JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Pestaña 4: Pronósticos Guardados -->
-        <div id="saved-tab" class="tab-content">
-            <div class="parlay-section">
-                <h2 style="color: #38bdf8; text-align: center; font-size: 1.2rem; margin-bottom: 0.8rem;">Historial y Seguimiento Automático</h2>
-                <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Pronósticos consolidados registrados para la jornada actual.</p>
-                
-                <div class="parlay-card-list" id="saved-predictions-list" style="background-color: #0f172a; padding: 1.2rem; border-radius: 6px; border: 1px dashed #334155; min-height: 130px;"></div>
-                <button onclick="clearSaved()" style="margin-top: 1rem; background: #ef4444; color: #fff; border: none; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">Forzar Nueva Actualización</button>
-            </div>
-        </div>
-
-        <!-- Pestaña 5: Análisis Avanzado -->
-        <div id="analytics-tab" class="tab-content">
-            <div class="parlay-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <h2 style="color: #38bdf8; font-size: 1.2rem; margin-bottom: 0.2rem;">Panel de Métricas y Factores Climáticos</h2>
-                        <p style="color: #94a3b8; font-size: 0.85rem;">Simulaciones cuantitativas y desglose de impacto de bullpen.</p>
-                    </div>
-                    <button onclick="runMonteCarloSimulation()" style="background-color: #38bdf8; color: #0f172a; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">🔄 Ejecutar Simulación</button>
-                </div>
-
-                <div class="analytics-grid" id="monte-carlo-results">
-                    <div class="analytics-card">
-                        <h3>📈 Factor Parque & Viento (Impacto Ofensivo)</h3>
-                        <div class="analytics-stat-row"><span>Promedio Factor Viento:</span> <span>+4.2% Carreras</span></div>
-                        <div class="analytics-stat-row"><span>Estadios Favorables Over:</span> <span>Coors / Great American</span></div>
-                        <div class="analytics-stat-row"><span>Estadios Favorables Under:</span> <span>Oracle Park / Petco</span></div>
-                    </div>
-                    <div class="analytics-card">
-                        <h3>🛡️ Eficiencia de Bullpens (F5 vs Finales)</h3>
-                        <div class="analytics-stat-row"><span>Bullpen ERA Promedio:</span> <span>3.88</span></div>
-                        <div class="analytics-stat-row"><span>Alta Fiabilidad (Top 25%):</span> <span>Yankees / Dodgers / Guardians</span></div>
-                        <div class="analytics-stat-row"><span>Alta Volatilidad (Fondo):</span> <span>Rockies / White Sox</span></div>
-                    </div>
-                    <div class="analytics-card">
-                        <h3>🎯 Modelo de Valor Esperado (EV+)</h3>
-                        <div class="analytics-stat-row"><span>Estrategia Detectada:</span> <span>Moneyline Home Underdogs</span></div>
-                        <div class="analytics-stat-row"><span>Tasa de Acierto Histórica:</span> <span>54.8%</span></div>
-                        <div class="analytics-stat-row"><span>Rentabilidad Simulada (ROI):</span> <span>+6.4%</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Scripts de Funcionalidad -->
+    <!-- Script Básico para las Pestañas -->
     <script>
-        const CURRENT_JORNADA_DATE = "30-08-2026";
-
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById('current-date-label').innerText = CURRENT_JORNADA_DATE;
-            populateMatrixDynamicElements();
-            autoSaveMatrixPredictions();
-            generateAllParlaysAndLock();
-        });
-
-        function populateMatrixDynamicElements() {
-            const rows = document.querySelectorAll('#matrix-data-table tbody tr');
-            rows.forEach((row, index) => {
-                // Distribución independiente para 1er Inning por cada partido
-                const isNrfi = (index % 2 === 0) || (Math.random() > 0.45);
-                const nrfiText = isNrfi ? "NO Habrá 1er Inning (NRFI)" : "SÍ Habrá 1er Inning (YRFI)";
-                const nrfiColor = isNrfi ? "#fbbf24" : "#38bdf8";
-                const probVal = (isNrfi ? 65 : 55) + Math.floor(Math.random() * 10) + "%";
-
-                const choiceSpan = row.querySelector('.matrix-nrfi-choice');
-                const badgeSpan = row.querySelector('.matrix-nrfi-badge');
-
-                if(choiceSpan) {
-                    choiceSpan.innerText = isNrfi ? "NO" : "SÍ";
-                    choiceSpan.style.color = nrfiColor;
-                }
-                if(badgeSpan) {
-                    badgeSpan.innerText = `${isNrfi ? 'NRFI' : 'YRFI'} (${probVal})`;
-                }
-
-                // Guardar los valores calculados en atributos para el almacenamiento y parlays
-                row.setAttribute('data-nrfi-choice', isNrfi ? "NO Habrá 1er Inning (NRFI)" : "SÍ Habrá 1er Inning (YRFI)");
-                row.setAttribute('data-nrfi-prob', probVal);
-            });
-        }
-
         function switchTab(evt, tabId) {
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(c => c.classList.remove('active'));
@@ -677,247 +398,6 @@
 
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
-
-            if(tabId === 'saved-tab') {
-                renderSavedPredictions();
-            } else if(tabId === 'parlay-tab') {
-                generateAllParlaysAndLock();
-            }
-        }
-
-        function autoSaveMatrixPredictions() {
-            let storedData = JSON.parse(localStorage.getItem('saved_matrix_jornada') || '{}');
-            
-            if (storedData.date !== CURRENT_JORNADA_DATE) {
-                let rows = document.querySelectorAll('#matrix-data-table tbody tr');
-                let matrixPredictions = [];
-
-                rows.forEach(row => {
-                    matrixPredictions.push({
-                        match: row.getAttribute('data-match-key'),
-                        winnerFull: row.getAttribute('data-winner-full'),
-                        winnerF5: row.getAttribute('data-winner-f5'),
-                        nrfiChoice: row.getAttribute('data-nrfi-choice'),
-                        nrfiProb: row.getAttribute('data-nrfi-prob'),
-                        runlineProb: row.getAttribute('data-runline-prob')
-                    });
-                });
-
-                storedData = {
-                    date: CURRENT_JORNADA_DATE,
-                    predictions: matrixPredictions
-                };
-
-                localStorage.setItem('saved_matrix_jornada', JSON.stringify(storedData));
-            }
-        }
-
-        function renderSavedPredictions() {
-            const container = document.getElementById('saved-predictions-list');
-            let storedData = JSON.parse(localStorage.getItem('saved_matrix_jornada') || '{}');
-            
-            if(!storedData.predictions || storedData.predictions.length === 0) {
-                container.innerHTML = '<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay pronósticos registrados.</p>';
-                return;
-            }
-
-            let html = `<p style="color: #fbbf24; font-weight: bold; font-size: 0.85rem; margin-bottom: 0.8rem;">📅 Jornada Registrada: ${storedData.date}</p>`;
-            html += '<ul style="list-style: none;">';
-            
-            storedData.predictions.forEach((item) => {
-                html += `<li style="border-bottom: 1px solid #1e293b; padding: 8px 0;">
-                    <div style="color: #38bdf8; font-weight: bold; font-size: 0.85rem; margin-bottom: 2px;">⚾ ${item.match}</div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 4px; font-size: 0.75rem; color: #cbd5e1;">
-                        <div>🏆 <strong>J.C.:</strong> ${item.winnerFull}</div>
-                        <div>⚡ <strong>F5:</strong> ${item.winnerF5}</div>
-                        <div>🎯 <strong>1er Inning:</strong> ${item.nrfiChoice} (${item.nrfiProb})</div>
-                        <div>📐 <strong>Run Line:</strong> ${item.runlineProb}</div>
-                    </div>
-                </li>`;
-            });
-            html += '</ul>';
-            container.innerHTML = html;
-        }
-
-        function clearSaved() {
-            if(confirm('¿Deseas limpiar el registro actual?')) {
-                localStorage.removeItem('saved_matrix_jornada');
-                populateMatrixDynamicElements();
-                autoSaveMatrixPredictions();
-                renderSavedPredictions();
-                alert('¡Jornada actualizada correctamente!');
-            }
-        }
-
-        function getMixedBetPool() {
-            const rows = document.querySelectorAll('#matrix-data-table tbody tr');
-            let pool = [];
-
-            rows.forEach((row, index) => {
-                const matchKey = row.getAttribute('data-match-key');
-                const winnerFull = row.getAttribute('data-winner-full');
-                const winnerF5 = row.getAttribute('data-winner-f5');
-                const nrfiChoice = row.getAttribute('data-nrfi-choice');
-                const nrfiProbStr = row.getAttribute('data-nrfi-prob');
-                const runlineProb = row.getAttribute('data-runline-prob');
-
-                const baseProb = 56 + (index % 5) + Math.floor(Math.random() * 8);
-                const nrfiProbNum = parseInt(nrfiProbStr) || 62;
-
-                // 1. Ganador Juego Completo
-                pool.push({
-                    match: matchKey,
-                    market: `Ganador Juego Completo`,
-                    pick: winnerFull,
-                    probability: baseProb
-                });
-
-                // 2. Ganador 1ro - 5to Inning (F5)
-                pool.push({
-                    match: matchKey,
-                    market: `Ganador 1er-5to Inning (F5)`,
-                    pick: winnerF5,
-                    probability: baseProb - 2
-                });
-
-                // 3. 1er Inning (NRFI / YRFI)
-                pool.push({
-                    match: matchKey,
-                    market: `1er Inning (Carrera)`,
-                    pick: nrfiChoice,
-                    probability: nrfiProbNum
-                });
-
-                // 4. Run Line (-1.5 / +1.5)
-                pool.push({
-                    match: matchKey,
-                    market: `Run Line`,
-                    pick: runlineProb,
-                    probability: baseProb - 5
-                });
-
-                // 5. Extra Innings con distribución variada y balanceada por partido
-                const isExtraInnings = (index % 3 === 0) || (Math.random() < 0.35);
-                const extraInningsPick = isExtraInnings ? "SÍ Habrá Extra Innings" : "NO Habrá Extra Innings";
-                const extraInningsProb = isExtraInnings ? (26 + Math.floor(Math.random() * 10)) : (68 + Math.floor(Math.random() * 12));
-
-                pool.push({
-                    match: matchKey,
-                    market: `Extra Innings`,
-                    pick: extraInningsPick,
-                    probability: extraInningsProb
-                });
-            });
-
-            // Mezclar aleatoriamente el pool de apuestas para asegurar diversidad
-            for (let i = pool.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [pool[i], pool[j]] = [pool[j], pool[i]];
-            }
-
-            return pool;
-        }
-
-        function generateAllParlaysAndLock() {
-            let pool = getMixedBetPool();
-            
-            if(pool.length === 0) return;
-
-            // Ordenar por probabilidad descendente para la Fija / Mejor Jugada del Día
-            pool.sort((a, b) => b.probability - a.probability);
-
-            // 1. Asignar la Mejor Jugada / Fija asegurando variedad
-            const bestLock = pool[0];
-            document.getElementById('lock-text').innerHTML = `
-                <span style="color: #38bdf8;">${bestLock.match}</span> — 
-                <span style="color: #fbbf24;">[${bestLock.market}]</span> 
-                <span style="color: #34d399;">${bestLock.pick}</span> 
-                <span style="background: rgba(56, 189, 248, 0.15); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; margin-left: 6px;">Probabilidad: ${bestLock.probability}%</span>
-            `;
-
-            // 2. Generar Parlays de 2, 3, 4 y 5 con mercados mixtos y equipos diferentes
-            const container = document.getElementById('all-parlays-container');
-            let gridHtml = '';
-
-            [2, 3, 4, 5].forEach(count => {
-                let limit = Math.min(count, pool.length);
-                let combinedProb = 100;
-                let selectionsHtml = '';
-                
-                let usedMatches = new Set();
-                let selectedItems = [];
-
-                for(let item of pool) {
-                    if(!usedMatches.has(item.match) && selectedItems.length < limit) {
-                        usedMatches.add(item.match);
-                        selectedItems.push(item);
-                    }
-                }
-
-                if(selectedItems.length < limit) {
-                    for(let item of pool) {
-                        if(selectedItems.length < limit && !selectedItems.includes(item)) {
-                            selectedItems.push(item);
-                        }
-                    }
-                }
-
-                selectedItems.forEach(item => {
-                    combinedProb = (combinedProb * (item.probability / 100));
-                    selectionsHtml += `
-                        <li>
-                            <span>⚾ <strong>${item.match}</strong><br><em style="color:#94a3b8;">${item.market}</em></span>
-                            <span>${item.pick}</span>
-                        </li>
-                    `;
-                });
-
-                let finalParlayProb = Math.max(12, Math.round(combinedProb * 100) / 100);
-
-                gridHtml += `
-                    <div class="parlay-column-card">
-                        <div>
-                            <h4>Parlay de ${count} Logros (Mixto)</h4>
-                            <ul>
-                                ${selectionsHtml}
-                            </ul>
-                        </div>
-                        <div class="parlay-prob-footer">
-                            🎯 Probabilidad del Parlay: ~${finalParlayProb}%
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = gridHtml;
-        }
-
-        function runMonteCarloSimulation() {
-            const container = document.getElementById('monte-carlo-results');
-            const randomWindImpact = (Math.random() * 2 + 3.5).toFixed(1);
-            const randomBullpenEra = (Math.random() * 0.4 + 3.65).toFixed(2);
-            const randomRoi = (Math.random() * 3 + 5.2).toFixed(1);
-
-            container.innerHTML = `
-                <div class="analytics-card">
-                    <h3>📈 Factor Parque & Viento (Impacto Ofensivo)</h3>
-                    <div class="analytics-stat-row"><span>Promedio Factor Viento:</span> <span>+${randomWindImpact}% Carreras</span></div>
-                    <div class="analytics-stat-row"><span>Estadios Favorables Over:</span> <span>Coors / Great American</span></div>
-                    <div class="analytics-stat-row"><span>Estadios Favorables Under:</span> <span>Oracle Park / Petco</span></div>
-                </div>
-                <div class="analytics-card">
-                    <h3>🛡️ Eficiencia de Bullpens (F5 vs Finales)</h3>
-                    <div class="analytics-stat-row"><span>Bullpen ERA Promedio:</span> <span>${randomBullpenEra}</span></div>
-                    <div class="analytics-stat-row"><span>Alta Fiabilidad (Top 25%):</span> <span>Yankees / Dodgers / Guardians</span></div>
-                    <div class="analytics-stat-row"><span>Alta Volatilidad (Fondo):</span> <span>Rockies / White Sox</span></div>
-                </div>
-                <div class="analytics-card">
-                    <h3>🎯 Modelo de Valor Esperado (EV+)</h3>
-                    <div class="analytics-stat-row"><span>Estrategia Detectada:</span> <span>Moneyline Home Underdogs</span></div>
-                    <div class="analytics-stat-row"><span>Tasa de Acierto Histórica:</span> <span>55.4%</span></div>
-                    <div class="analytics-stat-row"><span>Rentabilidad Simulada (ROI):</span> <span>+${randomRoi}%</span></div>
-                </div>
-            `;
         }
     </script>
 </body>
