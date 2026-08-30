@@ -4,116 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Cuantitativo MLB 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-main: #0f172a;
-            --bg-card: #1e293b;
-            --border-color: #334155;
-            --accent-color: #38bdf8;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --success: #4ade80;
+            --bg-base: #090d16;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-subtle: #374151;
+            --border-accent: #0ea5e9;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --success: #34d399;
+            --success-bg: rgba(52, 211, 153, 0.1);
             --warning: #fbbf24;
-            --danger: #ef4444;
+            --danger: #f87171;
+            --danger-bg: rgba(248, 113, 113, 0.1);
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         body {
-            background-color: var(--bg-main);
+            background-color: var(--bg-base);
             color: var(--text-main);
-            padding: 1rem;
-            line-height: 1.5;
+            padding: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: 100vh;
         }
 
         header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-card) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }
 
         h1 {
-            font-size: 1.5rem;
-            color: var(--accent-color);
-            margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.01em;
         }
 
         .visitor-counter {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .visitor-counter span {
+            color: var(--accent);
+            font-weight: 700;
         }
 
         nav {
             display: flex;
-            justify-content: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
             margin-bottom: 2rem;
-            flex-wrap: wrap;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-subtle) transparent;
         }
 
         .tab-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .tab-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-main);
+            border-color: var(--text-muted);
         }
 
         .tab-btn.active {
-            background: var(--accent-color);
-            color: var(--bg-main);
-            border-color: var(--accent-color);
+            background: var(--accent);
+            color: var(--bg-base);
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
         }
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.3s ease-in-out;
         }
 
         .tab-content.active {
             display: block;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .matches-grid, .live-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .match-card, .live-card, .trend-card, .auto-parlay-card, .master-pick-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .match-card:hover, .live-card:hover, .trend-card:hover {
+            border-color: var(--border-accent);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.4);
         }
 
         .match-header {
             display: flex;
             justify-content: space-between;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
             color: var(--text-muted);
-            margin-bottom: 0.8rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.4rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 0.75rem;
         }
 
         .teams-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.03);
         }
 
         .team {
@@ -122,45 +184,62 @@
             align-items: center;
             flex: 1;
             text-align: center;
+            gap: 0.5rem;
         }
 
         .team-name {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
-            margin-top: 4px;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .team-role {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .vs {
-            font-size: 0.8rem;
-            font-weight: bold;
+            font-size: 0.75rem;
+            font-weight: 800;
             color: var(--text-muted);
-            padding: 0 10px;
+            padding: 0 0.75rem;
+            letter-spacing: 0.1em;
         }
 
         .details-grid {
             font-size: 0.8rem;
             color: var(--text-muted);
-            background: rgba(15, 23, 42, 0.5);
-            padding: 0.6rem;
-            border-radius: 6px;
-            margin-bottom: 0.8rem;
+            background: var(--bg-card);
+            padding: 0.85rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            border: 1px solid rgba(255, 255, 255, 0.02);
         }
 
         .handicap-box {
-            border-top: 1px dashed var(--border-color);
-            padding-top: 0.8rem;
+            border-top: 1px dashed var(--border-subtle);
+            padding-top: 1rem;
         }
 
         .handicap-title {
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: var(--accent-color);
-            margin-bottom: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .handicap-inputs {
             display: flex;
-            gap: 8px;
+            gap: 0.75rem;
         }
 
         .input-group {
@@ -169,169 +248,297 @@
 
         .input-group label {
             display: block;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
+            font-weight: 600;
             color: var(--text-muted);
-            margin-bottom: 2px;
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
         }
 
         select, input[type="text"] {
             width: 100%;
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
             color: var(--text-main);
-            padding: 0.4rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        select:focus, input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
         }
 
         .btn-action {
-            display: block;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
             width: 100%;
-            background: var(--accent-color);
-            color: var(--bg-main);
+            background: var(--accent);
+            color: var(--bg-base);
             border: none;
-            padding: 0.6rem;
-            border-radius: 6px;
-            font-weight: bold;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
             cursor: pointer;
             text-align: center;
-            margin-top: 0.8rem;
+            margin-top: 1rem;
             font-size: 0.85rem;
-            transition: opacity 0.2s;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
         }
 
         .btn-action:hover {
-            opacity: 0.9;
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(56, 189, 248, 0.3);
+        }
+
+        .markets-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .market-pill {
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            padding: 0.6rem 0.75rem;
+            border-radius: var(--radius-sm);
             display: flex;
             flex-direction: column;
+            gap: 0.15rem;
         }
 
         .market-pill-label {
             color: var(--text-muted);
             font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .market-pill-value {
-            font-weight: bold;
+            font-weight: 700;
             color: var(--success);
+            font-size: 0.85rem;
         }
 
         .live-tag {
-            background: rgba(239, 68, 68, 0.2);
+            background: var(--danger-bg);
             color: var(--danger);
-            border: 1px solid var(--danger);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.65rem;
-            font-weight: bold;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .live-tag::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 1; }
         }
 
         .live-scorebox {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--bg-main);
-            padding: 0.8rem;
-            border-radius: 8px;
-            margin-bottom: 0.8rem;
-            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            padding: 1.25rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.03);
         }
 
         .live-situational-info {
             display: flex;
             justify-content: space-around;
-            background: rgba(56, 189, 248, 0.05);
+            background: var(--accent-glow);
             border: 1px solid rgba(56, 189, 248, 0.2);
-            padding: 6px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            margin-bottom: 0.8rem;
+            padding: 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--accent);
         }
 
         .live-best-play-box, .live-alt-play-box {
-            background: rgba(74, 222, 128, 0.05);
-            border: 1px solid rgba(74, 222, 128, 0.2);
-            padding: 0.6rem;
-            border-radius: 6px;
-            margin-bottom: 6px;
+            background: var(--success-bg);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            padding: 0.85rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.75rem;
         }
 
         .live-alt-play-box {
-            background: rgba(56, 189, 248, 0.05);
-            border-color: rgba(56, 189, 248, 0.2);
+            background: var(--accent-glow);
+            border-color: rgba(56, 189, 248, 0.25);
         }
 
         .master-pick-card {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(30, 41, 59, 1));
-            border: 1px solid var(--accent-color);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, var(--bg-surface) 100%);
+            border: 1px solid var(--accent);
             text-align: center;
-            padding: 1.5rem;
+            padding: 2rem;
+            max-width: 650px;
+            margin: 0 auto;
+            box-shadow: 0 15px 30px -10px rgba(56, 189, 248, 0.2);
         }
 
         .master-badge {
-            background: var(--accent-color);
-            color: var(--bg-main);
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: bold;
+            background: var(--accent);
+            color: var(--bg-base);
+            padding: 0.35rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
             display: inline-block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .master-matchup {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 1.25rem;
         }
 
         .master-selection-box {
-            background: var(--bg-main);
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 1rem;
+            background: var(--bg-card);
+            padding: 1.25rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 1.5rem;
             text-align: left;
         }
 
         .master-selection-title {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
             text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
         }
 
         .master-selection-value {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: var(--success);
-            margin: 4px 0;
+            margin: 0.35rem 0;
         }
 
         .master-reason {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
+            line-height: 1.4;
         }
 
-        /* Estilo para los escudos/logos de texto modernos */
-        .team-logo-badge {
+        /* ESCUDO / LOGO PREMIUM TIPO INSIGNIA */
+        .team-insignia {
             display: inline-flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--border-color), var(--bg-main));
-            border: 1px solid var(--border-color);
-            color: var(--accent-color);
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 2px solid var(--border-subtle);
+            border-radius: 14px;
+            font-weight: 900;
+            color: var(--accent);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-insignia::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 40%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.06), transparent);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .section-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .history-item {
+            background-color: var(--bg-surface);
+            padding: 1.25rem;
+            border-radius: var(--radius-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .history-item:hover {
+            border-color: var(--border-accent);
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
             font-weight: 800;
-            border-radius: 8px;
-            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: rgba(251, 191, 36, 0.15); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.3); }
+        .status-won { background: var(--success-bg); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.3); }
+        .status-lost { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.3); }
+
+        .auto-parlay-card h5 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .auto-parlay-card ul {
+            list-style-type: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .auto-parlay-card li {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            background: var(--bg-card);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--accent);
+            font-weight: 600;
         }
     </style>
 </head>
@@ -353,45 +560,51 @@
 
     <!-- Pestaña 1: Partidos del Día -->
     <div id="matches-tab" class="tab-content active">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div class="section-header-flex">
             <h2>Configuración de Hándicaps Diarios</h2>
-            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem;" onclick="saveCustomLines()">💾 Guardar Líneas</button>
+            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.6rem 1.25rem;" onclick="saveCustomLines()">💾 Guardar Líneas</button>
         </div>
         <div id="matches-cards-container" class="matches-grid"></div>
     </div>
 
     <!-- Pestaña 2: Tendencias -->
     <div id="trends-tab" class="tab-content">
-        <h2>Tendencias del Día y Mercados Múltiples</h2>
-        <div id="trends-list-container" style="display: flex; flex-direction: column; gap: 10px; margin-top: 1rem;"></div>
+        <div class="section-header-flex">
+            <h2>Tendencias del Día y Mercados Múltiples</h2>
+        </div>
+        <div id="trends-list-container" class="matches-grid" style="margin-top: 1rem;"></div>
     </div>
 
     <!-- Pestaña 3: Jugada Maestra -->
     <div id="master-tab" class="tab-content">
-        <h2>Análisis Cuantitativo Avanzado</h2>
+        <div class="section-header-flex">
+            <h2>Análisis Cuantitativo Avanzado</h2>
+        </div>
         <div id="master-pick-display-container" style="margin-top: 1rem;"></div>
     </div>
 
     <!-- Pestaña 4: Parlays -->
     <div id="parlays-tab" class="tab-content">
-        <h2>Sugerencias de Parlays Optimizados</h2>
+        <div class="section-header-flex">
+            <h2>Sugerencias de Parlays Optimizados</h2>
+        </div>
         <div id="auto-parlays-container" class="matches-grid" style="margin-top: 1rem;"></div>
     </div>
 
     <!-- Pestaña 5: En Vivo -->
     <div id="live-standalone-tab" class="tab-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div class="section-header-flex">
             <h2>Centro de Control En Vivo (MLB API)</h2>
-            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem;" onclick="fetchRealLiveMLBData()">🔄 Actualizar En Vivo</button>
+            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.6rem 1.25rem;" onclick="fetchRealLiveMLBData()">🔄 Actualizar En Vivo</button>
         </div>
         <div id="live-standalone-cards-container" class="live-grid"></div>
     </div>
 
     <!-- Pestaña 6: Historial -->
     <div id="history-tab" class="tab-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div class="section-header-flex">
             <h2>Historial de Pronósticos Guardados</h2>
-            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem; background-color: var(--danger); color: white;" onclick="clearHistory()">🗑️ Limpiar Historial</button>
+            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.6rem 1.25rem; background-color: var(--danger); color: white;" onclick="clearHistory()">🗑️ Limpiar Historial</button>
         </div>
         <div id="history-list-container"></div>
     </div>
@@ -416,7 +629,6 @@
             { id: 14, time: "7:20 PM", stadium: "Wrigley Field", away: "Cincinnati Reds", home: "Chicago Cubs", starter_away: "C. Burns", starter_home: "S. Imanaga", awayOdds: 1.62, homeOdds: 2.35, defaultHcap: "+1.5" }
         ];
 
-        // Diccionario de siglas oficiales para los logos/badges
         const TEAM_CODES = {
             "Miami Marlins": "MIA", "Washington Nationals": "WSH",
             "Boston Red Sox": "BOS", "New York Yankees": "NYY",
@@ -436,9 +648,9 @@
 
         function getTeamBadgeHTML(teamName, small = false) {
             let code = TEAM_CODES[teamName] || teamName.substring(0, 3).toUpperCase();
-            let size = small ? '32px' : '48px';
-            let fontSize = small ? '0.75rem' : '0.95rem';
-            return `<div class="team-logo-badge" style="width: ${size}; height: ${size}; font-size: ${fontSize};">${code}</div>`;
+            let size = small ? '38px' : '52px';
+            let fontSize = small ? '0.8rem' : '1.05rem';
+            return `<div class="team-insignia" style="width: ${size}; height: ${size}; font-size: ${fontSize};">${code}</div>`;
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -451,7 +663,6 @@
             const counterKey = "mlb_panel_unique_visitor_recorded";
             const lastVisitTime = localStorage.getItem(counterKey);
             const now = new Date().getTime();
-            
             const twentyFourHours = 24 * 60 * 60 * 1000; 
             let shouldIncrement = false;
 
@@ -468,7 +679,6 @@
                     
                 let response = await fetch(url);
                 let data = await response.json();
-                
                 let count = data.count !== undefined ? data.count : (data.value !== undefined ? data.value : "142");
                 document.getElementById('real-visitor-count').innerText = count;
             } catch (error) {
@@ -499,7 +709,7 @@
                 saved[m.id] = { team: hTeamVal, line: hLineVal };
             });
             localStorage.setItem('mlb_custom_lines', JSON.stringify(saved));
-            alert("¡Líneas y hándicaps guardados!");
+            alert("¡Líneas y hándicaps guardados con éxito!");
             processApp();
         }
 
@@ -520,21 +730,27 @@
                     <div class="teams-container">
                         <div class="team">
                             ${getTeamBadgeHTML(m.away)}
-                            <div class="team-name">${m.away}</div>
+                            <div>
+                                <span class="team-role">Visitante</span>
+                                <div class="team-name">${m.away}</div>
+                            </div>
                         </div>
                         <div class="vs">VS</div>
                         <div class="team">
                             ${getTeamBadgeHTML(m.home)}
-                            <div class="team-name">${m.home}</div>
+                            <div>
+                                <span class="team-role">Local</span>
+                                <div class="team-name">${m.home}</div>
+                            </div>
                         </div>
                     </div>
                     <div class="details-grid">
-                        <div><strong>Abridores:</strong> ${m.starter_away} vs ${m.starter_home}</div>
-                        <div><strong>Cuotas ML:</strong> V: ${m.awayOdds} | L: ${m.homeOdds}</div>
+                        <div><strong>Pitchers Abridores:</strong> ${m.starter_away} vs ${m.starter_home}</div>
+                        <div><strong>Cuotas Moneyline:</strong> V: ${m.awayOdds} | L: ${m.homeOdds}</div>
                     </div>
                     <div class="handicap-box">
                         <div class="handicap-title">
-                            <span>Línea / Hándicap Casa de Apuesta</span>
+                            <span>⚙️ Configurar Hándicap Casa</span>
                         </div>
                         <div class="handicap-inputs">
                             <div class="input-group">
@@ -545,7 +761,7 @@
                                 </select>
                             </div>
                             <div class="input-group">
-                                <label>Línea (Ej: -1.5, +1.5)</label>
+                                <label>Línea</label>
                                 <input type="text" id="hline-val-${m.id}" value="${currentSaved.line}">
                             </div>
                         </div>
@@ -558,7 +774,6 @@
         function processApp() {
             let savedLines = getSavedLines();
             let trendsHTML = '';
-            let bestF5Obj = null;
 
             let dateHash = 0;
             for (let i = 0; i < CURRENT_DATE.length; i++) {
@@ -566,7 +781,6 @@
             }
             let bestMasterIndex = dateHash % BASE_MATCHES.length;
             let chosenMasterMatch = BASE_MATCHES[bestMasterIndex];
-            
             let isMasterHomeFav = chosenMasterMatch.homeOdds < chosenMasterMatch.awayOdds;
             let masterMlPick = isMasterHomeFav ? chosenMasterMatch.home : chosenMasterMatch.away;
             
@@ -583,26 +797,22 @@
                 let mlPick = isHomeFav ? m.home : m.away;
                 let ouPick = "Alta (O 8.5)";
 
-                if (!bestF5Obj) {
-                    bestF5Obj = f5Pick;
-                }
-
                 trendsHTML += `
                 <div class="trend-card">
-                    <div class="trend-match-info" style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.25rem;">
                         ${getTeamBadgeHTML(m.away, true)}
                         <div>
-                            <div class="trend-teams-row" style="font-weight:bold; font-size:0.9rem;">${m.away} @ ${m.home}</div>
-                            <div style="font-size: 0.7rem; color: #94a3b8;">${m.time}</div>
+                            <div style="font-weight: 700; font-size: 0.95rem;">${m.away} @ ${m.home}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">⏰ ${m.time}</div>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
-                        <div class="market-pill"><span class="market-pill-label">F5</span><span class="market-pill-value">${f5Pick}</span></div>
-                        <div class="market-pill"><span class="market-pill-label">Ganador</span><span class="market-pill-value">${mlPick}</span></div>
+                    <div class="markets-container">
+                        <div class="market-pill"><span class="market-pill-label">Primeros 5 (F5)</span><span class="market-pill-value">${f5Pick}</span></div>
+                        <div class="market-pill"><span class="market-pill-label">Ganador ML</span><span class="market-pill-value">${mlPick}</span></div>
                         <div class="market-pill"><span class="market-pill-label">Hándicap</span><span class="market-pill-value">${lineInfo.team} ${lineInfo.line}</span></div>
-                        <div class="market-pill"><span class="market-pill-label">O/U</span><span class="market-pill-value">${ouPick}</span></div>
+                        <div class="market-pill"><span class="market-pill-label">Total O/U</span><span class="market-pill-value">${ouPick}</span></div>
                     </div>
-                    <button class="btn-action" style="padding: 0.4rem; font-size: 0.75rem;" onclick="saveToHistory('${m.away} vs ${m.home}', '${lineInfo.team} ${lineInfo.line}', 'Hándicap')">📌 Guardar Hándicap en Historial</button>
+                    <button class="btn-action" onclick="saveToHistory('${m.away} vs ${m.home}', '${lineInfo.team} ${lineInfo.line}', 'Hándicap')">📌 Guardar en Historial</button>
                 </div>`;
             });
 
@@ -614,11 +824,11 @@
                     <div class="master-badge">💎 Jugada Maestra Confiabilidad 100%</div>
                     <div class="master-matchup">${bestMainObj.match}</div>
                     <div class="master-selection-box">
-                        <div class="master-selection-title">Selección Principal del Día (Estática)</div>
+                        <div class="master-selection-title">Selección Principal del Día</div>
                         <div class="master-selection-value">${bestMainObj.pick}</div>
                         <div class="master-reason">${bestMainObj.reason}</div>
                     </div>
-                    <button class="btn-action" style="max-width: 250px; margin: 0 auto; background-color: #4ade80; color: #0f172a;" onclick="saveToHistory('${bestMainObj.match}', '${bestMainObj.pick}', 'Jugada 100%')">📌 Guardar en Historial</button>
+                    <button class="btn-action" style="max-width: 250px; margin: 0 auto; background-color: var(--success); color: var(--bg-base);" onclick="saveToHistory('${bestMainObj.match}', '${bestMainObj.pick}', 'Jugada 100%')">📌 Guardar en Historial</button>
                 </div>`;
             }
 
@@ -630,7 +840,7 @@
             container.innerHTML = `
                 <div class="auto-parlay-card">
                     <h5>Parlay F5 (Primeros 5 Innings)</h5>
-                    <ul style="margin-left: 20px; font-size: 0.85rem; margin-top: 8px; margin-bottom: 8px;">
+                    <ul>
                         <li>1. Washington Nationals F5 (-0.5)</li>
                         <li>2. New York Yankees F5 (-0.5)</li>
                         <li>3. Atlanta Braves F5 (0.0)</li>
@@ -639,7 +849,7 @@
                 </div>
                 <div class="auto-parlay-card">
                     <h5>Parlay Ganadores (ML) Directos</h5>
-                    <ul style="margin-left: 20px; font-size: 0.85rem; margin-top: 8px; margin-bottom: 8px;">
+                    <ul>
                         <li>1. Los Angeles Dodgers (ML)</li>
                         <li>2. Houston Astros (ML)</li>
                         <li>3. Philadelphia Phillies (ML)</li>
@@ -648,7 +858,7 @@
                 </div>
                 <div class="auto-parlay-card">
                     <h5>Parlay Hándicap (Run Line)</h5>
-                    <ul style="margin-left: 20px; font-size: 0.85rem; margin-top: 8px; margin-bottom: 8px;">
+                    <ul>
                         <li>1. New York Yankees (-1.5)</li>
                         <li>2. Cleveland Guardians (+1.5)</li>
                         <li>3. Baltimore Orioles (-1.5)</li>
@@ -659,7 +869,6 @@
 
         function saveToHistory(matchup, pick, type = 'Jugada') {
             let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
-            
             let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchup && h.pick === pick);
             if (exists) {
                 alert("Esta jugada ya se encuentra registrada en el historial.");
@@ -682,38 +891,28 @@
             let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
             let container = document.getElementById('history-list-container');
             if(history.length === 0) {
-                container.innerHTML = `<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros guardados todavía.</p>`;
+                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; padding: 3rem;">No hay registros guardados todavía.</p>`;
                 return;
             }
-            let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+            let html = '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
             history.forEach((h, idx) => {
-                let badgeBg = "rgba(245, 158, 11, 0.15)";
-                let badgeColor = "#fbbf24";
-                let badgeBorder = "#fbbf24";
-
-                if (h.status === 'Ganada') {
-                    badgeBg = "rgba(74, 222, 128, 0.15)";
-                    badgeColor = "#4ade80";
-                    badgeBorder = "#4ade80";
-                } else if (h.status === 'Perdida') {
-                    badgeBg = "rgba(239, 68, 68, 0.15)";
-                    badgeColor = "#ef4444";
-                    badgeBorder = "#ef4444";
-                }
+                let statusClass = "status-pending";
+                if (h.status === 'Ganada') statusClass = "status-won";
+                else if (h.status === 'Perdida') statusClass = "status-lost";
 
                 html += `
-                <div style="background-color: #1e293b; padding: 0.8rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155;">
+                <div class="history-item">
                     <div>
-                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 2px;">
-                            <span style="font-size: 0.65rem; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 1px 6px; border-radius: 4px; font-weight: bold;">[${h.type}]</span>
-                            <span style="font-size: 0.75rem; color: #94a3b8;">${h.date}</span>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 0.35rem;">
+                            <span style="font-size: 0.7rem; color: var(--accent); background: var(--accent-glow); padding: 2px 8px; border-radius: 4px; font-weight: 700;">[${h.type}]</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">${h.date}</span>
                         </div>
-                        <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc;">${h.matchup}</div>
-                        <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: bold;">Pronóstico: ${h.pick}</div>
+                        <div style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">${h.matchup}</div>
+                        <div style="font-size: 0.85rem; color: var(--success); font-weight: 700;">Pronóstico: ${h.pick}</div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background-color: ${badgeBg}; color: ${badgeColor}; border: 1px solid ${badgeBorder}; padding: 2px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">${h.status}</span>
-                        <button onclick="deleteHistoryItem(${idx})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.9rem;" title="Eliminar">🗑️</button>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="status-badge ${statusClass}">${h.status}</span>
+                        <button onclick="deleteHistoryItem(${idx})" style="background: none; border: none; cursor: pointer; font-size: 1.1rem;" title="Eliminar">🗑️</button>
                     </div>
                 </div>`;
             });
@@ -737,16 +936,15 @@
 
         async function fetchRealLiveMLBData() {
             let container = document.getElementById('live-standalone-cards-container');
-            container.innerHTML = `<p style="color: #38bdf8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Consultando API en vivo de la MLB...</p>`;
+            container.innerHTML = `<p style="color: var(--accent); text-align: center; font-size: 0.95rem; grid-column: 1 / -1; padding: 3rem;">Consultando API en vivo de la MLB...</p>`;
 
             try {
                 let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${CURRENT_DATE}&hydrate=linescore`);
                 let data = await response.json();
-                
                 let games = (data.dates && data.dates.length > 0) ? data.dates[0].games : [];
 
                 if (games.length === 0) {
-                    container.innerHTML = `<p style="color: #94a3b8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">No se encontraron partidos programados para hoy.</p>`;
+                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; font-size: 0.95rem; grid-column: 1 / -1; padding: 3rem;">No se encontraron partidos programados para hoy.</p>`;
                     return;
                 }
 
@@ -763,7 +961,6 @@
                     let homeTeam = g.teams.home.team.name;
                     let awayScore = g.teams.away.score || 0;
                     let homeScore = g.teams.home.score || 0;
-
                     let linescore = g.linescore || {};
                     let inningNum = linescore.currentInning || 1;
                     let inningState = linescore.inningState || ""; 
@@ -771,7 +968,6 @@
                     let outsCount = linescore.outs !== undefined ? linescore.outs : 0;
                     let balls = linescore.balls !== undefined ? linescore.balls : 0;
                     let strikes = linescore.strikes !== undefined ? linescore.strikes : 0;
-                    
                     let hasOn1B = linescore.offense && linescore.offense.first ? true : false;
                     let hasOn2B = linescore.offense && linescore.offense.second ? true : false;
                     let hasOn3B = linescore.offense && linescore.offense.third ? true : false;
@@ -781,10 +977,7 @@
                     let leadingTeamName = awayScore > homeScore ? awayTeam : homeTeam;
                     let trailingTeamName = awayScore > homeScore ? homeTeam : awayTeam;
 
-                    let primaryPlay = "";
-                    let primaryReason = "";
-                    let altPlay1 = "";
-                    let altPlay2 = "";
+                    let primaryPlay = "", primaryReason = "", altPlay1 = "", altPlay2 = "";
 
                     if (gameState === "Preview") {
                         primaryPlay = `Ganador F5: ${awayScore > homeScore ? awayTeam : homeTeam}`;
@@ -817,26 +1010,26 @@
 
                     liveCardsHTML += `
                     <div class="live-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-                            <span class="live-tag">${gameState === "Live" ? "En Vivo" : gameState}</span>
-                            <span style="font-size: 0.75rem; color: #38bdf8; font-weight: bold;">📍 ${gameState === "Live" ? `${inningState} del ${inningOrdinal}` : gameState}</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <span class="${gameState === "Live" ? 'live-tag' : ''}">${gameState === "Live" ? "En Vivo" : gameState}</span>
+                            <span style="font-size: 0.8rem; color: var(--accent); font-weight: 700;">📍 ${gameState === "Live" ? `${inningState} del ${inningOrdinal}` : gameState}</span>
                         </div>
 
                         <div class="live-scorebox">
-                            <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
                                 ${getTeamBadgeHTML(awayTeam, true)}
                                 <div>
-                                    <div style="font-size: 0.85rem; font-weight: 600;">${awayTeam}</div>
-                                    <div style="font-size: 0.7rem; color: #94a3b8;">Visitante</div>
+                                    <div style="font-size: 0.9rem; font-weight: 700;">${awayTeam}</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Visitante</div>
                                 </div>
                             </div>
-                            <div style="font-size: 1.4rem; font-weight: 800; color: #38bdf8; padding: 0 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 900; color: var(--accent); padding: 0 0.75rem;">
                                 ${awayScore} - ${homeScore}
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end; text-align: right;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; justify-content: flex-end; text-align: right;">
                                 <div>
-                                    <div style="font-size: 0.85rem; font-weight: 600;">${homeTeam}</div>
-                                    <div style="font-size: 0.7rem; color: #94a3b8;">Local</div>
+                                    <div style="font-size: 0.9rem; font-weight: 700;">${homeTeam}</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Local</div>
                                 </div>
                                 ${getTeamBadgeHTML(homeTeam, true)}
                             </div>
@@ -844,25 +1037,20 @@
 
                         ${gameState === "Live" ? `
                         <div class="live-situational-info">
-                            <div class="live-situational-item"><strong>${outsCount}</strong> Outs</div>
-                            <div class="live-situational-item"><strong>${balls}-${strikes}</strong> Conteo</div>
-                            <div class="live-situational-item">Bases: ${hasOn1B?'1B ':''}${hasOn2B?'2B ':''}${hasOn3B?'3B':''}</div>
+                            <div><strong>${outsCount}</strong> Outs</div>
+                            <div><strong>${balls}-${strikes}</strong> Conteo</div>
+                            <div>Bases: ${hasOn1B?'1B ':''}${hasOn2B?'2B ':''}${hasOn3B?'3B':''}</div>
                         </div>` : ''}
 
                         <div class="live-best-play-box">
-                            <div style="font-size: 0.7rem; color: #4ade80; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">⭐ 1. Opción Principal En Vivo</div>
-                            <div style="font-size: 0.88rem; font-weight: bold; color: #f8fafc; margin-bottom: 3px;">${primaryPlay}</div>
-                            <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.3;">${primaryReason}</div>
+                            <div style="font-size: 0.7rem; color: var(--success); font-weight: 800; text-transform: uppercase; margin-bottom: 0.25rem;">⭐ Opción Principal En Vivo</div>
+                            <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">${primaryPlay}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.3;">${primaryReason}</div>
                         </div>
 
                         <div class="live-alt-play-box">
-                            <div style="font-size: 0.68rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">🔄 2. Alternativa Totales (O/U)</div>
-                            <div style="font-size: 0.82rem; font-weight: bold; color: #f8fafc;">${altPlay1}</div>
-                        </div>
-
-                        <div class="live-alt-play-box" style="border-color: #fbbf24; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));">
-                            <div style="font-size: 0.68rem; color: #fbbf24; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">🛡️ 3. Alternativa Respaldo</div>
-                            <div style="font-size: 0.82rem; font-weight: bold; color: #f8fafc;">${altPlay2}</div>
+                            <div style="font-size: 0.7rem; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-bottom: 0.25rem;">🔄 Alternativa Totales (O/U)</div>
+                            <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">${altPlay1}</div>
                         </div>
                     </div>`;
                 });
@@ -870,7 +1058,7 @@
                 container.innerHTML = liveCardsHTML;
             } catch (err) {
                 console.error("Error consultando la API de MLB:", err);
-                container.innerHTML = `<p style="color: #ef4444; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Error al conectar con la API de la MLB.</p>`;
+                container.innerHTML = `<p style="color: var(--danger); text-align: center; font-size: 0.95rem; grid-column: 1 / -1; padding: 3rem;">Error al conectar con la API de la MLB.</p>`;
             }
         }
     </script>
