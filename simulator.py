@@ -1,6 +1,6 @@
 import random
 
-def run_monte_carlo_simulation(match_data, iterations=50000):
+def run_monte_carlo_simulation(match_data, iterations=1000):
     away_wins = 0
     home_wins = 0
     f5_away_wins = 0
@@ -49,8 +49,11 @@ def run_monte_carlo_simulation(match_data, iterations=50000):
 def process_all_matches(matches_list):
     processed_matches = []
     for match in matches_list:
-        sim_results = run_monte_carlo_simulation(match, iterations=50000)
+        sim_results = run_monte_carlo_simulation(match, iterations=1000)
         match_updated = match.copy()
+        match_updated.update(sim_results)
+        processed_matches.append(match_updated)
+    return processed_matches
         match_updated.update(sim_results)
         processed_matches.append(match_updated)
     return processed_matches
