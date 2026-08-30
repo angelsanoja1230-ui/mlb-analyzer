@@ -330,7 +330,7 @@ function registerParlayToAudit(parlayName, odds) {
     alert(`${parlayName} registrado correctamente en la Hoja de Auditoría.`);
 }
 
-// Corrección del contenedor de En Vivo para diseño de tarjetas en cuadrícula flexible y adición de mercados predictivos en vivo (Primeros 5 innings, Ganador de Juego y Run Line)
+// Ajuste de la cuadrícula de partidos en vivo para mostrarse en formato horizontal múltiple (tarjetas una al lado de la otra)
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
     if (!container) return;
@@ -358,7 +358,6 @@ function renderLiveControl() {
             sortOrder = 1;
         }
 
-        // Generación de pronósticos automáticos en vivo para apuestas
         let f5Pick = awayScore > homeScore ? `${m.away} F5 (-0.5)` : `${m.home} F5 (-0.5)`;
         let mlPick = awayScore > homeScore ? `Gana ${m.away}` : `Gana ${m.home}`;
         let rlPick = Math.abs(awayScore - homeScore) >= 2 ? `${mlPick} (Cover)` : `${m.home} Hándicap (+1.5)`;
@@ -372,7 +371,7 @@ function renderLiveControl() {
         <style>
             .espn-scoreboard-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
                 gap: 1.25rem;
                 width: 100%;
                 box-sizing: border-box;
