@@ -530,7 +530,7 @@
         </div>
     </div>
 
-    <!-- Script con la lógica de rotación y variedad para los parlays -->
+    <!-- Script con asignación corregida de favoritos (-) y underdogs (+) -->
     <script>
         const CURRENT_DATE = "30-08-2026";
 
@@ -654,18 +654,20 @@
             matrixTbody.innerHTML = matrixHTML;
         }
 
-        function getDiverseMarkets(matchKey) {
+        function getDiverseMarkets(matchKey, awayProb) {
             let val = getMatchHash(matchKey);
             let teams = matchKey.split(" @ ");
             let awayTeam = teams[0] ? teams[0].trim() : "Visita";
             let homeTeam = teams[1] ? teams[1].trim() : "Local";
 
-            let isHomeFavorite = (val % 2 === 0);
+            // Corrección real: Si homeProb > awayProb, el favorito es el local (-), si no, el visitante (-)
+            let isHomeFavorite = homeProb >= awayProb;
             let favoriteTeam = isHomeFavorite ? homeTeam : awayTeam;
             let underdogTeam = isHomeFavorite ? awayTeam : homeTeam;
 
             let markets = [];
             
+            // F5 (0.5): El favorito lleva '-' y el underdog '+'
             let f5IsFav = (val % 3 !== 0);
             let f5Team = f5IsFav ? favoriteTeam : underdogTeam;
             let f5Spread = f5IsFav ? "-0.5" : "+0.5";
@@ -678,6 +680,7 @@
                 conf: probF5 
             });
 
+            // Run Line (1.5): Favorito (-1.5), Underdog (+1.5)
             let rlIsFav = (val % 4 !== 0);
             let rlTeam = rlIsFav ? favoriteTeam : underdogTeam;
             let rlSpread = rlIsFav ? "-1.5" : "+1.5";
@@ -690,6 +693,7 @@
                 conf: probRL 
             });
 
+            // Handicap (2.5): Favorito (-2.5), Underdog (+2.5)
             let h25IsFav = (val % 5 !== 0);
             let h25Team = h25IsFav ? favoriteTeam : underdogTeam;
             let h25Spread = h25IsFav ? "-2.5" : "+2.5";
@@ -702,6 +706,7 @@
                 conf: probH25 
             });
 
+            // Handicap (3.5): Favorito (-3.5), Underdog (+3.5)
             let h35IsFav = (val % 2 === 0);
             let h35Team = h35IsFav ? favoriteTeam : underdogTeam;
             let h35Spread = h35IsFav ? "-3.5" : "+3.5";
@@ -752,7 +757,7 @@
                 card.querySelector('.card-prob-away').innerText = awayProb + "%";
                 card.querySelector('.card-prob-home').innerText = homeProb + "%";
 
-                let matchMarkets = getDiverseMarkets(matchName);
+                let matchMarkets = getDiverseMarkets(matchName, awayProb);
                 let optimalPick = [...matchMarkets].sort((a,b) => b.conf - a.conf)[0];
 
                 if(rows[index]) {
@@ -801,7 +806,6 @@
 
             document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
 
-            // Ordenamiento aleatorio/dinámico general para romper patrones estáticos
             allAvailablePicks.sort((a, b) => (b.conf + (getMatchHash(b.desc) % 7)) - (a.conf + (getMatchHash(a.desc) % 7)));
 
             if (allAvailablePicks.length > 0) {
@@ -846,7 +850,6 @@
                     let selectedForParlay = [];
                     let usedMatches = new Set();
                     
-                    // Rotación de offset para que cada tarjeta de parlay comience a buscar desde un partido diferente
                     let rotationIndex = (index * 3) % allAvailablePicks.length;
                     let orderedSlice = [...allAvailablePicks.slice(rotationIndex), ...allAvailablePicks.slice(0, rotationIndex)];
 
