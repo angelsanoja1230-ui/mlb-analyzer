@@ -266,7 +266,6 @@
             display: inline-block;
         }
 
-        /* Estilos para Logos Compactos en la Tabla */
         .table-match-cell {
             display: flex;
             align-items: center;
@@ -295,44 +294,75 @@
             padding: 1.5rem;
         }
 
-        .parlay-tiers {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .tier-btn {
-            background-color: #0f172a;
-            color: #94a3b8;
-            border: 1px solid #334155;
-            padding: 0.4rem 0.9rem;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-
-        .tier-btn.active {
-            background-color: #f59e0b;
-            color: #0f172a;
-            border-color: #f59e0b;
-        }
-
-        .parlay-card-list {
-            background-color: #0f172a;
+        /* Estilos Mejorados para el Generador de Parlay */
+        .lock-of-the-day {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(15, 23, 42, 0.8));
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
             padding: 1.2rem;
-            border-radius: 6px;
-            border: 1px dashed #334155;
-            min-height: 130px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
         }
 
-        .parlay-item {
-            padding: 8px 0;
+        .lock-of-the-day h3 {
+            color: #fbbf24;
+            font-size: 1.1rem;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .lock-content {
+            font-size: 0.95rem;
+            color: #f8fafc;
+            font-weight: 600;
+        }
+
+        .parlay-grid-all {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .parlay-column-card {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .parlay-column-card h4 {
+            color: #38bdf8;
+            font-size: 0.95rem;
+            margin-bottom: 0.8rem;
             border-bottom: 1px solid #1e293b;
+            padding-bottom: 0.4rem;
+            text-align: center;
+        }
+
+        .parlay-column-card ul {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .parlay-column-card li {
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+            font-size: 0.8rem;
             color: #cbd5e1;
-            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .parlay-column-card li span:last-child {
+            color: #38bdf8;
+            font-weight: 600;
         }
 
         /* Estilos para el Panel de Análisis Avanzado */
@@ -518,20 +548,22 @@
             </div>
         </div>
 
-        <!-- Pestaña 3: Generador de Parlay Dinámico -->
+        <!-- Pestaña 3: Generador de Parlay Automático (Fija + Mejor Jugada + Parlays 2 a 5) -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-section">
-                <h2 style="color: #38bdf8; text-align: center; font-size: 1.2rem; margin-bottom: 0.8rem;">Generador de Parlay Dinámico</h2>
-                <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Selecciona el nivel de combinaciones con mayor probabilidad matemática.</p>
-                
-                <div class="parlay-tiers">
-                    <button class="tier-btn active" onclick="loadParlayTier(2, event)">Parlay de 2</button>
-                    <button class="tier-btn" onclick="loadParlayTier(3, event)">Parlay de 3</button>
-                    <button class="tier-btn" onclick="loadParlayTier(4, event)">Parlay de 4</button>
-                    <button class="tier-btn" onclick="loadParlayTier(5, event)">Parlay de 5</button>
+                <h2 style="color: #38bdf8; text-align: center; font-size: 1.2rem; margin-bottom: 0.3rem;">Centro de Apuestas y Generador Automático</h2>
+                <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Selección cuantitativa estricta basada en probabilidades matemáticas de la jornada.</p>
+
+                <!-- Jugada Fija / Mejor Jugada del Día -->
+                <div class="lock-of-the-day" id="best-lock-container">
+                    <h3>⭐ MEJOR JUGADA / FIJA DEL DÍA</h3>
+                    <div class="lock-content" id="lock-text">Calculando la jugada con mayor solidez estadística...</div>
                 </div>
 
-                <div class="parlay-card-list" id="parlay-results-container"></div>
+                <!-- Grid con Parlays de 2, 3, 4 y 5 simultáneos -->
+                <div class="parlay-grid-all" id="all-parlays-container">
+                    <!-- Se llena dinámicamente con JS -->
+                </div>
             </div>
         </div>
 
@@ -541,12 +573,12 @@
                 <h2 style="color: #38bdf8; text-align: center; font-size: 1.2rem; margin-bottom: 0.8rem;">Historial y Seguimiento Automático</h2>
                 <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Pronósticos consolidados registrados para la jornada actual.</p>
                 
-                <div class="parlay-card-list" id="saved-predictions-list"></div>
+                <div class="parlay-card-list" id="saved-predictions-list" style="background-color: #0f172a; padding: 1.2rem; border-radius: 6px; border: 1px dashed #334155; min-height: 130px;"></div>
                 <button onclick="clearSaved()" style="margin-top: 1rem; background: #ef4444; color: #fff; border: none; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">Forzar Nueva Actualización</button>
             </div>
         </div>
 
-        <!-- Pestaña 5: Análisis Avanzado (Simulaciones Monte Carlo & Métricas) -->
+        <!-- Pestaña 5: Análisis Avanzado -->
         <div id="analytics-tab" class="tab-content">
             <div class="parlay-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
@@ -588,6 +620,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('current-date-label').innerText = CURRENT_JORNADA_DATE;
             autoSaveMatrixPredictions();
+            generateAllParlaysAndLock();
         });
 
         function switchTab(evt, tabId) {
@@ -603,7 +636,7 @@
             if(tabId === 'saved-tab') {
                 renderSavedPredictions();
             } else if(tabId === 'parlay-tab') {
-                loadParlayTier(2);
+                generateAllParlaysAndLock();
             }
         }
 
@@ -647,7 +680,7 @@
             html += '<ul style="list-style: none;">';
             
             storedData.predictions.forEach((item) => {
-                html += `<li class="parlay-item" style="border-bottom: 1px solid #1e293b; padding: 8px 0;">
+                html += `<li style="border-bottom: 1px solid #1e293b; padding: 8px 0;">
                     <div style="color: #38bdf8; font-weight: bold; font-size: 0.85rem; margin-bottom: 2px;">⚾ ${item.match}</div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 4px; font-size: 0.75rem; color: #cbd5e1;">
                         <div>🏆 <strong>J.C.:</strong> ${item.winnerFull}</div>
@@ -685,7 +718,7 @@
 
                 plays.push({
                     match: `${away} vs ${home}`,
-                    pick: `Apostar a ${selectedTeam} (${selectedProb}%)`,
+                    pick: `Ganador: ${selectedTeam}`,
                     probability: selectedProb
                 });
             });
@@ -694,47 +727,51 @@
             return plays;
         }
 
-        function shuffleArray(array) {
-            let arr = [...array];
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
-
-        function loadParlayTier(count, evt) {
-            if(evt) {
-                document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
-                evt.currentTarget.classList.add('active');
-            }
-
-            const container = document.getElementById('parlay-results-container');
+        function generateAllParlaysAndLock() {
             let plays = getAllMatchPredictions();
             
-            if(plays.length === 0) {
-                container.innerHTML = '<p style="color:#94a3b8; text-align:center; font-size:0.85rem;">No hay partidos cargados.</p>';
-                return;
-            }
+            if(plays.length === 0) return;
 
-            plays = shuffleArray(plays);
+            // 1. Asignar la Mejor Jugada / Fija (la de mayor porcentaje)
+            const bestLock = plays[0];
+            document.getElementById('lock-text').innerHTML = `
+                <span style="color: #38bdf8;">${bestLock.match}</span> — 
+                <span style="color: #34d399;">${bestLock.pick}</span> 
+                <span style="background: rgba(56, 189, 248, 0.15); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; margin-left: 6px;">Probabilidad: ${bestLock.probability}%</span>
+            `;
 
-            let html = `<p style="color: #fbbf24; font-weight: bold; font-size: 0.85rem; margin-bottom: 0.8rem;">🎯 Combinación de ${count} Logros:</p>`;
-            html += '<ul style="list-style: none;">';
-            
-            let limit = Math.min(count, plays.length);
-            for(let i = 0; i < limit; i++) {
-                html += `<li class="parlay-item" style="font-size:0.85rem;"><span>⚾ <strong>${plays[i].match}</strong></span> <span style="color: #38bdf8; font-weight: 600;">${plays[i].pick}</span></li>`;
-            }
-            
-            html += '</ul>';
-            container.innerHTML = html;
+            // 2. Generar automáticamente Parlays de 2, 3, 4 y 5
+            const container = document.getElementById('all-parlays-container');
+            let gridHtml = '';
+
+            [2, 3, 4, 5].forEach(count => {
+                let limit = Math.min(count, plays.length);
+                gridHtml += `
+                    <div class="parlay-column-card">
+                        <h4>Parlay de ${count} Logros</h4>
+                        <ul>
+                `;
+                
+                for(let i = 0; i < limit; i++) {
+                    gridHtml += `
+                        <li>
+                            <span>⚾ ${plays[i].match}</span>
+                            <span>${plays[i].pick}</span>
+                        </li>
+                    `;
+                }
+                
+                gridHtml += `
+                        </ul>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = gridHtml;
         }
 
         function runMonteCarloSimulation() {
             const container = document.getElementById('monte-carlo-results');
-            
-            // Valores dinámicos simulados para dar interactividad
             const randomWindImpact = (Math.random() * 2 + 3.5).toFixed(1);
             const randomBullpenEra = (Math.random() * 0.4 + 3.65).toFixed(2);
             const randomRoi = (Math.random() * 3 + 5.2).toFixed(1);
