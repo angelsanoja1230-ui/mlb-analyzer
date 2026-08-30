@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>simulador de  MLB 2026</title>
+    <title>simulador MLB 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -460,17 +460,15 @@
             line-height: 1.4;
         }
 
-        /* Insignia / Logotipo robusto de equipos */
+        /* Insignia / Logotipo SVG Vectorial Integrado */
         .team-insignia {
             display: inline-flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 2px solid var(--border-subtle);
+            border: 2px solid;
             border-radius: 12px;
             font-weight: 900;
-            color: var(--accent);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             position: relative;
             overflow: hidden;
@@ -481,7 +479,7 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; height: 40%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.06), transparent);
+            background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
             border-radius: 10px 10px 0 0;
         }
 
@@ -676,28 +674,50 @@
             { id: 14, time: "7:20 PM", stadium: "Wrigley Field", away: "Cincinnati Reds", home: "Chicago Cubs", starter_away: "C. Burns", starter_home: "S. Imanaga", awayOdds: 1.62, homeOdds: 2.35, defaultHcap: "+1.5" }
         ];
 
-        const TEAM_CODES = {
-            "Miami Marlins": "MIA", "Washington Nationals": "WSH",
-            "Boston Red Sox": "BOS", "New York Yankees": "NYY",
-            "Colorado Rockies": "COL", "Atlanta Braves": "ATL",
-            "Seattle Mariners": "SEA", "Toronto Blue Jays": "TOR",
-            "Kansas City Royals": "KC", "Cleveland Guardians": "CLE",
-            "Los Angeles Dodgers": "LAD", "Detroit Tigers": "DET",
-            "San Diego Padres": "SD", "Tampa Bay Rays": "TB",
-            "Chicago White Sox": "CWS", "Minnesota Twins": "MIN",
-            "Texas Rangers": "TEX", "Milwaukee Brewers": "MIL",
-            "Pittsburgh Pirates": "PIT", "St. Louis Cardinals": "STL",
-            "Houston Astros": "HOU", "New York Mets": "NYM",
-            "Baltimore Orioles": "BAL", "Oakland Athletics": "OAK",
-            "Philadelphia Phillies": "PHI", "Los Angeles Angels": "LAA",
-            "Cincinnati Reds": "CIN", "Chicago Cubs": "CHC"
+        // Diccionario oficial con los colores institucionales y códigos de cada equipo MLB
+        const MLB_TEAMS = {
+            "Miami Marlins": { code: "MIA", primary: "#00A3E0", secondary: "#EF3340" },
+            "Washington Nationals": { code: "WSH", primary: "#AB0003", secondary: "#14225A" },
+            "Boston Red Sox": { code: "BOS", primary: "#BD3039", secondary: "#0C2340" },
+            "New York Yankees": { code: "NYY", primary: "#0C2340", secondary: "#C4CED4" },
+            "Colorado Rockies": { code: "COL", primary: "#33006F", secondary: "#C4CED4" },
+            "Atlanta Braves": { code: "ATL", primary: "#CE1141", secondary: "#13274F" },
+            "Seattle Mariners": { code: "SEA", primary: "#0C2340", secondary: "#005C5C" },
+            "Toronto Blue Jays": { code: "TOR", primary: "#134A8E", secondary: "#E8291C" },
+            "Kansas City Royals": { code: "KC", primary: "#004687", secondary: "#BD9B60" },
+            "Cleveland Guardians": { code: "CLE", primary: "#0C2340", secondary: "#E31937" },
+            "Los Angeles Dodgers": { code: "LAD", primary: "#005A9C", secondary: "#EF3340" },
+            "Detroit Tigers": { code: "DET", primary: "#0C2340", secondary: "#FA4616" },
+            "San Diego Padres": { code: "SD", primary: "#2F241D", secondary: "#FFC425" },
+            "Tampa Bay Rays": { code: "TB", primary: "#092C5C", secondary: "#8FBCE6" },
+            "Chicago White Sox": { code: "CWS", primary: "#27251F", secondary: "#C4CED4" },
+            "Minnesota Twins": { code: "MIN", primary: "#002B49", secondary: "#D31145" },
+            "Texas Rangers": { code: "TEX", primary: "#003278", secondary: "#C0111F" },
+            "Milwaukee Brewers": { code: "MIL", primary: "#12284C", secondary: "#FFC52F" },
+            "Pittsburgh Pirates": { code: "PIT", primary: "#FDB827", secondary: "#27251F" },
+            "St. Louis Cardinals": { code: "STL", primary: "#C41E3A", secondary: "#0C2340" },
+            "Houston Astros": { code: "HOU", primary: "#002D62", secondary: "#EB6E1F" },
+            "New York Mets": { code: "NYM", primary: "#002D72", secondary: "#FF5910" },
+            "Baltimore Orioles": { code: "BAL", primary: "#DF4601", secondary: "#000000" },
+            "Oakland Athletics": { code: "OAK", primary: "#003831", secondary: "#EFB21E" },
+            "Philadelphia Phillies": { code: "PHI", primary: "#E81828", secondary: "#002D62" },
+            "Los Angeles Angels": { code: "LAA", primary: "#BA0021", secondary: "#003278" },
+            "Cincinnati Reds": { code: "CIN", primary: "#C6011F", secondary: "#000000" },
+            "Chicago Cubs": { code: "CHC", primary: "#0E3386", secondary: "#CC3433" }
         };
 
         function getTeamBadgeHTML(teamName, small = false) {
-            let code = TEAM_CODES[teamName] || teamName.substring(0, 3).toUpperCase();
+            let teamData = MLB_TEAMS[teamName] || { code: teamName.substring(0, 3).toUpperCase(), primary: "#1e293b", secondary: "#38bdf8" };
             let size = small ? '40px' : '52px';
             let fontSize = small ? '0.75rem' : '1.05rem';
-            return `<div class="team-insignia" style="width: ${size}; height: ${size}; min-width: ${size}; min-height: ${size}; font-size: ${fontSize};">${code}</div>`;
+            
+            return `
+            <div class="team-insignia" style="width: ${size}; height: ${size}; min-width: ${size}; min-height: ${size}; background: linear-gradient(135deg, ${teamData.primary}, #090d16); border-color: ${teamData.secondary};">
+                <svg width="100%" height="100%" viewBox="0 0 100 100" style="position: absolute; top:0; left:0; opacity: 0.15; pointer-events: none;">
+                    <circle cx="50" cy="50" r="40" fill="${teamData.secondary}" />
+                </svg>
+                <span style="position: relative; z-index: 2; font-size: ${fontSize}; font-weight: 900; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${teamData.code}</span>
+            </div>`;
         }
 
         window.addEventListener('DOMContentLoaded', () => {
