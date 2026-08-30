@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from simulator import process_all_matches
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
 
 VISIT_FILE = "visits.txt"
 HISTORY_FILE = "history.json"
