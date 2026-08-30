@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB - Pronóstico Cuantitativo</title>
+    <title>MLB - Pronóstico Cuantitativo y Generador de Parlay</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -47,7 +47,7 @@
         .tabs-nav {
             display: flex;
             justify-content: center;
-            gap: 0.6rem;
+            gap: 0.5rem;
             margin-bottom: 1.5rem;
             border-bottom: 2px solid #1e293b;
             padding-bottom: 0.8rem;
@@ -58,10 +58,10 @@
             background-color: #1e293b;
             color: #94a3b8;
             border: 1px solid #334155;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.9rem;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -187,7 +187,7 @@
         }
 
         /* Matriz y Contenedores */
-        .matrix-container, .history-container, .padlet-container {
+        .matrix-container, .history-container, .padlet-container, .parlay-container {
             background-color: #1e293b;
             border: 1px solid #334155;
             border-radius: 10px;
@@ -267,6 +267,105 @@
             border-radius: 8px;
             background-color: #0f172a;
         }
+
+        /* Estilos Generador de Parlay */
+        .parlay-builder-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+
+        @media (max-width: 900px) {
+            .parlay-builder-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .parlay-panel {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .parlay-panel h3 {
+            color: #38bdf8;
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.4rem;
+        }
+
+        .parlay-checkbox-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #1e293b;
+            padding: 0.6rem 0.8rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border: 1px solid #334155;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .parlay-checkbox-item input {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .selected-picks-list {
+            list-style: none;
+            min-height: 100px;
+            max-height: 220px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .selected-picks-list li {
+            background-color: #1e293b;
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            margin-bottom: 0.4rem;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid #38bdf8;
+        }
+
+        .parlay-summary-box {
+            background-color: #1e293b;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            font-size: 0.85rem;
+        }
+
+        .parlay-summary-box div {
+            margin-bottom: 0.4rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-parlay {
+            width: 100%;
+            background-color: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .btn-parlay:hover {
+            background-color: #0ea5e9;
+        }
     </style>
 </head>
 <body>
@@ -282,6 +381,7 @@
             <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">Partidos del Día</button>
             <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Matriz de Porcentajes</button>
             <button class="tab-btn" onclick="switchTab(event, 'history-tab')">📁 Historial</button>
+            <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">🎲 Generador de Parlay</button>
             <button class="tab-btn" onclick="switchTab(event, 'padlet-tab')">📌 Padlet</button>
         </div>
 
@@ -413,25 +513,56 @@
             </div>
         </div>
 
-        <!-- Pestaña 4: Padlet -->
+        <!-- Pestaña 4: Generador de Parlay -->
+        <div id="parlay-tab" class="tab-content">
+            <div class="parlay-container">
+                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador de Parlay Interactivo</h2>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Selecciona los pronósticos de la jornada para armar tu parlay y calcular combinaciones.</p>
+
+                <div class="parlay-builder-grid">
+                    <div class="parlay-panel">
+                        <h3>1. Selecciona tus Logros</h3>
+                        <div id="parlay-options-list" style="max-height: 280px; overflow-y: auto;">
+                            <!-- Se llena dinámicamente con los partidos de la jornada -->
+                        </div>
+                    </div>
+
+                    <div class="parlay-panel">
+                        <h3>2. Tu Combinación Actual</h3>
+                        <ul id="parlay-selected-list" class="selected-picks-list">
+                            <li style="color: #64748b; text-align: center; border-left: none; display: block;">No hay selecciones activas.</li>
+                        </ul>
+
+                        <div class="parlay-summary-box">
+                            <div><span>Selecciones:</span> <strong id="parlay-count">0</strong></div>
+                            <div><span>Cuota Estimada (Aprox):</span> <strong id="parlay-odds" style="color: #fbbf24;">+100</strong></div>
+                        </div>
+
+                        <button class="btn-parlay" onclick="saveParlayToHistory()">Guardar Parlay en Historial</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestaña 5: Padlet -->
         <div id="padlet-tab" class="tab-content">
             <div class="padlet-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Tablero de Notas - Padlet</h2>
                 <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Notas colaborativas y tablero de seguimiento externo.</p>
                 
-                <!-- Reemplaza el enlace src con tu URL compartida de Padlet si es necesario -->
                 <iframe class="padlet-embed" src="https://padlet.com/embed/placeholder" allow="camera;microphone;geolocation"></iframe>
             </div>
         </div>
     </div>
 
-    <!-- Script de Pestañas e Historial con LocalStorage -->
+    <!-- Script de Pestañas, Historial y Generador de Parlay -->
     <script>
         const CURRENT_DATE = "30-08-2026";
 
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('current-date-label').innerText = CURRENT_DATE;
             autoSavePredictions();
+            initParlayBuilder();
         });
 
         function switchTab(evt, tabId) {
@@ -489,14 +620,24 @@
                 html += `<ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px;">`;
                 
                 historyData[dateKey].forEach(item => {
-                    html += `
-                        <li style="background-color: #1e293b; padding: 8px; border-radius: 6px; border: 1px solid #334155; font-size: 0.78rem;">
-                            <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">⚾ ${item.match}</div>
-                            <div style="color: #cbd5e1;">🏆 J.C.: ${item.winnerFull}</div>
-                            <div style="color: #cbd5e1;">⚡ F5: ${item.winnerF5}</div>
-                            <div style="color: #cbd5e1;">📐 Run Line: ${item.runline}</div>
-                        </li>
-                    `;
+                    if(item.isParlay) {
+                        html += `
+                            <li style="background-color: rgba(56, 189, 248, 0.08); padding: 8px; border-radius: 6px; border: 1px solid #38bdf8; font-size: 0.78rem; grid-column: 1 / -1;">
+                                <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">🎲 PARLAY COMBINADO (${item.picks.length} selecciones)</div>
+                                <div style="color: #cbd5e1; margin-bottom: 4px;">Logros: ${item.picks.join(' | ')}</div>
+                                <div style="color: #fbbf24; font-weight: 600;">Cuota estimada: ${item.odds}</div>
+                            </li>
+                        `;
+                    } else {
+                        html += `
+                            <li style="background-color: #1e293b; padding: 8px; border-radius: 6px; border: 1px solid #334155; font-size: 0.78rem;">
+                                <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">⚾ ${item.match}</div>
+                                <div style="color: #cbd5e1;">🏆 J.C.: ${item.winnerFull}</div>
+                                <div style="color: #cbd5e1;">⚡ F5: ${item.winnerF5}</div>
+                                <div style="color: #cbd5e1;">📐 Run Line: ${item.runline}</div>
+                            </li>
+                        `;
+                    }
                 });
                 html += `</ul></div>`;
             });
@@ -511,6 +652,84 @@
                 autoSavePredictions();
                 alert('Historial limpiado y actualizado.');
             }
+        }
+
+        // Lógica del Generador de Parlay
+        function initParlayBuilder() {
+            const listContainer = document.getElementById('parlay-options-list');
+            let rows = document.querySelectorAll('#matrix-table-data tbody tr');
+            let html = '';
+
+            rows.forEach((row, index) => {
+                let matchName = row.getAttribute('data-match-key');
+                let winnerFull = row.getAttribute('data-winner-full');
+                let winnerF5 = row.getAttribute('data-winner-f5');
+
+                html += `
+                    <label class="parlay-checkbox-item">
+                        <div>
+                            <strong style="color: #38bdf8; display: block;">${matchName}</strong>
+                            <span style="color: #94a3b8; font-size: 0.75rem;">Pick J.C.: ${winnerFull} / F5: ${winnerF5}</span>
+                        </div>
+                        <input type="checkbox" value="${matchName} (${winnerFull})" onchange="updateParlaySelection()">
+                    </label>
+                `;
+            });
+
+            listContainer.innerHTML = html;
+        }
+
+        function updateParlaySelection() {
+            let checkboxes = document.querySelectorAll('#parlay-options-list input[type="checkbox"]:checked');
+            let selectedListContainer = document.getElementById('parlay-selected-list');
+            let countLabel = document.getElementById('parlay-count');
+            let oddsLabel = document.getElementById('parlay-odds');
+
+            countLabel.innerText = checkboxes.length;
+
+            if (checkboxes.length === 0) {
+                selectedListContainer.innerHTML = '<li style="color: #64748b; text-align: center; border-left: none; display: block;">No hay selecciones activas.</li>';
+                oddsLabel.innerText = '+100';
+                return;
+            }
+
+            let html = '';
+            let estimatedOddsVal = 100;
+
+            checkboxes.forEach((cb, idx) => {
+                html += `<li><span>${cb.value}</span> <strong style="color: #38bdf8;">✓</strong></li>`;
+                estimatedOddsVal += (idx > 0) ? 130 * idx : 110;
+            });
+
+            selectedListContainer.innerHTML = html;
+            oddsLabel.innerText = `+${estimatedOddsVal}`;
+        }
+
+        function saveParlayToHistory() {
+            let checkboxes = document.querySelectorAll('#parlay-options-list input[type="checkbox"]:checked');
+            if (checkboxes.length === 0) {
+                alert('Selecciona al menos un logro para guardar tu parlay.');
+                return;
+            }
+
+            let picks = [];
+            checkboxes.forEach(cb => picks.push(cb.value));
+            let odds = document.getElementById('parlay-odds').innerText;
+
+            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history') || '{}');
+            if (!historyData[CURRENT_DATE]) {
+                historyData[CURRENT_DATE] = [];
+            }
+
+            historyData[CURRENT_DATE].unshift({
+                isParlay: true,
+                picks: picks,
+                odds: odds
+            });
+
+            localStorage.setItem('mlb_saved_history', JSON.stringify(historyData));
+            alert('¡Parlay guardado con éxito en la pestaña de Historial!');
+            switchTab({ currentTarget: document.querySelectorAll('.tab-btn')[2] }, 'history-tab');
         }
     </script>
 </body>
