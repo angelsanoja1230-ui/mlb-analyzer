@@ -207,7 +207,6 @@
             border: 1px solid #334155;
         }
 
-        /* Botón de Guardar Pronóstico */
         .save-btn {
             width: 100%;
             background-color: #0284c7;
@@ -224,7 +223,6 @@
             background-color: #0369a1;
         }
 
-        /* Secciones de Parlay por Niveles */
         .parlay-section {
             background-color: #1e293b;
             border: 1px solid #334155;
@@ -265,7 +263,7 @@
         }
 
         .parlay-item {
-            padding: 8px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #1e293b;
             color: #cbd5e1;
             font-size: 0.95rem;
@@ -294,7 +292,7 @@
         <div id="matches-tab" class="tab-content active">
             <div class="matches-grid">
                 {% for match in matches %}
-                <div class="match-card {% if match.is_mega_play %}mega-play-border{% endif %}" id="match-{{ loop.index0 }}">
+                <div class="match-card {% if match.is_mega_play %}mega-play-border{% endif %}">
                     <div class="match-header">
                         <span>{{ match.time }}</span>
                         <span>📍 {{ match.stadium }}</span>
@@ -319,16 +317,16 @@
                     <div class="probabilities">
                         <div class="prob-box">
                             <span>Visita (Win %)</span>
-                            <strong class="p-away">{{ match.prob_away }}%</strong>
+                            <strong>{{ match.prob_away }}%</strong>
                         </div>
                         <div class="prob-box" style="border-left: 1px solid #334155; padding-left: 1.5rem;">
                             <span>Local (Win %)</span>
-                            <strong class="p-home">{{ match.prob_home }}%</strong>
+                            <strong>{{ match.prob_home }}%</strong>
                         </div>
                     </div>
 
                     <div class="details-grid">
-                        <div><strong>Abridores:</strong> <span class="s-away">{{ match.starter_away }}</span> vs <span class="s-home">{{ match.starter_home }}</span></div>
+                        <div><strong>Abridores:</strong> {{ match.starter_away }} vs {{ match.starter_home }}</div>
                         <div><strong>Clima:</strong> Viento {{ match.wind_speed_mph }} mph ({{ match.wind_direction }}) | Temp: {{ match.temperature_f }}°F</div>
                     </div>
 
@@ -342,11 +340,11 @@
             </div>
         </div>
 
-        <!-- Pestaña 2: Generador de Parlay por Niveles -->
+        <!-- Pestaña 2: Generador de Parlay Inteligente -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-section">
                 <h2 style="color: #38bdf8; text-align: center; margin-bottom: 1rem;">Generador de Parlay Estratégico</h2>
-                <p style="color: #94a3b8; text-align: center; margin-bottom: 1.5rem;">Selecciona el nivel de combinaciones que deseas armar basado en las selecciones de valor detectadas.</p>
+                <p style="color: #94a3b8; text-align: center; margin-bottom: 1.5rem;">Selecciona el nivel de combinaciones. El sistema filtra solo partidos con valor real (EV+) y mezcla las opciones de forma única.</p>
                 
                 <div class="parlay-tiers">
                     <button class="tier-btn active" onclick="loadParlayTier(2, event)">Parlay de 2 (Seguro)</button>
@@ -361,15 +359,13 @@
             </div>
         </div>
 
-        <!-- Pestaña 3: Pronósticos Guardados / Resultados -->
+        <!-- Pestaña 3: Pronósticos Guardados -->
         <div id="saved-tab" class="tab-content">
             <div class="parlay-section">
                 <h2 style="color: #38bdf8; text-align: center; margin-bottom: 1rem;">Historial y Seguimiento de Resultados</h2>
-                <p style="color: #94a3b8; text-align: center; margin-bottom: 1.5rem;">Aquí puedes chequear los pronósticos que guardaste previamente para verificar sus resultados.</p>
+                <p style="color: #94a3b8; text-align: center; margin-bottom: 1.5rem;">Aquí puedes chequear los pronósticos que guardaste previamente.</p>
                 
-                <div class="parlay-card-list" id="saved-predictions-list">
-                    <!-- Listado guardado en localStorage -->
-                </div>
+                <div class="parlay-card-list" id="saved-predictions-list"></div>
                 <button onclick="clearSaved()" style="margin-top: 1rem; background: #ef4444; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Limpiar Historial</button>
             </div>
         </div>
@@ -402,16 +398,29 @@
             }
         }
 
-        // Recopilar todas las recomendaciones disponibles para armar los parlays
-        function getAllPlays() {
+        // Recopila EXCLUSIVAMENTE los partidos que son Mega Jugadas (EV+ > 5%)
+        function getMegaPlaysOnly() {
             const cards = document.querySelectorAll('.match-card');
             let plays = [];
             cards.forEach(card => {
-                const text = card.querySelector('.recommendation-box').innerText;
-                const matchTitle = card.querySelector('.team-name').innerText + " vs " + card.querySelectorAll('.team-name')[1].innerText;
-                plays.push({ match: matchTitle, recommendation: text });
+                const recText = card.querySelector('.recommendation-box').innerText;
+                // Ignorar partidos sin valor suficiente
+                if (!recText.includes("Sin margen de valor")) {
+                    const matchTitle = card.querySelector('.team-name').innerText + " vs " + card.querySelectorAll('.team-name')[1].innerText;
+                    plays.push({ match: matchTitle, recommendation: recText });
+                }
             });
             return plays;
+        }
+
+        // Función para mezclar aleatoriamente el array de jugadas (Algoritmo Fisher-Yates)
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
         }
 
         function loadParlayTier(count, evt) {
@@ -421,31 +430,37 @@
             }
 
             const container = document.getElementById('parlay-results-container');
-            const plays = getAllPlays();
+            let plays = getMegaPlaysOnly();
             
             if(plays.length === 0) {
-                container.innerHTML = '<p style="color:#94a3b8; text-align:center;">No hay partidos disponibles.</p>';
+                container.innerHTML = '<p style="color:#94a3b8; text-align:center;">No hay suficientes Mega Jugadas con valor hoy para armar combinaciones.</p>';
                 return;
             }
 
-            let html = `<p style="color: #fbbf24; font-weight: bold; margin-bottom: 1rem;">🎯 Combinación Sugerida de ${count} Logros:</p>`;
-            html += '<ul style="list-style: none;">';
+            // Mezclar aleatoriamente para que salgan combinaciones distintas cada vez
+            plays = shuffleArray(plays);
+
+            if(plays.length < count) {
+                container.innerHTML = `<p style="color: #fbbf24; text-align:center;">Solo hay ${plays.length} jugadas con valor positivo hoy. Mostrando la combinación máxima disponible:</p>`;
+            } else {
+                container.innerHTML = `<p style="color: #fbbf24; font-weight: bold; margin-bottom: 1rem;">🎯 Combinación Sugerida de ${count} Logros:</p>`;
+            }
+
+            let html = '<ul style="list-style: none;">';
+            let limit = Math.min(count, plays.length);
             
-            // Tomar 'count' elementos para simular el parlay
-            for(let i = 0; i < Math.min(count, plays.length); i++) {
-                html += `<li class="parlay-item"><span>⚾ <strong>${plays[i].match}</strong></span> <span>${plays[i].recommendation}</span></li>`;
+            for(let i = 0; i < limit; i++) {
+                html += `<li class="parlay-item"><span>⚾ <strong>${plays[i].match}</strong></span> <span style="color: #38bdf8;">${plays[i].recommendation}</span></li>`;
             }
             
             html += '</ul>';
-            container.innerHTML = html;
+            container.innerHTML += html;
         }
 
-        // Guardar pronóstico usando LocalStorage del navegador
         function savePrediction(matchName, recommendation, time) {
             let saved = JSON.parse(localStorage.getItem('saved_mlb_predictions') || '[]');
             const entry = { match: matchName, rec: recommendation, time: time, date: '30-08-2026' };
             
-            // Evitar duplicados exactos
             if(!saved.some(s => s.match === matchName && s.rec === recommendation)) {
                 saved.push(entry);
                 localStorage.setItem('saved_mlb_predictions', JSON.stringify(saved));
@@ -465,7 +480,7 @@
             }
 
             let html = '<ul style="list-style: none;">';
-            saved.forEach((item, index) => {
+            saved.forEach((item) => {
                 html += `<li class="parlay-item" style="display: block; padding: 10px 0;">
                     <div style="color: #38bdf8; font-weight: bold;">🕒 ${item.time} - ${item.match}</div>
                     <div style="color: #cbd5e1; margin-top: 4px;">${item.rec}</div>
