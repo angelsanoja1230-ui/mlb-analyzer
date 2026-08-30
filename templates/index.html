@@ -187,12 +187,11 @@
         }
 
         /* Matriz de Datos */
-        .matrix-container {
+        .matrix-container, .history-container, .padlet-container {
             background-color: #1e293b;
             border: 1px solid #334155;
             border-radius: 10px;
             padding: 1.2rem;
-            overflow-x: auto;
         }
 
         .matrix-table {
@@ -260,11 +259,13 @@
             object-fit: contain;
         }
 
-        .parlay-section {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 1.5rem;
+        /* Contenedor embebido de Padlet */
+        .padlet-embed {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 8px;
+            background-color: #0f172a;
         }
     </style>
 </head>
@@ -280,6 +281,8 @@
         <div class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">Partidos del Día</button>
             <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Matriz de Porcentajes</button>
+            <button class="tab-btn" onclick="switchTab(event, 'history-tab')">📁 Historial</button>
+            <button class="tab-btn" onclick="switchTab(event, 'padlet-tab')">📌 Padlet</button>
         </div>
 
         <!-- Pestaña 1: Partidos (Tarjetas) -->
@@ -385,9 +388,37 @@
                 </table>
             </div>
         </div>
+
+        <!-- Pestaña 3: Historial -->
+        <div id="history-tab" class="tab-content">
+            <div class="history-container">
+                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Historial de Pronósticos y Tracking</h2>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Registro acumulado de jornadas anteriores y rendimiento del modelo (history.json).</p>
+                
+                <div style="background-color: #0f172a; padding: 1.5rem; border-radius: 8px; text-align: center; color: #94a3b8; border: 1px dashed #334155;">
+                    {% if history_data %}
+                        <!-- Aquí se renderizaría el historial si se pasa desde Flask -->
+                        <p>Datos de historial cargados correctamente.</p>
+                    {% else %}
+                        <p>No hay registros de historial previos cargados en este momento o el archivo se encuentra sincronizándose.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestaña 4: Padlet -->
+        <div id="padlet-tab" class="tab-content">
+            <div class="padlet-container">
+                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Tablero de Notas - Padlet</h2>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Notas colaborativas y tablero de seguimiento externo.</p>
+                
+                <!-- Reemplaza el link de src con tu enlace embed real de Padlet si lo requieres -->
+                <iframe class="padlet-embed" src="https://padlet.com/embed/placeholder" allow="camera;microphone;geolocation"></iframe>
+            </div>
+        </div>
     </div>
 
-    <!-- Script Básico para las Pestañas -->
+    <!-- Script para el control de Pestañas -->
     <script>
         function switchTab(evt, tabId) {
             const contents = document.querySelectorAll('.tab-content');
