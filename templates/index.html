@@ -112,7 +112,7 @@
                         <div>
                             <div class="flex justify-between items-center mb-3">
                                 <span class="bg-amber-500/10 text-amber-400 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/20">{{ play.type }}</span>
-                                <span class="text-emerald-400 font-bold text-sm">{{ play.confidence }}</span>
+                                <span class="text-emerald-400 font-bold text-sm">{{ play.confidence_str }}</span>
                             </div>
                             <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-1">{{ play.match }}</h3>
                             <p class="text-xl font-extrabold text-white mb-4">{{ play.pick }}</p>
@@ -123,19 +123,44 @@
                     </div>
                     {% else %}
                     <div class="col-span-full bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
-                        <p class="text-slate-400">No se detectaron jugadas con margen superior al 55% de confianza para el día de hoy.</p>
+                        <p class="text-slate-400">No se detectaron jugadas con margen superior para el día de hoy.</p>
                     </div>
                     {% endfor %}
                 </div>
             </section>
         </div>
 
-        <!-- CONTENIDO: PESTAÑA 3 - PARLAY (Placeholder temporal) -->
+        <!-- CONTENIDO: PESTAÑA 3 - PARLAY DEL DÍA -->
         <div id="tab-parlay" class="tab-content hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
-                <h2 class="text-2xl font-bold text-indigo-400 mb-2">🎯 Parlay Combinado</h2>
-                <p class="text-slate-400">Próximamente: Sugerencias de parlay optimizadas con base en las simulaciones.</p>
-            </div>
+            <section class="mb-8">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl mb-6 border-indigo-500/30">
+                    <h2 class="text-2xl font-bold text-indigo-400 mb-2 flex items-center gap-2">🎯 Parlay Combinado del Día</h2>
+                    <p class="text-slate-400 text-sm">Combinación sugerida de alta probabilidad basada en las selecciones principales de las simulaciones.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    {% for p in parlay_picks %}
+                    <div class="bg-slate-900 border border-indigo-500/40 rounded-2xl p-6 shadow-lg flex flex-col justify-between relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+                            Leg #{{ loop.index }}
+                        </div>
+                        <div>
+                            <span class="bg-indigo-500/10 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full border border-indigo-500/20 inline-block mb-3">{{ p.type }}</span>
+                            <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-1">{{ p.match }}</h3>
+                            <p class="text-lg font-extrabold text-white mb-3">{{ p.pick }}</p>
+                        </div>
+                        <div class="bg-slate-950/60 rounded-xl p-3 text-indigo-300 text-xs border border-indigo-900/50 flex justify-between items-center">
+                            <span>Confianza simulación:</span>
+                            <strong class="text-emerald-400">{{ p.confidence_str }}</strong>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-span-full bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
+                        <p class="text-slate-400">No hay suficientes selecciones para armar el parlay hoy.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
         </div>
 
         <!-- CONTENIDO: PESTAÑA 4 - HISTÓRICO (Placeholder temporal) -->
@@ -155,16 +180,13 @@
     <!-- Script para alternar entre pestañas de forma fluida -->
     <script>
         function switchTab(tabId) {
-            // Ocultar todas las pestañas
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             
-            // Remover estilos activos de todos los botones
             ['partidos', 'jugadas', 'parlay', 'historico'].forEach(id => {
                 const btn = document.getElementById('btn-' + id);
                 btn.className = "py-3 px-6 font-medium text-slate-400 hover:text-slate-200 transition-all";
             });
 
-            // Mostrar la pestaña seleccionada y activar su botón
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             const activeBtn = document.getElementById('btn-' + tabId);
             activeBtn.className = "py-3 px-6 font-bold text-emerald-400 border-b-2 border-emerald-400 transition-all";
