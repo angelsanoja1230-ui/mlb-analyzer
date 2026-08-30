@@ -276,23 +276,61 @@ function registerParlayToAudit(parlayName) {
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
     
-    container.innerHTML = BASE_MATCHES.map((m, idx) => {
-        // Lógica lógica para simular de forma realista según la hora del partido
-        // Los primeros partidos del día (ej. los primeros de la lista) ya concluyeron; los más tarde siguen en juego.
-        let isFinal = idx < 9; // Los primeros 9 partidos ya finalizaron, el resto en juego o por empezar
-        let gameState = isFinal ? "FINALIZADO" : "EN VIVO (Inning 7)";
-        
-        // Marcadores simulados realistas para partidos finalizados vs en vivo
+    // Clasificar inteligentemente los partidos según su hora programada vs la hora actual de simulación (Ej: 7:12 PM)
+    const processedMatches = BASE_MATCHES.map((m, idx) => {
+        // Determinamos el estado basándonos en el horario del partido y su índice
+        // Los partidos más tempranos ya terminaron, los del medio están en juego, los de la noche no han empezado.
+        let statusType = 'FINAL';
+        let gameState = 'FINALIZADO';
         let awayScore = (idx * 3) % 8;
         let homeScore = (idx + 2) % 7;
+        let situational = '🏁 Encuentro Finalizado';
+        let pickStatus = '✔️ Apuesta cerrada y auditada';
+        let sortOrder = 3; // 1: En Vivo, 2: Por Comenzar, 3: Finalizado (para mandar al fondo)
+
+        // Simulación basada en los horarios de la lista base
+        if (m.time.includes('7:20 PM')) {
+            statusType = 'UPCOMING';
+            gameState = 'PRÓXIMAMENTE';
+            awayScore = '-';
+            homeScore = '-';
+            situational = '⏳ Juego programado (Sin iniciar)';
+            pickStatus = '🔒 Esperando apertura de lanzadores';
+            sortOrder = 2;
+        } else if (m.time.includes('4:05') || m.time.includes('4:07')) {
+            statusType = 'LIVE';
+            gameState = 'EN VIVO (Inning 7)';
+            situational = '⚾ Outs: 1 | 🏃 Bases: 2da y 3ra';
+            pickStatus = '⚠️ Siguiendo fluctuación de cuotas';
+            sortOrder = 1;
+        }
+
+        return {
+            ...m,
+            statusType,
+            gameState,
+            awayScore,
+            homeScore,
+            situational,
+            pickStatus,
+            sortOrder
+        };
+    });
+
+    // Ordenar para que los finalizados bajen y los en juego/próximos queden arriba
+    processedMatches.sort((a, b) => a.sortOrder - b.sortOrder);
+
+    container.innerHTML = processedMatches.map(m => {
+        let isFinal = m.statusType === 'FINAL';
+        let isUpcoming = m.statusType === 'UPCOMING';
 
         return `
             <div class="live-card">
                 <div class="match-header">
-                    <span class="${isFinal ? 'badge-pending' : 'live-tag'}" style="${isFinal ? 'background: rgba(156,163,175,0.1); color: var(--text-muted); border-color: var(--border-subtle); font-size: 0.65rem;' : ''}">
-                        ${gameState}
+                    <span class="${isFinal ? 'badge-pending' : isUpcoming ? '' : 'live-tag'}" style="${isFinal ? 'background: rgba(156,163,175,0.1); color: var(--text-muted); border-color: var(--border-subtle); font-size: 0.65rem;' : isUpcoming ? 'background: rgba(56,189,248,0.1); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 800;' : ''}">
+                        ${m.gameState}
                     </span>
-                    <span>${m.stadium}</span>
+                    <span>🕒 ${m.time} | 🏟️ ${m.stadium}</span>
                 </div>
                 
                 <div class="live-scorebox" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -302,8 +340,8 @@ function renderLiveControl() {
                     </div>
                     
                     <div style="display: flex; align-items: center; justify-content: center; padding: 0 0.5rem;">
-                        <span style="font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: 0.05em;">
-                            ${awayScore} - ${homeScore}
+                        <span style="font-size: 1.5rem; font-weight: 900; color: ${isUpcoming ? 'var(--text-muted)' : 'var(--accent)'}; letter-spacing: 0.05em;">
+                            ${m.awayScore} - ${m.homeScore}
                         </span>
                     </div>
                     
@@ -314,13 +352,13 @@ function renderLiveControl() {
                 </div>
 
                 <div class="live-situational-info">
-                    <span>${isFinal ? '🏁 Encuentro Finalizado' : '⚾ Outs: 1 | 🏃 En bases: 2'}</span>
+                    <span>${m.situational}</span>
                 </div>
                 
                 <div class="live-best-play-box">
-                    <span style="font-size: 0.7rem; font-weight: 700; color: var(--success); text-transform: uppercase;">Estado de la Línea</span>
+                    <span style="font-size: 0.7rem; font-weight: 700; color: var(--success); text-transform: uppercase;">Estado del pronóstico</span>
                     <div style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-top:2px;">
-                        ${isFinal ? '✔️ Apuesta cerrada y auditada' : '⚠️ Siguiendo fluctuación de cuotas'}
+                        ${m.pickStatus}
                     </div>
                 </div>
             </div>
