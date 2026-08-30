@@ -189,32 +189,13 @@ function registerTrendPick(away, home) {
     };
     records.unshift(newRecord);
     saveAuditRecords(records);
-    alert(`Análisis de ${away} @ ${home} registrado exitosamente en la Hoja de Auditoría.`);
-}
-
-function renderMasterPick() {
-    const container = document.getElementById('master-pick-display-container');
-    container.innerHTML = `
-        <div class="master-pick-card">
-            <div class="master-badge">⭐ Sugerencia Dorada del Oráculo</div>
-            <div class="master-teams-showcase">
-                ${getTeamBadgeHTML("Philadelphia Phillies")}
-                <div class="master-matchup-title">Philadelphia Phillies vs Los Angeles Angels</div>
-                ${getTeamBadgeHTML("Los Angeles Angels")}
-            </div>
-            <div class="master-selection-box">
-                <div class="master-selection-title">Selección Cuantitativa Principal</div>
-                <div class="master-selection-value">Philadelphia Phillies ML & Under 9.5</div>
-                <div class="master-probability-badge">
-                    <span>📈 Confianza del Modelo:</span> <strong>78.4%</strong>
-                </div>
-            </div>
-            <div class="master-reason">
-                Análisis profundo basado en la ventaja abrumadora de Zack Wheeler en la lomita frente al bullpen alternativo de los Angels. Las métricas de WHIP y rotación proyectan una diferencia de +2.3 carreras en los primeros 6 episodios.
-            </div>
-            <button class="btn-action" style="max-width: 280px; margin: 1.5rem auto 0 auto;" onclick="registerMasterPickToAudit()">📌 Enviar Jugada Maestra a Auditoría</button>
-        </div>
-    `;
+    
+    // Forzar actualización inmediata si la tabla de auditoría está activa
+    if(document.getElementById('history-tab').classList.contains('active')) {
+        renderAuditHistory();
+    }
+    
+    alert(`Análisis de tendencias de ${away} @ ${home} registrado exitosamente en la Hoja de Auditoría.`);
 }
 
 function registerMasterPickToAudit() {
@@ -230,31 +211,12 @@ function registerMasterPickToAudit() {
     };
     records.unshift(newRecord);
     saveAuditRecords(records);
-    alert('¡Jugada Maestra enviada a la Hoja de Comparación con éxito!');
-}
 
-function renderParlays() {
-    const container = document.getElementById('auto-parlays-container');
-    container.innerHTML = `
-        <div class="auto-parlay-card">
-            <h5>Parlay de Alta Seguridad (Cuota ~3.40)</h5>
-            <ul>
-                <li>Philadelphia Phillies (ML vs LAA)</li>
-                <li>New York Yankees (ML vs BOS)</li>
-                <li>Houston Astros (F5 -0.5)</li>
-            </ul>
-            <button class="btn-action" onclick="registerParlayToAudit('Parlay Alta Seguridad (~3.40)')">📌 Enviar a Auditoría</button>
-        </div>
-        <div class="auto-parlay-card">
-            <h5>Parlay Explosivo de Runkits (Cuota ~7.80)</h5>
-            <ul>
-                <li>Los Angeles Dodgers (Run Line -1.5)</li>
-                <li>Atlanta Braves (Over 8.5)</li>
-                <li>Seattle Mariners (ML vs TOR)</li>
-            </ul>
-            <button class="btn-action" onclick="registerParlayToAudit('Parlay Explosivo (~7.80)')">📌 Enviar a Auditoría</button>
-        </div>
-    `;
+    if(document.getElementById('history-tab').classList.contains('active')) {
+        renderAuditHistory();
+    }
+
+    alert('¡Jugada Maestra enviada a la Hoja de Comparación con éxito!');
 }
 
 function registerParlayToAudit(parlayName) {
@@ -270,6 +232,11 @@ function registerParlayToAudit(parlayName) {
     };
     records.unshift(newRecord);
     saveAuditRecords(records);
+
+    if(document.getElementById('history-tab').classList.contains('active')) {
+        renderAuditHistory();
+    }
+
     alert(`${parlayName} registrado correctamente en la Hoja de Auditoría.`);
 }
 
