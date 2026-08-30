@@ -276,64 +276,57 @@ function registerParlayToAudit(parlayName) {
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
     
-    // Lista combinada de partidos: algunos en juego y otros simulados como finalizados
-    const liveAndFinishedMatches = BASE_MATCHES.map((m, idx) => {
-        // Simulamos estados mixtos para la demo: algunos Final, otros En Vivo
-        let isFinal = idx % 3 === 0; // Cada 3 partidos se simula como finalizado
-        let gameState = isFinal ? "FINALIZADO" : `En Juego (Inning ${idx + 2})`;
-        let awayScore = (idx * 2) % 7;
-        let homeScore = (idx + 3) % 6;
+    container.innerHTML = BASE_MATCHES.map((m, idx) => {
+        // Lógica lógica para simular de forma realista según la hora del partido
+        // Los primeros partidos del día (ej. los primeros de la lista) ya concluyeron; los más tarde siguen en juego.
+        let isFinal = idx < 9; // Los primeros 9 partidos ya finalizaron, el resto en juego o por empezar
+        let gameState = isFinal ? "FINALIZADO" : "EN VIVO (Inning 7)";
         
-        return {
-            ...m,
-            gameState: gameState,
-            isFinal: isFinal,
-            awayScore: awayScore,
-            homeScore: homeScore
-        };
-    });
+        // Marcadores simulados realistas para partidos finalizados vs en vivo
+        let awayScore = (idx * 3) % 8;
+        let homeScore = (idx + 2) % 7;
 
-    container.innerHTML = liveAndFinishedMatches.map(m => `
-        <div class="live-card">
-            <div class="match-header">
-                <span class="${m.isFinal ? 'badge-pending' : 'live-tag'}" style="${m.isFinal ? 'background: rgba(156,163,175,0.1); color: var(--text-muted); border-color: var(--border-subtle);' : ''}">
-                    ${m.gameState}
-                </span>
-                <span>${m.stadium}</span>
-            </div>
-            
-            <div class="live-scorebox" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
-                    ${getTeamBadgeHTML(m.away, true)}
-                    <span style="font-weight: 700; font-size: 0.85rem; line-height: 1.1;">${m.away}</span>
-                </div>
-                
-                <div style="display: flex; align-items: center; justify-content: center; padding: 0 0.5rem;">
-                    <span style="font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: 0.05em;">
-                        ${m.awayScore} - ${m.homeScore}
+        return `
+            <div class="live-card">
+                <div class="match-header">
+                    <span class="${isFinal ? 'badge-pending' : 'live-tag'}" style="${isFinal ? 'background: rgba(156,163,175,0.1); color: var(--text-muted); border-color: var(--border-subtle); font-size: 0.65rem;' : ''}">
+                        ${gameState}
                     </span>
+                    <span>${m.stadium}</span>
                 </div>
                 
-                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex: 1; text-align: right;">
-                    <span style="font-weight: 700; font-size: 0.85rem; line-height: 1.1;">${m.home}</span>
-                    ${getTeamBadgeHTML(m.home, true)}
+                <div class="live-scorebox" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+                        ${getTeamBadgeHTML(m.away, true)}
+                        <span style="font-weight: 700; font-size: 0.85rem; line-height: 1.1;">${m.away}</span>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; justify-content: center; padding: 0 0.5rem;">
+                        <span style="font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: 0.05em;">
+                            ${awayScore} - ${homeScore}
+                        </span>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex: 1; text-align: right;">
+                        <span style="font-weight: 700; font-size: 0.85rem; line-height: 1.1;">${m.home}</span>
+                        ${getTeamBadgeHTML(m.home, true)}
+                    </div>
                 </div>
-            </div>
 
-            <div class="live-situational-info">
-                <span>${m.isFinal ? '🏁 Partido Concluido' : '⚾ Outs: 2 | 🏃 Bases: Llena'}</span>
-            </div>
-            
-            <div class="live-best-play-box">
-                <span style="font-size: 0.7rem; font-weight: 700; color: var(--success); text-transform: uppercase;">Estado del pronóstico</span>
-                <div style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-top:2px;">
-                    ${m.isFinal ? '✅ Línea auditada con éxito' : 'En seguimiento de cuotas secundarias'}
+                <div class="live-situational-info">
+                    <span>${isFinal ? '🏁 Encuentro Finalizado' : '⚾ Outs: 1 | 🏃 En bases: 2'}</span>
+                </div>
+                
+                <div class="live-best-play-box">
+                    <span style="font-size: 0.7rem; font-weight: 700; color: var(--success); text-transform: uppercase;">Estado de la Línea</span>
+                    <div style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-top:2px;">
+                        ${isFinal ? '✔️ Apuesta cerrada y auditada' : '⚠️ Siguiendo fluctuación de cuotas'}
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
-
 function renderAuditHistory() {
     const container = document.getElementById('history-list-container');
     const records = getSavedAuditRecords();
