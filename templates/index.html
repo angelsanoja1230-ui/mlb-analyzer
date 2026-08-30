@@ -271,14 +271,8 @@
         /* Estilos Generador de Parlay */
         .parlay-builder-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 1.2rem;
-        }
-
-        @media (max-width: 900px) {
-            .parlay-builder-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         .parlay-panel {
@@ -286,6 +280,7 @@
             border: 1px solid #334155;
             border-radius: 8px;
             padding: 1rem;
+            margin-bottom: 1rem;
         }
 
         .parlay-panel h3 {
@@ -296,74 +291,83 @@
             padding-bottom: 0.4rem;
         }
 
-        .parlay-checkbox-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .best-play-banner {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(14, 165, 233, 0.05));
+            border: 1px solid #38bdf8;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.2rem;
+            text-align: center;
+        }
+
+        .best-play-banner h4 {
+            color: #38bdf8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+        }
+
+        .best-play-banner .pick-content {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .auto-parlays-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .auto-parlay-card {
             background-color: #1e293b;
-            padding: 0.6rem 0.8rem;
-            border-radius: 6px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .auto-parlay-card h5 {
+            color: #fbbf24;
+            font-size: 0.9rem;
             margin-bottom: 0.5rem;
-            border: 1px solid #334155;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-
-        .parlay-checkbox-item input {
-            cursor: pointer;
-            width: 16px;
-            height: 16px;
-        }
-
-        .selected-picks-list {
-            list-style: none;
-            min-height: 100px;
-            max-height: 220px;
-            overflow-y: auto;
-            margin-bottom: 1rem;
-        }
-
-        .selected-picks-list li {
-            background-color: #1e293b;
-            padding: 0.5rem 0.8rem;
-            border-radius: 6px;
-            margin-bottom: 0.4rem;
-            font-size: 0.8rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 3px solid #38bdf8;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.3rem;
         }
 
-        .parlay-summary-box {
-            background-color: #1e293b;
-            padding: 0.8rem;
-            border-radius: 6px;
-            border: 1px solid #334155;
-            font-size: 0.85rem;
+        .auto-parlay-card ul {
+            list-style: none;
+            margin-bottom: 0.8rem;
+            min-height: 80px;
         }
 
-        .parlay-summary-box div {
-            margin-bottom: 0.4rem;
-            display: flex;
-            justify-content: space-between;
+        .auto-parlay-card li {
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            padding: 3px 0;
+            border-bottom: 1px dashed rgba(51, 65, 85, 0.5);
         }
 
-        .btn-parlay {
+        .btn-parlay-action {
             width: 100%;
             background-color: #38bdf8;
             color: #0f172a;
             border: none;
-            padding: 0.7rem;
+            padding: 0.5rem;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             cursor: pointer;
-            margin-top: 0.8rem;
             transition: background 0.2s;
         }
 
-        .btn-parlay:hover {
+        .btn-parlay-action:hover {
             background-color: #0ea5e9;
         }
     </style>
@@ -393,7 +397,9 @@
                      data-match-key="{{ match.away }} @ {{ match.home }}"
                      data-winner-full="{{ match.winner_full_text }}"
                      data-winner-f5="{{ match.winner_f5_text }}"
-                     data-runline-prob="{{ match.run_line_prob_text }}">
+                     data-runline-prob="{{ match.run_line_prob_text }}"
+                     data-prob-away="{{ match.prob_away }}"
+                     data-prob-home="{{ match.prob_home }}">
                     <div class="match-header">
                         <span>{{ match.time }}</span>
                         <span>📍 {{ match.stadium }}</span>
@@ -459,7 +465,9 @@
                         <tr data-match-key="{{ match.away }} @ {{ match.home }}"
                             data-winner-full="{{ match.winner_full_text }}"
                             data-winner-f5="{{ match.winner_f5_text }}"
-                            data-runline-prob="{{ match.run_line_prob_text }}">
+                            data-runline-prob="{{ match.run_line_prob_text }}"
+                            data-prob-away="{{ match.prob_away }}"
+                            data-prob-home="{{ match.prob_home }}">
                             <td>
                                 <div class="table-match-cell">
                                     <div class="team-mini-box">
@@ -513,32 +521,23 @@
             </div>
         </div>
 
-        <!-- Pestaña 4: Generador de Parlay -->
+        <!-- Pestaña 4: Generador Automático de Parlay y Mejor Jugada -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador de Parlay Interactivo</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Selecciona los pronósticos de la jornada para armar tu parlay y calcular combinaciones.</p>
+                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático de Parlays & Análisis</h2>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Basado cuantitativamente en los datos del día: La jugada más sólida y combinaciones óptimas automáticas de 2, 3, 4 y 5 selecciones.</p>
 
-                <div class="parlay-builder-grid">
-                    <div class="parlay-panel">
-                        <h3>1. Selecciona tus Logros</h3>
-                        <div id="parlay-options-list" style="max-height: 280px; overflow-y: auto;">
-                            <!-- Se llena dinámicamente con los partidos de la jornada -->
-                        </div>
-                    </div>
+                <!-- La Mejor Jugada del Día -->
+                <div class="best-play-banner">
+                    <h4>⭐ La Mejor Jugada del Día (Lock of the Day)</h4>
+                    <div class="pick-content" id="best-play-text">Calculando mejor opción...</div>
+                </div>
 
-                    <div class="parlay-panel">
-                        <h3>2. Tu Combinación Actual</h3>
-                        <ul id="parlay-selected-list" class="selected-picks-list">
-                            <li style="color: #64748b; text-align: center; border-left: none; display: block;">No hay selecciones activas.</li>
-                        </ul>
-
-                        <div class="parlay-summary-box">
-                            <div><span>Selecciones:</span> <strong id="parlay-count">0</strong></div>
-                            <div><span>Cuota Estimada (Aprox):</span> <strong id="parlay-odds" style="color: #fbbf24;">+100</strong></div>
-                        </div>
-
-                        <button class="btn-parlay" onclick="saveParlayToHistory()">Guardar Parlay en Historial</button>
+                <!-- Generador Automático de Parlays -->
+                <div class="parlay-panel">
+                    <h3>Combinaciones Automáticas Generadas por Datos</h3>
+                    <div class="auto-parlays-grid" id="auto-parlays-container">
+                        <!-- Se llena dinámicamente -->
                     </div>
                 </div>
             </div>
@@ -555,14 +554,14 @@
         </div>
     </div>
 
-    <!-- Script de Pestañas, Historial y Generador de Parlay -->
+    <!-- Script de Pestañas, Historial y Generador Automático -->
     <script>
         const CURRENT_DATE = "30-08-2026";
 
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('current-date-label').innerText = CURRENT_DATE;
             autoSavePredictions();
-            initParlayBuilder();
+            initAutoParlayGenerator();
         });
 
         function switchTab(evt, tabId) {
@@ -623,7 +622,7 @@
                     if(item.isParlay) {
                         html += `
                             <li style="background-color: rgba(56, 189, 248, 0.08); padding: 8px; border-radius: 6px; border: 1px solid #38bdf8; font-size: 0.78rem; grid-column: 1 / -1;">
-                                <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">🎲 PARLAY COMBINADO (${item.picks.length} selecciones)</div>
+                                <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">🎲 ${item.title} (${item.picks.length} selecciones)</div>
                                 <div style="color: #cbd5e1; margin-bottom: 4px;">Logros: ${item.picks.join(' | ')}</div>
                                 <div style="color: #fbbf24; font-weight: 600;">Cuota estimada: ${item.odds}</div>
                             </li>
@@ -654,68 +653,90 @@
             }
         }
 
-        // Lógica del Generador de Parlay
-        function initParlayBuilder() {
-            const listContainer = document.getElementById('parlay-options-list');
+        // Lógica del Generador Automático de Parlays y Mejor Jugada
+        function initAutoParlayGenerator() {
             let rows = document.querySelectorAll('#matrix-table-data tbody tr');
-            let html = '';
+            let parsedPlays = [];
 
-            rows.forEach((row, index) => {
+            rows.forEach((row) => {
                 let matchName = row.getAttribute('data-match-key');
                 let winnerFull = row.getAttribute('data-winner-full');
-                let winnerF5 = row.getAttribute('data-winner-f5');
+                let probAway = parseFloat(row.getAttribute('data-prob-away')) || 50;
+                let probHome = parseFloat(row.getAttribute('data-prob-home')) || 50;
+                
+                // Determinar el porcentaje más alto de victoria para evaluar la confianza
+                let maxProb = Math.max(probAway, probHome);
 
-                html += `
-                    <label class="parlay-checkbox-item">
-                        <div>
-                            <strong style="color: #38bdf8; display: block;">${matchName}</strong>
-                            <span style="color: #94a3b8; font-size: 0.75rem;">Pick J.C.: ${winnerFull} / F5: ${winnerF5}</span>
-                        </div>
-                        <input type="checkbox" value="${matchName} (${winnerFull})" onchange="updateParlaySelection()">
-                    </label>
-                `;
+                parsedPlays.push({
+                    match: matchName,
+                    pick: winnerFull,
+                    confidence: maxProb,
+                    displayStr: `${matchName} → ${winnerFull} (${maxProb}%)`
+                });
             });
 
-            listContainer.innerHTML = html;
-        }
+            // Ordenar de mayor a menor porcentaje de probabilidad (la mejor jugada primero)
+            parsedPlays.sort((a, b) => b.confidence - a.confidence);
 
-        function updateParlaySelection() {
-            let checkboxes = document.querySelectorAll('#parlay-options-list input[type="checkbox"]:checked');
-            let selectedListContainer = document.getElementById('parlay-selected-list');
-            let countLabel = document.getElementById('parlay-count');
-            let oddsLabel = document.getElementById('parlay-odds');
-
-            countLabel.innerText = checkboxes.length;
-
-            if (checkboxes.length === 0) {
-                selectedListContainer.innerHTML = '<li style="color: #64748b; text-align: center; border-left: none; display: block;">No hay selecciones activas.</li>';
-                oddsLabel.innerText = '+100';
+            if (parsedPlays.length === 0) {
+                document.getElementById('best-play-text').innerText = "No hay datos suficientes para calcular.";
                 return;
             }
+
+            // 1. Mostrar la mejor jugada del día
+            let bestPlay = parsedPlays[0];
+            document.getElementById('best-play-text').innerHTML = `
+                <span style="color: #38bdf8;">${bestPlay.match}</span> — 
+                <span style="color: #fbbf24;">Gana: ${bestPlay.pick}</span> 
+                <span style="font-size: 0.85rem; color: #94a3b8; display: block; margin-top: 4px;">Confianza Cuantitativa: ${bestPlay.confidence}% de probabilidad</span>
+            `;
+
+            // 2. Generar automáticamente los parlays de 2, 3, 4 y 5 jugadas con los mejores porcentajes
+            let container = document.getElementById('auto-parlays-container');
+            let parlayConfigs = [
+                { count: 2, title: "Parlay Doble (Alta Seguridad)" },
+                { count: 3, title: "Parlay Triple (Balanceado)" },
+                { count: 4, title: "Parlay Cuádruple (Alto Valor)" },
+                { count: 5, title: "Parlay Quintuple (Proyección Máxima)" }
+            ];
 
             let html = '';
-            let estimatedOddsVal = 100;
+            parlayConfigs.forEach(cfg => {
+                // Tomar los elementos disponibles hasta el límite de la configuración (o todos si hay menos)
+                let selectedForParlay = parsedPlays.slice(0, Math.min(cfg.count, parsedPlays.length));
+                
+                if (selectedForParlay.length > 0) {
+                    let picksTextArray = selectedForParlay.map(p => p.displayStr);
+                    let estimatedOdds = `+${110 + (selectedForParlay.length * 130)}`;
+                    
+                    // Guardar en variable local para la acción de guardar
+                    let picksStringJSON = JSON.stringify(picksTextArray);
 
-            checkboxes.forEach((cb, idx) => {
-                html += `<li><span>${cb.value}</span> <strong style="color: #38bdf8;">✓</strong></li>`;
-                estimatedOddsVal += (idx > 0) ? 130 * idx : 110;
+                    html += `
+                        <div class="auto-parlay-card">
+                            <div>
+                                <h5><span>${cfg.title}</span> <span style="font-size: 0.75rem; color: #94a3b8;">(${selectedForParlay.length} picks)</span></h5>
+                                <ul>
+                    `;
+                    selectedForParlay.forEach(p => {
+                        html += `<li>✓ ${p.displayStr}</li>`;
+                    });
+                    html += `
+                                </ul>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.78rem; color: #fbbf24; margin-bottom: 6px; font-weight: 600;">Cuota Aprox: ${estimatedOdds}</div>
+                                <button class="btn-parlay-action" onclick='saveSpecificParlay("${cfg.title}", ${picksStringJSON}, "${estimatedOdds}")'>Guardar en Historial</button>
+                            </div>
+                        </div>
+                    `;
+                }
             });
 
-            selectedListContainer.innerHTML = html;
-            oddsLabel.innerText = `+${estimatedOddsVal}`;
+            container.innerHTML = html;
         }
 
-        function saveParlayToHistory() {
-            let checkboxes = document.querySelectorAll('#parlay-options-list input[type="checkbox"]:checked');
-            if (checkboxes.length === 0) {
-                alert('Selecciona al menos un logro para guardar tu parlay.');
-                return;
-            }
-
-            let picks = [];
-            checkboxes.forEach(cb => picks.push(cb.value));
-            let odds = document.getElementById('parlay-odds').innerText;
-
+        function saveSpecificParlay(title, picksArray, odds) {
             let historyData = JSON.parse(localStorage.getItem('mlb_saved_history') || '{}');
             if (!historyData[CURRENT_DATE]) {
                 historyData[CURRENT_DATE] = [];
@@ -723,12 +744,13 @@
 
             historyData[CURRENT_DATE].unshift({
                 isParlay: true,
-                picks: picks,
+                title: title,
+                picks: picksArray,
                 odds: odds
             });
 
             localStorage.setItem('mlb_saved_history', JSON.stringify(historyData));
-            alert('¡Parlay guardado con éxito en la pestaña de Historial!');
+            alert(`¡${title} guardado con éxito en la pestaña de Historial!`);
             switchTab({ currentTarget: document.querySelectorAll('.tab-btn')[2] }, 'history-tab');
         }
     </script>
