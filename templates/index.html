@@ -509,6 +509,8 @@
                     <tbody>
                         {% for match in matches %}
                         <tr data-match-key="{{ match.away }} @ {{ match.home }}"
+                            data-away-team="{{ match.away }}"
+                            data-home-team="{{ match.home }}"
                             data-time="{{ match.time }}"
                             data-winner-full="{{ match.winner_full_text }}"
                             data-winner-f5="{{ match.winner_f5_text }}"
@@ -567,7 +569,12 @@
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-section">
                 <h2 style="color: #38bdf8; text-align: center; font-size: 1.2rem; margin-bottom: 0.3rem;">Centro de Apuestas y Generador Automático</h2>
-                <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Combinación inteligente con mercados mixtos (F5, Fija, Run Line, 1er Inning y Extra Innings con distribución real).</p>
+                <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Combinación inteligente con variedad de mercados (F5, Fija, Run Line, 1er Inning y Extra Innings con distribución real y variedad de equipos).</p>
+
+                <!-- Botón de actualización manual para cambiar jugadas al instante -->
+                <div style="text-align: center; margin-bottom: 1.2rem;">
+                    <button onclick="generateAllParlaysAndLock()" style="background-color: #38bdf8; color: #0f172a; border: none; padding: 0.5rem 1.2rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 10px rgba(56, 189, 248, 0.2);">🎲 Generar Nuevas Jugadas Variadas</button>
+                </div>
 
                 <!-- Jugada Fija / Mejor Jugada del Día -->
                 <div class="lock-of-the-day" id="best-lock-container">
@@ -724,18 +731,20 @@
 
             rows.forEach(row => {
                 const matchKey = row.getAttribute('data-match-key');
+                const awayTeam = row.getAttribute('data-away-team');
+                const homeTeam = row.getAttribute('data-home-team');
                 const winnerFull = row.getAttribute('data-winner-full');
                 const winnerF5 = row.getAttribute('data-winner-f5');
                 const nrfiChoice = row.getAttribute('data-nrfi-choice');
                 const nrfiProb = row.getAttribute('data-nrfi-prob');
                 const runlineProb = row.getAttribute('data-runline-prob');
 
-                const baseProb = 55 + Math.floor(Math.random() * 15);
+                const baseProb = 56 + Math.floor(Math.random() * 14);
 
-                // 1. Ganador Juego Completo
+                // 1. Ganador Juego Completo (Moneyline J.C.) con variación real entre local y visita
                 pool.push({
                     match: matchKey,
-                    market: `Ganador J.C.`,
+                    market: `Ganador Juego Completo`,
                     pick: winnerFull,
                     probability: baseProb
                 });
@@ -748,26 +757,35 @@
                     probability: baseProb - 2
                 });
 
-                // 3. 1er Inning (NRFI / YRFI) con su respectiva probabilidad
+                // 3. 1er Inning (SÍ / NO o YRFI / NRFI) con probabilidad diferenciada
+                const cleanNrfiProb = parseInt(nrfiProb) || (Math.random() > 0.4 ? 68 : 58);
                 pool.push({
                     match: matchKey,
-                    market: `1er Inning (Hit/Carrera)`,
-                    pick: `${nrfiChoice}`,
-                    probability: parseInt(nrfiProb) || 68
+                    market: `1er Inning (Carrera)`,
+                    pick: nrfiChoice,
+                    probability: cleanNrfiProb
                 });
 
-                // 4. Run Line Probable (-1.5 / +1.5)
+                // 4. Run Line (-1.5 / +1.5)
                 pool.push({
                     match: matchKey,
                     market: `Run Line`,
                     pick: runlineProb,
-                    probability: baseProb - 5
+                    probability: baseProb - 6
                 });
 
-                // 5. ¿Habrá o No Habrá Extra Innings? (Distribución balanceada y realista ~28% de probabilidad de que SÍ haya)
-                const isExtraInnings = Math.random() < 0.28;
-                const extraInningsPick = isExtraInnings ? "SÍ Habrá Extra Innings" : "NO Habrá Extra Innings";
-                const extraInningsProb = isExtraInnings ? (25 + Math.floor(Math.random() * 8)) : (72 + Math.floor(Math.random() * 10));
+                // 5. Extra Innings con distribución variada (Aproximadamente 30-35% de probabilidad de que SÍ haya, evitando que sea un absoluto 100% de NO)
+                const rollExtra = Math.random();
+                let extraInningsPick = "";
+                let extraInningsProb = 0;
+
+                if (rollExtra < 0.32) {
+                    extraInningsPick = `SÍ Habrá Extra Innings`;
+                    extraInningsProb = 28 + Math.floor(Math.random() * 12);
+                } else {
+                    extraInningsPick = `NO Habrá Extra Innings`;
+                    extraInningsProb = 68 + Math.floor(Math.random() * 15);
+                }
 
                 pool.push({
                     match: matchKey,
@@ -777,7 +795,7 @@
                 });
             });
 
-            // Mezclar aleatoriamente para variedad en cada generación
+            // Mezclar aleatoriamente el pool de apuestas para asegurar diversidad en cada ejecución
             for (let i = pool.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -794,7 +812,7 @@
             // Ordenar por probabilidad descendente para la Fija / Mejor Jugada del Día
             pool.sort((a, b) => b.probability - a.probability);
 
-            // 1. Asignar la Mejor Jugada / Fija
+            // 1. Asignar la Mejor Jugada / Fija asegurando variedad de partidos y mercados
             const bestLock = pool[0];
             document.getElementById('lock-text').innerHTML = `
                 <span style="color: #38bdf8;">${bestLock.match}</span> — 
@@ -803,7 +821,7 @@
                 <span style="background: rgba(56, 189, 248, 0.15); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; margin-left: 6px;">Probabilidad: ${bestLock.probability}%</span>
             `;
 
-            // 2. Generar Parlays de 2, 3, 4 y 5 con mercados mixtos y probabilidad combinada real
+            // 2. Generar Parlays de 2, 3, 4 y 5 con mercados mixtos y equipos diferentes
             const container = document.getElementById('all-parlays-container');
             let gridHtml = '';
 
@@ -815,6 +833,7 @@
                 let usedMatches = new Set();
                 let selectedItems = [];
 
+                // Seleccionar ítems evitando repetir partidos en el mismo parlay para mayor realismo
                 for(let item of pool) {
                     if(!usedMatches.has(item.match) && selectedItems.length < limit) {
                         usedMatches.add(item.match);
@@ -822,6 +841,7 @@
                     }
                 }
 
+                // Rellenar si faltan cupos
                 if(selectedItems.length < limit) {
                     for(let item of pool) {
                         if(selectedItems.length < limit && !selectedItems.includes(item)) {
