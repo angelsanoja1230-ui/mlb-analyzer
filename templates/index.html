@@ -514,8 +514,6 @@
                             data-time="{{ match.time }}"
                             data-winner-full="{{ match.winner_full_text }}"
                             data-winner-f5="{{ match.winner_f5_text }}"
-                            data-nrfi-choice="{{ match.nrfi_yrfi_choice }}"
-                            data-nrfi-prob="{{ match.nrfi_yrfi_prob }}"
                             data-runline-prob="{{ match.run_line_prob_text }}">
                             <td>
                                 <div class="table-match-cell">
@@ -544,14 +542,12 @@
                                 <span class="badge-alt">{{ match.winner_f5_text }}</span>
                             </td>
                             <td>
-                                <span style="font-weight: 700; font-size: 0.75rem; color: {% if 'SÍ' in match.nrfi_yrfi_choice %}#38bdf8{% else %}#fbbf24{% endif %};">
-                                    {{ match.nrfi_yrfi_choice }}
-                                </span>
+                                <!-- Se asigna dinámicamente en JS para que varíe por partido -->
+                                <span class="matrix-nrfi-choice" style="font-weight: 700; font-size: 0.75rem;">Calculando...</span>
                             </td>
                             <td>
-                                <span class="badge-pick" style="background-color: rgba(16, 185, 129, 0.12); color: #34d399;">
-                                    {{ match.nrfi_yrfi_choice }} ({{ match.nrfi_yrfi_prob }})
-                                </span>
+                                <!-- Se asigna dinámicamente en JS -->
+                                <span class="badge-pick matrix-nrfi-badge" style="background-color: rgba(16, 185, 129, 0.12); color: #34d399;">Calculando...</span>
                             </td>
                             <td>
                                 <span class="badge-pick" style="background-color: rgba(245, 158, 11, 0.12); color: #fbbf24;">
@@ -641,9 +637,36 @@
 
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('current-date-label').innerText = CURRENT_JORNADA_DATE;
+            populateMatrixDynamicElements();
             autoSaveMatrixPredictions();
             generateAllParlaysAndLock();
         });
+
+        function populateMatrixDynamicElements() {
+            const rows = document.querySelectorAll('#matrix-data-table tbody tr');
+            rows.forEach((row, index) => {
+                // Distribución independiente para 1er Inning por cada partido
+                const isNrfi = (index % 2 === 0) || (Math.random() > 0.45);
+                const nrfiText = isNrfi ? "NO Habrá 1er Inning (NRFI)" : "SÍ Habrá 1er Inning (YRFI)";
+                const nrfiColor = isNrfi ? "#fbbf24" : "#38bdf8";
+                const probVal = (isNrfi ? 65 : 55) + Math.floor(Math.random() * 10) + "%";
+
+                const choiceSpan = row.querySelector('.matrix-nrfi-choice');
+                const badgeSpan = row.querySelector('.matrix-nrfi-badge');
+
+                if(choiceSpan) {
+                    choiceSpan.innerText = isNrfi ? "NO" : "SÍ";
+                    choiceSpan.style.color = nrfiColor;
+                }
+                if(badgeSpan) {
+                    badgeSpan.innerText = `${isNrfi ? 'NRFI' : 'YRFI'} (${probVal})`;
+                }
+
+                // Guardar los valores calculados en atributos para el almacenamiento y parlays
+                row.setAttribute('data-nrfi-choice', isNrfi ? "NO Habrá 1er Inning (NRFI)" : "SÍ Habrá 1er Inning (YRFI)");
+                row.setAttribute('data-nrfi-prob', probVal);
+            });
+        }
 
         function switchTab(evt, tabId) {
             const contents = document.querySelectorAll('.tab-content');
@@ -719,6 +742,7 @@
         function clearSaved() {
             if(confirm('¿Deseas limpiar el registro actual?')) {
                 localStorage.removeItem('saved_matrix_jornada');
+                populateMatrixDynamicElements();
                 autoSaveMatrixPredictions();
                 renderSavedPredictions();
                 alert('¡Jornada actualizada correctamente!');
@@ -729,19 +753,18 @@
             const rows = document.querySelectorAll('#matrix-data-table tbody tr');
             let pool = [];
 
-            rows.forEach(row => {
+            rows.forEach((row, index) => {
                 const matchKey = row.getAttribute('data-match-key');
-                const awayTeam = row.getAttribute('data-away-team');
-                const homeTeam = row.getAttribute('data-home-team');
                 const winnerFull = row.getAttribute('data-winner-full');
                 const winnerF5 = row.getAttribute('data-winner-f5');
                 const nrfiChoice = row.getAttribute('data-nrfi-choice');
-                const nrfiProb = row.getAttribute('data-nrfi-prob');
+                const nrfiProbStr = row.getAttribute('data-nrfi-prob');
                 const runlineProb = row.getAttribute('data-runline-prob');
 
-                const baseProb = 56 + Math.floor(Math.random() * 14);
+                const baseProb = 56 + (index % 5) + Math.floor(Math.random() * 8);
+                const nrfiProbNum = parseInt(nrfiProbStr) || 62;
 
-                // 1. Ganador Juego Completo (Moneyline J.C.) con variación real entre local y visita
+                // 1. Ganador Juego Completo
                 pool.push({
                     match: matchKey,
                     market: `Ganador Juego Completo`,
@@ -757,13 +780,12 @@
                     probability: baseProb - 2
                 });
 
-                // 3. 1er Inning (SÍ / NO o YRFI / NRFI) con probabilidad diferenciada
-                const cleanNrfiProb = parseInt(nrfiProb) || (Math.random() > 0.4 ? 68 : 58);
+                // 3. 1er Inning (NRFI / YRFI)
                 pool.push({
                     match: matchKey,
                     market: `1er Inning (Carrera)`,
                     pick: nrfiChoice,
-                    probability: cleanNrfiProb
+                    probability: nrfiProbNum
                 });
 
                 // 4. Run Line (-1.5 / +1.5)
@@ -771,21 +793,13 @@
                     match: matchKey,
                     market: `Run Line`,
                     pick: runlineProb,
-                    probability: baseProb - 6
+                    probability: baseProb - 5
                 });
 
-                // 5. Extra Innings con distribución variada (Aproximadamente 30-35% de probabilidad de que SÍ haya, evitando que sea un absoluto 100% de NO)
-                const rollExtra = Math.random();
-                let extraInningsPick = "";
-                let extraInningsProb = 0;
-
-                if (rollExtra < 0.32) {
-                    extraInningsPick = `SÍ Habrá Extra Innings`;
-                    extraInningsProb = 28 + Math.floor(Math.random() * 12);
-                } else {
-                    extraInningsPick = `NO Habrá Extra Innings`;
-                    extraInningsProb = 68 + Math.floor(Math.random() * 15);
-                }
+                // 5. Extra Innings con distribución variada y balanceada por partido
+                const isExtraInnings = (index % 3 === 0) || (Math.random() < 0.35);
+                const extraInningsPick = isExtraInnings ? "SÍ Habrá Extra Innings" : "NO Habrá Extra Innings";
+                const extraInningsProb = isExtraInnings ? (26 + Math.floor(Math.random() * 10)) : (68 + Math.floor(Math.random() * 12));
 
                 pool.push({
                     match: matchKey,
@@ -795,7 +809,7 @@
                 });
             });
 
-            // Mezclar aleatoriamente el pool de apuestas para asegurar diversidad en cada ejecución
+            // Mezclar aleatoriamente el pool de apuestas para asegurar diversidad
             for (let i = pool.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -812,7 +826,7 @@
             // Ordenar por probabilidad descendente para la Fija / Mejor Jugada del Día
             pool.sort((a, b) => b.probability - a.probability);
 
-            // 1. Asignar la Mejor Jugada / Fija asegurando variedad de partidos y mercados
+            // 1. Asignar la Mejor Jugada / Fija asegurando variedad
             const bestLock = pool[0];
             document.getElementById('lock-text').innerHTML = `
                 <span style="color: #38bdf8;">${bestLock.match}</span> — 
@@ -833,7 +847,6 @@
                 let usedMatches = new Set();
                 let selectedItems = [];
 
-                // Seleccionar ítems evitando repetir partidos en el mismo parlay para mayor realismo
                 for(let item of pool) {
                     if(!usedMatches.has(item.match) && selectedItems.length < limit) {
                         usedMatches.add(item.match);
@@ -841,7 +854,6 @@
                     }
                 }
 
-                // Rellenar si faltan cupos
                 if(selectedItems.length < limit) {
                     for(let item of pool) {
                         if(selectedItems.length < limit && !selectedItems.includes(item)) {
