@@ -429,7 +429,7 @@
             </div>
         </div>
 
-        <!-- Pestaña 2: Matriz Analítica con Líneas 0.5, 1.5, 2.5 y 3.5 -->
+        <!-- Pestaña 2: Matriz Analítica -->
         <div id="matrix-tab" class="tab-content">
             <div class="matrix-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación Cuantitativa (0.5 a 3.5)</h2>
@@ -483,7 +483,7 @@
             </div>
         </div>
 
-        <!-- Pestaña 5: Generador Automático de Parlay y Mejores Jugadas -->
+        <!-- Pestaña 5: Generador Automático de Parlay -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado (0.5 a 3.5)</h2>
@@ -530,7 +530,7 @@
         </div>
     </div>
 
-    <!-- Script con asignación corregida de favoritos (-) y underdogs (+) -->
+    <!-- Script de Ejecución y Generación -->
     <script>
         const CURRENT_DATE = "30-08-2026";
 
@@ -654,20 +654,18 @@
             matrixTbody.innerHTML = matrixHTML;
         }
 
-        function getDiverseMarkets(matchKey, awayProb) {
+        function getDiverseMarkets(matchKey, awayProb, homeProb) {
             let val = getMatchHash(matchKey);
             let teams = matchKey.split(" @ ");
             let awayTeam = teams[0] ? teams[0].trim() : "Visita";
             let homeTeam = teams[1] ? teams[1].trim() : "Local";
 
-            // Corrección real: Si homeProb > awayProb, el favorito es el local (-), si no, el visitante (-)
             let isHomeFavorite = homeProb >= awayProb;
             let favoriteTeam = isHomeFavorite ? homeTeam : awayTeam;
             let underdogTeam = isHomeFavorite ? awayTeam : homeTeam;
 
             let markets = [];
             
-            // F5 (0.5): El favorito lleva '-' y el underdog '+'
             let f5IsFav = (val % 3 !== 0);
             let f5Team = f5IsFav ? favoriteTeam : underdogTeam;
             let f5Spread = f5IsFav ? "-0.5" : "+0.5";
@@ -680,7 +678,6 @@
                 conf: probF5 
             });
 
-            // Run Line (1.5): Favorito (-1.5), Underdog (+1.5)
             let rlIsFav = (val % 4 !== 0);
             let rlTeam = rlIsFav ? favoriteTeam : underdogTeam;
             let rlSpread = rlIsFav ? "-1.5" : "+1.5";
@@ -693,7 +690,6 @@
                 conf: probRL 
             });
 
-            // Handicap (2.5): Favorito (-2.5), Underdog (+2.5)
             let h25IsFav = (val % 5 !== 0);
             let h25Team = h25IsFav ? favoriteTeam : underdogTeam;
             let h25Spread = h25IsFav ? "-2.5" : "+2.5";
@@ -706,7 +702,6 @@
                 conf: probH25 
             });
 
-            // Handicap (3.5): Favorito (-3.5), Underdog (+3.5)
             let h35IsFav = (val % 2 === 0);
             let h35Team = h35IsFav ? favoriteTeam : underdogTeam;
             let h35Spread = h35IsFav ? "-3.5" : "+3.5";
@@ -754,10 +749,12 @@
                 let awayProb = getProbValue(val, 5);
                 let homeProb = 100 - awayProb;
 
-                card.querySelector('.card-prob-away').innerText = awayProb + "%";
-                card.querySelector('.card-prob-home').innerText = homeProb + "%";
+                let awayProbElem = card.querySelector('.card-prob-away');
+                let homeProbElem = card.querySelector('.card-prob-home');
+                if (awayProbElem) awayProbElem.innerText = awayProb + "%";
+                if (homeProbElem) homeProbElem.innerText = homeProb + "%";
 
-                let matchMarkets = getDiverseMarkets(matchName, awayProb);
+                let matchMarkets = getDiverseMarkets(matchName, awayProb, homeProb);
                 let optimalPick = [...matchMarkets].sort((a,b) => b.conf - a.conf)[0];
 
                 if(rows[index]) {
@@ -768,27 +765,35 @@
                     let runelai = matchMarkets.find(m => m.category === "Runelai");
                     let total = matchMarkets.find(m => m.category === "Total");
 
-                    rows[index].querySelector('.matrix-prob-f5').innerHTML = `<span class="badge-pick">${f5.prob}% (${f5.desc.split('(')[1] || ''}</span>`;
-                    rows[index].querySelector('.matrix-prob-rl').innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc.split('(')[1] || ''}</span>`;
-                    rows[index].querySelector('.matrix-prob-h25').innerHTML = `<span class="badge-handicap">${h25.prob}% (${h25.desc.split('(')[1] || ''}</span>`;
-                    rows[index].querySelector('.matrix-prob-h35').innerHTML = `<span class="badge-pick" style="background-color:rgba(168,85,247,0.12); color:#c084fc;">${h35.prob}% (${h35.desc.split('(')[1] || ''}</span>`;
-                    rows[index].querySelector('.matrix-prob-runelai').innerHTML = `<span class="badge-runlai">${runelai.prob}%</span>`;
-                    rows[index].querySelector('.matrix-prob-total').innerHTML = `<span class="badge-total">${total.prob}%</span>`;
+                    let f5Span = rows[index].querySelector('.matrix-prob-f5');
+                    let rlSpan = rows[index].querySelector('.matrix-prob-rl');
+                    let h25Span = rows[index].querySelector('.matrix-prob-h25');
+                    let h35Span = rows[index].querySelector('.matrix-prob-h35');
+                    let runelaiSpan = rows[index].querySelector('.matrix-prob-runelai');
+                    let totalSpan = rows[index].querySelector('.matrix-prob-total');
+
+                    if (f5Span) f5Span.innerHTML = `<span class="badge-pick">${f5.prob}% (${f5.desc.split('(')[1] || ''}</span>`;
+                    if (rlSpan) rlSpan.innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc.split('(')[1] || ''}</span>`;
+                    if (h25Span) h25Span.innerHTML = `<span class="badge-handicap">${h25.prob}% (${h25.desc.split('(')[1] || ''}</span>`;
+                    if (h35Span) h35Span.innerHTML = `<span class="badge-pick" style="background-color:rgba(168,85,247,0.12); color:#c084fc;">${h35.prob}% (${h35.desc.split('(')[1] || ''}</span>`;
+                    if (runelaiSpan) runelaiSpan.innerHTML = `<span class="badge-runlai">${runelai.prob}%</span>`;
+                    if (totalSpan) totalSpan.innerHTML = `<span class="badge-total">${total.prob}%</span>`;
                 }
 
+                let teamsArr = matchName.split(" @ ");
                 bestPlaysHTML += `
                     <div class="match-card" style="border-left: 4px solid #38bdf8;">
                         <div class="match-header">
-                            <span>${card.querySelector('.match-header span').innerText}</span>
+                            <span>${card.querySelector('.match-header span') ? card.querySelector('.match-header span').innerText : ''}</span>
                             <span>⭐ Óptimo Recomendado</span>
                         </div>
                         <div class="teams-container" style="margin-bottom: 0.8rem;">
                             <div class="team">
-                                <div class="team-name" style="font-size: 0.9rem;">${matchName.split(" @ ")[0]}</div>
+                                <div class="team-name" style="font-size: 0.9rem;">${teamsArr[0] || ''}</div>
                             </div>
                             <div class="vs" style="font-size: 0.8rem;">@</div>
                             <div class="team">
-                                <div class="team-name" style="font-size: 0.9rem;">${matchName.split(" @ ")[1]}</div>
+                                <div class="team-name" style="font-size: 0.9rem;">${teamsArr[1] || ''}</div>
                             </div>
                         </div>
                         <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; border: 1px solid #334155;">
@@ -804,90 +809,105 @@
                 });
             });
 
-            document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
+            let bestPlaysContainer = document.getElementById('best-plays-cards-container');
+            if (bestPlaysContainer) bestPlaysContainer.innerHTML = bestPlaysHTML;
 
             allAvailablePicks.sort((a, b) => (b.conf + (getMatchHash(b.desc) % 7)) - (a.conf + (getMatchHash(a.desc) % 7)));
 
             if (allAvailablePicks.length > 0) {
                 let f5Picks = allAvailablePicks.filter(p => p.category === "F5");
                 let bestF5 = f5Picks.length > 0 ? f5Picks[0] : allAvailablePicks[0];
-                document.getElementById('best-f5-text').innerHTML = `
-                    <span style="color: #38bdf8;">${bestF5.desc.split(" → ")[1]}</span> 
-                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestF5.prob}%</span>
-                `;
+                let f5TextElem = document.getElementById('best-f5-text');
+                if (f5TextElem) {
+                    f5TextElem.innerHTML = `
+                        <span style="color: #38bdf8;">${bestF5.desc.split(" → ")[1]}</span> 
+                        <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestF5.prob}%</span>
+                    `;
+                }
 
                 let runlinePicks = allAvailablePicks.filter(p => p.category === "RunLine");
                 let bestRunLine = runlinePicks.length > 0 ? runlinePicks[0] : allAvailablePicks[1];
-                document.getElementById('best-runline-text').innerHTML = `
-                    <span style="color: #fbbf24;">${bestRunLine.desc.split(" → ")[1]}</span> 
-                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestRunLine.prob}%</span>
-                `;
+                let rlTextElem = document.getElementById('best-runline-text');
+                if (rlTextElem) {
+                    rlTextElem.innerHTML = `
+                        <span style="color: #fbbf24;">${bestRunLine.desc.split(" → ")[1]}</span> 
+                        <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestRunLine.prob}%</span>
+                    `;
+                }
 
                 let handicapPicks = allAvailablePicks.filter(p => p.category === "Handicap25" || p.category === "Handicap35");
                 let bestHandicap = handicapPicks.length > 0 ? handicapPicks[0] : allAvailablePicks[2];
-                document.getElementById('best-handicap-text').innerHTML = `
-                    <span style="color: #f472b6;">${bestHandicap.desc.split(" → ")[1]}</span> 
-                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestHandicap.prob}%</span>
-                `;
+                let hcapTextElem = document.getElementById('best-handicap-text');
+                if (hcapTextElem) {
+                    hcapTextElem.innerHTML = `
+                        <span style="color: #f472b6;">${bestHandicap.desc.split(" → ")[1]}</span> 
+                        <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestHandicap.prob}%</span>
+                    `;
+                }
 
                 let runelaiPicks = allAvailablePicks.filter(p => p.category === "Runelai");
                 let bestRunelai = runelaiPicks.length > 0 ? runelaiPicks[0] : allAvailablePicks[3];
-                document.getElementById('best-runlai-text').innerHTML = `
-                    <span style="color: #c084fc;">${bestRunelai.desc.split(" → ")[1]}</span> 
-                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestRunelai.prob}%</span>
-                `;
+                let runelaiTextElem = document.getElementById('best-runlai-text');
+                if (runelaiTextElem) {
+                    runelaiTextElem.innerHTML = `
+                        <span style="color: #c084fc;">${bestRunelai.desc.split(" → ")[1]}</span> 
+                        <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestRunelai.prob}%</span>
+                    `;
+                }
 
                 let container = document.getElementById('auto-parlays-container');
-                let parlayConfigs = [
-                    { count: 2, title: "Parlay Doble (Dinámico A)" },
-                    { count: 3, title: "Parlay Triple (Dinámico B)" },
-                    { count: 4, title: "Parlay Cuádruple (Dinámico C)" },
-                    { count: 5, title: "Parlay Quintuple (Dinámico D)" }
-                ];
+                if (container) {
+                    let parlayConfigs = [
+                        { count: 2, title: "Parlay Doble (Dinámico A)" },
+                        { count: 3, title: "Parlay Triple (Dinámico B)" },
+                        { count: 4, title: "Parlay Cuádruple (Dinámico C)" },
+                        { count: 5, title: "Parlay Quintuple (Dinámico D)" }
+                    ];
 
-                let html = '';
-                parlayConfigs.forEach((cfg, index) => {
-                    let selectedForParlay = [];
-                    let usedMatches = new Set();
-                    
-                    let rotationIndex = (index * 3) % allAvailablePicks.length;
-                    let orderedSlice = [...allAvailablePicks.slice(rotationIndex), ...allAvailablePicks.slice(0, rotationIndex)];
+                    let html = '';
+                    parlayConfigs.forEach((cfg, index) => {
+                        let selectedForParlay = [];
+                        let usedMatches = new Set();
+                        
+                        let rotationIndex = (index * 3) % allAvailablePicks.length;
+                        let orderedSlice = [...allAvailablePicks.slice(rotationIndex), ...allAvailablePicks.slice(0, rotationIndex)];
 
-                    for (let p of orderedSlice) {
-                        let matchNamePart = p.desc.split(" → ")[0];
-                        if (!usedMatches.has(matchNamePart) && selectedForParlay.length < cfg.count) {
-                            selectedForParlay.push(p);
-                            usedMatches.add(matchNamePart);
+                        for (let p of orderedSlice) {
+                            let matchNamePart = p.desc.split(" → ")[0];
+                            if (!usedMatches.has(matchNamePart) && selectedForParlay.length < cfg.count) {
+                                selectedForParlay.push(p);
+                                usedMatches.add(matchNamePart);
+                            }
                         }
-                    }
 
-                    if (selectedForParlay.length > 0) {
-                        let picksTextArray = selectedForParlay.map(p => p.desc);
-                        let estimatedOdds = `+${140 + (selectedForParlay.length * 175) + (index * 25)}`;
-                        let picksStringJSON = JSON.stringify(picksTextArray);
+                        if (selectedForParlay.length > 0) {
+                            let picksTextArray = selectedForParlay.map(p => p.desc);
+                            let estimatedOdds = `+${140 + (selectedForParlay.length * 175) + (index * 25)}`;
+                            let picksStringJSON = JSON.stringify(picksTextArray);
 
-                        html += `
-                            <div class="auto-parlay-card">
-                                <div>
-                                    <h5><span>${cfg.title}</span></h5>
-                                    <ul>
-                        `;
-                        selectedForParlay.forEach(p => {
-                            html += `<li>• [${p.type}] ${p.desc} (${p.prob}%)</li>`;
-                        });
-                        html += `
-                                    </ul>
+                            html += `
+                                <div class="auto-parlay-card">
+                                    <div>
+                                        <h5><span>${cfg.title}</span></h5>
+                                        <ul>
+                            `;
+                            selectedForParlay.forEach(p => {
+                                html += `<li>• [${p.type}] ${p.desc} (${p.prob}%)</li>`;
+                            });
+                            html += `
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.78rem; color: #fbbf24; margin-bottom: 6px; font-weight: 600;">Cuota Aprox: ${estimatedOdds}</div>
+                                        <button class="btn-parlay-action" onclick='saveSpecificParlay("${cfg.title}", ${picksStringJSON}, "${estimatedOdds}")'>Guardar en Historial</button>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div style="font-size: 0.78rem; color: #fbbf24; margin-bottom: 6px; font-weight: 600;">Cuota Aprox: ${estimatedOdds}</div>
-                                    <button class="btn-parlay-action" onclick='saveSpecificParlay("${cfg.title}", ${picksStringJSON}, "${estimatedOdds}")'>Guardar en Historial</button>
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
+                            `;
+                        }
+                    });
 
-                container.innerHTML = html;
+                    container.innerHTML = html;
+                }
             }
 
             autoSavePredictions();
@@ -902,14 +922,21 @@
 
                 rows.forEach((row) => {
                     let matchName = row.getAttribute('data-match-key');
+                    let f5El = row.querySelector('.matrix-prob-f5');
+                    let rlEl = row.querySelector('.matrix-prob-rl');
+                    let h25El = row.querySelector('.matrix-prob-h25');
+                    let h35El = row.querySelector('.matrix-prob-h35');
+                    let runelaiEl = row.querySelector('.matrix-prob-runelai');
+                    let totalEl = row.querySelector('.matrix-prob-total');
+
                     dayPredictions.push({
                         match: matchName,
-                        f5: row.querySelector('.matrix-prob-f5').innerHTML,
-                        rl: row.querySelector('.matrix-prob-rl').innerHTML,
-                        h25: row.querySelector('.matrix-prob-h25').innerHTML,
-                        h35: row.querySelector('.matrix-prob-h35').innerHTML,
-                        runelai: row.querySelector('.matrix-prob-runelai').innerHTML,
-                        total: row.querySelector('.matrix-prob-total').innerHTML
+                        f5: f5El ? f5El.innerHTML : '-',
+                        rl: rlEl ? rlEl.innerHTML : '-',
+                        h25: h25El ? h25El.innerHTML : '-',
+                        h35: h35El ? h35El.innerHTML : '-',
+                        runelai: runelaiEl ? runelaiEl.innerHTML : '-',
+                        total: totalEl ? totalEl.innerHTML : '-'
                     });
                 });
 
@@ -922,6 +949,8 @@
 
         function renderHistory() {
             const container = document.getElementById('history-list-container');
+            if (!container) return;
+
             let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_probs') || '{}');
             let dates = Object.keys(historyData);
 
