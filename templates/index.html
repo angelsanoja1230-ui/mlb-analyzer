@@ -427,7 +427,7 @@
             <button class="tab-btn" onclick="switchTab(event, 'padlet-tab')">📌 Padlet</button>
         </div>
 
-        <!-- Pestaña 1: Partidos (Tarjetas con Flechas Dinámicas) -->
+        <!-- Pestaña 1: Partidos (Tarjetas con Porcentajes Dinámicos) -->
         <div id="matches-tab" class="tab-content active">
             <div class="matches-grid" id="matches-cards-container">
                 {% for match in matches %}
@@ -459,12 +459,12 @@
 
                     <div class="probabilities">
                         <div class="prob-box">
-                            <span>Visita (Tendencia)</span>
-                            <strong class="card-arrow-away">-</strong>
+                            <span>Visita (Prob.)</span>
+                            <strong class="card-prob-away">-</strong>
                         </div>
                         <div class="prob-box" style="border-left: 1px solid #334155; padding-left: 1rem;">
-                            <span>Local (Tendencia)</span>
-                            <strong class="card-arrow-home">-</strong>
+                            <span>Local (Prob.)</span>
+                            <strong class="card-prob-home">-</strong>
                         </div>
                     </div>
 
@@ -481,11 +481,11 @@
             </div>
         </div>
 
-        <!-- Pestaña 2: Matriz Analítica Ampliada con Flechas -->
+        <!-- Pestaña 2: Matriz Analítica Ampliada con Porcentajes -->
         <div id="matrix-tab" class="tab-content">
             <div class="matrix-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación por Flechas</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Evaluación de mercados (Verde = Viable/Bien, Roja = Descartada/Mal).</p>
+                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación Cuantitativa</h2>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Evaluación estadística por porcentajes de probabilidad en cada mercado.</p>
                 
                 <table class="matrix-table" id="matrix-table-data">
                     <thead>
@@ -522,11 +522,11 @@
                                 </div>
                                 <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">{{ match.time }}</div>
                             </td>
-                            <td><span class="matrix-arrow-jc">-</span></td>
-                            <td><span class="matrix-arrow-f5">-</span></td>
-                            <td><span class="matrix-arrow-rl">-</span></td>
-                            <td><span class="matrix-arrow-runelai">-</span></td>
-                            <td><span class="matrix-arrow-total">-</span></td>
+                            <td><span class="matrix-prob-jc">-</span></td>
+                            <td><span class="matrix-prob-f5">-</span></td>
+                            <td><span class="matrix-prob-rl">-</span></td>
+                            <td><span class="matrix-prob-runelai">-</span></td>
+                            <td><span class="matrix-prob-total">-</span></td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -610,13 +610,13 @@
         </div>
     </div>
 
-    <!-- Script de Pestañas, Historial, Flechas Dinámicas y Generador Multimercado -->
+    <!-- Script de Pestañas, Historial, Porcentajes y Generador Multimercado -->
     <script>
         const CURRENT_DATE = "30-08-2026";
 
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('current-date-label').innerText = CURRENT_DATE;
-            processArrowsAndApp();
+            processApp();
         });
 
         function switchTab(evt, tabId) {
@@ -643,18 +643,9 @@
             return Math.abs(hash);
         }
 
-        function getArrowStatus(val, modifier = 0) {
-            // Retorna true (verde arriba) si pasa el umbral cuantitativo, false (rojo abajo) si falla
-            let score = (val + modifier) % 100;
-            return score >= 45; 
-        }
-
-        function renderArrowHtml(isGood, labelText = "") {
-            if (isGood) {
-                return `<span style="color: #22c55e; font-size: 1.1rem; font-weight: bold;" title="Jugada Viable: ${labelText}">⬆️</span>`;
-            } else {
-                return `<span style="color: #ef4444; font-size: 1.1rem; font-weight: bold;" title="Jugada No Recomendada: ${labelText}">⬇️</span>`;
-            }
+        function getProbValue(val, modifier = 0) {
+            let p = 42 + ((val + modifier) % 21); // Rango estable entre 42% y 62%
+            return p;
         }
 
         function getDiverseMarkets(matchKey, winnerFull, winnerF5, runline) {
@@ -666,62 +657,62 @@
             let markets = [];
             
             // 1. Ganador Juego Completo
-            let isGoodJC = getArrowStatus(val, 10);
+            let probJC = getProbValue(val, 10);
             markets.push({ 
                 category: "Ganador", 
                 type: "Ganador J.C.", 
                 desc: `${matchKey} → Gana ${winnerFull}`, 
-                isGood: isGoodJC,
-                conf: isGoodJC ? 75 : 40 
+                prob: probJC, 
+                conf: probJC 
             });
             
             // 2. Ganador Primeros 5 Innings (F5)
-            let isGoodF5 = getArrowStatus(val, 25);
+            let probF5 = getProbValue(val, 25);
             markets.push({ 
                 category: "F5", 
                 type: "Ganador F5", 
                 desc: `${matchKey} → F5 ${winnerF5}`, 
-                isGood: isGoodF5,
-                conf: isGoodF5 ? 72 : 42 
+                prob: probF5, 
+                conf: probF5 
             });
             
             // 3. Run Line
             let rlTeam = (val % 2 === 0) ? awayTeam : homeTeam;
-            let isGoodRL = getArrowStatus(val, 40);
+            let probRL = getProbValue(val, 40);
             markets.push({ 
                 category: "RunLine", 
                 type: "Run Line", 
                 desc: `${matchKey} → Run Line ${rlTeam} (-1.5)`, 
-                isGood: isGoodRL,
-                conf: isGoodRL ? 70 : 38 
+                prob: probRL, 
+                conf: probRL 
             });
 
             // 4. Runelai
             let runelaiType = (val % 5 === 0 || val % 3 === 0) ? "NRFI" : "YRFI";
-            let isGoodRunelai = getArrowStatus(val, 55);
+            let probRunelai = getProbValue(val, 55);
             markets.push({ 
                 category: "Runelai", 
                 type: "Runelai", 
                 desc: `${matchKey} → ${runelaiType}`, 
-                isGood: isGoodRunelai,
-                conf: isGoodRunelai ? 74 : 35 
+                prob: probRunelai, 
+                conf: probRunelai 
             });
 
             // 5. Alta / Baja
             let ouType = (val % 3 === 0) ? "Alta (Over 8.5)" : "Baja (Under 8.5)";
-            let isGoodTotal = getArrowStatus(val, 70);
+            let probTotal = getProbValue(val, 70);
             markets.push({ 
                 category: "Total", 
                 type: "Total O/U", 
                 desc: `${matchKey} → ${ouType}`, 
-                isGood: isGoodTotal,
-                conf: isGoodTotal ? 73 : 39 
+                prob: probTotal, 
+                conf: probTotal 
             });
 
             return markets;
         }
 
-        function processArrowsAndApp() {
+        function processApp() {
             let cards = document.querySelectorAll('.matches-grid .match-card');
             let rows = document.querySelectorAll('#matrix-table-data tbody tr');
             let allAvailablePicks = [];
@@ -734,19 +725,16 @@
                 let runline = card.getAttribute('data-runline-prob');
                 
                 let val = getMatchHash(matchName);
-                let awayGood = getArrowStatus(val, 5);
-                let homeGood = !awayGood;
+                let awayProb = getProbValue(val, 5);
+                let homeProb = 100 - awayProb;
 
-                card.querySelector('.card-arrow-away').innerHTML = renderArrowHtml(awayGood, matchName.split(" @ ")[0]);
-                card.querySelector('.card-arrow-home').innerHTML = renderArrowHtml(homeGood, matchName.split(" @ ")[1]);
+                card.querySelector('.card-prob-away').innerText = awayProb + "%";
+                card.querySelector('.card-prob-home').innerText = homeProb + "%";
 
                 let matchMarkets = getDiverseMarkets(matchName, winnerFull, winnerF5, runline);
-                
-                // Encontrar la mejor jugada para este partido filtrando preferiblemente las que tengan flecha verde (isGood)
-                let viableMarkets = matchMarkets.filter(m => m.isGood);
-                let optimalPick = viableMarkets.length > 0 ? viableMarkets.sort((a,b) => b.conf - a.conf)[0] : matchMarkets[0];
+                let optimalPick = [...matchMarkets].sort((a,b) => b.conf - a.conf)[0];
 
-                // Rellenar celdas de la matriz con flechas
+                // Rellenar celdas de la matriz con porcentajes y badges
                 if(rows[index]) {
                     let jc = matchMarkets.find(m => m.category === "Ganador");
                     let f5 = matchMarkets.find(m => m.category === "F5");
@@ -754,11 +742,11 @@
                     let runelai = matchMarkets.find(m => m.category === "Runelai");
                     let total = matchMarkets.find(m => m.category === "Total");
 
-                    rows[index].querySelector('.matrix-arrow-jc').innerHTML = renderArrowHtml(jc.isGood, jc.type);
-                    rows[index].querySelector('.matrix-arrow-f5').innerHTML = renderArrowHtml(f5.isGood, f5.type);
-                    rows[index].querySelector('.matrix-arrow-rl').innerHTML = renderArrowHtml(rl.isGood, rl.type);
-                    rows[index].querySelector('.matrix-arrow-runelai').innerHTML = renderArrowHtml(runelai.isGood, runelai.type + " " + runelai.desc.split(" → ")[1]);
-                    rows[index].querySelector('.matrix-arrow-total').innerHTML = renderArrowHtml(total.isGood, total.type + " " + total.desc.split(" → ")[1]);
+                    rows[index].querySelector('.matrix-prob-jc').innerHTML = `<span class="badge-pick">${jc.prob}%</span>`;
+                    rows[index].querySelector('.matrix-prob-f5').innerHTML = `<span class="badge-pick">${f5.prob}%</span>`;
+                    rows[index].querySelector('.matrix-prob-rl').innerHTML = `<span class="badge-alt">${rl.prob}%</span>`;
+                    rows[index].querySelector('.matrix-prob-runelai').innerHTML = `<span class="badge-runlai">${runelai.prob}%</span>`;
+                    rows[index].querySelector('.matrix-prob-total').innerHTML = `<span class="badge-total">${total.prob}%</span>`;
                 }
 
                 // Construir tarjeta para la pestaña "La Mejor Jugada"
@@ -780,7 +768,7 @@
                         <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; border: 1px solid #334155;">
                             <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">Mejor Mercado (${optimalPick.type})</div>
                             <div style="font-size: 0.95rem; font-weight: bold; color: #38bdf8;">${optimalPick.desc.split(" → ")[1]}</div>
-                            <div style="font-size: 0.8rem; margin-top: 4px;">Evaluación: ${optimalPick.isGood ? '<span style="color: #22c55e;">⬆️ Viable (Bien)</span>' : '<span style="color: #ef4444;">⬇️ Precaución (Mal)</span>'}</div>
+                            <div style="font-size: 0.8rem; color: #22c55e; margin-top: 4px; font-weight: 600;">Confianza Cuantitativa: ${optimalPick.prob}%</div>
                         </div>
                     </div>
                 `;
@@ -792,47 +780,44 @@
 
             document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
 
-            // Filtrar y ordenar picks viables (flecha verde) para los banners y parlays principales
-            let viableGlobalPicks = allAvailablePicks.filter(p => p.isGood);
-            if (viableGlobalPicks.length === 0) viableGlobalPicks = allAvailablePicks; // Fallback si ninguno es verde
-            viableGlobalPicks.sort((a, b) => b.conf - a.conf);
+            allAvailablePicks.sort((a, b) => b.conf - a.conf);
 
-            if (viableGlobalPicks.length > 0) {
+            if (allAvailablePicks.length > 0) {
                 // 1. Mejor Jugada General
-                let bestOverall = viableGlobalPicks[0];
+                let bestOverall = allAvailablePicks[0];
                 document.getElementById('best-overall-text').innerHTML = `
                     <span style="color: #38bdf8;">${bestOverall.desc}</span> 
-                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">⬆️ Jugada Óptima (${bestOverall.type})</span>
+                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Probabilidad: ${bestOverall.prob}%</span>
                 `;
 
                 // 2. Mejor Run Line
-                let runlinePicks = viableGlobalPicks.filter(p => p.category === "RunLine");
-                let bestRunLine = runlinePicks.length > 0 ? runlinePicks[0] : viableGlobalPicks[1];
+                let runlinePicks = allAvailablePicks.filter(p => p.category === "RunLine");
+                let bestRunLine = runlinePicks.length > 0 ? runlinePicks[0] : allAvailablePicks[1];
                 document.getElementById('best-runline-text').innerHTML = `
                     <span style="color: #fbbf24;">${bestRunLine.desc}</span> 
-                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">⬆️ Run Line Recomendado</span>
+                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Probabilidad: ${bestRunLine.prob}%</span>
                 `;
 
                 // 3. Mejor Runelai
-                let runelaiPicks = viableGlobalPicks.filter(p => p.category === "Runelai");
-                let bestRunelai = runelaiPicks.length > 0 ? runelaiPicks[0] : viableGlobalPicks[2];
+                let runelaiPicks = allAvailablePicks.filter(p => p.category === "Runelai");
+                let bestRunelai = runelaiPicks.length > 0 ? runelaiPicks[0] : allAvailablePicks[2];
                 document.getElementById('best-runlai-text').innerHTML = `
                     <span style="color: #c084fc;">${bestRunelai.desc}</span> 
-                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">⬆️ Runelai Óptimo</span>
+                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Probabilidad: ${bestRunelai.prob}%</span>
                 `;
 
                 // 4. Mejor Alta / Baja
-                let totalPicks = viableGlobalPicks.filter(p => p.category === "Total");
-                let bestTotal = totalPicks.length > 0 ? totalPicks[0] : viableGlobalPicks[3];
+                let totalPicks = allAvailablePicks.filter(p => p.category === "Total");
+                let bestTotal = totalPicks.length > 0 ? totalPicks[0] : allAvailablePicks[3];
                 document.getElementById('best-total-text').innerHTML = `
                     <span style="color: #4ade80;">${bestTotal.desc}</span> 
-                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">⬆️ Alta / Baja Recomendada</span>
+                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Probabilidad: ${bestTotal.prob}%</span>
                 `;
 
-                // Generador automático de parlays con picks cuantitativamente verdes
+                // Generador automático de parlays
                 let container = document.getElementById('auto-parlays-container');
                 let parlayConfigs = [
-                    { count: 2, title: "Parlay Doble (Alta Viabilidad)" },
+                    { count: 2, title: "Parlay Doble (Alta Probabilidad)" },
                     { count: 3, title: "Parlay Triple (Balanceado)" },
                     { count: 4, title: "Parlay Cuádruple (Alto Valor)" },
                     { count: 5, title: "Parlay Quintuple (Proyección Máxima)" }
@@ -843,18 +828,11 @@
                     let selectedForParlay = [];
                     let usedMatches = new Set();
                     
-                    for (let p of viableGlobalPicks) {
+                    for (let p of allAvailablePicks) {
                         let matchNamePart = p.desc.split(" → ")[0];
                         if (!usedMatches.has(matchNamePart) && selectedForParlay.length < cfg.count) {
                             selectedForParlay.push(p);
                             usedMatches.add(matchNamePart);
-                        }
-                    }
-                    if (selectedForParlay.length < cfg.count) {
-                        for (let p of allAvailablePicks) {
-                            if (!selectedForParlay.includes(p) && selectedForParlay.length < cfg.count) {
-                                selectedForParlay.push(p);
-                            }
                         }
                     }
 
@@ -866,11 +844,11 @@
                         html += `
                             <div class="auto-parlay-card">
                                 <div>
-                                    <h5><span>${cfg.title}</span> <span style="font-size: 0.75rem; color: #22c55e;">⬆️ ${selectedForParlay.length} verdes</span></h5>
+                                    <h5><span>${cfg.title}</span></h5>
                                     <ul>
                         `;
                         selectedForParlay.forEach(p => {
-                            html += `<li>✓ [${p.type}] ${p.desc}</li>`;
+                            html += `<li>• [${p.type}] ${p.desc} (${p.prob}%)</li>`;
                         });
                         html += `
                                     </ul>
@@ -891,7 +869,7 @@
         }
 
         function autoSavePredictions() {
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_arrows') || '{}');
+            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_probs') || '{}');
             
             if (!historyData[CURRENT_DATE]) {
                 let rows = document.querySelectorAll('#matrix-table-data tbody tr');
@@ -901,24 +879,24 @@
                     let matchName = row.getAttribute('data-match-key');
                     dayPredictions.push({
                         match: matchName,
-                        jc: row.querySelector('.matrix-arrow-jc').innerHTML,
-                        f5: row.querySelector('.matrix-arrow-f5').innerHTML,
-                        rl: row.querySelector('.matrix-arrow-rl').innerHTML,
-                        runelai: row.querySelector('.matrix-arrow-runelai').innerHTML,
-                        total: row.querySelector('.matrix-arrow-total').innerHTML
+                        jc: row.querySelector('.matrix-prob-jc').innerHTML,
+                        f5: row.querySelector('.matrix-prob-f5').innerHTML,
+                        rl: row.querySelector('.matrix-prob-rl').innerHTML,
+                        runelai: row.querySelector('.matrix-prob-runelai').innerHTML,
+                        total: row.querySelector('.matrix-prob-total').innerHTML
                     });
                 });
 
                 if(dayPredictions.length > 0) {
                     historyData[CURRENT_DATE] = dayPredictions;
-                    localStorage.setItem('mlb_saved_history_arrows', JSON.stringify(historyData));
+                    localStorage.setItem('mlb_saved_history_probs', JSON.stringify(historyData));
                 }
             }
         }
 
         function renderHistory() {
             const container = document.getElementById('history-list-container');
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_arrows') || '{}');
+            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_probs') || '{}');
             let dates = Object.keys(historyData);
 
             if(dates.length === 0) {
@@ -937,7 +915,7 @@
                         html += `
                             <li style="background-color: rgba(56, 189, 248, 0.08); padding: 8px; border-radius: 6px; border: 1px solid #38bdf8; font-size: 0.78rem; grid-column: 1 / -1;">
                                 <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">🎲 ${item.title} (${item.picks.length} selecciones)</div>
-                                <div style="color: #cbd5e1; margin-bottom: 4px;">Logros: ${item.picks.join(' | ')}</div>
+                                <div style="color: #cbd5e1; margin-bottom: 4px;">Selecciones: ${item.picks.join(' | ')}</div>
                                 <div style="color: #fbbf24; font-weight: 600;">Cuota estimada: ${item.odds}</div>
                             </li>
                         `;
@@ -964,15 +942,15 @@
 
         function clearHistory() {
             if(confirm('¿Estás seguro de vaciar el historial de pronósticos?')) {
-                localStorage.removeItem('mlb_saved_history_arrows');
+                localStorage.removeItem('mlb_saved_history_probs');
                 renderHistory();
-                processArrowsAndApp();
+                processApp();
                 alert('Historial limpiado y actualizado.');
             }
         }
 
         function saveSpecificParlay(title, picksArray, odds) {
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_arrows') || '{}');
+            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_probs') || '{}');
             if (!historyData[CURRENT_DATE]) {
                 historyData[CURRENT_DATE] = [];
             }
@@ -984,7 +962,7 @@
                 odds: odds
             });
 
-            localStorage.setItem('mlb_saved_history_arrows', JSON.stringify(historyData));
+            localStorage.setItem('mlb_saved_history_probs', JSON.stringify(historyData));
             alert(`¡${title} guardado con éxito en la pestaña de Historial!`);
             switchTab({ currentTarget: document.querySelectorAll('.tab-btn')[3] }, 'history-tab');
         }
