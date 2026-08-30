@@ -1,11 +1,13 @@
 from flask import Flask, render_template
 import json
 import os
+from datetime import datetime
 from simulator import process_all_matches
 
 app = Flask(__name__)
 
 VISIT_FILE = "visits.txt"
+HISTORY_FILE = "history.json"
 
 def get_visit_count():
     if not os.path.exists(VISIT_FILE):
@@ -34,6 +36,37 @@ def load_data():
         except:
             pass
     return {}
+
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            pass
+    return []
+
+def save_daily_history(date_str, safest_pick, parlays):
+    history = load_history()
+    
+    # Verificar si la fecha de hoy ya está guardada para no duplicar en la misma sesión
+    entry_exists = any(item.get('date') == date_str for item in history)
+    
+    if not entry_exists and safest_pick:
+        new_entry = {
+            "date": date_str,
+            "safest_pick": safest_pick,
+            "parlays": parlays,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        history.insert(0, new_entry) # Agregar al inicio
+        try:
+            with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
+                json.dump(history, f, ensure_ascii=False, indent=4)
+        except:
+            pass
+            
+    return history
 
 def extract_best_plays(simulated_matches):
     best_plays = []
@@ -110,14 +143,21 @@ def index():
         best_plays = extract_best_plays(simulated_matches)
         safest_pick, parlays = generate_parlays_and_safe_pick(best_plays)
         
+        daily_archive_data = data.get('DAILY_ARCHIVE', {})
+        date_str = daily_archive_data.get('date', datetime.now().strftime('%Y-%m-%d'))
+        
+        # Guardar en el histórico persistente (history.json)
+        full_history = save_daily_history(date_str, safest_pick, parlays)
+        
         return render_template(
             'index.html', 
             matches=simulated_matches, 
             team_logos=data.get('team_logos', {}), 
-            DAILY_ARCHIVE=data.get('DAILY_ARCHIVE', {}),
+            DAILY_ARCHIVE=daily_archive_data,
             best_plays=best_plays,
             safest_pick=safest_pick,
             parlays=parlays,
+            history=full_history,
             visits=total_visits
         )
     except Exception as e:
