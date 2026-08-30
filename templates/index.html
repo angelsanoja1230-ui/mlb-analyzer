@@ -580,7 +580,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h2 style="color: #ef4444; font-size: 1.25rem; margin-bottom: 0.2rem;">🔴 Centro de Jugadas en Vivo (3 Opciones por Partido)</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Incluye la opción principal y 2 alternativas (Totales u otras opciones) si tu casa de apuestas bloquea el mercado:</p>
+                        <p style="color: #94a3b8; font-size: 0.8rem;">Los partidos en juego y por iniciar aparecen arriba; los finalizados bajan automáticamente:</p>
                     </div>
                     <button class="btn-action" style="width: auto; padding: 0.5rem 1.2rem; background-color: #ef4444; color: #fff;" onclick="fetchRealLiveMLBData()">🔄 Consultar API Ahora</button>
                 </div>
@@ -794,7 +794,6 @@
             let bestPlaysHTML = '';
             let bestF5Obj = null;
 
-            // Seleccionador estático determinista para la Jugada 100% basado estrictamente en la fecha actual
             let dateHash = 0;
             for (let i = 0; i < CURRENT_DATE.length; i++) {
                 dateHash += CURRENT_DATE.charCodeAt(i);
@@ -964,7 +963,7 @@
         }
 
         // ==========================================
-        // MÓDULO API EN VIVO
+        // MÓDULO API EN VIVO (Ordenado: Live > Preview > Final)
         // ==========================================
         async function fetchRealLiveMLBData() {
             let container = document.getElementById('live-standalone-cards-container');
@@ -983,6 +982,18 @@
                     container.innerHTML = `<p style="color: #94a3b8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">No se encontraron partidos programados para hoy.</p>`;
                     return;
                 }
+
+                // Ordenar partidos: Live (1) primero, Preview (2) en medio, Final (3) al fondo
+                games.sort((a, b) => {
+                    let stateA = a.status.abstractGameState;
+                    let stateB = b.status.abstractGameState;
+
+                    let rank = { "Live": 1, "Preview": 2, "Final": 3 };
+                    let rA = rank[stateA] || 2;
+                    let rB = rank[stateB] || 2;
+
+                    return rA - rB;
+                });
 
                 let liveCardsHTML = '';
 
