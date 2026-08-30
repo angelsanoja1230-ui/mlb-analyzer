@@ -508,7 +508,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.2rem;">Historial de Pronósticos y Tracking</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Registro de selecciones guardadas.</p>
+                        <p style="color: #94a3b8; font-size: 0.8rem;">Registro automático de la Jugada 100% y las Mejores Jugadas guardadas.</p>
                     </div>
                     <button onclick="clearHistory()" style="background-color: #ef4444; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">Limpiar Historial</button>
                 </div>
@@ -691,8 +691,8 @@
             let trendsHTML = '';
             let bestPlaysHTML = '';
             let allAvailablePicks = [];
+            let autoPlaysToRegister = [];
 
-            // Buscador de la Jugada 100% de la jornada (Evaluamos el partido con mayor solidez / cuota más clara o abridor más dominante)
             let masterCandidate = { score: -1, text: "", matchStr: "", reason: "" };
 
             BASE_MATCHES.forEach((m, idx) => {
@@ -717,7 +717,6 @@
                     subTextReason = "Priorizado en F5/ML por superioridad clara del abridor";
                 }
 
-                // Calcular solidez para la Jugada 100% (Buscamos la cuota más clara o diferencia de pitcheo más sólida del día)
                 let currentStabilityScore = Math.abs(m.homeOdds - m.awayOdds);
                 if (currentStabilityScore > masterCandidate.score) {
                     masterCandidate.score = currentStabilityScore;
@@ -726,6 +725,12 @@
                     masterCandidate.matchStr = `${m.away} @ ${m.home}`;
                     masterCandidate.reason = `Respaldado por el análisis cuantitativo profundo de abridores (${m.starter_away} vs ${m.starter_home}) y control estadístico en ${m.stadium}. Es la selección con mayor índice de confiabilidad de toda la jornada.`;
                 }
+
+                // Registrar para guardado automático en el historial
+                autoPlaysToRegister.push({
+                    play: `⭐ [Mejor Jugada] ${m.away} @ ${m.home} → ${bestOption}`,
+                    status: "Activa (Mejor Jugada)"
+                });
 
                 trendsHTML += `
                 <div class="trend-card">
@@ -781,7 +786,6 @@
                             <strong style="font-size: 0.95rem; color: #38bdf8;">${bestOption}</strong>
                             <span style="font-size: 0.68rem; color: #4ade80; display: block; margin-top: 3px;">${subTextReason}</span>
                         </div>
-                        <button class="btn-action" onclick="saveSpecificPlay('${encodeURIComponent(`${m.away} @ ${m.home} → ${bestOption}`)}')">Guardar en Historial</button>
                     </div>
                 `;
 
@@ -791,7 +795,12 @@
             trendsContainer.innerHTML = trendsHTML;
             bestPlaysContainer.innerHTML = bestPlaysHTML;
 
-            // Renderizar la pestaña de la Jugada 100% Maestra
+            // Incluir la Jugada 100% Maestra en el registro automático
+            autoPlaysToRegister.push({
+                play: `💎 [JUGADA 100%] ${masterCandidate.matchStr} → ${masterCandidate.text}`,
+                status: "Destacada 100%"
+            });
+
             renderMasterPickTab(masterCandidate);
 
             document.getElementById('best-f5-text').innerText = `${BASE_MATCHES[0].home} (F5)`;
@@ -799,7 +808,9 @@
             document.getElementById('best-handicap-text').innerText = `${BASE_MATCHES[0].away} @ ${BASE_MATCHES[0].home} (F5 / ML)`;
 
             buildAutoParlays(allAvailablePicks);
-            autoSaveTodayHistory(allAvailablePicks.length);
+            
+            // Sincronizar automáticamente en el almacenamiento local del historial
+            syncHistoryAutomatically(autoPlaysToRegister);
         }
 
         function renderMasterPickTab(candidate) {
@@ -820,8 +831,6 @@
                         ${candidate.reason}
                     </div>
                 </div>
-
-                <button class="btn-action" style="padding: 0.8rem; font-size: 0.95rem; background-color: #4ade80; color: #0f172a;" onclick="saveSpecificPlay('${encodeURIComponent(`${candidate.matchStr} → [JUGADA 100%] ${candidate.text}`)}')">💾 Guardar Jugada 100% en Historial</button>
             `;
         }
 
@@ -840,7 +849,7 @@
                                 ${shuffled.map(p => `<li>• ${p.match} → <strong>${p.desc}</strong></li>`).join('')}
                             </ul>
                         </div>
-                        <button class="btn-action" onclick="saveSpecificPlay('${encodeURIComponent(parlayDescription)}')">Cargar y Guardar Parlay</button>
+                        <button class="btn-action" onclick="saveSpecificPlay('${encodeURIComponent(parlayDescription)}')">Guardar Parlay</button>
                     </div>
                 `;
             }
@@ -855,24 +864,35 @@
                 date: CURRENT_DATE,
                 timestamp: new Date().toLocaleTimeString(),
                 play: playText,
-                status: "Pendiente / Activo"
+                status: "Manual / Personalizado"
             };
 
             history.unshift(record);
             localStorage.setItem('mlb_bet_history', JSON.stringify(history));
-            alert("¡Jugada guardada en el historial con éxito!");
+            alert("¡Elemento guardado en el historial con éxito!");
             renderHistory();
         }
 
-        function autoSaveTodayHistory(count) {
+        function syncHistoryAutomatically(newPlays) {
             let history = JSON.parse(localStorage.getItem('mlb_bet_history') || '[]');
-            if(history.length === 0) {
-                history.push({
-                    date: CURRENT_DATE,
-                    timestamp: "Sistema",
-                    play: `Jornada sincronizada con análisis global y Jugada 100% integrada (${count} partidos).`,
-                    status: "Sincronizado"
-                });
+            
+            // Verificamos si ya existen para evitar duplicación masiva al recargar
+            let existingPlays = new Set(history.map(h => h.play));
+            let addedCount = 0;
+
+            newPlays.forEach(item => {
+                if (!existingPlays.has(item.play)) {
+                    history.unshift({
+                        date: CURRENT_DATE,
+                        timestamp: "Automático",
+                        play: item.play,
+                        status: item.status
+                    });
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
                 localStorage.setItem('mlb_bet_history', JSON.stringify(history));
             }
         }
@@ -882,7 +902,7 @@
             let history = JSON.parse(localStorage.getItem('mlb_bet_history') || '[]');
             
             if(history.length === 0) {
-                container.innerHTML = '<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros históricos guardados aún.</p>';
+                container.innerHTML = '<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros históricos guardados aún. Se cargarán automáticamente.</p>';
                 return;
             }
 
