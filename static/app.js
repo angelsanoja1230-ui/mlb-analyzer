@@ -330,6 +330,7 @@ function registerParlayToAudit(parlayName, odds) {
     alert(`${parlayName} registrado correctamente en la Hoja de Auditoría.`);
 }
 
+// Actualización del renderizador de En Vivo para adoptar un estilo profesional inspirado en MLB/ESPN
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
     if (!container) return;
@@ -338,56 +339,184 @@ function renderLiveControl() {
         let gameState = 'FINALIZADO';
         let awayScore = (idx * 3) % 8;
         let homeScore = (idx + 2) % 7;
-        let inningInfo = 'Final 9º Inn';
+        let inningInfo = 'FINAL';
+        let statusBadgeClass = 'status-final';
         let sortOrder = 3;
 
         if (m.time === "7:20 PM") {
             gameState = 'PRÓXIMAMENTE';
             awayScore = '-';
             homeScore = '-';
-            inningInfo = `Inicio ${m.time}`;
+            inningInfo = m.time;
+            statusBadgeClass = 'status-upcoming';
             sortOrder = 2;
         } 
         else if (m.time === "4:05 PM" || m.time === "4:07 PM") {
             gameState = 'EN VIVO';
-            inningInfo = 'Parte Alta del 7º Inn';
+            inningInfo = 'TOP 7º';
+            statusBadgeClass = 'status-live';
             sortOrder = 1;
         }
 
-        return { ...m, gameState, awayScore, homeScore, inningInfo, sortOrder };
+        return { ...m, gameState, awayScore, homeScore, inningInfo, statusBadgeClass, sortOrder };
     });
 
     processedMatches.sort((a, b) => a.sortOrder - b.sortOrder);
 
-    container.innerHTML = processedMatches.map(m => `
-        <div class="live-card" style="background:var(--card-bg, #111827); padding:1.2rem; border-radius:14px; margin-bottom:1rem; border:1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-            <div class="match-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem; font-size:0.85rem;">
-                <span style="font-weight:800; color:${m.gameState === 'EN VIVO' ? '#ef4444' : '#38bdf8'}; background:rgba(0,0,0,0.3); padding:0.3rem 0.8rem; border-radius:8px; display:inline-flex; align-items:center; gap:0.4rem;">
-                    ${m.gameState === 'EN VIVO' ? '🔴 EN VIVO' : m.gameState === 'PRÓXIMAMENTE' ? '⏰ PRÓXIMAMENTE' : '🏁 FINALIZADO'} <span style="color:#9ca3af; font-weight:600;">(${m.inningInfo})</span>
-                </span>
-                <span style="color:#9ca3af; font-weight:600;">🏟️ ${m.stadium}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin:1rem 0;">
-                <div style="display:flex; align-items:center; gap:0.8rem;">
-                    ${getTeamBadgeHTML(m.away, true)}
-                    <div>
-                        <div style="font-weight:700; font-size:0.95rem; color:#fff;">${m.away}</div>
-                        <div style="font-size:0.75rem; color:#38bdf8;">Abridor: ${m.starter_away}</div>
+    container.innerHTML = `
+        <style>
+            .espn-scoreboard-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                gap: 1rem;
+                width: 100%;
+            }
+            .espn-card {
+                background: linear-gradient(145deg, #161f30, #0d131f);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+                transition: transform 0.2s ease, border-color 0.2s ease;
+            }
+            .espn-card:hover {
+                border-color: rgba(56, 189, 248, 0.4);
+                transform: translateY(-2px);
+            }
+            .espn-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: rgba(0, 0, 0, 0.35);
+                padding: 0.5rem 1rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                font-size: 0.75rem;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                color: #94a3b8;
+                text-transform: uppercase;
+            }
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.35rem;
+                padding: 0.2rem 0.6rem;
+                border-radius: 6px;
+                font-size: 0.7rem;
+                font-weight: 800;
+            }
+            .status-live {
+                background: rgba(239, 68, 68, 0.2);
+                color: #f87171;
+                border: 1px solid rgba(239, 68, 68, 0.4);
+            }
+            .status-live::before {
+                content: '';
+                width: 6px;
+                height: 6px;
+                background-color: #ef4444;
+                border-radius: 50%;
+                display: inline-block;
+                box-shadow: 0 0 8px #ef4444;
+                animation: pulse-dot 1.5s infinite;
+            }
+            .status-upcoming {
+                background: rgba(56, 189, 248, 0.15);
+                color: #38bdf8;
+                border: 1px solid rgba(56, 189, 248, 0.3);
+            }
+            .status-final {
+                background: rgba(100, 116, 139, 0.2);
+                color: #94a3b8;
+                border: 1px solid rgba(100, 116, 139, 0.3);
+            }
+            @keyframes pulse-dot {
+                0% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.4; transform: scale(0.85); }
+                100% { opacity: 1; transform: scale(1); }
+            }
+            .espn-body {
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .espn-team-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .espn-team-info {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            .espn-team-name {
+                font-weight: 700;
+                font-size: 0.95rem;
+                color: #f8fafc;
+            }
+            .espn-score {
+                font-size: 1.35rem;
+                font-weight: 900;
+                color: #ffffff;
+                background: rgba(0, 0, 0, 0.4);
+                min-width: 36px;
+                text-align: center;
+                padding: 0.2rem 0.5rem;
+                border-radius: 6px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            .espn-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+                padding: 0.6rem 1rem;
+                background: rgba(0, 0, 0, 0.15);
+                font-size: 0.75rem;
+                color: #64748b;
+            }
+        </style>
+        <div class="espn-scoreboard-grid">
+            ${processedMatches.map(m => `
+                <div class="espn-card">
+                    <div class="espn-header">
+                        <span class="status-badge ${m.statusBadgeClass}">
+                            ${m.gameState === 'EN VIVO' ? 'EN VIVO' : m.gameState} &bull; ${m.inningInfo}
+                        </span>
+                        <span>${m.stadium}</span>
+                    </div>
+                    <div class="espn-body">
+                        <div class="espn-team-row">
+                            <div class="espn-team-info">
+                                ${getTeamBadgeHTML(m.away, true)}
+                                <div>
+                                    <div class="espn-team-name">${m.away}</div>
+                                    <div style="font-size: 0.7rem; color: #64748b;">(Visita) &bull; ${m.starter_away}</div>
+                                </div>
+                            </div>
+                            <div class="espn-score">${m.awayScore}</div>
+                        </div>
+                        <div class="espn-team-row">
+                            <div class="espn-team-info">
+                                ${getTeamBadgeHTML(m.home, true)}
+                                <div>
+                                    <div class="espn-team-name">${m.home}</div>
+                                    <div style="font-size: 0.7rem; color: #64748b;">(Local) &bull; ${m.starter_home}</div>
+                                </div>
+                            </div>
+                            <div class="espn-score">${m.homeScore}</div>
+                        </div>
+                    </div>
+                    <div class="espn-footer">
+                        <span>⚾ MLB Regular Season</span>
+                        <span style="color: #38bdf8; font-weight: 600;">Odds: V ${m.awayOdds} / L ${m.homeOdds}</span>
                     </div>
                 </div>
-                <div style="font-size:1.8rem; font-weight:900; color:#38bdf8; background:rgba(0,0,0,0.4); padding:0.4rem 1.2rem; border-radius:10px; border:1px solid rgba(56,189,248,0.2); letter-spacing:0.05em;">
-                    ${m.awayScore} - ${m.homeScore}
-                </div>
-                <div style="display:flex; align-items:center; gap:0.8rem; text-align:right;">
-                    <div>
-                        <div style="font-weight:700; font-size:0.95rem; color:#fff;">${m.home}</div>
-                        <div style="font-size:0.75rem; color:#38bdf8;">Abridor: ${m.starter_home}</div>
-                    </div>
-                    ${getTeamBadgeHTML(m.home, true)}
-                </div>
-            </div>
+            `).join('')}
         </div>
-    `).join('');
+    `;
 }
 
 function renderAuditHistory() {
