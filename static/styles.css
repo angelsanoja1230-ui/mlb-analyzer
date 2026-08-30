@@ -162,7 +162,7 @@ nav {
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
-}
+} 
 
 .match-card, .live-card, .trend-card, .auto-parlay-card {
     background: var(--bg-surface);
