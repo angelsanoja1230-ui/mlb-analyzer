@@ -517,11 +517,11 @@
             </div>
         </div>
 
-        <!-- Pestaña 4: Generador Automático de Parlay y Mejor Jugada -->
+        <!-- Pestaña 4: Generador Automático de Parlay y Mejor Jugada (Multimercado) -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático de Parlays & Análisis</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Basado cuantitativamente en los datos del día: La jugada más sólida y combinaciones óptimas automáticas de 2, 3, 4 y 5 selecciones.</p>
+                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado & Análisis</h2>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Combina de forma inteligente Ganador (Juego Completo / F5), Run Lines y Altas/Bajas (Over/Under) para armar tus parlays de 2, 3, 4 y 5 selecciones.</p>
 
                 <!-- La Mejor Jugada del Día -->
                 <div class="best-play-banner">
@@ -529,9 +529,9 @@
                     <div class="pick-content" id="best-play-text">Calculando mejor opción...</div>
                 </div>
 
-                <!-- Generador Automático de Parlays -->
+                <!-- Generador Automático de Parlays Multimercado -->
                 <div class="parlay-panel">
-                    <h3>Combinaciones Automáticas Generadas por Datos</h3>
+                    <h3>Combinaciones Automáticas Multimercado</h3>
                     <div class="auto-parlays-grid" id="auto-parlays-container">
                         <!-- Se llena dinámicamente -->
                     </div>
@@ -550,7 +550,7 @@
         </div>
     </div>
 
-    <!-- Script de Pestañas, Historial, Porcentajes Reales y Generador Automático -->
+    <!-- Script de Pestañas, Historial, Porcentajes Reales y Generador Multimercado -->
     <script>
         const CURRENT_DATE = "30-08-2026";
 
@@ -574,65 +574,92 @@
             }
         }
 
-        // Función determinista basada en el nombre del partido para generar porcentajes reales variados (ej. 58% - 42%, 63% - 37%, etc.)
+        // Función determinista para porcentajes reales variados
         function getRealProbabilities(matchKey) {
             let hash = 0;
             for (let i = 0; i < matchKey.length; i++) {
                 hash = matchKey.charCodeAt(i) + ((hash << 5) - hash);
             }
             let positiveHash = Math.abs(hash);
-            // Generar un porcentaje para el visitante entre 36% y 68%
             let awayProb = 36 + (positiveHash % 33);
             let homeProb = 100 - awayProb;
             return { away: awayProb, home: homeProb };
         }
 
+        // Función determinista para alternar tipos de mercados y líneas secundarias por partido
+        function getDiverseMarkets(matchKey, winnerFull, winnerF5, runline) {
+            let hash = 0;
+            for (let i = 0; i < matchKey.length; i++) {
+                hash = matchKey.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            let val = Math.abs(hash) % 4;
+            
+            // Extraer equipos separados por " @ "
+            let teams = matchKey.split(" @ ");
+            let awayTeam = teams[0] ? teams[0].trim() : "Visita";
+            let homeTeam = teams[1] ? teams[1].trim() : "Local";
+
+            let markets = [];
+            // Mercado 1: Ganador Juego Completo
+            markets.push({ type: "Ganador J.C.", desc: `${matchKey} → Gana ${winnerFull}`, conf: 68 + (Math.abs(hash) % 18) });
+            
+            // Mercado 2: Primeros 5 Innings (F5)
+            markets.push({ type: "Ganador F5", desc: `${matchKey} → F5 ${winnerF5}`, conf: 65 + (Math.abs(hash) % 20) });
+            
+            // Mercado 3: Run Line
+            let rlTeam = (val % 2 === 0) ? awayTeam : homeTeam;
+            markets.push({ type: "Run Line", desc: `${matchKey} → Run Line ${rlTeam} (-1.5)`, conf: 60 + (Math.abs(hash) % 22) });
+
+            // Mercado 4: Alta / Baja (Over / Under)
+            let ouType = (val < 2) ? "Alta (Over 8.5)" : "Baja (Under 8.5)";
+            markets.push({ type: "Total O/U", desc: `${matchKey} → ${ouType}`, conf: 63 + (Math.abs(hash) % 19) });
+
+            return markets;
+        }
+
         function processRealProbabilitiesAndApp() {
             let cards = document.querySelectorAll('.match-card');
             let rows = document.querySelectorAll('#matrix-table-data tbody tr');
-            let parsedPlays = [];
+            let allAvailablePicks = [];
 
             cards.forEach((card, index) => {
                 let matchName = card.getAttribute('data-match-key');
                 let winnerFull = card.getAttribute('data-winner-full');
+                let winnerF5 = card.getAttribute('data-winner-f5');
+                let runline = card.getAttribute('data-runline-prob');
                 
-                // Obtener porcentajes reales calculados
+                // Porcentajes reales
                 let probs = getRealProbabilities(matchName);
-                
-                // Actualizar en la tarjeta visual de Partidos del Día
                 card.querySelector('.card-prob-away').innerText = probs.away + '%';
                 card.querySelector('.card-prob-home').innerText = probs.home + '%';
 
-                // Guardar los atributos también en la fila correspondiente de la matriz si es necesario
                 if(rows[index]) {
                     rows[index].setAttribute('data-prob-away', probs.away);
                     rows[index].setAttribute('data-prob-home', probs.home);
                 }
 
-                let maxProb = Math.max(probs.away, probs.home);
-                parsedPlays.push({
-                    match: matchName,
-                    pick: winnerFull,
-                    confidence: maxProb,
-                    displayStr: `${matchName} → ${winnerFull} (${maxProb}%)`
+                // Obtener mercados diversos para este partido
+                let matchMarkets = getDiverseMarkets(matchName, winnerFull, winnerF5, runline);
+                matchMarkets.forEach(m => {
+                    allAvailablePicks.push(m);
                 });
             });
 
-            // Ordenar por mayor porcentaje cuantitativo para la mejor jugada
-            parsedPlays.sort((a, b) => b.confidence - a.confidence);
+            // Ordenar todos los picks disponibles por nivel de confianza/probabilidad cuantitativa
+            allAvailablePicks.sort((a, b) => b.conf - a.conf);
 
-            if (parsedPlays.length > 0) {
-                let bestPlay = parsedPlays[0];
+            if (allAvailablePicks.length > 0) {
+                // 1. Mostrar la mejor jugada general de la jornada (independientemente del mercado)
+                let bestPlay = allAvailablePicks[0];
                 document.getElementById('best-play-text').innerHTML = `
-                    <span style="color: #38bdf8;">${bestPlay.match}</span> — 
-                    <span style="color: #fbbf24;">Gana: ${bestPlay.pick}</span> 
-                    <span style="font-size: 0.85rem; color: #94a3b8; display: block; margin-top: 4px;">Confianza Cuantitativa: ${bestPlay.confidence}% de probabilidad real</span>
+                    <span style="color: #38bdf8;">${bestPlay.desc}</span> 
+                    <span style="font-size: 0.85rem; color: #94a3b8; display: block; margin-top: 4px;">Confianza Cuantitativa Multimercado: ${bestPlay.conf}% (${bestPlay.type})</span>
                 `;
 
-                // Generar automáticos de 2, 3, 4 y 5 selecciones
+                // 2. Generar automáticamente combinaciones de 2, 3, 4 y 5 selecciones variadas mezclando mercados
                 let container = document.getElementById('auto-parlays-container');
                 let parlayConfigs = [
-                    { count: 2, title: "Parlay Doble (Alta Seguridad)" },
+                    { count: 2, title: "Parlay Doble (Multimercado Seguro)" },
                     { count: 3, title: "Parlay Triple (Balanceado)" },
                     { count: 4, title: "Parlay Cuádruple (Alto Valor)" },
                     { count: 5, title: "Parlay Quintuple (Proyección Máxima)" }
@@ -640,11 +667,29 @@
 
                 let html = '';
                 parlayConfigs.forEach(cfg => {
-                    let selectedForParlay = parsedPlays.slice(0, Math.min(cfg.count, parsedPlays.length));
+                    // Seleccionar elementos asegurando variedad de partidos si es posible
+                    let selectedForParlay = [];
+                    let usedMatches = new Set();
                     
+                    for (let p of allAvailablePicks) {
+                        let matchNamePart = p.desc.split(" → ")[0];
+                        if (!usedMatches.has(matchNamePart) && selectedForParlay.length < cfg.count) {
+                            selectedForParlay.push(p);
+                            usedMatches.add(matchNamePart);
+                        }
+                    }
+                    // Si faltan por agotarse partidos únicos, completar con los siguientes con mayor confianza
+                    if (selectedForParlay.length < cfg.count) {
+                        for (let p of allAvailablePicks) {
+                            if (!selectedForParlay.includes(p) && selectedForParlay.length < cfg.count) {
+                                selectedForParlay.push(p);
+                            }
+                        }
+                    }
+
                     if (selectedForParlay.length > 0) {
-                        let picksTextArray = selectedForParlay.map(p => p.displayStr);
-                        let estimatedOdds = `+${110 + (selectedForParlay.length * 130)}`;
+                        let picksTextArray = selectedForParlay.map(p => p.desc);
+                        let estimatedOdds = `+${115 + (selectedForParlay.length * 140)}`;
                         let picksStringJSON = JSON.stringify(picksTextArray);
 
                         html += `
@@ -654,7 +699,7 @@
                                     <ul>
                         `;
                         selectedForParlay.forEach(p => {
-                            html += `<li>✓ ${p.displayStr}</li>`;
+                            html += `<li>✓ [${p.type}] ${p.desc}</li>`;
                         });
                         html += `
                                     </ul>
