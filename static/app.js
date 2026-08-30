@@ -275,31 +275,60 @@ function registerParlayToAudit(parlayName) {
 
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
-    container.innerHTML = BASE_MATCHES.slice(0, 6).map((m, idx) => `
+    
+    // Lista combinada de partidos: algunos en juego y otros simulados como finalizados
+    const liveAndFinishedMatches = BASE_MATCHES.map((m, idx) => {
+        // Simulamos estados mixtos para la demo: algunos Final, otros En Vivo
+        let isFinal = idx % 3 === 0; // Cada 3 partidos se simula como finalizado
+        let gameState = isFinal ? "FINALIZADO" : `En Juego (Inning ${idx + 2})`;
+        let awayScore = (idx * 2) % 7;
+        let homeScore = (idx + 3) % 6;
+        
+        return {
+            ...m,
+            gameState: gameState,
+            isFinal: isFinal,
+            awayScore: awayScore,
+            homeScore: homeScore
+        };
+    });
+
+    container.innerHTML = liveAndFinishedMatches.map(m => `
         <div class="live-card">
             <div class="match-header">
-                <span class="live-tag">En Juego (Inning ${idx + 3})</span>
+                <span class="${m.isFinal ? 'badge-pending' : 'live-tag'}" style="${m.isFinal ? 'background: rgba(156,163,175,0.1); color: var(--text-muted); border-color: var(--border-subtle);' : ''}">
+                    ${m.gameState}
+                </span>
                 <span>${m.stadium}</span>
             </div>
-            <div class="live-scorebox">
-                <div style="display:flex; align-items:center; gap:0.5rem;">
+            
+            <div class="live-scorebox" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
                     ${getTeamBadgeHTML(m.away, true)}
-                    <span style="font-weight:700;">${m.away}</span>
+                    <span style="font-weight: 700; font-size: 0.85rem; line-height: 1.1;">${m.away}</span>
                 </div>
-                <span style="font-size:1.4rem; font-weight:900; color:var(--accent);">3 - 2</span>
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <span style="font-weight:700; text-align:right;">${m.home}</span>
+                
+                <div style="display: flex; align-items: center; justify-content: center; padding: 0 0.5rem;">
+                    <span style="font-size: 1.5rem; font-weight: 900; color: var(--accent); letter-spacing: 0.05em;">
+                        ${m.awayScore} - ${m.homeScore}
+                    </span>
+                </div>
+                
+                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex: 1; text-align: right;">
+                    <span style="font-weight: 700; font-size: 0.85rem; line-height: 1.1;">${m.home}</span>
                     ${getTeamBadgeHTML(m.home, true)}
                 </div>
             </div>
+
             <div class="live-situational-info">
-                <span>⚾ Outs: 1</span>
-                <span>🏃 Bases: 1ra y 2da</span>
-                <span>🎯 Conteo: 2-2</span>
+                <span>${m.isFinal ? '🏁 Partido Concluido' : '⚾ Outs: 2 | 🏃 Bases: Llena'}</span>
             </div>
+            
             <div class="live-best-play-box">
-                <span style="font-size:0.7rem; font-weight:700; color:var(--success); text-transform:uppercase;">Jugada Recomendada En Vivo</span>
-                <div style="font-size:0.85rem; font-weight:800; color:var(--text-main); margin-top:2px;">Under 8.5 Carreras Total</div>
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--success); text-transform: uppercase;">Estado del pronóstico</span>
+                <div style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-top:2px;">
+                    ${m.isFinal ? '✅ Línea auditada con éxito' : 'En seguimiento de cuotas secundarias'}
+                </div>
             </div>
         </div>
     `).join('');
