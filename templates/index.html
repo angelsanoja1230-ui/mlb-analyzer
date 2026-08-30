@@ -614,9 +614,24 @@
                         <div class="market-pill pill-ou"><span class="market-pill-label">O/U</span><span class="market-pill-value">${ouPick}</span></div>
                     </div>
                 </div>`;
+
+                bestPlaysHTML += `
+                <div class="match-card">
+                    <div class="match-header"><span>⏰ ${m.time}</span><span>⭐ Selección Óptima</span></div>
+                    <div class="teams-container">
+                        <div class="team">${getTeamBadgeHTML(m.away)}<div class="team-name" style="font-size:0.8rem;">${m.away}</div></div>
+                        <div class="vs">VS</div>
+                        <div class="team">${getTeamBadgeHTML(m.home)}<div class="team-name" style="font-size:0.8rem;">${m.home}</div></div>
+                    </div>
+                    <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; border: 1px solid #334155;">
+                        <div style="font-size: 0.7rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; margin-bottom: 3px;">Jugada Recomendada</div>
+                        <div style="font-size: 1rem; font-weight: bold; color: #4ade80;">${mlPick} (ML) o ${lineInfo.team} ${lineInfo.line}</div>
+                    </div>
+                </div>`;
             });
 
             document.getElementById('trends-list-container').innerHTML = trendsHTML;
+            document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
 
             if (bestMainObj) {
                 document.getElementById('master-pick-display-container').innerHTML = `
@@ -642,8 +657,10 @@
 
             BASE_MATCHES.forEach(m => {
                 let lineInfo = savedLines[m.id] || { team: m.home, line: m.defaultHcap };
+                let isHomeFav = m.homeOdds < m.awayOdds;
+                let mlPick = isHomeFav ? m.home : m.away;
                 let matchupStr = `${m.away} vs ${m.home}`;
-                let pickStr = `${lineInfo.team} ${lineInfo.line}`;
+                let pickStr = `ML: ${mlPick} | RL: ${lineInfo.team} ${lineInfo.line}`;
 
                 let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchupStr && h.pick === pickStr);
                 if (!exists) {
@@ -651,7 +668,7 @@
                         date: CURRENT_DATE,
                         matchup: matchupStr,
                         pick: pickStr,
-                        type: 'Línea Real (RL)',
+                        type: 'Matriz Líneas',
                         status: 'Pendiente',
                         rawAway: m.away,
                         rawHome: m.home
@@ -697,7 +714,7 @@
                 </div>`;
         }
 
-        function saveToHistory(matchup, pick, type = 'Jugada') {
+        function saveToHistory(matchup, pick, type = 'Jugada 100%') {
             let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
             
             let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchup && h.pick === pick);
@@ -750,34 +767,14 @@
                         let aName = matchedGame.teams.away.team.name;
                         let hName = matchedGame.teams.home.team.name;
 
-                        let pickText = item.pick;
-                        let isAway = pickText.includes(aName);
-                        let isHome = pickText.includes(hName);
+                        let winTeam = aScore > hScore ? aName : hName;
+                        let pickText = item.pick.toLowerCase();
 
-                        if (!isAway && !isHome) return;
-
-                        let teamScore = isAway ? aScore : hScore;
-                        let oppScore = isAway ? hScore : aScore;
-
-                        // Extraer valor de hándicap si existe (ej. -1.5, +1.5)
-                        let handicapMatch = pickText.match(/([+-]\d+\.?\d*)/);
-
-                        if (handicapMatch && !pickText.includes("ML")) {
-                            let hcapVal = parseFloat(handicapMatch[1]);
-                            let adjustedScore = teamScore + hcapVal;
-                            if (adjustedScore > oppScore) {
-                                item.status = 'Ganada';
-                            } else {
-                                item.status = 'Perdida';
-                            }
+                        if (pickText.includes(winTeam.toLowerCase())) {
+                            item.status = 'Ganada';
                             updated = true;
                         } else {
-                            // Evaluación para Moneyline (ML) u otros pronósticos directos
-                            if (teamScore > oppScore) {
-                                item.status = 'Ganada';
-                            } else {
-                                item.status = 'Perdida';
-                            }
+                            item.status = 'Perdida';
                             updated = true;
                         }
                     }
@@ -823,7 +820,7 @@
                             <span style="font-size: 0.75rem; color: #94a3b8;">${h.date}</span>
                         </div>
                         <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc;">${h.matchup}</div>
-                        <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: bold;">Pronóstico / Hándicap: ${h.pick}</div>
+                        <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: bold;">Pronóstico: ${h.pick}</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="background-color: ${badgeBg}; color: ${badgeColor}; border: 1px solid ${badgeBorder}; padding: 2px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">${h.status}</span>
