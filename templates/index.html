@@ -524,27 +524,35 @@
             background: rgba(255, 255, 255, 0.01);
         }
 
-        .status-badge {
-            padding: 0.3rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
+        .badge-check {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
             font-weight: 800;
-            text-transform: uppercase;
+            display: inline-block;
         }
 
-        .status-pending { background: rgba(251, 191, 36, 0.15); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.3); }
-        .status-won { background: var(--success-bg); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.3); }
-        .status-lost { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.3); }
+        .badge-cross {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 800;
+            display: inline-block;
+        }
 
-        .result-input {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            color: var(--text-main);
-            padding: 0.4rem 0.6rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.8rem;
-            width: 90px;
-            text-align: center;
+        .badge-pending {
+            background: rgba(251, 191, 36, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 700;
+            display: inline-block;
+            font-size: 0.75rem;
         }
 
         .auto-parlay-card h5 {
@@ -602,7 +610,7 @@
     <div id="trends-tab" class="tab-content">
         <div class="section-header-flex">
             <h2>Tendencias del Día y Mercados Múltiples</h2>
-            <span style="font-size: 0.8rem; color: var(--success); font-weight: 700;">✨ Guardado automático activo en la hoja de auditoría</span>
+            <span style="font-size: 0.8rem; color: var(--success); font-weight: 700;">✨ Guardado y sincronización en vivo con auditoría activos</span>
         </div>
         <div id="trends-list-container" class="matches-grid" style="margin-top: 1rem;"></div>
     </div>
@@ -635,8 +643,8 @@
     <!-- Pestaña 6: Hoja de Comparación / Historial -->
     <div id="history-tab" class="tab-content">
         <div class="section-header-flex">
-            <h2>Hoja de Comparación y Auditoría de Tendencias</h2>
-            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.6rem 1.25rem; background-color: var(--danger); color: white;" onclick="clearHistory()">🗑️ Limpiar Hoja</button>
+            <h2>Hoja de Comparación y Auditoría Automática</h2>
+            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.6rem 1.25rem; background-color: var(--accent); color: var(--bg-base);" onclick="syncAuditWithLiveAPI()">🔄 Sincronizar con Resultados API</button>
         </div>
         <div id="history-list-container"></div>
     </div>
@@ -689,6 +697,8 @@
             initRealVisitorCounter();
             buildMatchesUI();
             processApp();
+            // Sincronizar automáticamente al cargar la página en segundo plano
+            syncAuditWithLiveAPI(true);
         });
 
         async function initRealVisitorCounter() {
@@ -815,17 +825,21 @@
                 let mlPick = isHomeFav ? m.home : m.away;
                 let ouPick = "Alta (O 8.5)";
 
-                // Generar objeto para el guardado automático en la hoja de auditoría
                 automaticHistoryEntries.push({
                     id: m.id,
+                    away: m.away,
+                    home: m.home,
                     date: CURRENT_DATE,
                     matchup: `${m.away} @ ${m.home}`,
                     f5: f5Pick,
                     ml: mlPick,
-                    handicap: `${lineInfo.team} ${lineInfo.line}`,
+                    handicapTeam: lineInfo.team,
+                    handicapLine: parseFloat(lineInfo.line),
                     ou: ouPick,
-                    actualResult: "",
-                    status: 'Pendiente'
+                    f5Status: "Pendiente",
+                    mlStatus: "Pendiente",
+                    hcapStatus: "Pendiente",
+                    finalScoreStr: "Pendiente"
                 });
 
                 trendsHTML += `
@@ -847,8 +861,6 @@
             });
 
             document.getElementById('trends-list-container').innerHTML = trendsHTML;
-
-            // Guardar o actualizar de forma inteligente en localStorage conservando resultados previos si ya se ingresaron
             syncAutomaticHistory(automaticHistoryEntries);
 
             // Jugada Maestra
@@ -878,14 +890,15 @@
         function syncAutomaticHistory(newEntries) {
             let existingHistory = JSON.parse(localStorage.getItem('mlb_audit_sheet') || '[]');
             
-            // Fusionar manteniendo resultados reales o estados ya ingresados por el usuario
             let merged = newEntries.map(newItem => {
                 let found = existingHistory.find(ex => ex.id === newItem.id && ex.date === newItem.date);
                 if (found) {
                     return {
                         ...newItem,
-                        actualResult: found.actualResult || "",
-                        status: found.status || "Pendiente"
+                        f5Status: found.f5Status || "Pendiente",
+                        mlStatus: found.mlStatus || "Pendiente",
+                        hcapStatus: found.hcapStatus || "Pendiente",
+                        finalScoreStr: found.finalScoreStr || "Pendiente"
                     };
                 }
                 return newItem;
@@ -894,12 +907,106 @@
             localStorage.setItem('mlb_audit_sheet', JSON.stringify(merged));
         }
 
+        // Función clave para evaluar automáticamente los resultados usando la API oficial de la MLB
+        async function syncAuditWithLiveAPI(silent = false) {
+            if (!silent) {
+                alert("Consultando API de la MLB para auditar resultados...");
+            }
+
+            try {
+                let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${CURRENT_DATE}&hydrate=linescore`);
+                let data = await response.json();
+                let games = (data.dates && data.dates.length > 0) ? data.dates[0].games : [];
+
+                if (games.length === 0) {
+                    if (!silent) alert("No se encontraron partidos en la API para la fecha actual.");
+                    return;
+                }
+
+                let history = JSON.parse(localStorage.getItem('mlb_audit_sheet') || '[]');
+
+                history.forEach(item => {
+                    let apiGame = games.find(g => 
+                        g.teams.away.team.name === item.away && g.teams.home.team.name === item.home
+                    );
+
+                    if (apiGame) {
+                        let state = apiGame.status.abstractGameState; // Preview, Live, Final
+                        let awayScore = apiGame.teams.away.score !== undefined ? apiGame.teams.away.score : 0;
+                        let homeScore = apiGame.teams.home.score !== undefined ? apiGame.teams.home.score : 0;
+                        let linescore = apiGame.linescore || {};
+                        let innings = linescore.innings || [];
+
+                        // Marcador definitivo o actual
+                        item.finalScoreStr = `${awayScore} - ${homeScore} (${state === "Final" ? "Final" : (state === "Live" ? "En Vivo" : "Previo")})`;
+
+                        if (state === "Final" || (state === "Live" && (linescore.currentInning >= 5))) {
+                            // 1. Evaluar Ganador ML (Juego Completo)
+                            if (state === "Final") {
+                                let mlWinner = awayScore > homeScore ? item.away : item.home;
+                                if (item.ml.includes(mlWinner)) {
+                                    item.mlStatus = "Ganada";
+                                } else {
+                                    item.mlStatus = "Perdida";
+                                }
+
+                                // 2. Evaluar Hándicap (Run Line)
+                                let hTeam = item.handicapTeam;
+                                let hLine = item.handicapLine; // Ej: -1.5 o +1.5
+                                let adjustedScoreDiff = 0;
+                                if (hTeam === item.home) {
+                                    adjustedScoreDiff = (homeScore + hLine) - awayScore;
+                                } else {
+                                    adjustedScoreDiff = (awayScore + hLine) - homeScore;
+                                }
+
+                                if (adjustedScoreDiff > 0) {
+                                    item.hcapStatus = "Ganada";
+                                } else {
+                                    item.hcapStatus = "Perdida";
+                                }
+                            }
+
+                            // 3. Evaluar F5 (Primeros 5 innings) si hay suficientes entradas registradas
+                            if (innings.length >= 5 || state === "Final") {
+                                let awayF5 = 0, homeF5 = 0;
+                                let maxInningsToCount = Math.min(5, innings.length);
+                                for (let i = 0; i < maxInningsToCount; i++) {
+                                    awayF5 += innings[i].away.runs || 0;
+                                    homeF5 += innings[i].home.runs || 0;
+                                }
+
+                                if (maxInningsToCount >= 5 || state === "Final") {
+                                    let isHomeFavF5 = item.f5.includes(item.home);
+                                    if (isHomeFavF5 && item.f5.includes("-0.5")) {
+                                        item.f5Status = (homeF5 - awayF5 >= 1) ? "Ganada" : "Perdida";
+                                    } else {
+                                        // Caso 0.0 (empate anula o visitante cubre)
+                                        item.f5Status = (awayF5 >= homeF5) ? "Ganada" : "Perdida";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                localStorage.setItem('mlb_audit_sheet', JSON.stringify(history));
+                renderHistory();
+                if (!silent) {
+                    alert("¡Hoja de auditoría actualizada con éxito desde la API!");
+                }
+            } catch (err) {
+                console.error("Error sincronizando con API de MLB:", err);
+                if (!silent) alert("Error al conectar con la API de la MLB para la auditoría.");
+            }
+        }
+
         function renderHistory() {
             let history = JSON.parse(localStorage.getItem('mlb_audit_sheet') || '[]');
             let container = document.getElementById('history-list-container');
             
             if(history.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; padding: 3rem;">No hay tendencias guardadas para hoy todavía. Visita la pestaña de Tendencias para generarlas.</p>`;
+                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; padding: 3rem;">No hay tendencias guardadas para hoy todavía.</p>`;
                 return;
             }
 
@@ -912,33 +1019,23 @@
                             <th>Tendencia F5</th>
                             <th>Tendencia ML</th>
                             <th>Tendencia Hándicap</th>
-                            <th>Resultado Real (Auditoría)</th>
-                            <th>Estado</th>
+                            <th>Marcador / Estado</th>
                         </tr>
                     </thead>
                     <tbody>`;
 
-            history.forEach((h, idx) => {
-                let statusClass = "status-pending";
-                if (h.status === 'Ganada') statusClass = "status-won";
-                else if (h.status === 'Perdida') statusClass = "status-lost";
+            history.forEach((h) => {
+                let f5Badge = h.f5Status === "Ganada" ? `<span class="badge-check">✅ Aceptado</span>` : (h.f5Status === "Perdida" ? `<span class="badge-cross">❌ Fallido</span>` : `<span class="badge-pending">⏳ Pendiente</span>`);
+                let mlBadge = h.mlStatus === "Ganada" ? `<span class="badge-check">✅ Aceptado</span>` : (h.mlStatus === "Perdida" ? `<span class="badge-cross">❌ Fallido</span>` : `<span class="badge-pending">⏳ Pendiente</span>`);
+                let hcapBadge = h.hcapStatus === "Ganada" ? `<span class="badge-check">✅ Aceptado</span>` : (h.hcapStatus === "Perdida" ? `<span class="badge-cross">❌ Fallido</span>` : `<span class="badge-pending">⏳ Pendiente</span>`);
 
                 html += `
                         <tr>
                             <td style="font-weight: 700;">${h.matchup}</td>
-                            <td><span style="color: var(--accent);">${h.f5}</span></td>
-                            <td><span style="color: var(--success);">${h.ml}</span></td>
-                            <td>${h.handicap}</td>
-                            <td>
-                                <input type="text" class="result-input" placeholder="Ej. 5-3 / Won" value="${h.actualResult}" onchange="updateActualResult(${idx}, this.value)">
-                            </td>
-                            <td>
-                                <select onchange="updateAuditStatus(${idx}, this.value)" style="padding: 0.3rem; font-size: 0.75rem; width: 110px;">
-                                    <option value="Pendiente" ${h.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
-                                    <option value="Ganada" ${h.status === 'Ganada' ? 'selected' : ''}>Acertada</option>
-                                    <option value="Perdida" ${h.status === 'Perdida' ? 'selected' : ''}>Fallida</option>
-                                </select>
-                            </td>
+                            <td><div style="font-size:0.75rem; color:var(--text-muted);">${h.f5}</div>${f5Badge}</td>
+                            <td><div style="font-size:0.75rem; color:var(--text-muted);">${h.ml}</div>${mlBadge}</td>
+                            <td><div style="font-size:0.75rem; color:var(--text-muted);">${h.handicapTeam} ${h.handicapLine}</div>${hcapBadge}</td>
+                            <td><span style="font-weight: 700; color: var(--accent);">${h.finalScoreStr}</span></td>
                         </tr>`;
             });
 
@@ -947,23 +1044,6 @@
                 </table>
             </div>`;
             container.innerHTML = html;
-        }
-
-        function updateActualResult(index, val) {
-            let history = JSON.parse(localStorage.getItem('mlb_audit_sheet') || '[]');
-            if(history[index]) {
-                history[index].actualResult = val;
-                localStorage.setItem('mlb_audit_sheet', JSON.stringify(history));
-            }
-        }
-
-        function updateAuditStatus(index, statusVal) {
-            let history = JSON.parse(localStorage.getItem('mlb_audit_sheet') || '[]');
-            if(history[index]) {
-                history[index].status = statusVal;
-                localStorage.setItem('mlb_audit_sheet', JSON.stringify(history));
-                renderHistory();
-            }
         }
 
         function renderAutoParlays() {
@@ -996,13 +1076,6 @@
                     </ul>
                     <button class="btn-action" onclick="alert('¡Parlay de Hándicaps copiado!')">Copiar Parlay RL</button>
                 </div>`;
-        }
-
-        function clearHistory() {
-            if(confirm("¿Estás seguro de limpiar la hoja de comparación?")) {
-                localStorage.removeItem('mlb_audit_sheet');
-                renderHistory();
-            }
         }
 
         async function fetchRealLiveMLBData() {
@@ -1092,7 +1165,7 @@
                                 <div>
                                     <div style="font-size: 0.9rem; font-weight: 700;">${awayTeam}</div>
                                     <div style="font-size: 0.7rem; color: var(--text-muted);">Visitante</div>
-                                </div>
+                                }
                             </div>
                             <div style="font-size: 1.5rem; font-weight: 900; color: var(--accent); padding: 0 0.75rem;">
                                 ${awayScore} - ${homeScore}
