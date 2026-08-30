@@ -388,7 +388,6 @@
         }
         .btn-sync:hover { background-color: #059669; }
 
-        /* Estilos de la Jugada 100% */
         .master-pick-card {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border: 2px solid #4ade80;
@@ -443,7 +442,6 @@
             line-height: 1.5;
         }
 
-        /* Estilos para el Módulo En Vivo Real vía API */
         .live-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
@@ -574,14 +572,14 @@
             <div class="live-standalone-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
                     <div>
-                        <h2 style="color: #ef4444; font-size: 1.25rem; margin-bottom: 0.2rem;">🔴 Centro de Jugadas en Vivo (Datos en Tiempo Real)</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Conectado a la API oficial de la MLB para extraer juegos en curso, evaluar marcadores reales y proyectar <strong>Altas, Bajas y Medio Inning</strong>.</p>
+                        <h2 style="color: #ef4444; font-size: 1.25rem; margin-bottom: 0.2rem;">🔴 Centro de Jugadas en Vivo (Actualización Automática)</h2>
+                        <p style="color: #94a3b8; font-size: 0.8rem;">Conectado a la API oficial de la MLB. Se actualiza solo cada 45 segundos o puedes forzarlo aquí:</p>
                     </div>
-                    <button class="btn-action" style="width: auto; padding: 0.5rem 1.2rem; background-color: #ef4444; color: #fff;" onclick="fetchRealLiveMLBData()">🔄 Consultar API En Vivo</button>
+                    <button class="btn-action" style="width: auto; padding: 0.5rem 1.2rem; background-color: #ef4444; color: #fff;" onclick="fetchRealLiveMLBData()">🔄 Consultar API Ahora</button>
                 </div>
                 
                 <div class="live-grid" id="live-standalone-cards-container">
-                    <p style="color: #94a3b8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Haz clic en "Consultar API En Vivo" para conectar y extraer los partidos en juego de la jornada actual.</p>
+                    <p style="color: #94a3b8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Cargando partidos en vivo...</p>
                 </div>
             </div>
         </div>
@@ -629,6 +627,7 @@
 
     <script>
         const CURRENT_DATE = "30-08-2026";
+        let liveRefreshInterval = null; // Control del temporizador automático en vivo
 
         const BASE_MATCHES = [
             { id: 1, away: "Miami Marlins", home: "Washington Nationals", time: "12:15 PM", stadium: "Nationals Park", starter_away: "J. Junk", starter_home: "A. Alvarez", homeOdds: 1.70, awayOdds: 2.00, defaultHcap: "-1.5" },
@@ -689,7 +688,15 @@
             buildMatchesUI();
             processApp();
             renderHistory();
-            fetchRealLiveMLBData(); // Consulta automática al cargar la pestaña en vivo
+            fetchRealLiveMLBData(); // Carga inicial
+            
+            // Activar auto-refresco por defecto al iniciar en la pestaña activa (En Vivo si se cambia, o por defecto en la primera)
+            liveRefreshInterval = setInterval(() => {
+                let liveTab = document.getElementById('live-standalone-tab');
+                if (liveTab && liveTab.classList.contains('active')) {
+                    fetchRealLiveMLBData();
+                }
+            }, 45000); // Cada 45 segundos
         });
 
         function switchTab(evt, tabId) {
@@ -697,8 +704,13 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
+            
             if(tabId === 'history-tab') renderHistory();
-            if(tabId === 'live-standalone-tab') fetchRealLiveMLBData();
+            
+            // Si entra a la pestaña en vivo, actualiza de inmediato
+            if(tabId === 'live-standalone-tab') {
+                fetchRealLiveMLBData();
+            }
         }
 
         function getSavedLines() {
@@ -915,14 +927,11 @@
             `;
         }
 
-        // --- CONEXIÓN REAL A LA API OFICIAL DE LA MLB (STATS API) ---
         async function fetchRealLiveMLBData() {
             let container = document.getElementById('live-standalone-cards-container');
-            container.innerHTML = '<p style="color: #38bdf8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">🔄 Conectando con el servidor de la MLB en tiempo real...</p>';
-
+            
             try {
-                // Endpoint público oficial de la MLB para consultar partidos y marcadores en vivo de la fecha actual
-                let todayFormatted = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
+                let todayFormatted = new Date().toISOString().split('T')[0];
                 let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${todayFormatted}`);
                 let data = await response.json();
 
@@ -936,10 +945,9 @@
                 let activeCount = 0;
 
                 games.forEach(g => {
-                    let gameState = g.status.abstractGameState; // "Live", "Final", "Preview"
+                    let gameState = g.status.abstractGameState; 
                     let detailedState = g.status.detailedState; 
 
-                    // Filtramos solo los que están en juego (Live / In Progress)
                     if (gameState === "Live" || detailedState.includes("In Progress") || detailedState.includes("Live")) {
                         activeCount++;
                         let awayTeam = g.teams.away.team.name;
@@ -948,7 +956,6 @@
                         let homeScore = g.teams.home.score ?? 0;
                         let inningInfo = g.linescore ? `${g.linescore.inningState} ${g.linescore.currentInningOrdinal}` : detailedState;
 
-                        // Motor analítico en vivo aplicado a los datos reales
                         let totalRuns = awayScore + homeScore;
                         let liveAltaBaja = totalRuns >= 7 ? "📉 Oportunidad de BAJA (O/U)" : "📈 Oportunidad de ALTA (O/U)";
                         let badgeClassOU = totalRuns >= 7 ? "badge-baja" : "badge-alta";
@@ -994,7 +1001,7 @@
                     container.innerHTML = `
                         <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem; background-color: #0f172a; border-radius: 8px; border: 1px solid #334155;">
                             <p style="color: #fbbf24; font-size: 0.95rem; font-weight: 600; margin-bottom: 6px;">ℹ️ No hay partidos de la MLB en juego en este preciso instante.</p>
-                            <p style="color: #94a3b8; font-size: 0.8rem;">La API oficial responde correctamente, pero en este horario no hay encuentros activos en curso. Vuelve a consultar cuando inicie la jornada.</p>
+                            <p style="color: #94a3b8; font-size: 0.8rem;">La API oficial responde correctamente. El panel se actualizará automáticamente cuando comience algún encuentro.</p>
                         </div>`;
                 } else {
                     container.innerHTML = liveHTML;
@@ -1002,7 +1009,7 @@
 
             } catch (error) {
                 console.error("Error al conectar con la API de MLB:", error);
-                container.innerHTML = '<p style="color: #ef4444; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">⚠️ Error de conexión con el servidor de la MLB. Verifica tu red e intenta nuevamente.</p>';
+                container.innerHTML = '<p style="color: #ef4444; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">⚠️ Error de conexión con el servidor de la MLB. Intentando reconectar automáticamente...</p>';
             }
         }
 
