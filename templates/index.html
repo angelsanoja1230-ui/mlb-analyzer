@@ -546,7 +546,6 @@
         <header>
             <h1>MLB</h1>
             <p>Fecha: <span id="current-date-label">30-08-2026</span> | Panel Cuantitativo y Centro Real En Vivo</p>
-            <!-- CONTADOR DE VISITAS REALES ÚNICAS -->
             <div class="visitor-badge">
                 👁️ Visitas reales únicas: <span id="real-visitor-count">Cargando...</span>
             </div>
@@ -562,7 +561,6 @@
             <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">🎲 Generador Parlay</button>
         </div>
 
-        <!-- PESTAÑA 1 -->
         <div id="matches-tab" class="tab-content active">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
                 <p style="color: #94a3b8; font-size: 0.85rem;">Ingresa el hándicap actual de tu casa de apuestas para cada encuentro y guarda los cambios.</p>
@@ -571,16 +569,19 @@
             <div class="matches-grid" id="matches-cards-container"></div>
         </div>
 
-        <!-- PESTAÑA 2 -->
         <div id="matrix-tab" class="tab-content">
             <div class="trends-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Análisis Cuantitativo Completo</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.5rem;">Todos los partidos analizados con Ganador F5, Ganador Juego Completo, Alta/Baja (O/U) y Hándicap configurado.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.2rem;">Matriz de Análisis Cuantitativo Completo</h2>
+                        <p style="color: #94a3b8; font-size: 0.8rem;">Todos los partidos analizados con Ganador F5, Ganador Juego Completo, Alta/Baja (O/U) y Hándicap configurado.</p>
+                    </div>
+                    <button class="btn-sync" style="margin-bottom:0;" onclick="saveAllMatrixToHistory()">📌 Guardar Todo el Análisis en Historial</button>
+                </div>
                 <div class="trends-list" id="trends-list-container"></div>
             </div>
         </div>
 
-        <!-- PESTAÑA 3 -->
         <div id="best-play-tab" class="tab-content">
             <div class="trends-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">⭐ Selección Óptima por Partido</h2>
@@ -589,12 +590,10 @@
             </div>
         </div>
 
-        <!-- PESTAÑA 4 -->
         <div id="master-pick-tab" class="tab-content">
             <div class="master-pick-container" id="master-pick-display-container"></div>
         </div>
 
-        <!-- PESTAÑA 5: JUGADAS EN VIVO REAL -->
         <div id="live-standalone-tab" class="tab-content">
             <div class="live-standalone-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
@@ -611,13 +610,12 @@
             </div>
         </div>
 
-        <!-- PESTAÑA 6 -->
         <div id="history-tab" class="tab-content">
             <div class="history-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.2rem;">Historial de Pronósticos y Tracking</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Registro automático de la Jugada 100% y las Mejores Jugadas guardadas.</p>
+                        <p style="color: #94a3b8; font-size: 0.8rem;">Registro automático/manual de la Jugada 100% y Análisis de Líneas Reales. El estatus se actualiza automáticamente con resultados reales de la API.</p>
                     </div>
                     <button onclick="clearHistory()" style="background-color: #ef4444; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">Limpiar Historial</button>
                 </div>
@@ -627,7 +625,6 @@
             </div>
         </div>
 
-        <!-- PESTAÑA 7 -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado</h2>
@@ -768,7 +765,10 @@
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
             
-            if(tabId === 'history-tab') renderHistory();
+            if(tabId === 'history-tab') {
+                evaluateHistoryResults();
+                renderHistory();
+            }
             if(tabId === 'live-standalone-tab') fetchRealLiveMLBData();
         }
 
@@ -920,11 +920,43 @@
                         <div class="master-selection-value">${bestMainObj.pick}</div>
                         <div class="master-reason">${bestMainObj.reason}</div>
                     </div>
-                    <button class="btn-action" style="max-width: 250px; margin: 0 auto; background-color: #4ade80; color: #0f172a;" onclick="saveToHistory('${bestMainObj.match}', '${bestMainObj.pick}')">📌 Guardar en Historial</button>
+                    <button class="btn-action" style="max-width: 250px; margin: 0 auto; background-color: #4ade80; color: #0f172a;" onclick="saveToHistory('${bestMainObj.match}', '${bestMainObj.pick}', 'Jugada 100%')">📌 Guardar en Historial</button>
                 </div>`;
             }
 
             renderAutoParlays();
+        }
+
+        function saveAllMatrixToHistory() {
+            let savedLines = getSavedLines();
+            let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
+            let addedCount = 0;
+
+            BASE_MATCHES.forEach(m => {
+                let lineInfo = savedLines[m.id] || { team: m.home, line: m.defaultHcap };
+                let isHomeFav = m.homeOdds < m.awayOdds;
+                let mlPick = isHomeFav ? m.home : m.away;
+                let matchupStr = `${m.away} vs ${m.home}`;
+                let pickStr = `ML: ${mlPick} | RL: ${lineInfo.team} ${lineInfo.line}`;
+
+                let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchupStr && h.pick === pickStr);
+                if (!exists) {
+                    history.unshift({
+                        date: CURRENT_DATE,
+                        matchup: matchupStr,
+                        pick: pickStr,
+                        type: 'Matriz Líneas',
+                        status: 'Pendiente',
+                        rawAway: m.away,
+                        rawHome: m.home
+                    });
+                    addedCount++;
+                }
+            });
+
+            localStorage.setItem('mlb_history_log', JSON.stringify(history));
+            alert(`¡Se han guardado ${addedCount} análisis de líneas reales en el historial! (Se mantendrán hasta que limpies el historial).`);
+            renderHistory();
         }
 
         function renderAutoParlays() {
@@ -959,7 +991,7 @@
                 </div>`;
         }
 
-        function saveToHistory(matchup, pick) {
+        function saveToHistory(matchup, pick, type = 'Jugada 100%') {
             let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
             
             let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchup && h.pick === pick);
@@ -968,30 +1000,110 @@
                 return;
             }
 
-            history.unshift({ date: CURRENT_DATE, matchup: matchup, pick: pick, status: 'Pendiente' });
+            let parts = matchup.split(" vs ");
+            let awayTeam = parts[0] || "";
+            let homeTeam = parts[1] || "";
+
+            history.unshift({
+                date: CURRENT_DATE,
+                matchup: matchup,
+                pick: pick,
+                type: type,
+                status: 'Pendiente',
+                rawAway: awayTeam,
+                rawHome: homeTeam
+            });
             localStorage.setItem('mlb_history_log', JSON.stringify(history));
             alert("¡Selección guardada exitosamente en el historial!");
             renderHistory();
+        }
+
+        async function evaluateHistoryResults() {
+            let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
+            if (history.length === 0) return;
+
+            try {
+                let response = await fetch('https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-08-30&hydrate=linescore');
+                let data = await response.json();
+                let games = (data.dates && data.dates.length > 0) ? data.dates[0].games : [];
+
+                let updated = false;
+
+                history.forEach(item => {
+                    if (item.status === 'Ganada' || item.status === 'Perdida') return;
+
+                    let matchedGame = games.find(g => {
+                        let a = g.teams.away.team.name;
+                        let h = g.teams.home.team.name;
+                        return item.matchup.includes(a) && item.matchup.includes(h);
+                    });
+
+                    if (matchedGame && matchedGame.status.abstractGameState === "Final") {
+                        let aScore = matchedGame.teams.away.score || 0;
+                        let hScore = matchedGame.teams.home.score || 0;
+                        let aName = matchedGame.teams.away.team.name;
+                        let hName = matchedGame.teams.home.team.name;
+
+                        let winTeam = aScore > hScore ? aName : hName;
+                        let pickText = item.pick.toLowerCase();
+
+                        if (pickText.includes(winTeam.toLowerCase())) {
+                            item.status = 'Ganada';
+                            updated = true;
+                        } else if (pickText.includes('ml') || pickText.includes('ganador')) {
+                            item.status = 'Perdida';
+                            updated = true;
+                        } else {
+                            item.status = 'Perdida';
+                            updated = true;
+                        }
+                    }
+                });
+
+                if (updated) {
+                    localStorage.setItem('mlb_history_log', JSON.stringify(history));
+                    renderHistory();
+                }
+            } catch (e) {
+                console.error("Error evaluando historial con API:", e);
+            }
         }
 
         function renderHistory() {
             let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
             let container = document.getElementById('history-list-container');
             if(history.length === 0) {
-                container.innerHTML = `<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros guardados todavía. Ve a la pestaña de Jugada 100% o Parlays para guardar.</p>`;
+                container.innerHTML = `<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros guardados todavía. Guarda la Jugada 100% o el Análisis de Líneas Reales.</p>`;
                 return;
             }
             let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
             history.forEach((h, idx) => {
+                let badgeBg = "rgba(245, 158, 11, 0.15)";
+                let badgeColor = "#fbbf24";
+                let badgeBorder = "#fbbf24";
+
+                if (h.status === 'Ganada') {
+                    badgeBg = "rgba(74, 222, 128, 0.15)";
+                    badgeColor = "#4ade80";
+                    badgeBorder = "#4ade80";
+                } else if (h.status === 'Perdida') {
+                    badgeBg = "rgba(239, 68, 68, 0.15)";
+                    badgeColor = "#ef4444";
+                    badgeBorder = "#ef4444";
+                }
+
                 html += `
                 <div style="background-color: #1e293b; padding: 0.8rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155;">
                     <div>
-                        <div style="font-size: 0.75rem; color: #94a3b8;">${h.date}</div>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 2px;">
+                            <span style="font-size: 0.65rem; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 1px 6px; border-radius: 4px; font-weight: bold;">[${h.type || 'Jugada'}]</span>
+                            <span style="font-size: 0.75rem; color: #94a3b8;">${h.date}</span>
+                        </div>
                         <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc;">${h.matchup}</div>
-                        <div style="font-size: 0.8rem; color: #4ade80; font-weight: bold;">Pronóstico: ${h.pick}</div>
+                        <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: bold;">Pronóstico: ${h.pick}</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid #fbbf24; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">${h.status}</span>
+                        <span style="background-color: ${badgeBg}; color: ${badgeColor}; border: 1px solid ${badgeBorder}; padding: 2px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">${h.status}</span>
                         <button onclick="deleteHistoryItem(${idx})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.9rem;" title="Eliminar">🗑️</button>
                     </div>
                 </div>`;
@@ -1008,7 +1120,7 @@
         }
 
         function clearHistory() {
-            if(confirm("¿Estás seguro de limpiar todo el historial?")) {
+            if(confirm("¿Estás seguro de limpiar todo el historial? Se borrarán todos los análisis y jugadas guardadas.")) {
                 localStorage.removeItem('mlb_history_log');
                 renderHistory();
             }
@@ -1035,7 +1147,6 @@
                     return;
                 }
 
-                // Ordenar partidos: Live (1) primero, Preview (2) en medio, Final (3) al fondo
                 games.sort((a, b) => {
                     let stateA = a.status.abstractGameState;
                     let stateB = b.status.abstractGameState;
@@ -1177,6 +1288,7 @@
                 });
 
                 container.innerHTML = liveCardsHTML;
+                evaluateHistoryResults();
             } catch (err) {
                 console.error("Error consultando la API de MLB:", err);
                 container.innerHTML = `<p style="color: #ef4444; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Error al conectar con la API de la MLB. Intenta nuevamente.</p>`;
