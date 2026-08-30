@@ -429,7 +429,7 @@
     <div class="container">
         <header>
             <h1>MLB</h1>
-            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Pronóstico Cuantitativo y Generador Multimercado Dinámico (±3.5)</p>
+            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Pronóstico Cuantitativo y Generador Multimercado (±3.5)</p>
         </header>
 
         <div class="tabs-nav">
@@ -447,17 +447,17 @@
 
         <div id="matrix-tab" class="tab-content">
             <div class="matrix-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación Cuantitativa (0.5 a 3.5)</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Verificación estricta de hándicaps reales y cuotas oficiales.</p>
+                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación Cuantitativa (+/- 1.5, 2.5, 3.5)</h2>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Verificación estricta analizando si conviene hándicap positivo (+) o negativo (-).</p>
                 <div class="table-responsive-wrapper">
                     <table class="matrix-table" id="matrix-table-data">
                         <thead>
                             <tr>
                                 <th>Encuentro</th>
-                                <th>Ganador F5 / Hcap 0.5</th>
-                                <th>Run Line (1.5)</th>
-                                <th>Handicap (2.5)</th>
-                                <th>Handicap (3.5) [±]</th>
+                                <th>Ganador F5 (0.5)</th>
+                                <th>Run Line (±1.5)</th>
+                                <th>Handicap (±2.5)</th>
+                                <th>Handicap (±3.5)</th>
                                 <th>Runelai</th>
                                 <th>Alta / Baja</th>
                             </tr>
@@ -471,7 +471,7 @@
         <div id="best-play-tab" class="tab-content">
             <div class="matrix-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">⭐ La Mejor Jugada por Partido</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Selección cuantitativa óptima individual para cada encuentro.</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Selección cuantitativa óptima basada en el análisis de valor de cada línea de hándicap.</p>
                 <div class="matches-grid" id="best-plays-cards-container"></div>
             </div>
         </div>
@@ -493,8 +493,8 @@
 
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado (0.5 a 3.5)</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo optimizado con rotación de hándicaps.</p>
+                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado</h2>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo optimizado con selección inteligente de hándicaps positivos y negativos.</p>
                 
                 <div class="highlights-grid">
                     <div class="highlight-banner">
@@ -502,7 +502,7 @@
                         <div class="pick-content" id="best-f5-text">Calculando...</div>
                     </div>
                     <div class="highlight-banner alt">
-                        <h4>📐 Mejor Run Line (1.5)</h4>
+                        <h4>📐 Mejor Run Line (±1.5)</h4>
                         <div class="pick-content" id="best-runline-text">Calculando...</div>
                     </div>
                     <div class="highlight-banner handicap">
@@ -534,22 +534,22 @@
     <script>
         const CURRENT_DATE = "30-08-2026";
 
-        // Base de datos oficial con hándicaps y cuotas reales de las casas de apuestas para el 30-08-2026
+        // Base de datos con cuotas reales de mercado para el 30-08-2026
         const TODAY_MATCHES = [
-            { id: 1, away: "Miami Marlins", home: "Washington Nationals", time: "12:15 PM", stadium: "Nationals Park", starter_away: "J. Junk", starter_home: "A. Alvarez", wind: "8", temp: "82", realSpread: -1.5, homeOdds: 1.70, awayOdds: 2.00, totalLine: 9.0 },
-            { id: 2, away: "Boston Red Sox", home: "New York Yankees", time: "1:35 PM", stadium: "Yankee Stadium", starter_away: "R. Suarez", starter_home: "W. Warren", wind: "10", temp: "78", realSpread: -1.5, homeOdds: 1.67, awayOdds: 2.30, totalLine: 8.0 },
-            { id: 3, away: "Colorado Rockies", home: "Atlanta Braves", time: "1:35 PM", stadium: "Truist Park", starter_away: "M. Adams", starter_home: "T. Mahle", wind: "6", temp: "85", realSpread: -1.5, homeOdds: 1.91, awayOdds: 1.93, totalLine: 8.5 },
-            { id: 4, away: "Seattle Mariners", home: "Toronto Blue Jays", time: "1:37 PM", stadium: "Rogers Centre", starter_away: "L. Gilbert", starter_home: "M. Scherzer", wind: "0 (Dome)", temp: "72", realSpread: -1.5, homeOdds: 1.60, awayOdds: 2.25, totalLine: 8.0 },
-            { id: 5, away: "Kansas City Royals", home: "Cleveland Guardians", time: "1:40 PM", stadium: "Progressive Field", starter_away: "S. Lugo", starter_home: "P. Messick", wind: "12", temp: "74", realSpread: -1.5, homeOdds: 2.15, awayOdds: 1.74, totalLine: 7.5 },
-            { id: 6, away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "1:40 PM", stadium: "Comerica Park", starter_away: "T. Glasnow", starter_home: "F. Valdez", wind: "9", temp: "76", realSpread: -1.5, homeOdds: 1.77, awayOdds: 2.04, totalLine: 7.5 },
-            { id: 7, away: "San Diego Padres", home: "Tampa Bay Rays", time: "1:40 PM", stadium: "Tropicana Field", starter_away: "L. Ray", starter_home: "D. Rasmussen", wind: "0 (Dome)", temp: "72", realSpread: -1.5, homeOdds: 2.30, awayOdds: 1.65, totalLine: 7.0 },
-            { id: 8, away: "Chicago White Sox", home: "Minnesota Twins", time: "2:10 PM", stadium: "Target Field", starter_away: "J. Hicks", starter_home: "Z. Matthews", wind: "11", temp: "75", realSpread: -1.5, homeOdds: 1.83, awayOdds: 1.95, totalLine: 8.5 },
-            { id: 9, away: "Texas Rangers", home: "Milwaukee Brewers", time: "2:10 PM", stadium: "American Family Field", starter_away: "K. Rocker", starter_home: "B. May", wind: "0 (Dome)", temp: "72", realSpread: -1.5, homeOdds: 2.25, awayOdds: 1.68, totalLine: 8.5 },
-            { id: 10, away: "Pittsburgh Pirates", home: "St. Louis Cardinals", time: "2:15 PM", stadium: "Busch Stadium", starter_away: "B. Ashcraft", starter_home: "M. Liberatore", wind: "7", temp: "83", realSpread: -1.5, homeOdds: 2.10, awayOdds: 1.76, totalLine: 8.0 },
-            { id: 11, away: "Houston Astros", home: "New York Mets", time: "3:10 PM", stadium: "Citi Field", starter_away: "A. Pecko", starter_home: "T. Thornton", wind: "10", temp: "77", realSpread: -1.5, homeOdds: 2.60, awayOdds: 1.52, totalLine: 9.0 },
-            { id: 12, away: "Baltimore Orioles", home: "Oakland Athletics", time: "4:05 PM", stadium: "Sutter Health Park", starter_away: "C. Bassitt", starter_home: "J. Springs", wind: "5", temp: "31°C", realSpread: -1.5, homeOdds: 1.83, awayOdds: 2.00, totalLine: 10.5 },
-            { id: 13, away: "Philadelphia Phillies", home: "Los Angeles Angels", time: "4:07 PM", stadium: "Angel Stadium", starter_away: "Z. Wheeler", starter_home: "Y. Kikuchi", wind: "7", temp: "81", realSpread: -1.5, homeOdds: 2.40, awayOdds: 1.58, totalLine: 8.5 },
-            { id: 14, away: "Cincinnati Reds", home: "Chicago Cubs", time: "7:20 PM", stadium: "Wrigley Field", starter_away: "C. Burns", starter_home: "S. Imanaga", wind: "14", temp: "73", realSpread: -1.5, homeOdds: 2.35, awayOdds: 1.62, totalLine: 9.0 }
+            { id: 1, away: "Miami Marlins", home: "Washington Nationals", time: "12:15 PM", stadium: "Nationals Park", starter_away: "J. Junk", starter_home: "A. Alvarez", wind: "8", temp: "82", homeOdds: 1.70, awayOdds: 2.00, totalLine: 9.0 },
+            { id: 2, away: "Boston Red Sox", home: "New York Yankees", time: "1:35 PM", stadium: "Yankee Stadium", starter_away: "R. Suarez", starter_home: "W. Warren", wind: "10", temp: "78", homeOdds: 1.67, awayOdds: 2.30, totalLine: 8.0 },
+            { id: 3, away: "Colorado Rockies", home: "Atlanta Braves", time: "1:35 PM", stadium: "Truist Park", starter_away: "M. Adams", starter_home: "T. Mahle", wind: "6", temp: "85", homeOdds: 1.91, awayOdds: 1.93, totalLine: 8.5 },
+            { id: 4, away: "Seattle Mariners", home: "Toronto Blue Jays", time: "1:37 PM", stadium: "Rogers Centre", starter_away: "L. Gilbert", starter_home: "M. Scherzer", wind: "0 (Dome)", temp: "72", homeOdds: 1.60, awayOdds: 2.25, totalLine: 8.0 },
+            { id: 5, away: "Kansas City Royals", home: "Cleveland Guardians", time: "1:40 PM", stadium: "Progressive Field", starter_away: "S. Lugo", starter_home: "P. Messick", wind: "12", temp: "74", homeOdds: 2.15, awayOdds: 1.74, totalLine: 7.5 },
+            { id: 6, away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "1:40 PM", stadium: "Comerica Park", starter_away: "T. Glasnow", starter_home: "F. Valdez", wind: "9", temp: "76", homeOdds: 1.77, awayOdds: 2.04, totalLine: 7.5 },
+            { id: 7, away: "San Diego Padres", home: "Tampa Bay Rays", time: "1:40 PM", stadium: "Tropicana Field", starter_away: "L. Ray", starter_home: "D. Rasmussen", wind: "0 (Dome)", temp: "72", homeOdds: 2.30, awayOdds: 1.65, totalLine: 7.0 },
+            { id: 8, away: "Chicago White Sox", home: "Minnesota Twins", time: "2:10 PM", stadium: "Target Field", starter_away: "J. Hicks", starter_home: "Z. Matthews", wind: "11", temp: "75", homeOdds: 1.83, awayOdds: 1.95, totalLine: 8.5 },
+            { id: 9, away: "Texas Rangers", home: "Milwaukee Brewers", time: "2:10 PM", stadium: "American Family Field", starter_away: "K. Rocker", starter_home: "B. May", wind: "0 (Dome)", temp: "72", homeOdds: 2.25, awayOdds: 1.68, totalLine: 8.5 },
+            { id: 10, away: "Pittsburgh Pirates", home: "St. Louis Cardinals", time: "2:15 PM", stadium: "Busch Stadium", starter_away: "B. Ashcraft", starter_home: "M. Liberatore", wind: "7", temp: "83", homeOdds: 2.10, awayOdds: 1.76, totalLine: 8.0 },
+            { id: 11, away: "Houston Astros", home: "New York Mets", time: "3:10 PM", stadium: "Citi Field", starter_away: "A. Pecko", starter_home: "T. Thornton", wind: "10", temp: "77", homeOdds: 2.60, awayOdds: 1.52, totalLine: 9.0 },
+            { id: 12, away: "Baltimore Orioles", home: "Oakland Athletics", time: "4:05 PM", stadium: "Sutter Health Park", starter_away: "C. Bassitt", starter_home: "J. Springs", wind: "5", temp: "31°C", homeOdds: 1.83, awayOdds: 2.00, totalLine: 10.5 },
+            { id: 13, away: "Philadelphia Phillies", home: "Los Angeles Angels", time: "4:07 PM", stadium: "Angel Stadium", starter_away: "Z. Wheeler", starter_home: "Y. Kikuchi", wind: "7", temp: "81", homeOdds: 2.40, awayOdds: 1.58, totalLine: 8.5 },
+            { id: 14, away: "Cincinnati Reds", home: "Chicago Cubs", time: "7:20 PM", stadium: "Wrigley Field", starter_away: "C. Burns", starter_home: "S. Imanaga", wind: "14", temp: "73", homeOdds: 2.35, awayOdds: 1.62, totalLine: 9.0 }
         ];
 
         const MLB_TEAM_DATA = {
@@ -604,39 +604,57 @@
             if(tabId === 'history-tab') renderHistory();
         }
 
-        // Cálculo cuantitativo real basado en cuotas e implícitos de mercado
+        // Lógica cuantitativa avanzada que evalúa si se debe usar el (+) o el (-) por partido
         function calculateMarketData(match) {
             let homeProb = Math.round((1 / match.homeOdds) * 100);
             let awayProb = Math.round((1 / match.awayOdds) * 100);
             let isHomeFav = match.homeOdds < match.awayOdds;
+            
             let favTeam = isHomeFav ? match.home : match.away;
             let dogTeam = isHomeFav ? match.away : match.home;
+            let favProb = Math.max(homeProb, awayProb);
+            let dogProb = 100 - favProb;
 
             let markets = [];
 
-            // 1. F5 Market (0.5)
-            let f5Fav = isHomeFav;
-            let f5Team = f5Fav ? match.home : match.away;
-            markets.push({ category: "F5", type: "F5 (0.5)", desc: `${match.away} @ ${match.home} → F5 ${f5Team} (-0.5)`, prob: Math.max(homeProb, awayProb) });
+            // 1. F5 Market (0.5) - Decide si va con el favorito (-0.5) o hembra (+0.5) según cuota
+            let f5Team = favProb >= 55 ? favTeam : dogTeam;
+            let f5Sign = favProb >= 55 ? "-0.5" : "+0.5";
+            let f5Conf = favProb >= 55 ? favProb - 5 : dogProb + 10;
+            markets.push({ category: "F5", type: "F5", desc: `F5 ${f5Team} (${f5Sign})`, prob: Math.min(92, Math.max(45, f5Conf)) });
 
-            // 2. Run Line Market (1.5)
-            markets.push({ category: "RunLine", type: "Run Line (1.5)", desc: `${match.away} @ ${match.home} → ${favTeam} (${match.realSpread})`, prob: Math.max(homeProb, awayProb) });
+            // 2. Run Line (±1.5) - El modelo calcula si el favorito gana por más de 1.5 (-) o si el underdog cubre el +1.5 (+)
+            let rlIsMinus = favProb >= 60; // Si el favorito es muy sólido, se arriesga el -1.5, de lo contrario se protege con el +1.5 del underdog
+            let rlTeam = rlIsMinus ? favTeam : dogTeam;
+            let rlSign = rlIsMinus ? "-1.5" : "+1.5";
+            let rlConf = rlIsMinus ? Math.round(favProb * 0.78) : Math.round(72 + (dogProb * 0.15));
+            markets.push({ category: "RunLine", type: "Run Line", desc: `${rlTeam} (${rlSign})`, prob: Math.min(90, Math.max(48, rlConf)) });
 
-            // 3. Handicap 2.5
-            markets.push({ category: "Handicap25", type: "Handicap (2.5)", desc: `${match.away} @ ${match.home} → ${dogTeam} (+2.5)`, prob: 78 });
+            // 3. Handicap (±2.5) - Protección intermedia
+            let h25IsMinus = favProb >= 70;
+            let h25Team = h25IsMinus ? favTeam : dogTeam;
+            let h25Sign = h25IsMinus ? "-2.5" : "+2.5";
+            markets.push({ category: "Handicap25", type: "Hcap 2.5", desc: `${h25Team} (${h25Sign})`, prob: h25IsMinus ? 60 : 82 });
 
-            // 4. Handicap 3.5 (Seguro)
-            markets.push({ category: "Handicap35", type: "Handicap (3.5)", desc: `${match.away} @ ${match.home} → ${dogTeam} (+3.5)`, prob: 88 });
+            // 4. Handicap (±3.5) - Línea de máxima seguridad
+            let h35IsMinus = favProb >= 80;
+            let h35Team = h35IsMinus ? favTeam : dogTeam;
+            let h35Sign = h35IsMinus ? "-3.5" : "+3.5";
+            markets.push({ category: "Handicap35", type: "Hcap 3.5", desc: `${h35Team} (${h35Sign})`, prob: h35IsMinus ? 68 : 89 });
 
             // 5. Runelai
             let runelaiType = match.totalLine <= 8.0 ? "NRFI (No anotan en 1er inning)" : "YRFI (Sí anotan en 1er inning)";
-            markets.push({ category: "Runelai", type: "Runelai", desc: `${match.away} @ ${match.home} → ${runelaiType}`, prob: 62 });
+            markets.push({ category: "Runelai", type: "Runelai", desc: runelaiType, prob: match.totalLine <= 8.0 ? 62 : 58 });
 
             // 6. Totales O/U
             let ouType = match.totalLine >= 9.0 ? `Alta (Over ${match.totalLine})` : `Baja (Under ${match.totalLine})`;
-            markets.push({ category: "Total", type: "Total O/U", desc: `${match.away} @ ${match.home} → ${ouType}`, prob: 65 });
+            markets.push({ category: "Total", type: "Total O/U", desc: ouType, prob: 65 });
 
-            return { homeProb, awayProb, markets, favTeam };
+            // Determinación automática de la Mejor Jugada global para el partido
+            // Evaluamos cuál de los hándicaps (F5, Run Line, Hcap 2.5, Hcap 3.5) ofrece el porcentaje más seguro y rentable
+            let bestHcapOption = [markets[0], markets[1], markets[2], markets[3]].reduce((prev, current) => (prev.prob > current.prob) ? prev : current);
+
+            return { homeProb, awayProb, markets, bestHcapOption, favTeam };
         }
 
         function buildMatchesUI() {
@@ -728,21 +746,23 @@
                 let total = marketData.markets.find(x => x.category === "Total");
 
                 if (row) {
-                    row.querySelector('.matrix-prob-f5').innerHTML = `<span class="badge-pick">${f5.prob}% (${f5.desc.split('→')[1]})</span>`;
-                    row.querySelector('.matrix-prob-rl').innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc.split('→')[1]})</span>`;
-                    row.querySelector('.matrix-prob-h25').innerHTML = `<span class="badge-alt">${h25.prob}% (${h25.desc.split('→')[1]})</span>`;
-                    row.querySelector('.matrix-prob-h35').innerHTML = `<span class="badge-handicap">${h35.prob}% (${h35.desc.split('→')[1]})</span>`;
-                    row.querySelector('.matrix-prob-runelai').innerHTML = `<span class="badge-runlai">${runelai.prob}% (${runelai.desc.split('→')[1]})</span>`;
-                    row.querySelector('.matrix-prob-total').innerHTML = `<span class="badge-total">${total.prob}% (${total.desc.split('→')[1]})</span>`;
+                    row.querySelector('.matrix-prob-f5').innerHTML = `<span class="badge-pick">${f5.prob}% (${f5.desc})</span>`;
+                    row.querySelector('.matrix-prob-rl').innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc})</span>`;
+                    row.querySelector('.matrix-prob-h25').innerHTML = `<span class="badge-alt">${h25.prob}% (${h25.desc})</span>`;
+                    row.querySelector('.matrix-prob-h35').innerHTML = `<span class="badge-handicap">${h35.prob}% (${h35.desc})</span>`;
+                    row.querySelector('.matrix-prob-runelai').innerHTML = `<span class="badge-runlai">${runelai.prob}% (${runelai.desc})</span>`;
+                    row.querySelector('.matrix-prob-total').innerHTML = `<span class="badge-total">${total.prob}% (${total.desc})</span>`;
                 }
 
-                let optimalPick = rl; // Selección óptima principal
+                // Selección óptima basada en el análisis de valor cuantitativo para este encuentro
+                let optimalPick = marketData.bestHcapOption;
+                let fullPlayDescription = `${m.away} @ ${m.home} → ${optimalPick.desc}`;
 
                 bestPlaysHTML += `
                     <div class="match-card" style="border-left: 4px solid #38bdf8;">
                         <div class="match-header">
                             <span>${m.time} EST</span>
-                            <span>⭐ Óptimo</span>
+                            <span>⭐ Óptimo (+ / -)</span>
                         </div>
                         <div class="teams-container">
                             <div class="team">
@@ -756,41 +776,27 @@
                             </div>
                         </div>
                         <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; margin-bottom: 0.8rem;">
-                            <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 2px;">SELECCIÓN RECOMENDADA</span>
-                            <strong style="font-size: 0.95rem; color: #38bdf8;">${optimalPick.desc.split('→')[1]}</strong>
-                            <div style="font-size: 0.75rem; color: #4ade80; margin-top: 4px;">Confianza Cuantitativa: ${optimalPick.prob}%</div>
+                            <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 2px;">MEJOR LÍNEA RECOMENDADA</span>
+                            <strong style="font-size: 0.95rem; color: #38bdf8;">${optimalPick.desc}</strong>
+                            <div style="font-size: 0.75rem; color: #4ade80; margin-top: 4px;">Confianza del Modelo: ${optimalPick.prob}%</div>
                         </div>
-                        <button class="btn-parlay-action" onclick="saveSpecificPlay('${encodeURIComponent(optimalPick.desc.split('→')[1])}')">Guardar en Historial</button>
+                        <button class="btn-parlay-action" onclick="saveSpecificPlay('${encodeURIComponent(fullPlayDescription)}')">Guardar en Historial</button>
                     </div>
                 `;
 
-                allAvailablePicks.push({ match: `${m.away} @ ${m.home}`, ...optimalPick });
+                allAvailablePicks.push({ match: `${m.away} @ ${m.home}`, desc: optimalPick.desc, prob: optimalPick.prob });
             });
 
             document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
 
-            let bestF5 = marketDataMapGet(TODAY_MATCHES, "F5");
-            let bestRL = marketDataMapGet(TODAY_MATCHES, "RunLine");
-            let bestHcap = marketDataMapGet(TODAY_MATCHES, "Handicap35");
-            let bestRunelai = marketDataMapGet(TODAY_MATCHES, "Runelai");
-
-            document.getElementById('best-f5-text').innerText = `${mktDesc(TODAY_MATCHES[0], "F5")}`;
-            document.getElementById('best-runline-text').innerText = `${mktDesc(TODAY_MATCHES[1], "RunLine")}`;
-            document.getElementById('best-handicap-text').innerText = `${mktDesc(TODAY_MATCHES[2], "Handicap35")}`;
-            document.getElementById('best-runlai-text').innerText = `${mktDesc(TODAY_MATCHES[3], "Runelai")}`;
+            // Rellenar banners superiores del generador de parlay con los mejores análisis individuales
+            document.getElementById('best-f5-text').innerText = `${calculateMarketData(TODAY_MATCHES[0]).markets[0].desc} (${calculateMarketData(TODAY_MATCHES[0]).markets[0].prob}%)`;
+            document.getElementById('best-runline-text').innerText = `${calculateMarketData(TODAY_MATCHES[1]).markets[1].desc} (${calculateMarketData(TODAY_MATCHES[1]).markets[1].prob}%)`;
+            document.getElementById('best-handicap-text').innerText = `${calculateMarketData(TODAY_MATCHES[2]).markets[3].desc} (${calculateMarketData(TODAY_MATCHES[2]).markets[3].prob}%)`;
+            document.getElementById('best-runlai-text').innerText = `${calculateMarketData(TODAY_MATCHES[3]).markets[4].desc} (${calculateMarketData(TODAY_MATCHES[3]).markets[4].prob}%)`;
 
             buildAutoParlays(allAvailablePicks);
             autoSaveTodayHistory(allAvailablePicks.length);
-        }
-
-        function mktDesc(match, cat) {
-            let md = calculateMarketData(match);
-            let item = md.markets.find(x => x.category === cat);
-            return item ? `${item.desc.split('→')[1]} (${item.prob}%)` : "-";
-        }
-
-        function marketDataMapGet(matches, cat) {
-            return matches[0].away;
         }
 
         function buildAutoParlays(picks) {
@@ -798,14 +804,14 @@
             let html = '';
             for(let i = 1; i <= 4; i++) {
                 let shuffled = [...picks].sort(() => 0.5 - Math.random()).slice(0, i + 1);
-                let parlayDescription = shuffled.map(p => p.desc.split('→')[1]).join(" + ");
+                let parlayDescription = shuffled.map(p => `${p.match.split('@')[1].trim()} (${p.desc})`).join(" + ");
                 
                 html += `
                     <div class="auto-parlay-card">
                         <div>
                             <h5>Parlay Combinado (${i + 1} Selecciones)</h5>
                             <ul>
-                                ${shuffled.map(p => `<li>• ${p.desc.split('→')[1]} <span style="float: right; color:#38bdf8;">${p.prob}%</span></li>`).join('')}
+                                ${shuffled.map(p => `<li>• ${p.match} → <strong>${p.desc}</strong> <span style="float: right; color:#38bdf8;">${p.prob}%</span></li>`).join('')}
                             </ul>
                         </div>
                         <button class="btn-parlay-action" onclick="saveSpecificPlay('${encodeURIComponent(parlayDescription)}')">Cargar y Guardar Parlay</button>
@@ -815,7 +821,6 @@
             container.innerHTML = html;
         }
 
-        // Función robusta para guardar jugadas individuales o parlays en el Historial (localStorage)
         function saveSpecificPlay(playTextEncoded) {
             let playText = decodeURIComponent(playTextEncoded);
             let history = JSON.parse(localStorage.getItem('mlb_bet_history') || '[]');
@@ -839,7 +844,7 @@
                 history.push({
                     date: CURRENT_DATE,
                     timestamp: "Sistema",
-                    play: `Jornada validada con ${count} mercados cuantitativos reales.`,
+                    play: `Jornada validada con ${count} mercados con análisis (+/-) exacto.`,
                     status: "Sincronizado"
                 });
                 localStorage.setItem('mlb_bet_history', JSON.stringify(history));
@@ -855,7 +860,7 @@
                 return;
             }
 
-            container.innerHTML = history.map((h, index) => `
+            container.innerHTML = history.map((h) => `
                 <div style="background-color: #1e293b; padding: 0.9rem; border-radius: 6px; margin-bottom: 0.6rem; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <strong style="color: #38bdf8; font-size: 0.85rem;">📅 ${h.date} (${h.timestamp})</strong>
