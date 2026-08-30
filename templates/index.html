@@ -851,5 +851,40 @@
             renderHistory();
         }
     </script>
+    <!-- Todo el final del tu archivo index.html -->
+    <script>
+        // Aquí están todas tus funciones de JavaScript originales...
+        function miFuncionVieja() {
+            // ...
+        }
+
+        // ==========================================
+        // PEGA EL CÓDIGO NUEVO AQUÍ ABAJO:
+        // ==========================================
+        function calculateRealProbability(odds) {
+            if (!odds || odds <= 1) return 50.0;
+            return parseFloat(((1 / odds) * 100).toFixed(1));
+        }
+
+        function getAccurateMatchData(match) {
+            let homeOdds = match.homeHcapOdds || 1.90;
+            let awayOdds = match.awayHcapOdds || 1.90;
+            let homeProb = calculateRealProbability(homeOdds);
+            let awayProb = calculateRealProbability(awayOdds);
+            let isHomeFavorite = homeOdds < awayOdds;
+            
+            return {
+                ...match,
+                homeProb,
+                awayProb,
+                favoriteTeam: isHomeFavorite ? match.homeTeam : match.awayTeam,
+                favoriteOdds: isHomeFavorite ? homeOdds : awayOdds,
+                favoriteProb: isHomeFavorite ? homeProb : awayProb,
+                spread: match.handicapSpread || -1.5
+            };
+        }
+    </script>
+</body>
+</html>
 </body>
 </html>
