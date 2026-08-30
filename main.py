@@ -36,51 +36,62 @@ def load_data():
     return {}
 
 def extract_best_plays(simulated_matches):
-    """Filtra y genera dinámicamente las mejores jugadas basadas en las probabilidades del simulador."""
     best_plays = []
     for match in simulated_matches:
         prob_away = match.get('prob_away', 50)
         prob_home = match.get('prob_home', 50)
         
-        # Determinar el favorito matemático según Monte Carlo
         if prob_away >= 55:
             best_plays.append({
                 "match": f"{match['away']} @ {match['home']}",
-                "pick": f"Ganador 9 Innings: {match['away']}",
-                "confidence": f"{prob_away}% Probabilidad",
+                "pick": f"Ganador: {match['away']}",
+                "confidence": prob_away,
+                "confidence_str": f"{prob_away}% Probabilidad",
                 "type": "Moneyline Visitante",
                 "reason": match.get('value_bet', 'Alta ventaja proyectada por simulación Monte Carlo.')
             })
         elif prob_home >= 55:
             best_plays.append({
                 "match": f"{match['away']} @ {match['home']}",
-                "pick": f"Ganador 9 Innings: {match['home']}",
-                "confidence": f"{prob_home}% Probabilidad",
+                "pick": f"Ganador: {match['home']}",
+                "confidence": prob_home,
+                "confidence_str": f"{prob_home}% Probabilidad",
                 "type": "Moneyline Local",
                 "reason": match.get('value_bet', 'Alta ventaja proyectada por simulación Monte Carlo.')
             })
             
-        # Revisar F5 (Primeros 5 innings) si hay tendencia clara
         f5_away = match.get('f5_away', 50)
         f5_home = match.get('f5_home', 50)
         if f5_away >= 56:
             best_plays.append({
                 "match": f"{match['away']} @ {match['home']}",
-                "pick": f"F5 (Primeros 5 Innings): {match['away']}",
-                "confidence": f"{f5_away}% Probabilidad F5",
+                "pick": f"F5: {match['away']}",
+                "confidence": f5_away,
+                "confidence_str": f"{f5_away}% Probabilidad F5",
                 "type": "First 5 Innings",
-                "reason": f"Sólido rendimiento del abridor visitante {match.get('starter_away', '')} en la primera mitad."
+                "reason": f"Sólido rendimiento del abridor visitante {match.get('starter_away', '')}."
             })
         elif f5_home >= 56:
             best_plays.append({
                 "match": f"{match['away']} @ {match['home']}",
-                "pick": f"F5 (Primeros 5 Innings): {match['home']}",
-                "confidence": f"{f5_home}% Probabilidad F5",
+                "pick": f"F5: {match['home']}",
+                "confidence": f5_home,
+                "confidence_str": f"{f5_home}% Probabilidad F5",
                 "type": "First 5 Innings",
-                "reason": f"Sólido rendimiento del abridor local {match.get('starter_home', '')} en la primera mitad."
+                "reason": f"Sólido rendimiento del abridor local {match.get('starter_home', '')}."
             })
             
+    # Ordenar por mayor confianza
+    best_plays.sort(key=lambda x: x['confidence'], reverse=True)
     return best_plays
+
+def generate_parlay(best_plays):
+    """Selecciona hasta 3 de las mejores opciones para armar el Parlay del Día."""
+    if not best_plays:
+        return []
+    # Tomamos las mejores opciones (máximo 3)
+    parlay_picks = best_plays[:3]
+    return parlay_picks
 
 @app.route('/')
 def index():
@@ -90,8 +101,8 @@ def index():
         raw_matches = data.get('matches', [])
         simulated_matches = process_all_matches(raw_matches)
         
-        # Extraer las mejores jugadas calculadas
         best_plays = extract_best_plays(simulated_matches)
+        parlay_picks = generate_parlay(best_plays)
         
         return render_template(
             'index.html', 
@@ -99,6 +110,7 @@ def index():
             team_logos=data.get('team_logos', {}), 
             DAILY_ARCHIVE=data.get('DAILY_ARCHIVE', {}),
             best_plays=best_plays,
+            parlay_picks=parlay_picks,
             visits=total_visits
         )
     except Exception as e:
