@@ -149,6 +149,8 @@
             padding: 1.5rem;
             transition: var(--transition);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
         }
 
         .match-card:hover, .live-card:hover, .trend-card:hover {
@@ -225,6 +227,7 @@
         .handicap-box {
             border-top: 1px dashed var(--border-subtle);
             padding-top: 1rem;
+            margin-top: auto;
         }
 
         .handicap-title {
@@ -364,10 +367,11 @@
             justify-content: space-between;
             align-items: center;
             background: var(--bg-card);
-            padding: 1.25rem;
+            padding: 1rem;
             border-radius: var(--radius-md);
             margin-bottom: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.03);
+            gap: 0.5rem;
         }
 
         .live-situational-info {
@@ -394,6 +398,7 @@
         .live-alt-play-box {
             background: var(--accent-glow);
             border-color: rgba(56, 189, 248, 0.25);
+            margin-bottom: 0;
         }
 
         .master-pick-card {
@@ -455,6 +460,7 @@
             line-height: 1.4;
         }
 
+        /* Insignia / Logotipo robusto de equipos */
         .team-insignia {
             display: inline-flex;
             flex-direction: column;
@@ -462,12 +468,13 @@
             justify-content: center;
             background: linear-gradient(145deg, #1e293b, #0f172a);
             border: 2px solid var(--border-subtle);
-            border-radius: 14px;
+            border-radius: 12px;
             font-weight: 900;
             color: var(--accent);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             position: relative;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .team-insignia::after {
@@ -475,7 +482,7 @@
             position: absolute;
             top: 0; left: 0; right: 0; height: 40%;
             background: linear-gradient(to bottom, rgba(255,255,255,0.06), transparent);
-            border-radius: 12px 12px 0 0;
+            border-radius: 10px 10px 0 0;
         }
 
         .section-header-flex {
@@ -610,7 +617,7 @@
     <div id="trends-tab" class="tab-content">
         <div class="section-header-flex">
             <h2>Tendencias del Día y Mercados Múltiples</h2>
-            <span style="font-size: 0.8rem; color: var(--success); font-weight: 700;">✨ Guardado y sincronización en vivo con auditoría activos</span>
+            <span style="font-size: 0.8rem; color: var(--success); font-weight: 700;">✨ Sincronización en vivo activa</span>
         </div>
         <div id="trends-list-container" class="matches-grid" style="margin-top: 1rem;"></div>
     </div>
@@ -644,7 +651,7 @@
     <div id="history-tab" class="tab-content">
         <div class="section-header-flex">
             <h2>Hoja de Comparación y Auditoría Automática</h2>
-            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.6rem 1.25rem; background-color: var(--accent); color: var(--bg-base);" onclick="syncAuditWithLiveAPI()">🔄 Sincronizar con Resultados API</button>
+            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.6rem 1.25rem;" onclick="syncAuditWithLiveAPI()">🔄 Sincronizar con Resultados API</button>
         </div>
         <div id="history-list-container"></div>
     </div>
@@ -688,16 +695,15 @@
 
         function getTeamBadgeHTML(teamName, small = false) {
             let code = TEAM_CODES[teamName] || teamName.substring(0, 3).toUpperCase();
-            let size = small ? '38px' : '52px';
-            let fontSize = small ? '0.8rem' : '1.05rem';
-            return `<div class="team-insignia" style="width: ${size}; height: ${size}; font-size: ${fontSize};">${code}</div>`;
+            let size = small ? '40px' : '52px';
+            let fontSize = small ? '0.75rem' : '1.05rem';
+            return `<div class="team-insignia" style="width: ${size}; height: ${size}; min-width: ${size}; min-height: ${size}; font-size: ${fontSize};">${code}</div>`;
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             initRealVisitorCounter();
             buildMatchesUI();
             processApp();
-            // Sincronizar automáticamente al cargar la página en segundo plano
             syncAuditWithLiveAPI(true);
         });
 
@@ -863,7 +869,6 @@
             document.getElementById('trends-list-container').innerHTML = trendsHTML;
             syncAutomaticHistory(automaticHistoryEntries);
 
-            // Jugada Maestra
             let dateHash = 0;
             for (let i = 0; i < CURRENT_DATE.length; i++) {
                 dateHash += CURRENT_DATE.charCodeAt(i);
@@ -907,7 +912,6 @@
             localStorage.setItem('mlb_audit_sheet', JSON.stringify(merged));
         }
 
-        // Función clave para evaluar automáticamente los resultados usando la API oficial de la MLB
         async function syncAuditWithLiveAPI(silent = false) {
             if (!silent) {
                 alert("Consultando API de la MLB para auditar resultados...");
@@ -931,43 +935,25 @@
                     );
 
                     if (apiGame) {
-                        let state = apiGame.status.abstractGameState; // Preview, Live, Final
+                        let state = apiGame.status.abstractGameState; 
                         let awayScore = apiGame.teams.away.score !== undefined ? apiGame.teams.away.score : 0;
                         let homeScore = apiGame.teams.home.score !== undefined ? apiGame.teams.home.score : 0;
                         let linescore = apiGame.linescore || {};
                         let innings = linescore.innings || [];
 
-                        // Marcador definitivo o actual
                         item.finalScoreStr = `${awayScore} - ${homeScore} (${state === "Final" ? "Final" : (state === "Live" ? "En Vivo" : "Previo")})`;
 
                         if (state === "Final" || (state === "Live" && (linescore.currentInning >= 5))) {
-                            // 1. Evaluar Ganador ML (Juego Completo)
                             if (state === "Final") {
                                 let mlWinner = awayScore > homeScore ? item.away : item.home;
-                                if (item.ml.includes(mlWinner)) {
-                                    item.mlStatus = "Ganada";
-                                } else {
-                                    item.mlStatus = "Perdida";
-                                }
+                                item.mlStatus = item.ml.includes(mlWinner) ? "Ganada" : "Perdida";
 
-                                // 2. Evaluar Hándicap (Run Line)
                                 let hTeam = item.handicapTeam;
-                                let hLine = item.handicapLine; // Ej: -1.5 o +1.5
-                                let adjustedScoreDiff = 0;
-                                if (hTeam === item.home) {
-                                    adjustedScoreDiff = (homeScore + hLine) - awayScore;
-                                } else {
-                                    adjustedScoreDiff = (awayScore + hLine) - homeScore;
-                                }
-
-                                if (adjustedScoreDiff > 0) {
-                                    item.hcapStatus = "Ganada";
-                                } else {
-                                    item.hcapStatus = "Perdida";
-                                }
+                                let hLine = item.handicapLine; 
+                                let adjustedScoreDiff = hTeam === item.home ? (homeScore + hLine) - awayScore : (awayScore + hLine) - homeScore;
+                                item.hcapStatus = adjustedScoreDiff > 0 ? "Ganada" : "Perdida";
                             }
 
-                            // 3. Evaluar F5 (Primeros 5 innings) si hay suficientes entradas registradas
                             if (innings.length >= 5 || state === "Final") {
                                 let awayF5 = 0, homeF5 = 0;
                                 let maxInningsToCount = Math.min(5, innings.length);
@@ -981,7 +967,6 @@
                                     if (isHomeFavF5 && item.f5.includes("-0.5")) {
                                         item.f5Status = (homeF5 - awayF5 >= 1) ? "Ganada" : "Perdida";
                                     } else {
-                                        // Caso 0.0 (empate anula o visitante cubre)
                                         item.f5Status = (awayF5 >= homeF5) ? "Ganada" : "Perdida";
                                     }
                                 }
@@ -1103,8 +1088,8 @@
                     let gameState = g.status.abstractGameState; 
                     let awayTeam = g.teams.away.team.name;
                     let homeTeam = g.teams.home.team.name;
-                    let awayScore = g.teams.away.score || 0;
-                    let homeScore = g.teams.home.score || 0;
+                    let awayScore = g.teams.away.score !== undefined ? g.teams.away.score : 0;
+                    let homeScore = g.teams.home.score !== undefined ? g.teams.home.score : 0;
                     let linescore = g.linescore || {};
                     let inningNum = linescore.currentInning || 1;
                     let inningState = linescore.inningState || ""; 
@@ -1160,20 +1145,20 @@
                         </div>
 
                         <div class="live-scorebox">
-                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0;">
                                 ${getTeamBadgeHTML(awayTeam, true)}
-                                <div>
-                                    <div style="font-size: 0.9rem; font-weight: 700;">${awayTeam}</div>
-                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Visitante</div>
-                                }
+                                <div style="overflow: hidden; text-overflow: ellipsis;">
+                                    <div style="font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${awayTeam}</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Visitante</div>
+                                </div>
                             </div>
-                            <div style="font-size: 1.5rem; font-weight: 900; color: var(--accent); padding: 0 0.75rem;">
+                            <div style="font-size: 1.35rem; font-weight: 900; color: var(--accent); padding: 0 0.5rem; text-align: center; flex-shrink: 0;">
                                 ${awayScore} - ${homeScore}
                             </div>
-                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; justify-content: flex-end; text-align: right;">
-                                <div>
-                                    <div style="font-size: 0.9rem; font-weight: 700;">${homeTeam}</div>
-                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Local</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; justify-content: flex-end; text-align: right; min-width: 0;">
+                                <div style="overflow: hidden; text-overflow: ellipsis;">
+                                    <div style="font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${homeTeam}</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Local</div>
                                 </div>
                                 ${getTeamBadgeHTML(homeTeam, true)}
                             </div>
@@ -1192,7 +1177,7 @@
                             <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.3;">${primaryReason}</div>
                         </div>
 
-                        <div class="live-alt-play-box">
+                        <div class="live-alt-play-box" style="margin-top: 0.75rem;">
                             <div style="font-size: 0.7rem; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-bottom: 0.25rem;">🔄 Alternativa Totales (O/U)</div>
                             <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">${altPlay1}</div>
                         </div>
