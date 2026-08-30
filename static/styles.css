@@ -630,3 +630,21 @@ select:focus, input[type="text"]:focus {
     border-left: 3px solid var(--accent);
     font-weight: 600;
 }
+/* Corrección para que los marcadores en vivo queden lado a lado */
+.live-scorebox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row !important;
+    gap: 1rem;
+}
+
+.live-scorebox > div,
+.live-team-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex: 1;
+    text-align: center;
+}
