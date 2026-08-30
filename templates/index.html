@@ -409,7 +409,7 @@
         <!-- Cabecera -->
         <header>
             <h1>MLB</h1>
-            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Pronóstico Cuantitativo & Líneas (0.5 a 3.5)</p>
+            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Pronóstico Cuantitativo y Generador Multimercado Dinámico</p>
         </header>
 
         <!-- Pestañas de Navegación -->
@@ -487,7 +487,7 @@
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado (0.5 a 3.5)</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo optimizado con líneas validadas para la creación de parlays sólidos.</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo optimizado con rotación de encuentros para combinaciones variadas.</p>
 
                 <!-- Panel de Destacados Principales -->
                 <div class="highlights-grid">
@@ -511,7 +511,7 @@
 
                 <!-- Generador Automático de Parlays Multimercado -->
                 <div class="parlay-panel">
-                    <h3>Combinaciones Automáticas de Parlays (2 a 5 Selecciones)</h3>
+                    <h3>Combinaciones Automáticas de Parlays (2 a 5 Selecciones Variadas)</h3>
                     <div class="auto-parlays-grid" id="auto-parlays-container">
                         <!-- Se llena dinámicamente -->
                     </div>
@@ -530,7 +530,7 @@
         </div>
     </div>
 
-    <!-- Script con la lógica actualizada para 0.5, 1.5, 2.5 y 3.5 verificando favoritos y underdogs -->
+    <!-- Script con la lógica de rotación y variedad para los parlays -->
     <script>
         const CURRENT_DATE = "30-08-2026";
 
@@ -660,14 +660,12 @@
             let awayTeam = teams[0] ? teams[0].trim() : "Visita";
             let homeTeam = teams[1] ? teams[1].trim() : "Local";
 
-            // Definición consistente de favorito y underdog para cada partido
             let isHomeFavorite = (val % 2 === 0);
             let favoriteTeam = isHomeFavorite ? homeTeam : awayTeam;
             let underdogTeam = isHomeFavorite ? awayTeam : homeTeam;
 
             let markets = [];
             
-            // 1. Primera Mitad / Hándicap 0.5 (F5) -> Favorito lleva -0.5, Underdog lleva +0.5
             let f5IsFav = (val % 3 !== 0);
             let f5Team = f5IsFav ? favoriteTeam : underdogTeam;
             let f5Spread = f5IsFav ? "-0.5" : "+0.5";
@@ -680,7 +678,6 @@
                 conf: probF5 
             });
 
-            // 2. Run Line 1.5 -> Favorito lleva -1.5, Underdog lleva +1.5
             let rlIsFav = (val % 4 !== 0);
             let rlTeam = rlIsFav ? favoriteTeam : underdogTeam;
             let rlSpread = rlIsFav ? "-1.5" : "+1.5";
@@ -693,7 +690,6 @@
                 conf: probRL 
             });
 
-            // 3. Handicap 2.5 -> Si el equipo es favorito contundente va -2.5, si es underdog va +2.5
             let h25IsFav = (val % 5 !== 0);
             let h25Team = h25IsFav ? favoriteTeam : underdogTeam;
             let h25Spread = h25IsFav ? "-2.5" : "+2.5";
@@ -706,7 +702,6 @@
                 conf: probH25 
             });
 
-            // 4. Handicap 3.5 -> Verificación rigurosa: Si domina el favorito lleva -3.5, de lo contrario el underdog recibe +3.5
             let h35IsFav = (val % 2 === 0);
             let h35Team = h35IsFav ? favoriteTeam : underdogTeam;
             let h35Spread = h35IsFav ? "-3.5" : "+3.5";
@@ -719,7 +714,6 @@
                 conf: probH35 
             });
 
-            // 5. Runelai
             let runelaiType = (val % 5 === 0 || val % 3 === 0) ? "NRFI" : "YRFI";
             let probRunelai = getProbValue(val, 59);
             markets.push({ 
@@ -730,7 +724,6 @@
                 conf: probRunelai 
             });
 
-            // 6. Alta / Baja
             let ouType = (val % 3 === 0) ? "Alta (Over 8.5)" : "Baja (Under 8.5)";
             let probTotal = getProbValue(val, 71);
             markets.push({ 
@@ -808,7 +801,8 @@
 
             document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
 
-            allAvailablePicks.sort((a, b) => b.conf - a.conf);
+            // Ordenamiento aleatorio/dinámico general para romper patrones estáticos
+            allAvailablePicks.sort((a, b) => (b.conf + (getMatchHash(b.desc) % 7)) - (a.conf + (getMatchHash(a.desc) % 7)));
 
             if (allAvailablePicks.length > 0) {
                 let f5Picks = allAvailablePicks.filter(p => p.category === "F5");
@@ -841,18 +835,22 @@
 
                 let container = document.getElementById('auto-parlays-container');
                 let parlayConfigs = [
-                    { count: 2, title: "Parlay Doble (Alta Probabilidad)" },
-                    { count: 3, title: "Parlay Triple (Balanceado)" },
-                    { count: 4, title: "Parlay Cuádruple (Alto Valor)" },
-                    { count: 5, title: "Parlay Quintuple (Proyección Máxima)" }
+                    { count: 2, title: "Parlay Doble (Dinámico A)" },
+                    { count: 3, title: "Parlay Triple (Dinámico B)" },
+                    { count: 4, title: "Parlay Cuádruple (Dinámico C)" },
+                    { count: 5, title: "Parlay Quintuple (Dinámico D)" }
                 ];
 
                 let html = '';
-                parlayConfigs.forEach(cfg => {
+                parlayConfigs.forEach((cfg, index) => {
                     let selectedForParlay = [];
                     let usedMatches = new Set();
                     
-                    for (let p of allAvailablePicks) {
+                    // Rotación de offset para que cada tarjeta de parlay comience a buscar desde un partido diferente
+                    let rotationIndex = (index * 3) % allAvailablePicks.length;
+                    let orderedSlice = [...allAvailablePicks.slice(rotationIndex), ...allAvailablePicks.slice(0, rotationIndex)];
+
+                    for (let p of orderedSlice) {
                         let matchNamePart = p.desc.split(" → ")[0];
                         if (!usedMatches.has(matchNamePart) && selectedForParlay.length < cfg.count) {
                             selectedForParlay.push(p);
@@ -862,7 +860,7 @@
 
                     if (selectedForParlay.length > 0) {
                         let picksTextArray = selectedForParlay.map(p => p.desc);
-                        let estimatedOdds = `+${130 + (selectedForParlay.length * 160)}`;
+                        let estimatedOdds = `+${140 + (selectedForParlay.length * 175) + (index * 25)}`;
                         let picksStringJSON = JSON.stringify(picksTextArray);
 
                         html += `
