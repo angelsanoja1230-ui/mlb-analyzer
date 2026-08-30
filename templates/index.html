@@ -632,13 +632,10 @@
                         <stop offset="100%" stop-color="#090d16" stop-opacity="0"/>
                     </radialGradient>
                 </defs>
-                <!-- Fondo circular hexagonal redondeado -->
                 <rect x="8" y="8" width="84" height="84" rx="24" fill="#111827" stroke="url(#logoGrad)" stroke-width="4"/>
                 <circle cx="50" cy="50" r="30" fill="url(#coreGlow)" opacity="0.4"/>
-                <!-- Costuras de pelota de béisbol estilizadas en forma de radar/órbita -->
                 <path d="M 30 18 Q 50 50 30 82" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
                 <path d="M 70 18 Q 50 50 70 82" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
-                <!-- Cruz central de puntería / datos -->
                 <circle cx="50" cy="50" r="14" stroke="url(#logoGrad)" stroke-width="3" fill="none"/>
                 <circle cx="50" cy="50" r="4" fill="#34d399"/>
                 <path d="M 50 24 L 50 32" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
@@ -929,13 +926,18 @@
 
                 trendsHTML += `
                 <div class="trend-card">
-                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.25rem;">
-                        ${getTeamBadgeHTML(m.away, true)}
-                        <div>
-                            <div style="font-weight: 700; font-size: 0.95rem;">${m.away} @ ${m.home}</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">⏰ ${m.time}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; background: var(--bg-card); padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.03);">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            ${getTeamBadgeHTML(m.away, true)}
+                            <span style="font-weight: 700; font-size: 0.85rem;">${m.away}</span>
+                        </div>
+                        <span class="vs">VS</span>
+                        <div style="display:flex; align-items:center; gap:10px; flex-direction:row-reverse; text-align:right;">
+                            ${getTeamBadgeHTML(m.home, true)}
+                            <span style="font-weight: 700; font-size: 0.85rem;">${m.home}</span>
                         </div>
                     </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.85rem; text-align: center;">⏰ ${m.time} | 📍 ${m.stadium}</div>
                     <div class="markets-container">
                         <div class="market-pill"><span class="market-pill-label">Primeros 5 (F5)</span><span class="market-pill-value">${f5Pick}</span></div>
                         <div class="market-pill"><span class="market-pill-label">Ganador ML</span><span class="market-pill-value">${mlPick}</span></div>
