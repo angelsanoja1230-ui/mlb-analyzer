@@ -3,12 +3,8 @@ import json
 import os
 from datetime import datetime
 from simulator import process_all_matches
-from flask import Flask, render_template
-# ... (todo tu código actual)
 
 app = Flask(__name__)
-
-# ... (resto de tus rutas)
 
 VISIT_FILE = "visits.txt"
 HISTORY_FILE = "history.json"
@@ -76,7 +72,6 @@ def extract_best_plays(simulated_matches):
         prob_away = match.get('prob_away', 50)
         prob_home = match.get('prob_home', 50)
         
-        # Seleccionar el ganador proyectado de cada encuentro
         if prob_away >= prob_home:
             best_plays.append({
                 "match": f"{match['away']} @ {match['home']}",
@@ -96,7 +91,6 @@ def extract_best_plays(simulated_matches):
                 "reason": match.get('value_bet', 'Alta ventaja proyectada por Monte Carlo.')
             })
             
-        # Añadir opción de F5 (Primeras 5 entradas) si el usuario lo desea o para dar más variedad
         f5_away = match.get('f5_away', 50)
         f5_home = match.get('f5_home', 50)
         if f5_away > f5_home:
@@ -118,7 +112,6 @@ def extract_best_plays(simulated_matches):
                 "reason": f"Sólido rendimiento analítico del abridor local en F5."
             })
             
-    # Ordenar de mayor a menor confianza para garantizar que los mejores lideren las listas y parlays
     best_plays.sort(key=lambda x: x['confidence'], reverse=True)
     return best_plays
 
@@ -149,7 +142,7 @@ def index():
         safest_pick, parlays = generate_parlays_and_safe_pick(best_plays)
         
         daily_archive_data = data.get('DAILY_ARCHIVE', {})
-        date_str = daily_archive_data.get('date', datetime.now().strftime('%Y-%m-%d'))
+        date_str = daily_archive_data.get('date', datetime.now().strftime('%Y-%m-d'))
         
         full_history = save_daily_history(date_str, safest_pick, parlays)
         
