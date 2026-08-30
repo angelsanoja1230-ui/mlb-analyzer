@@ -3,1112 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB - Pronóstico Cuantitativo y Generador Multimercado (±3.5)</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Modelo Predictivo MLB</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
-
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            padding: 1.5rem 0.8rem;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.25;
         }
-
+        h1, h2, h3 {
+            color: #1b263b;
+        }
         .container {
-            max-width: 1400px;
+            max-width: 900px;
             margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-
-        header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        header h1 {
-            font-size: 2.2rem;
-            color: #38bdf8;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin-bottom: 0.2rem;
-        }
-
-        header p {
-            color: #94a3b8;
-            font-size: 1rem;
-        }
-
-        /* Sistema de Pestañas (Tabs) */
-        .tabs-nav {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #1e293b;
-            padding-bottom: 0.8rem;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            background-color: #1e293b;
-            color: #94a3b8;
-            border: 1px solid #334155;
-            padding: 0.5rem 0.9rem;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .tab-btn:hover {
-            background-color: #334155;
-            color: #f8fafc;
-        }
-
-        .tab-btn.active {
-            background-color: #38bdf8;
-            color: #0f172a;
-            border-color: #38bdf8;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Cuadrícula de Partidos */
-        .matches-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1.2rem;
-        }
-
-        .match-card {
-            background-color: #1e293b;
-            border-radius: 10px;
-            padding: 1.2rem;
-            border: 1px solid #334155;
-        }
-
-        .match-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-bottom: 0.8rem;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 0.4rem;
-        }
-
-        .teams-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .team {
-            text-align: center;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .team-logo {
-            width: 42px;
-            height: 42px;
-            object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-        }
-
-        .team-logo-sm {
-            width: 26px;
-            height: 26px;
-            object-fit: contain;
-            flex-shrink: 0;
-        }
-
-        .team-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .vs {
-            font-weight: 700;
-            color: #64748b;
-            padding: 0 0.8rem;
-            font-size: 0.9rem;
-        }
-
-        .probabilities {
-            background-color: #0f172a;
-            border-radius: 6px;
-            padding: 0.6rem;
-            margin-bottom: 0.8rem;
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
-        }
-
-        .prob-box span {
-            display: block;
-            font-size: 0.7rem;
-            color: #94a3b8;
-        }
-
-        .prob-box strong {
-            font-size: 1.2rem;
-        }
-
-        .details-grid {
-            font-size: 0.8rem;
-            color: #cbd5e1;
-            margin-bottom: 0.8rem;
-            background-color: rgba(15, 23, 42, 0.5);
-            padding: 0.5rem;
-            border-radius: 6px;
-        }
-
-        .details-grid div {
-            margin-bottom: 0.15rem;
-        }
-
-        /* Matriz y Contenedores */
-        .matrix-container, .history-container, .padlet-container, .parlay-container {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 1.2rem;
-        }
-
-        /* Contenedor con Scroll horizontal fluido para evitar desbordes */
-        .table-responsive-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-top: 0.5rem;
-            border-radius: 6px;
-            border: 1px solid #334155;
-        }
-
-        .matrix-table {
+        table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
             text-align: left;
-            font-size: 0.78rem;
-            min-width: 900px;
+            border-bottom: 1px solid #e5e9f0;
         }
-
-        .matrix-table th {
-            background-color: #0f172a;
-            color: #38bdf8;
-            padding: 10px 10px;
-            font-weight: 600;
-            border-bottom: 2px solid #334155;
-            white-space: nowrap;
-        }
-
-        .matrix-table td {
-            padding: 9px 10px;
-            border-bottom: 1px solid #334155;
-            color: #cbd5e1;
-            white-space: nowrap;
-            vertical-align: middle;
-        }
-
-        .badge-pick {
-            background-color: rgba(56, 189, 248, 0.12);
-            color: #38bdf8;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        .badge-alt {
-            background-color: rgba(245, 158, 11, 0.12);
-            color: #fbbf24;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        .badge-runlai {
-            background-color: rgba(168, 85, 247, 0.12);
-            color: #c084fc;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        .badge-total {
-            background-color: rgba(34, 197, 94, 0.12);
-            color: #4ade80;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        .badge-handicap {
-            background-color: rgba(236, 72, 153, 0.12);
-            color: #f472b6;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        .table-match-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .team-mini-box {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: #f8fafc;
-        }
-
-        /* Padlet Iframe */
-        .padlet-embed {
-            width: 100%;
-            height: 600px;
-            border: none;
-            border-radius: 8px;
-            background-color: #0f172a;
-        }
-
-        /* Estilos Generador de Parlay */
-        .parlay-panel {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .parlay-panel h3 {
-            color: #38bdf8;
-            font-size: 1rem;
-            margin-bottom: 0.8rem;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 0.4rem;
-        }
-
-        .highlights-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .highlight-banner {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(14, 165, 233, 0.05));
-            border: 1px solid #38bdf8;
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .highlight-banner.alt {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.05));
-            border-color: #fbbf24;
-        }
-
-        .highlight-banner.runlai {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(126, 34, 206, 0.05));
-            border-color: #c084fc;
-        }
-
-        .highlight-banner.handicap {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(190, 24, 93, 0.05));
-            border-color: #f472b6;
-        }
-
-        .highlight-banner h4 {
-            color: #38bdf8;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.3rem;
-        }
-
-        .highlight-banner.alt h4 {
-            color: #fbbf24;
-        }
-
-        .highlight-banner.runlai h4 {
-            color: #c084fc;
-        }
-
-        .highlight-banner.handicap h4 {
-            color: #f472b6;
-        }
-
-        .highlight-banner .pick-content {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #f8fafc;
-        }
-
-        .auto-parlays-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1rem;
-        }
-
-        .auto-parlay-card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 0.9rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .auto-parlay-card h5 {
-            color: #fbbf24;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 0.3rem;
-        }
-
-        .auto-parlay-card ul {
-            list-style: none;
-            margin-bottom: 0.8rem;
-            min-height: 80px;
-        }
-
-        .auto-parlay-card li {
-            font-size: 0.78rem;
-            color: #cbd5e1;
-            padding: 3px 0;
-            border-bottom: 1px dashed rgba(51, 65, 85, 0.5);
-        }
-
-        .btn-parlay-action {
-            width: 100%;
-            background-color: #38bdf8;
-            color: #0f172a;
-            border: none;
-            padding: 0.5rem;
-            border-radius: 6px;
+        th {
+            background-color: #1b263b;
+            color: #ffffff;
             font-weight: bold;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: background 0.2s;
         }
-
-        .btn-parlay-action:hover {
-            background-color: #0ea5e9;
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .team-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .team-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+        }
+        pre {
+            background-color: #f1f5f9;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid #cbd5e1;
+        }
+        ul, ol {
+            margin-top: 5px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Cabecera -->
-        <header>
-            <h1>MLB</h1>
-            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Pronóstico Cuantitativo y Generador Multimercado Dinámico (Incluyendo ±3.5)</p>
-        </header>
 
-        <!-- Pestañas de Navegación -->
-        <div class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">Partidos del Día</button>
-            <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Matriz de Tendencias</button>
-            <button class="tab-btn" onclick="switchTab(event, 'best-play-tab')">⭐ La Mejor Jugada</button>
-            <button class="tab-btn" onclick="switchTab(event, 'history-tab')">📁 Historial</button>
-            <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">🎲 Generador de Parlay</button>
-            <button class="tab-btn" onclick="switchTab(event, 'padlet-tab')">📌 Padlet</button>
-        </div>
+<div class="container">
+    <h1>Modelo Predictivo y Estadísticas MLB</h1>
+    <p>A continuación se presenta la estructura optimizada para el análisis de enfrentamientos, probabilidades de victoria y estadísticas de los equipos utilizando fuentes gráficas estables.</p>
 
-        <!-- Pestaña 1: Partidos -->
-        <div id="matches-tab" class="tab-content active">
-            <div class="matches-grid" id="matches-cards-container">
-                <!-- Generado por JavaScript -->
-            </div>
-        </div>
-
-        <!-- Pestaña 2: Matriz Analítica -->
-        <div id="matrix-tab" class="tab-content">
-            <div class="matrix-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación Cuantitativa (0.5 a 3.5)</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Verificación estricta de hándicaps completos y alternativos incluyendo +3.5 / -3.5 y el equipo opuesto ("el que no es"). Desliza horizontalmente si es necesario.</p>
-                
-                <div class="table-responsive-wrapper">
-                    <table class="matrix-table" id="matrix-table-data">
-                        <thead>
-                            <tr>
-                                <th>Encuentro</th>
-                                <th>Ganador F5 / Hcap 0.5</th>
-                                <th>Run Line (1.5)</th>
-                                <th>Handicap (2.5)</th>
-                                <th>Handicap (3.5) [±]</th>
-                                <th>Runelai</th>
-                                <th>Alta / Baja</th>
-                            </tr>
-                        </thead>
-                        <tbody id="matrix-tbody-container">
-                            <!-- Generado por JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pestaña 3: La Mejor Jugada por Partido -->
-        <div id="best-play-tab" class="tab-content">
-            <div class="matrix-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">⭐ La Mejor Jugada por Partido</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Selección cuantitativa óptima individual para cada encuentro.</p>
-                
-                <div class="matches-grid" id="best-plays-cards-container">
-                    <!-- Se llena dinámicamente con JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Pestaña 4: Historial -->
-        <div id="history-tab" class="tab-content">
-            <div class="history-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.2rem;">Historial de Pronósticos y Tracking</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Registro acumulado de las jornadas guardadas automáticamente.</p>
+    <h2>Comparativa de Equipos</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Equipo</th>
+                <th>W-L</th>
+                <th>EFEC (ERA)</th>
+                <th>Prob. Victoria</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="team-cell">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/New_York_Yankees_logo.svg" alt="Yankees" class="team-logo">
+                        <span>New York Yankees</span>
                     </div>
-                    <button onclick="clearHistory()" style="background-color: #ef4444; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">Limpiar Historial</button>
-                </div>
-                
-                <div id="history-list-container" style="background-color: #0f172a; padding: 1.2rem; border-radius: 8px; border: 1px dashed #334155; min-height: 150px;">
-                    <p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">Cargando registros...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pestaña 5: Generador Automático de Parlay -->
-        <div id="parlay-tab" class="tab-content">
-            <div class="parlay-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado (0.5 a 3.5)</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo optimizado con rotación de hándicaps positivos y negativos.</p>
-
-                <!-- Panel de Destacados Principales -->
-                <div class="highlights-grid">
-                    <div class="highlight-banner">
-                        <h4>⚡ Mejor 0.5 (F5)</h4>
-                        <div class="pick-content" id="best-f5-text">Calculando...</div>
+                </td>
+                <td>78-52</td>
+                <td>3.45</td>
+                <td>58.4%</td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="team-cell">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a8/Los_Angeles_Dodgers_logo.svg" alt="Dodgers" class="team-logo">
+                        <span>Los Angeles Dodgers</span>
                     </div>
-                    <div class="highlight-banner alt">
-                        <h4>📐 Mejor Run Line (1.5)</h4>
-                        <div class="pick-content" id="best-runline-text">Calculando...</div>
+                </td>
+                <td>82-48</td>
+                <td>3.20</td>
+                <td>62.1%</td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="team-cell">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e8/Boston_Red_Sox_hat_logo.svg" alt="Red Sox" class="team-logo">
+                        <span>Boston Red Sox</span>
                     </div>
-                    <div class="highlight-banner handicap">
-                        <h4>🛡️ Mejor Hcap (±3.5)</h4>
-                        <div class="pick-content" id="best-handicap-text">Calculando...</div>
-                    </div>
-                    <div class="highlight-banner runlai">
-                        <h4>🟣 Mejor Runelai</h4>
-                        <div class="pick-content" id="best-runlai-text">Calculando...</div>
-                    </div>
-                </div>
+                </td>
+                <td>70-60</td>
+                <td>4.10</td>
+                <td>50.2%</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Factores Clave del Modelo</h2>
+    <ul>
+        <li><strong>Rendimiento del Lanzador Abridor:</strong> Análisis de FIP, WHIP y ponches por cada 9 entradas (K/9).</li>
+        <li><strong>Estadísticas del Bullpen:</strong> Carga de trabajo reciente, tasa de efectividad de los cerradores y salvamentos blown.</li>
+        <li><strong>Factor Parque (Park Factor):</strong> Ajuste ofensivo según las dimensiones del estadio y condiciones climáticas.</li>
+    </ul>
+
+    <h2>Configuración de Datos (Ejemplo de Automatización)</h2>
+    <pre><code>
+// Script de apoyo para cálculo de probabilidades logísticas
+function calcularProbabilidad(eraPitcherA, eraPitcherB) {
+    let base = 0.50;
+    let ajuste = (eraPitcherB - eraPitcherA) * 0.07;
+    return Math.min(Math.max(base + ajuste, 0.10), 0.90);
+}
+    </code></pre>
+
+    <ol>
+        <li>Actualizar las estadísticas base de cada franquicia diariamente.</li>
+        <li>Correr las simulaciones de Monte Carlo para las líneas de altas y bajas (Over/Under).</li>
+        <li>Validar los márgenes de valor frente a las cuotas del mercado.</li>
+    </ol>
+</div>
 
-                <!-- Generador Automático de Parlays Multimercado -->
-                <div class="parlay-panel">
-                    <h3>Combinaciones Automáticas de Parlays (2 a 5 Selecciones Variadas)</h3>
-                    <div class="auto-parlays-grid" id="auto-parlays-container">
-                        <!-- Se llena dinámicamente -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pestaña 6: Padlet -->
-        <div id="padlet-tab" class="tab-content">
-            <div class="padlet-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Tablero de Notas - Padlet</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Notas colaborativas y tablero de seguimiento externo.</p>
-                
-                <iframe class="padlet-embed" src="https://padlet.com/embed/placeholder" allow="camera;microphone;geolocation"></iframe>
-            </div>
-        </div>
-    </div>
-
-    <!-- Script de Ejecución y Generación -->
-    <script>
-        const CURRENT_DATE = "30-08-2026";
-
-        const TODAY_MATCHES = [
-            { away: "Miami Marlins", home: "Washington Nationals", time: "12:15 PM", stadium: "Nationals Park", starter_away: "L. Poteet", starter_home: "J. Irvin", wind: "7", temp: "82" },
-            { away: "Boston Red Sox", home: "New York Yankees", time: "1:35 PM", stadium: "Yankee Stadium", starter_away: "T. Houck", starter_home: "G. Cole", wind: "9", temp: "78" },
-            { away: "Colorado Rockies", home: "Atlanta Braves", time: "1:35 PM", stadium: "Truist Park", starter_away: "K. Freeland", starter_home: "C. Sale", wind: "5", temp: "85" },
-            { away: "Seattle Mariners", home: "Toronto Blue Jays", time: "1:37 PM", stadium: "Rogers Centre", starter_away: "L. Castillo", starter_home: "K. Gausman", wind: "0 (Dome)", temp: "72" },
-            { away: "Kansas City Royals", home: "Cleveland Guardians", time: "1:40 PM", stadium: "Progressive Field", starter_away: "S. Lugo", starter_home: "T. Bibee", wind: "11", temp: "74" },
-            { away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "1:40 PM", stadium: "Comerica Park", starter_away: "Y. Yamamoto", starter_home: "T. Skubal", wind: "8", temp: "76" },
-            { away: "San Diego Padres", home: "Tampa Bay Rays", time: "1:40 PM", stadium: "Tropicana Field", starter_away: "D. Cease", starter_home: "Z. Littell", wind: "0 (Dome)", temp: "72" },
-            { away: "Chicago White Sox", home: "Minnesota Twins", time: "2:10 PM", stadium: "Target Field", starter_away: "E. Fedde", starter_home: "P. López", wind: "10", temp: "75" },
-            { away: "Texas Rangers", home: "Milwaukee Brewers", time: "2:10 PM", stadium: "American Family Field", starter_away: "N. Eovaldi", starter_home: "F. Peralta", wind: "0 (Dome)", temp: "72" },
-            { away: "Pittsburgh Pirates", home: "St. Louis Cardinals", time: "2:15 PM", stadium: "Busch Stadium", starter_away: "M. Keller", starter_home: "S. Gray", wind: "7", temp: "83" },
-            { away: "Houston Astros", home: "New York Mets", time: "3:10 PM", stadium: "Citi Field", starter_away: "F. Valdez", starter_home: "S. Manaea", wind: "12", temp: "77" },
-            { away: "Baltimore Orioles", home: "Oakland Athletics", time: "4:05 PM", stadium: "Oakland Coliseum", starter_away: "C. Burnes", starter_home: "J. Boyle", wind: "10", temp: "70" },
-            { away: "Philadelphia Phillies", home: "Los Angeles Angels", time: "4:07 PM", stadium: "Angel Stadium", starter_away: "Z. Wheeler", starter_home: "G. Canning", wind: "6", temp: "81" },
-            { away: "Cincinnati Reds", home: "Chicago Cubs", time: "7:20 PM", stadium: "Wrigley Field", starter_away: "H. Greene", starter_home: "J. Steele", wind: "14", temp: "73" }
-        ];
-
-        // Mapeo oficial de abreviaturas para los logos institucionales de la MLB vía CDN oficial
-        const MLB_TEAM_CODES = {
-            "Miami Marlins": "mia",
-            "Washington Nationals": "wsh",
-            "Boston Red Sox": "bos",
-            "New York Yankees": "nyy",
-            "Colorado Rockies": "col",
-            "Atlanta Braves": "atl",
-            "Seattle Mariners": "sea",
-            "Toronto Blue Jays": "tor",
-            "Kansas City Royals": "kc",
-            "Cleveland Guardians": "cle",
-            "Los Angeles Dodgers": "lad",
-            "Detroit Tigers": "det",
-            "San Diego Padres": "sd",
-            "Tampa Bay Rays": "tb",
-            "Chicago White Sox": "chw",
-            "Minnesota Twins": "min",
-            "Texas Rangers": "tex",
-            "Milwaukee Brewers": "mil",
-            "Pittsburgh Pirates": "pit",
-            "St. Louis Cardinals": "stl",
-            "Houston Astros": "hou",
-            "New York Mets": "nym",
-            "Baltimore Orioles": "bal",
-            "Oakland Athletics": "oak",
-            "Philadelphia Phillies": "phi",
-            "Los Angeles Angels": "laa",
-            "Cincinnati Reds": "cin",
-            "Chicago Cubs": "chc",
-            "San Francisco Giants": "sf",
-            "Arizona Diamondbacks": "ari"
-        };
-
-        // Función para obtener el logo oficial transparente directamente desde la CDN de la MLB
-        function getTeamLogoHTML(teamName, isSmall = false) {
-            let code = MLB_TEAM_CODES[teamName] || "mlb";
-            let logoUrl = `https://www.mlbstatic.com/team-logos/${code}.svg`;
-            let className = isSmall ? "team-logo-sm" : "team-logo";
-            
-            return `<img src="${logoUrl}" alt="${teamName}" class="${className}" onerror="this.onerror=null; this.src='https://www.mlbstatic.com/team-logos/mlb.svg';" title="${teamName}" />`;
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById('current-date-label').innerText = CURRENT_DATE;
-            buildMatchesUI();
-            processApp();
-        });
-
-        function switchTab(evt, tabId) {
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(c => c.classList.remove('active'));
-
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(b => b.classList.remove('active'));
-
-            document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
-
-            if(tabId === 'history-tab') {
-                renderHistory();
-            }
-        }
-
-        function getMatchHash(matchKey) {
-            let hash = 0;
-            for (let i = 0; i < matchKey.length; i++) {
-                hash = matchKey.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            return Math.abs(hash);
-        }
-
-        function getProbValue(val, modifier = 0) {
-            let p = 43 + ((val + modifier) % 20);
-            return p;
-        }
-
-        function buildMatchesUI() {
-            let cardsContainer = document.getElementById('matches-cards-container');
-            let matrixTbody = document.getElementById('matrix-tbody-container');
-            
-            let cardsHTML = '';
-            let matrixHTML = '';
-
-            TODAY_MATCHES.forEach((m) => {
-                let matchKey = `${m.away} @ ${m.home}`;
-                
-                cardsHTML += `
-                <div class="match-card" data-match-key="${matchKey}">
-                    <div class="match-header">
-                        <span>${m.time}</span>
-                        <span>📍 ${m.stadium}</span>
-                    </div>
-
-                    <div class="teams-container">
-                        <div class="team">
-                            ${getTeamLogoHTML(m.away)}
-                            <div class="team-name">${m.away}</div>
-                        </div>
-                        <div class="vs">VS</div>
-                        <div class="team">
-                            ${getTeamLogoHTML(m.home)}
-                            <div class="team-name">${m.home}</div>
-                        </div>
-                    </div>
-
-                    <div class="probabilities">
-                        <div class="prob-box">
-                            <span>Visita (Prob.)</span>
-                            <strong class="card-prob-away">-</strong>
-                        </div>
-                        <div class="prob-box" style="border-left: 1px solid #334155; padding-left: 1rem;">
-                            <span>Local (Prob.)</span>
-                            <strong class="card-prob-home">-</strong>
-                        </div>
-                    </div>
-
-                    <div class="details-grid">
-                        <div><strong>Abridores:</strong> ${m.starter_away} vs ${m.starter_home}</div>
-                        <div><strong>Clima:</strong> Viento ${m.wind} mph | Temp: ${m.temp}°F</div>
-                    </div>
-                </div>
-                `;
-
-                matrixHTML += `
-                <tr data-match-key="${matchKey}">
-                    <td>
-                        <div class="table-match-cell">
-                            <div class="team-mini-box">${getTeamLogoHTML(m.away, true)}<span>${m.away}</span></div>
-                            <span style="color: #64748b; font-size: 0.75rem;">@</span>
-                            <div class="team-mini-box">${getTeamLogoHTML(m.home, true)}<span>${m.home}</span></div>
-                        </div>
-                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px; padding-left: 36px;">${m.time}</div>
-                    </td>
-                    <td><span class="matrix-prob-f5">-</span></td>
-                    <td><span class="matrix-prob-rl">-</span></td>
-                    <td><span class="matrix-prob-h25">-</span></td>
-                    <td><span class="matrix-prob-h35">-</span></td>
-                    <td><span class="matrix-prob-runelai">-</span></td>
-                    <td><span class="matrix-prob-total">-</span></td>
-                </tr>
-                `;
-            });
-
-            cardsContainer.innerHTML = cardsHTML;
-            matrixTbody.innerHTML = matrixHTML;
-        }
-
-        function getDiverseMarkets(matchKey, awayProb, homeProb) {
-            let val = getMatchHash(matchKey);
-            let teams = matchKey.split(" @ ");
-            let awayTeam = teams[0] ? teams[0].trim() : "Visita";
-            let homeTeam = teams[1] ? teams[1].trim() : "Local";
-
-            let isHomeFavorite = homeProb >= awayProb;
-            let favoriteTeam = isHomeFavorite ? homeTeam : awayTeam;
-            let underdogTeam = isHomeFavorite ? awayTeam : homeTeam;
-
-            let markets = [];
-            
-            // F5 (0.5)
-            let f5IsFav = (val % 3 !== 0);
-            let f5Team = f5IsFav ? favoriteTeam : underdogTeam;
-            let f5Spread = f5IsFav ? "-0.5" : "+0.5";
-            let probF5 = getProbValue(val, 12);
-            markets.push({ 
-                category: "F5", 
-                type: "F5 (0.5)", 
-                desc: `${matchKey} → F5 ${f5Team} (${f5Spread})`, 
-                prob: probF5, 
-                conf: probF5 
-            });
-
-            // Run Line (1.5)
-            let rlIsFav = (val % 4 !== 0);
-            let rlTeam = rlIsFav ? favoriteTeam : underdogTeam;
-            let rlSpread = rlIsFav ? "-1.5" : "+1.5";
-            let probRL = getProbValue(val, 25);
-            markets.push({ 
-                category: "RunLine", 
-                type: "Run Line (1.5)", 
-                desc: `${matchKey} → Run Line ${rlTeam} (${rlSpread})`, 
-                prob: probRL, 
-                conf: probRL 
-            });
-
-            // Handicap (2.5)
-            let h25IsFav = (val % 5 !== 0);
-            let h25Team = h25IsFav ? favoriteTeam : underdogTeam;
-            let h25Spread = h25IsFav ? "-2.5" : "+2.5";
-            let probH25 = getProbValue(val, 37);
-            markets.push({ 
-                category: "Handicap25", 
-                type: "Handicap (2.5)", 
-                desc: `${matchKey} → Hcap ${h25Team} (${h25Spread})`, 
-                prob: probH25, 
-                conf: probH25 
-            });
-
-            // Handicap (3.5)
-            let h35IsFav = (val % 2 === 0);
-            let h35Team = h35IsFav ? favoriteTeam : underdogTeam;
-            let h35Spread = h35IsFav ? "-3.5" : "+3.5";
-            let probH35 = getProbValue(val, 48);
-            markets.push({ 
-                category: "Handicap35", 
-                type: "Handicap (3.5)", 
-                desc: `${matchKey} → Hcap ${h35Team} (${h35Spread})`, 
-                prob: probH35, 
-                conf: probH35 
-            });
-
-            // Runelai
-            let runelaiType = (val % 5 === 0 || val % 3 === 0) ? "NRFI" : "YRFI";
-            let probRunelai = getProbValue(val, 59);
-            markets.push({ 
-                category: "Runelai", 
-                type: "Runelai", 
-                desc: `${matchKey} → ${runelaiType}`, 
-                prob: probRunelai, 
-                conf: probRunelai 
-            });
-
-            // Total Alta / Baja
-            let ouType = (val % 3 === 0) ? "Alta (Over 8.5)" : "Baja (Under 8.5)";
-            let probTotal = getProbValue(val, 71);
-            markets.push({ 
-                category: "Total", 
-                type: "Total O/U", 
-                desc: `${matchKey} → ${ouType}`, 
-                prob: probTotal, 
-                conf: probTotal 
-            });
-
-            return markets;
-        }
-
-        function processApp() {
-            let cards = document.querySelectorAll('.matches-grid .match-card');
-            let rows = document.querySelectorAll('#matrix-table-data tbody tr');
-            let allAvailablePicks = [];
-            let bestPlaysHTML = '';
-
-            cards.forEach((card, index) => {
-                let matchName = card.getAttribute('data-match-key');
-                let val = getMatchHash(matchName);
-                let awayProb = getProbValue(val, 5);
-                let homeProb = 100 - awayProb;
-
-                let awayProbElem = card.querySelector('.card-prob-away');
-                let homeProbElem = card.querySelector('.card-prob-home');
-                if (awayProbElem) awayProbElem.innerText = awayProb + "%";
-                if (homeProbElem) homeProbElem.innerText = homeProb + "%";
-
-                let matchMarkets = getDiverseMarkets(matchName, awayProb, homeProb);
-                let optimalPick = [...matchMarkets].sort((a,b) => b.conf - a.conf)[0];
-
-                if(rows[index]) {
-                    let f5 = matchMarkets.find(m => m.category === "F5");
-                    let rl = matchMarkets.find(m => m.category === "RunLine");
-                    let h25 = matchMarkets.find(m => m.category === "Handicap25");
-                    let h35 = matchMarkets.find(m => m.category === "Handicap35");
-                    let runelai = matchMarkets.find(m => m.category === "Runelai");
-                    let total = matchMarkets.find(m => m.category === "Total");
-
-                    let f5Span = rows[index].querySelector('.matrix-prob-f5');
-                    let rlSpan = rows[index].querySelector('.matrix-prob-rl');
-                    let h25Span = rows[index].querySelector('.matrix-prob-h25');
-                    let h35Span = rows[index].querySelector('.matrix-prob-h35');
-                    let runelaiSpan = rows[index].querySelector('.matrix-prob-runelai');
-                    let totalSpan = rows[index].querySelector('.matrix-prob-total');
-
-                    if (f5Span) f5Span.innerHTML = `<span class="badge-pick">${f5.prob}% (${f5.desc.split('→')[1] || ''})</span>`;
-                    if (rlSpan) rlSpan.innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc.split('→')[1] || ''})</span>`;
-                    if (h25Span) h25Span.innerHTML = `<span class="badge-handicap">${h25.prob}% (${h25.desc.split('→')[1] || ''})</span>`;
-                    if (h35Span) h35Span.innerHTML = `<span class="badge-pick" style="background-color:rgba(168,85,247,0.12); color:#c084fc;">${h35.prob}% (${h35.desc.split('→')[1] || ''})</span>`;
-                    if (runelaiSpan) runelaiSpan.innerHTML = `<span class="badge-runlai">${runelai.prob}% (${runelai.desc.split('→')[1] || ''})</span>`;
-                    if (totalSpan) totalSpan.innerHTML = `<span class="badge-total">${total.prob}% (${total.desc.split('→')[1] || ''})</span>`;
-                }
-
-                let teamsArr = matchName.split(" @ ");
-                let awayTeamName = teamsArr[0] ? teamsArr[0].trim() : "";
-                let homeTeamName = teamsArr[1] ? teamsArr[1].trim() : "";
-
-                bestPlaysHTML += `
-                    <div class="match-card" style="border-left: 4px solid #38bdf8;">
-                        <div class="match-header">
-                            <span>${card.querySelector('.match-header span') ? card.querySelector('.match-header span').innerText : ''}</span>
-                            <span>⭐ Óptimo Recomendado</span>
-                        </div>
-                        <div class="teams-container" style="margin-bottom: 0.8rem;">
-                            <div class="team">
-                                ${getTeamLogoHTML(awayTeamName)}
-                                <div class="team-name" style="font-size: 0.85rem;">${awayTeamName}</div>
-                            </div>
-                            <div class="vs" style="font-size: 0.8rem;">@</div>
-                            <div class="team">
-                                ${getTeamLogoHTML(homeTeamName)}
-                                <div class="team-name" style="font-size: 0.85rem;">${homeTeamName}</div>
-                            </div>
-                        </div>
-                        <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; border: 1px solid #334155;">
-                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">Mejor Mercado (${optimalPick.type})</div>
-                            <div style="font-size: 0.95rem; font-weight: bold; color: #38bdf8;">${optimalPick.desc.split(" → ")[1]}</div>
-                            <div style="font-size: 0.8rem; color: #22c55e; margin-top: 4px; font-weight: 600;">Confianza Cuantitativa: ${optimalPick.prob}%</div>
-                        </div>
-                    </div>
-                `;
-
-                matchMarkets.forEach(m => {
-                    allAvailablePicks.push(m);
-                });
-            });
-
-            let bestPlaysContainer = document.getElementById('best-plays-cards-container');
-            if (bestPlaysContainer) bestPlaysContainer.innerHTML = bestPlaysHTML;
-
-            allAvailablePicks.sort((a, b) => (b.conf + (getMatchHash(b.desc) % 7)) - (a.conf + (getMatchHash(a.desc) % 7)));
-
-            if (allAvailablePicks.length > 0) {
-                let f5Picks = allAvailablePicks.filter(p => p.category === "F5");
-                let bestF5 = f5Picks.length > 0 ? f5Picks[0] : allAvailablePicks[0];
-                let f5TextElem = document.getElementById('best-f5-text');
-                if (f5TextElem) {
-                    f5TextElem.innerHTML = `
-                        <span style="color: #38bdf8;">${bestF5.desc.split(" → ")[1]}</span> 
-                        <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestF5.prob}%</span>
-                    `;
-                }
-
-                let runlinePicks = allAvailablePicks.filter(p => p.category === "RunLine");
-                let bestRunLine = runlinePicks.length > 0 ? runlinePicks[0] : allAvailablePicks[1];
-                let rlTextElem = document.getElementById('best-runline-text');
-                if (rlTextElem) {
-                    rlTextElem.innerHTML = `
-                        <span style="color: #fbbf24;">${bestRunLine.desc.split(" → ")[1]}</span> 
-                        <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestRunLine.prob}%</span>
-                    `;
-                }
-
-                let handicapPicks = allAvailablePicks.filter(p => p.category === "Handicap25" || p.category === "Handicap35");
-                let bestHandicap = handicapPicks.length > 0 ? handicapPicks[0] : allAvailablePicks[2];
-                let hcapTextElem = document.getElementById('best-handicap-text');
-                if (hcapTextElem) {
-                    hcapTextElem.innerHTML = `
-                        <span style="color: #f472b6;">${bestHandicap.desc.split(" → ")[1]}</span> 
-                        <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestHandicap.prob}%</span>
-                    `;
-                }
-
-                let runelaiPicks = allAvailablePicks.filter(p => p.category === "Runelai");
-                let bestRunelai = runelaiPicks.length > 0 ? runelaiPicks[0] : allAvailablePicks[3];
-                let runelaiTextElem = document.getElementById('best-runlai-text');
-                if (runelaiTextElem) {
-                    runelaiTextElem.innerHTML = `
-                        <span style="color: #c084fc;">${bestRunelai.desc.split(" → ")[1]}</span> 
-                        <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${bestRunelai.prob}%</span>
-                    `;
-                }
-
-                let container = document.getElementById('auto-parlays-container');
-                if (container) {
-                    let parlayConfigs = [
-                        { count: 2, title: "Parlay Doble (Dinámico A)" },
-                        { count: 3, title: "Parlay Triple (Dinámico B)" },
-                        { count: 4, title: "Parlay Cuádruple (Dinámico C)" },
-                        { count: 5, title: "Parlay Quintuple (Dinámico D)" }
-                    ];
-
-                    let html = '';
-                    parlayConfigs.forEach((cfg, index) => {
-                        let selectedForParlay = [];
-                        let usedMatches = new Set();
-                        
-                        let rotationIndex = (index * 3) % allAvailablePicks.length;
-                        let orderedSlice = [...allAvailablePicks.slice(rotationIndex), ...allAvailablePicks.slice(0, rotationIndex)];
-
-                        for (let p of orderedSlice) {
-                            let matchNamePart = p.desc.split(" → ")[0];
-                            if (!usedMatches.has(matchNamePart) && selectedForParlay.length < cfg.count) {
-                                selectedForParlay.push(p);
-                                usedMatches.add(matchNamePart);
-                            }
-                        }
-
-                        if (selectedForParlay.length > 0) {
-                            let picksTextArray = selectedForParlay.map(p => p.desc);
-                            let estimatedOdds = `+${140 + (selectedForParlay.length * 175) + (index * 25)}`;
-                            let picksStringJSON = JSON.stringify(picksTextArray);
-
-                            html += `
-                                <div class="auto-parlay-card">
-                                    <div>
-                                        <h5><span>${cfg.title}</span></h5>
-                                        <ul>
-                            `;
-                            selectedForParlay.forEach(p => {
-                                html += `<li>• [${p.type}] ${p.desc} (${p.prob}%)</li>`;
-                            });
-                            html += `
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 0.78rem; color: #fbbf24; margin-bottom: 6px; font-weight: 600;">Cuota Aprox: ${estimatedOdds}</div>
-                                        <button class="btn-parlay-action" onclick='saveSpecificParlay("${cfg.title}", ${picksStringJSON}, "${estimatedOdds}")'>Guardar en Historial</button>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    });
-
-                    container.innerHTML = html;
-                }
-            }
-
-            autoSavePredictions();
-        }
-
-        function autoSavePredictions() {
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_probs') || '{}');
-            
-            if (!historyData[CURRENT_DATE]) {
-                let rows = document.querySelectorAll('#matrix-table-data tbody tr');
-                let dayPredictions = [];
-
-                rows.forEach((row) => {
-                    let matchName = row.getAttribute('data-match-key');
-                    let f5El = row.querySelector('.matrix-prob-f5');
-                    let rlEl = row.querySelector('.matrix-prob-rl');
-                    let h25El = row.querySelector('.matrix-prob-h25');
-                    let h35El = row.querySelector('.matrix-prob-h35');
-                    let runelaiEl = row.querySelector('.matrix-prob-runelai');
-                    let totalEl = row.querySelector('.matrix-prob-total');
-
-                    dayPredictions.push({
-                        match: matchName,
-                        f5: f5El ? f5El.innerHTML : '-',
-                        rl: rlEl ? rlEl.innerHTML : '-',
-                        h25: h25El ? h25El.innerHTML : '-',
-                        h35: h35El ? h35El.innerHTML : '-',
-                        runelai: runelaiEl ? runelaiEl.innerHTML : '-',
-                        total: totalEl ? totalEl.innerHTML : '-'
-                    });
-                });
-
-                if(dayPredictions.length > 0) {
-                    historyData[CURRENT_DATE] = dayPredictions;
-                    localStorage.setItem('mlb_saved_history_probs', JSON.stringify(historyData));
-                }
-            }
-        }
-
-        function renderHistory() {
-            const container = document.getElementById('history-list-container');
-            if (!container) return;
-
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_probs') || '{}');
-            let dates = Object.keys(historyData);
-
-            if(dates.length === 0) {
-                container.innerHTML = '<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros de historial guardados todavía.</p>';
-                return;
-            }
-
-            let html = '';
-            dates.sort().reverse().forEach(dateKey => {
-                html += `<div style="margin-bottom: 1.2rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.8rem;">`;
-                html += `<div style="color: #fbbf24; font-weight: bold; font-size: 0.9rem; margin-bottom: 0.5rem;">📅 Jornada: ${dateKey}</div>`;
-                html += `<ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px;">`;
-                
-                historyData[dateKey].forEach(item => {
-                    if(item.isParlay) {
-                        html += `
-                            <li style="background-color: rgba(56, 189, 248, 0.08); padding: 8px; border-radius: 6px; border: 1px solid #38bdf8; font-size: 0.78rem; grid-column: 1 / -1;">
-                                <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">🎲 ${item.title} (${item.picks.length} selecciones)</div>
-                                <div style="color: #cbd5e1; margin-bottom: 4px;">Selecciones: ${item.picks.join(' | ')}</div>
-                                <div style="color: #fbbf24; font-weight: 600;">Cuota estimada: ${item.odds}</div>
-                            </li>
-                        `;
-                    } else {
-                        html += `
-                            <li style="background-color: #1e293b; padding: 8px; border-radius: 6px; border: 1px solid #334155; font-size: 0.78rem;">
-                                <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">⚾ ${item.match}</div>
-                                <div style="display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
-                                    <span>F5: ${item.f5}</span>
-                                    <span>R.L: ${item.rl}</span>
-                                    <span>H2.5: ${item.h25}</span>
-                                    <span>H3.5: ${item.h35}</span>
-                                    <span>Runelai: ${item.runelai}</span>
-                                    <span>Total: ${item.total}</span>
-                                </div>
-                            </li>
-                        `;
-                    }
-                });
-                html += `</ul></div>`;
-            });
-
-            container.innerHTML = html;
-        }
-
-        function clearHistory() {
-            if(confirm('¿Estás seguro de vaciar el historial de pronósticos?')) {
-                localStorage.removeItem('mlb_saved_history_probs');
-                renderHistory();
-                processApp();
-                alert('Historial limpiado y actualizado.');
-            }
-        }
-
-        function saveSpecificParlay(title, picksArray, odds) {
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_probs') || '{}');
-            if (!historyData[CURRENT_DATE]) {
-                historyData[CURRENT_DATE] = [];
-            }
-
-            historyData[CURRENT_DATE].unshift({
-                isParlay: true,
-                title: title,
-                picks: picksArray,
-                odds: odds
-            });
-
-            localStorage.setItem('mlb_saved_history_probs', JSON.stringify(historyData));
-            alert(`¡${title} guardado con éxito en la pestaña de Historial!`);
-            switchTab({ currentTarget: document.querySelectorAll('.tab-btn')[3] }, 'history-tab');
-        }
-    </script>
 </body>
 </html>
