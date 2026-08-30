@@ -346,10 +346,7 @@
     <div id="matrix-tab" class="tab-content active">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h2>Configuración de Hándicaps Diarios</h2>
-            <div style="display: flex; gap: 8px;">
-                <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem;" onclick="saveCustomLines()">💾 Guardar Líneas</button>
-                <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem; background-color: #4ade80; color: #0f172a;" onclick="saveAllMatrixToHistory()">📌 Enviar Todos al Historial</button>
-            </div>
+            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem;" onclick="saveCustomLines()">💾 Guardar Líneas</button>
         </div>
         <div id="matches-cards-container" class="matches-grid"></div>
     </div>
@@ -384,7 +381,7 @@
     <!-- Pestaña 6: Historial -->
     <div id="history-tab" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2>Historial de Pronósticos Evaluados</h2>
+            <h2>Historial de Pronósticos Guardados</h2>
             <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem; background-color: var(--danger); color: white;" onclick="clearHistory()">🗑️ Limpiar Historial</button>
         </div>
         <div id="history-list-container"></div>
@@ -490,10 +487,7 @@
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
             
-            if(tabId === 'history-tab') {
-                evaluateHistoryResults();
-                renderHistory();
-            }
+            if(tabId === 'history-tab') renderHistory();
             if(tabId === 'live-standalone-tab') fetchRealLiveMLBData();
         }
 
@@ -607,31 +601,17 @@
                             <div style="font-size: 0.7rem; color: #94a3b8;">${m.time}</div>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <div class="market-pill pill-f5"><span class="market-pill-label">F5</span><span class="market-pill-value">${f5Pick}</span></div>
-                        <div class="market-pill pill-ml"><span class="market-pill-label">Ganador</span><span class="market-pill-value">${mlPick}</span></div>
-                        <div class="market-pill pill-rl"><span class="market-pill-label">Hándicap</span><span class="market-pill-value">${lineInfo.team} ${lineInfo.line}</span></div>
-                        <div class="market-pill pill-ou"><span class="market-pill-label">O/U</span><span class="market-pill-value">${ouPick}</span></div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+                        <div class="market-pill"><span class="market-pill-label">F5</span><span class="market-pill-value">${f5Pick}</span></div>
+                        <div class="market-pill"><span class="market-pill-label">Ganador</span><span class="market-pill-value">${mlPick}</span></div>
+                        <div class="market-pill"><span class="market-pill-label">Hándicap</span><span class="market-pill-value">${lineInfo.team} ${lineInfo.line}</span></div>
+                        <div class="market-pill"><span class="market-pill-label">O/U</span><span class="market-pill-value">${ouPick}</span></div>
                     </div>
-                </div>`;
-
-                bestPlaysHTML += `
-                <div class="match-card">
-                    <div class="match-header"><span>⏰ ${m.time}</span><span>⭐ Selección Óptima</span></div>
-                    <div class="teams-container">
-                        <div class="team">${getTeamBadgeHTML(m.away)}<div class="team-name" style="font-size:0.8rem;">${m.away}</div></div>
-                        <div class="vs">VS</div>
-                        <div class="team">${getTeamBadgeHTML(m.home)}<div class="team-name" style="font-size:0.8rem;">${m.home}</div></div>
-                    </div>
-                    <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; border: 1px solid #334155;">
-                        <div style="font-size: 0.7rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; margin-bottom: 3px;">Jugada Recomendada</div>
-                        <div style="font-size: 1rem; font-weight: bold; color: #4ade80;">${mlPick} (ML) o ${lineInfo.team} ${lineInfo.line}</div>
-                    </div>
+                    <button class="btn-action" style="padding: 0.4rem; font-size: 0.75rem;" onclick="saveToHistory('${m.away} vs ${m.home}', '${lineInfo.team} ${lineInfo.line}', 'Hándicap')">📌 Guardar Hándicap en Historial</button>
                 </div>`;
             });
 
             document.getElementById('trends-list-container').innerHTML = trendsHTML;
-            document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
 
             if (bestMainObj) {
                 document.getElementById('master-pick-display-container').innerHTML = `
@@ -648,38 +628,6 @@
             }
 
             renderAutoParlays();
-        }
-
-        function saveAllMatrixToHistory() {
-            let savedLines = getSavedLines();
-            let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
-            let addedCount = 0;
-
-            BASE_MATCHES.forEach(m => {
-                let lineInfo = savedLines[m.id] || { team: m.home, line: m.defaultHcap };
-                let isHomeFav = m.homeOdds < m.awayOdds;
-                let mlPick = isHomeFav ? m.home : m.away;
-                let matchupStr = `${m.away} vs ${m.home}`;
-                let pickStr = `ML: ${mlPick} | RL: ${lineInfo.team} ${lineInfo.line}`;
-
-                let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchupStr && h.pick === pickStr);
-                if (!exists) {
-                    history.unshift({
-                        date: CURRENT_DATE,
-                        matchup: matchupStr,
-                        pick: pickStr,
-                        type: 'Matriz Líneas',
-                        status: 'Pendiente',
-                        rawAway: m.away,
-                        rawHome: m.home
-                    });
-                    addedCount++;
-                }
-            });
-
-            localStorage.setItem('mlb_history_log', JSON.stringify(history));
-            alert(`¡Se han guardado ${addedCount} análisis de líneas reales en el historial!`);
-            renderHistory();
         }
 
         function renderAutoParlays() {
@@ -714,7 +662,7 @@
                 </div>`;
         }
 
-        function saveToHistory(matchup, pick, type = 'Jugada 100%') {
+        function saveToHistory(matchup, pick, type = 'Jugada') {
             let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
             
             let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchup && h.pick === pick);
@@ -723,70 +671,16 @@
                 return;
             }
 
-            let parts = matchup.split(" vs ");
-            let awayTeam = parts[0] || "";
-            let homeTeam = parts[1] || "";
-
             history.unshift({
                 date: CURRENT_DATE,
                 matchup: matchup,
                 pick: pick,
                 type: type,
-                status: 'Pendiente',
-                rawAway: awayTeam,
-                rawHome: homeTeam
+                status: 'Pendiente'
             });
             localStorage.setItem('mlb_history_log', JSON.stringify(history));
             alert("¡Selección guardada exitosamente en el historial!");
             renderHistory();
-        }
-
-        async function evaluateHistoryResults() {
-            let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
-            if (history.length === 0) return;
-
-            try {
-                let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${CURRENT_DATE}&hydrate=linescore`);
-                let data = await response.json();
-                let games = (data.dates && data.dates.length > 0) ? data.dates[0].games : [];
-
-                let updated = false;
-
-                history.forEach(item => {
-                    if (item.status === 'Ganada' || item.status === 'Perdida') return;
-
-                    let matchedGame = games.find(g => {
-                        let a = g.teams.away.team.name;
-                        let h = g.teams.home.team.name;
-                        return item.matchup.includes(a) && item.matchup.includes(h);
-                    });
-
-                    if (matchedGame && matchedGame.status.abstractGameState === "Final") {
-                        let aScore = matchedGame.teams.away.score || 0;
-                        let hScore = matchedGame.teams.home.score || 0;
-                        let aName = matchedGame.teams.away.team.name;
-                        let hName = matchedGame.teams.home.team.name;
-
-                        let winTeam = aScore > hScore ? aName : hName;
-                        let pickText = item.pick.toLowerCase();
-
-                        if (pickText.includes(winTeam.toLowerCase())) {
-                            item.status = 'Ganada';
-                            updated = true;
-                        } else {
-                            item.status = 'Perdida';
-                            updated = true;
-                        }
-                    }
-                });
-
-                if (updated) {
-                    localStorage.setItem('mlb_history_log', JSON.stringify(history));
-                    renderHistory();
-                }
-            } catch (e) {
-                console.error("Error evaluando historial con API:", e);
-            }
         }
 
         function renderHistory() {
@@ -816,7 +710,7 @@
                 <div style="background-color: #1e293b; padding: 0.8rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155;">
                     <div>
                         <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 2px;">
-                            <span style="font-size: 0.65rem; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 1px 6px; border-radius: 4px; font-weight: bold;">[${h.type || 'Jugada'}]</span>
+                            <span style="font-size: 0.65rem; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 1px 6px; border-radius: 4px; font-weight: bold;">[${h.type}]</span>
                             <span style="font-size: 0.75rem; color: #94a3b8;">${h.date}</span>
                         </div>
                         <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc;">${h.matchup}</div>
@@ -979,7 +873,6 @@
                 });
 
                 container.innerHTML = liveCardsHTML;
-                evaluateHistoryResults();
             } catch (err) {
                 console.error("Error consultando la API de MLB:", err);
                 container.innerHTML = `<p style="color: #ef4444; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Error al conectar con la API de la MLB.</p>`;
