@@ -98,12 +98,36 @@
             </section>
         </div>
 
-        <!-- CONTENIDO: PESTAÑA 2 - MEJORES JUGADAS (Placeholder temporal) -->
+        <!-- CONTENIDO: PESTAÑA 2 - MEJORES JUGADAS -->
         <div id="tab-jugadas" class="tab-content hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
-                <h2 class="text-2xl font-bold text-amber-400 mb-2">⭐ Mejores Jugadas del Día</h2>
-                <p class="text-slate-400">Aquí filtraremos automáticamente las opciones con mayor ventaja matemática.</p>
-            </div>
+            <section class="mb-8">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl mb-6">
+                    <h2 class="text-2xl font-bold text-amber-400 mb-2 flex items-center gap-2">⭐ Selección de Mejores Jugadas (Value Bets)</h2>
+                    <p class="text-slate-400 text-sm">Opciones filtradas automáticamente con mayor probabilidad de acierto según las iteraciones del motor Monte Carlo de hoy.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for play in best_plays %}
+                    <div class="bg-slate-900 border border-amber-500/30 rounded-2xl p-6 shadow-lg flex flex-col justify-between hover:border-amber-500/60 transition-all">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="bg-amber-500/10 text-amber-400 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/20">{{ play.type }}</span>
+                                <span class="text-emerald-400 font-bold text-sm">{{ play.confidence }}</span>
+                            </div>
+                            <h3 class="text-slate-400 text-xs uppercase tracking-wider mb-1">{{ play.match }}</h3>
+                            <p class="text-xl font-extrabold text-white mb-4">{{ play.pick }}</p>
+                        </div>
+                        <div class="bg-slate-950/60 rounded-xl p-3 text-slate-300 text-xs border border-slate-800">
+                            🔍 <strong>Análisis:</strong> {{ play.reason }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-span-full bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
+                        <p class="text-slate-400">No se detectaron jugadas con margen superior al 55% de confianza para el día de hoy.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
         </div>
 
         <!-- CONTENIDO: PESTAÑA 3 - PARLAY (Placeholder temporal) -->
