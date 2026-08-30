@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB - Análisis Cuantitativo, Jugada 100% y En Vivo</title>
+    <title>MLB - Panel Cuantitativo y En Vivo Real</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -56,7 +56,7 @@
             background-color: #1e293b;
             color: #94a3b8;
             border: 1px solid #334155;
-            padding: 0.5rem 0.8rem;
+            padding: 0.5rem 0.9rem;
             border-radius: 6px;
             font-weight: 600;
             font-size: 0.8rem;
@@ -208,11 +208,6 @@
             font-size: 0.8rem;
         }
 
-        .input-group select:focus, .input-group input:focus {
-            outline: none;
-            border-color: #38bdf8;
-        }
-
         .details-grid {
             font-size: 0.8rem;
             color: #cbd5e1;
@@ -222,7 +217,7 @@
             border-radius: 6px;
         }
 
-        .trends-container, .history-container, .parlay-container, .master-pick-container, .live-container {
+        .trends-container, .history-container, .parlay-container, .master-pick-container, .live-standalone-container {
             background-color: #1e293b;
             border: 1px solid #334155;
             border-radius: 10px;
@@ -375,10 +370,7 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-
-        .btn-action:hover {
-            background-color: #0ea5e9;
-        }
+        .btn-action:hover { background-color: #0ea5e9; }
 
         .btn-sync {
             background-color: #10b981;
@@ -451,48 +443,88 @@
             line-height: 1.5;
         }
 
-        /* Estilos específicos para el Módulo En Vivo */
-        .live-match-card {
+        /* Estilos para el Módulo En Vivo Real vía API */
+        .live-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+        .live-card {
             background-color: #0f172a;
             border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
+            border-radius: 10px;
+            padding: 1.2rem;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        .live-badge {
+        .live-tag {
             background-color: rgba(239, 68, 68, 0.15);
             color: #ef4444;
             border: 1px solid #ef4444;
-            padding: 2px 8px;
+            padding: 2px 10px;
             border-radius: 12px;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
-        .live-badge::before {
+        .live-tag::before {
             content: '';
-            width: 6px;
-            height: 6px;
+            width: 7px;
+            height: 7px;
             background-color: #ef4444;
             border-radius: 50%;
             display: inline-block;
-            animation: pulse-live 1.5s infinite;
+            animation: pulse-dot 1.5s infinite;
         }
-        @keyframes pulse-live {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
+        @keyframes pulse-dot {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
         }
+        .live-scorebox {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1e293b;
+            padding: 0.9rem;
+            border-radius: 8px;
+            margin: 0.8rem 0;
+            border: 1px solid #334155;
+        }
+        .live-picks-box {
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .live-pick-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            padding: 4px 0;
+            border-bottom: 1px dashed rgba(51, 65, 85, 0.6);
+        }
+        .live-pick-item:last-child {
+            border-bottom: none;
+        }
+        .badge-alta { color: #c084fc; font-weight: 700; }
+        .badge-baja { color: #38bdf8; font-weight: 700; }
+        .badge-medio { color: #fbbf24; font-weight: 700; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>MLB</h1>
-            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Panel de Análisis Cuantitativo, Jugada 100% y Vivo</p>
+            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Panel Cuantitativo y Centro Real En Vivo</p>
         </header>
 
         <div class="tabs-nav">
@@ -500,7 +532,7 @@
             <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Análisis Líneas Reales</button>
             <button class="tab-btn" onclick="switchTab(event, 'best-play-tab')">⭐ La Mejor Jugada</button>
             <button class="tab-btn" onclick="switchTab(event, 'master-pick-tab')" style="border-color: #4ade80; color: #4ade80;">💎 Jugada 100%</button>
-            <button class="tab-btn" onclick="switchTab(event, 'live-tab')" style="border-color: #ef4444; color: #ef4444;">📡 En Vivo y Proyecciones</button>
+            <button class="tab-btn" onclick="switchTab(event, 'live-standalone-tab')" style="border-color: #ef4444; color: #ef4444;">🔴 Jugadas En Vivo (API Real)</button>
             <button class="tab-btn" onclick="switchTab(event, 'history-tab')">📁 Historial</button>
             <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">🎲 Generador Parlay</button>
         </div>
@@ -537,18 +569,19 @@
             <div class="master-pick-container" id="master-pick-display-container"></div>
         </div>
 
-        <!-- PESTAÑA 5: NUEVA PESTAÑA - EN VIVO Y PROYECCIONES -->
-        <div id="live-tab" class="tab-content">
-            <div class="live-container">
+        <!-- PESTAÑA 5: JUGADAS EN VIVO REAL (CONEXIÓN API) -->
+        <div id="live-standalone-tab" class="tab-content">
+            <div class="live-standalone-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
                     <div>
-                        <h2 style="color: #ef4444; font-size: 1.25rem; margin-bottom: 0.2rem;">📡 Centro de Proyecciones en Vivo (En Juego)</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Monitoreo y modelo probabilístico instantáneo para Alta/Baja, Ganadores de Medio Inning y Entradas Extras.</p>
+                        <h2 style="color: #ef4444; font-size: 1.25rem; margin-bottom: 0.2rem;">🔴 Centro de Jugadas en Vivo (Datos en Tiempo Real)</h2>
+                        <p style="color: #94a3b8; font-size: 0.8rem;">Conectado a la API oficial de la MLB para extraer juegos en curso, evaluar marcadores reales y proyectar <strong>Altas, Bajas y Medio Inning</strong>.</p>
                     </div>
-                    <button class="btn-action" style="width: auto; padding: 0.4rem 1rem;" onclick="simulateLiveUpdate()">🔄 Simular Actualización en Vivo</button>
+                    <button class="btn-action" style="width: auto; padding: 0.5rem 1.2rem; background-color: #ef4444; color: #fff;" onclick="fetchRealLiveMLBData()">🔄 Consultar API En Vivo</button>
                 </div>
-                <div id="live-matches-container">
-                    <!-- Se inyecta dinámicamente mediante JS -->
+                
+                <div class="live-grid" id="live-standalone-cards-container">
+                    <p style="color: #94a3b8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Haz clic en "Consultar API En Vivo" para conectar y extraer los partidos en juego de la jornada actual.</p>
                 </div>
             </div>
         </div>
@@ -656,7 +689,7 @@
             buildMatchesUI();
             processApp();
             renderHistory();
-            renderLiveMatches();
+            fetchRealLiveMLBData(); // Consulta automática al cargar la pestaña en vivo
         });
 
         function switchTab(evt, tabId) {
@@ -665,7 +698,7 @@
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
             if(tabId === 'history-tab') renderHistory();
-            if(tabId === 'live-tab') renderLiveMatches();
+            if(tabId === 'live-standalone-tab') fetchRealLiveMLBData();
         }
 
         function getSavedLines() {
@@ -882,63 +915,95 @@
             `;
         }
 
-        // --- FUNCIONES DEL MÓDULO EN VIVO ---
-        function renderLiveMatches() {
-            let container = document.getElementById('live-matches-container');
-            let liveHTML = '';
+        // --- CONEXIÓN REAL A LA API OFICIAL DE LA MLB (STATS API) ---
+        async function fetchRealLiveMLBData() {
+            let container = document.getElementById('live-standalone-cards-container');
+            container.innerHTML = '<p style="color: #38bdf8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">🔄 Conectando con el servidor de la MLB en tiempo real...</p>';
 
-            // Tomamos los primeros 4 partidos como ejemplo de partidos en vivo actuales
-            let activeLiveSample = BASE_MATCHES.slice(0, 4);
+            try {
+                // Endpoint público oficial de la MLB para consultar partidos y marcadores en vivo de la fecha actual
+                let todayFormatted = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
+                let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${todayFormatted}`);
+                let data = await response.json();
 
-            activeLiveSample.forEach((m, idx) => {
-                let randomScoreAway = Math.floor(Math.random() * 5);
-                let randomScoreHome = Math.floor(Math.random() * 5);
-                let inningsList = ["Parte alta 6to", "Parte baja 7mo", "Parte alta 8vo", "9no Inning (Cierre)"];
-                let currentInning = inningsList[idx];
-                
-                // Modelo de proyección en vivo dinámico
-                let liveProjection = "";
-                let liveColor = "#38bdf8";
-                if(Math.abs(randomScoreAway - randomScoreHome) <= 1) {
-                    liveProjection = `⚠️ Alerta Extra Inning / Juego Cerrado - Oportunidad de Ganador en ML`;
-                    liveColor = "#fbbf24";
-                } else {
-                    let leadingTeam = randomScoreAway > randomScoreHome ? m.away : m.home;
-                    liveProjection = `🎯 Proyección Alta/Baja Dinámica: Oportunidad de Baja con bullpen activo para ${leadingTeam}`;
-                    liveColor = "#4ade80";
+                if (!data.dates || data.dates.length === 0 || !data.dates[0].games) {
+                    container.innerHTML = '<p style="color: #ef4444; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">No se encontraron partidos programados para el día de hoy en la API oficial.</p>';
+                    return;
                 }
 
-                liveHTML += `
-                <div class="live-match-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-                        <span class="live-badge">EN VIVO (${currentInning})</span>
-                        <span style="font-size: 0.75rem; color: #94a3b8;">Estadio: ${m.stadium}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; background-color: #1e293b; padding: 0.8rem; border-radius: 6px; margin-bottom: 0.6rem;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            ${getTeamBadgeHTML(m.away, true)}
-                            <span style="font-weight: 600; font-size: 0.9rem;">${m.away}</span>
-                        </div>
-                        <div style="font-size: 1.2rem; font-weight: 800; color: #38bdf8; background-color: #0f172a; padding: 2px 12px; border-radius: 4px;">
-                            ${randomScoreAway} - ${randomScoreHome}
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-weight: 600; font-size: 0.9rem;">${m.home}</span>
-                            ${getTeamBadgeHTML(m.home, true)}
-                        </div>
-                    </div>
-                    <div style="font-size: 0.82rem; color: ${liveColor}; background-color: rgba(15, 23, 42, 0.7); padding: 0.6rem; border-radius: 4px; border-left: 3px solid ${liveColor};">
-                        <strong>Proyección en Tiempo Real:</strong> ${liveProjection}
-                    </div>
-                </div>`;
-            });
+                let games = data.dates[0].games;
+                let liveHTML = '';
+                let activeCount = 0;
 
-            container.innerHTML = liveHTML;
-        }
+                games.forEach(g => {
+                    let gameState = g.status.abstractGameState; // "Live", "Final", "Preview"
+                    let detailedState = g.status.detailedState; 
 
-        function simulateLiveUpdate() {
-            renderLiveMatches();
-            alert("¡Datos en vivo recalculados y actualizados por el motor cuantitativo!");
+                    // Filtramos solo los que están en juego (Live / In Progress)
+                    if (gameState === "Live" || detailedState.includes("In Progress") || detailedState.includes("Live")) {
+                        activeCount++;
+                        let awayTeam = g.teams.away.team.name;
+                        let homeTeam = g.teams.home.team.name;
+                        let awayScore = g.teams.away.score ?? 0;
+                        let homeScore = g.teams.home.score ?? 0;
+                        let inningInfo = g.linescore ? `${g.linescore.inningState} ${g.linescore.currentInningOrdinal}` : detailedState;
+
+                        // Motor analítico en vivo aplicado a los datos reales
+                        let totalRuns = awayScore + homeScore;
+                        let liveAltaBaja = totalRuns >= 7 ? "📉 Oportunidad de BAJA (O/U)" : "📈 Oportunidad de ALTA (O/U)";
+                        let badgeClassOU = totalRuns >= 7 ? "badge-baja" : "badge-alta";
+                        let medioJuegoPick = awayScore === homeScore ? "⚠️ Juego Empatado (Alerta Extra Innings)" : (awayScore > homeScore ? `${awayTeam} dominando Medio Inning` : `${homeTeam} dominando Medio Inning`);
+
+                        liveHTML += `
+                        <div class="live-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                                <span class="live-tag">EN VIVO • ${inningInfo}</span>
+                                <span style="font-size: 0.72rem; color: #94a3b8;">${g.venue.name}</span>
+                            </div>
+
+                            <div class="live-scorebox">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    ${getTeamBadgeHTML(awayTeam, true)}
+                                    <span style="font-weight: 600; font-size: 0.85rem;">${awayTeam}</span>
+                                </div>
+                                <div style="font-size: 1.1rem; font-weight: 800; color: #38bdf8; background-color: #0f172a; padding: 2px 10px; border-radius: 4px; border: 1px solid #334155;">
+                                    ${awayScore} - ${homeScore}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-weight: 600; font-size: 0.85rem;">${homeTeam}</span>
+                                    ${getTeamBadgeHTML(homeTeam, true)}
+                                </div>
+                            </div>
+
+                            <div class="live-picks-box">
+                                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">🎯 Proyecciones en Vivo (Datos Reales):</div>
+                                <div class="live-pick-item">
+                                    <span>Mercado Alta / Baja (O/U):</span>
+                                    <span class="${badgeClassOU}">${liveAltaBaja}</span>
+                                </div>
+                                <div class="live-pick-item">
+                                    <span>Tendencia Medio Inning / Ganador:</span>
+                                    <span class="badge-medio">${medioJuegoPick}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+                });
+
+                if (activeCount === 0) {
+                    container.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem; background-color: #0f172a; border-radius: 8px; border: 1px solid #334155;">
+                            <p style="color: #fbbf24; font-size: 0.95rem; font-weight: 600; margin-bottom: 6px;">ℹ️ No hay partidos de la MLB en juego en este preciso instante.</p>
+                            <p style="color: #94a3b8; font-size: 0.8rem;">La API oficial responde correctamente, pero en este horario no hay encuentros activos en curso. Vuelve a consultar cuando inicie la jornada.</p>
+                        </div>`;
+                } else {
+                    container.innerHTML = liveHTML;
+                }
+
+            } catch (error) {
+                console.error("Error al conectar con la API de MLB:", error);
+                container.innerHTML = '<p style="color: #ef4444; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">⚠️ Error de conexión con el servidor de la MLB. Verifica tu red e intenta nuevamente.</p>';
+            }
         }
 
         function buildAutoParlays(picks) {
