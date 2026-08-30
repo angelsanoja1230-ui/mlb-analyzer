@@ -1,7 +1,7 @@
 {
   "DAILY_ARCHIVE": {
     "date": "2026-08-30",
-    "notes": "Cartelera completa de la jornada."
+    "notes": "Cartelera completa de la jornada con modelado de clima y cálculo de Valor Esperado (EV+)."
   },
   "team_logos": {
     "Yankees": "https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png",
@@ -47,7 +47,12 @@
       "starter_away_whip": 1.04,
       "starter_home_whip": 1.29,
       "bullpen_era_away": 3.42,
-      "bullpen_era_home": 4.15
+      "bullpen_era_home": 4.15,
+      "wind_speed_mph": 12,
+      "wind_direction": "Out",
+      "temperature_f": 82,
+      "odds_away": 1.85,
+      "odds_home": 2.05
     },
     {
       "away": "Mets",
@@ -60,7 +65,12 @@
       "starter_away_whip": 1.15,
       "starter_home_whip": 1.18,
       "bullpen_era_away": 3.85,
-      "bullpen_era_home": 3.60
+      "bullpen_era_home": 3.60,
+      "wind_speed_mph": 8,
+      "wind_direction": "Calm",
+      "temperature_f": 78,
+      "odds_away": 2.10,
+      "odds_home": 1.75
     },
     {
       "away": "Astros",
@@ -73,7 +83,12 @@
       "starter_away_whip": 1.15,
       "starter_home_whip": 1.18,
       "bullpen_era_away": 3.75,
-      "bullpen_era_home": 3.90
+      "bullpen_era_home": 3.90,
+      "wind_speed_mph": 0,
+      "wind_direction": "Calm",
+      "temperature_f": 72,
+      "odds_away": 1.90,
+      "odds_home": 1.90
     },
     {
       "away": "Braves",
@@ -86,7 +101,12 @@
       "starter_away_whip": 1.02,
       "starter_home_whip": 1.14,
       "bullpen_era_away": 3.30,
-      "bullpen_era_home": 4.10
+      "bullpen_era_home": 4.10,
+      "wind_speed_mph": 5,
+      "wind_direction": "In",
+      "temperature_f": 74,
+      "odds_away": 1.65,
+      "odds_home": 2.30
     },
     {
       "away": "Cubs",
@@ -99,7 +119,12 @@
       "starter_away_whip": 1.10,
       "starter_home_whip": 1.08,
       "bullpen_era_away": 3.80,
-      "bullpen_era_home": 3.50
+      "bullpen_era_home": 3.50,
+      "wind_speed_mph": 10,
+      "wind_direction": "Out",
+      "temperature_f": 80,
+      "odds_away": 2.00,
+      "odds_home": 1.82
     },
     {
       "away": "Brewers",
@@ -112,7 +137,12 @@
       "starter_away_whip": 1.01,
       "starter_home_whip": 1.20,
       "bullpen_era_away": 3.25,
-      "bullpen_era_home": 4.40
+      "bullpen_era_home": 4.40,
+      "wind_speed_mph": 14,
+      "wind_direction": "Out",
+      "temperature_f": 85,
+      "odds_away": 1.72,
+      "odds_home": 2.15
     },
     {
       "away": "Twins",
@@ -125,7 +155,12 @@
       "starter_away_whip": 1.12,
       "starter_home_whip": 1.06,
       "bullpen_era_away": 3.90,
-      "bullpen_era_home": 3.15
+      "bullpen_era_home": 3.15,
+      "wind_speed_mph": 9,
+      "wind_direction": "Calm",
+      "temperature_f": 75,
+      "odds_away": 1.95,
+      "odds_home": 1.85
     },
     {
       "away": "White Sox",
@@ -138,7 +173,12 @@
       "starter_away_whip": 1.38,
       "starter_home_whip": 0.99,
       "bullpen_era_away": 4.80,
-      "bullpen_era_home": 3.65
+      "bullpen_era_home": 3.65,
+      "wind_speed_mph": 11,
+      "wind_direction": "In",
+      "temperature_f": 70,
+      "odds_away": 2.60,
+      "odds_home": 1.50
     },
     {
       "away": "Royals",
@@ -151,7 +191,12 @@
       "starter_away_whip": 1.14,
       "starter_home_whip": 1.26,
       "bullpen_era_away": 3.95,
-      "bullpen_era_home": 4.25
+      "bullpen_era_home": 4.25,
+      "wind_speed_mph": 7,
+      "wind_direction": "Calm",
+      "temperature_f": 82,
+      "odds_away": 1.80,
+      "odds_home": 2.00
     },
     {
       "away": "Orioles",
@@ -164,7 +209,12 @@
       "starter_away_whip": 1.08,
       "starter_home_whip": 1.12,
       "bullpen_era_away": 3.35,
-      "bullpen_era_home": 3.45
+      "bullpen_era_home": 3.45,
+      "wind_speed_mph": 0,
+      "wind_direction": "Calm",
+      "temperature_f": 72,
+      "odds_away": 1.90,
+      "odds_home": 1.90
     },
     {
       "away": "Blue Jays",
@@ -177,7 +227,12 @@
       "starter_away_whip": 1.16,
       "starter_home_whip": 1.30,
       "bullpen_era_away": 3.60,
-      "bullpen_era_home": 4.50
+      "bullpen_era_home": 4.50,
+      "wind_speed_mph": 10,
+      "wind_direction": "Out",
+      "temperature_f": 84,
+      "odds_away": 1.70,
+      "odds_home": 2.20
     },
     {
       "away": "Athletics",
@@ -190,7 +245,12 @@
       "starter_away_whip": 1.25,
       "starter_home_whip": 1.05,
       "bullpen_era_away": 4.60,
-      "bullpen_era_home": 3.20
+      "bullpen_era_home": 3.20,
+      "wind_speed_mph": 12,
+      "wind_direction": "In",
+      "temperature_f": 68,
+      "odds_away": 2.45,
+      "odds_home": 1.55
     },
     {
       "away": "Padres",
@@ -203,7 +263,12 @@
       "starter_away_whip": 1.18,
       "starter_home_whip": 1.11,
       "bullpen_era_away": 3.80,
-      "bullpen_era_home": 3.90
+      "bullpen_era_home": 3.90,
+      "wind_speed_mph": 0,
+      "wind_direction": "Calm",
+      "temperature_f": 75,
+      "odds_away": 1.95,
+      "odds_home": 1.85
     },
     {
       "away": "Rockies",
@@ -216,7 +281,12 @@
       "starter_away_whip": 1.35,
       "starter_home_whip": 1.22,
       "bullpen_era_away": 5.10,
-      "bullpen_era_home": 4.05
+      "bullpen_era_home": 4.05,
+      "wind_speed_mph": 8,
+      "wind_direction": "Calm",
+      "temperature_f": 79,
+      "odds_away": 2.25,
+      "odds_home": 1.68
     },
     {
       "away": "Dodgers",
@@ -229,7 +299,12 @@
       "starter_away_whip": 0.98,
       "starter_home_whip": 1.12,
       "bullpen_era_away": 3.10,
-      "bullpen_era_home": 3.55
+      "bullpen_era_home": 3.55,
+      "wind_speed_mph": 15,
+      "wind_direction": "In",
+      "temperature_f": 64,
+      "odds_away": 1.70,
+      "odds_home": 2.20
     }
   ]
 }
