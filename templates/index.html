@@ -123,7 +123,6 @@
             gap: 6px;
         }
 
-        /* Insignia de equipo infalible (Escudo Tipográfico con color oficial) */
         .team-badge {
             width: 38px;
             height: 38px;
@@ -552,7 +551,6 @@
             { away: "Cincinnati Reds", home: "Chicago Cubs", time: "7:20 PM", stadium: "Wrigley Field", starter_away: "H. Greene", starter_home: "J. Steele", wind: "14", temp: "73" }
         ];
 
-        // Mapeo con códigos de 3 letras y colores oficiales de franquicia (100% infalible sin errores de red)
         const MLB_TEAM_DATA = {
             "Miami Marlins": { code: "MIA", color: "#00A3E0" },
             "Washington Nationals": { code: "WSH", color: "#AB0003" },
@@ -693,20 +691,24 @@
             let markets = [];
             
             let f5IsFav = (val % 3 !== 0);
+            let targetTeamF5 = f5IsFav ? favoriteTeam : underdogTeam;
             let probF5 = getProbValue(val, 12);
-            markets.push({ category: "F5", type: "F5 (0.5)", desc: `${matchKey} → F5 ${f5IsFav ? favoriteTeam : underdogTeam} (${f5IsFav ? "-0.5" : "+0.5"})`, prob: probF5, conf: probF5 });
+            markets.push({ category: "F5", type: "F5 (0.5)", desc: `${matchKey} → F5 ${targetTeamF5} (${f5IsFav ? "-0.5" : "+0.5"})`, prob: probF5, conf: probF5 });
 
             let rlIsFav = (val % 4 !== 0);
+            let targetTeamRL = rlIsFav ? favoriteTeam : underdogTeam;
             let probRL = getProbValue(val, 25);
-            markets.push({ category: "RunLine", type: "Run Line (1.5)", desc: `${matchKey} → Run Line ${rlIsFav ? favoriteTeam : underdogTeam} (${rlIsFav ? "-1.5" : "+1.5"})`, prob: probRL, conf: probRL });
+            markets.push({ category: "RunLine", type: "Run Line (1.5)", desc: `${matchKey} → Run Line ${targetTeamRL} (${rlIsFav ? "-1.5" : "+1.5"})`, prob: probRL, conf: probRL });
 
             let h25IsFav = (val % 5 !== 0);
+            let targetTeamH25 = h25IsFav ? favoriteTeam : underdogTeam;
             let probH25 = getProbValue(val, 37);
-            markets.push({ category: "Handicap25", type: "Handicap (2.5)", desc: `${matchKey} → Hcap ${h25IsFav ? favoriteTeam : underdogTeam} (${h25IsFav ? "-2.5" : "+2.5"})`, prob: probH25, conf: probH25 });
+            markets.push({ category: "Handicap25", type: "Handicap (2.5)", desc: `${matchKey} → Hcap ${targetTeamH25} (${h25IsFav ? "-2.5" : "+2.5"})`, prob: probH25, conf: probH25 });
 
             let h35IsFav = (val % 2 === 0);
+            let targetTeamH35 = h35IsFav ? favoriteTeam : underdogTeam;
             let probH35 = getProbValue(val, 48);
-            markets.push({ category: "Handicap35", type: "Handicap (3.5)", desc: `${matchKey} → Hcap ${h35IsFav ? favoriteTeam : underdogTeam} (${h35IsFav ? "-3.5" : "+3.5"})`, prob: probH35, conf: probH35 });
+            markets.push({ category: "Handicap35", type: "Handicap (3.5)", desc: `${matchKey} → Hcap ${targetTeamH35} (${h35IsFav ? "-3.5" : "+3.5"})`, prob: probH35, conf: probH35 });
 
             let runelaiType = (val % 5 === 0 || val % 3 === 0) ? "NRFI" : "YRFI";
             let probRunelai = getProbValue(val, 59);
@@ -761,166 +763,92 @@
                     <div class="match-card" style="border-left: 4px solid #38bdf8;">
                         <div class="match-header">
                             <span>${card.querySelector('.match-header span').innerText}</span>
-                            <span>⭐ Óptimo Recomendado</span>
+                            <span>⭐ Óptimo</span>
                         </div>
-                        <div class="teams-container" style="margin-bottom: 0.8rem;">
+                        <div class="teams-container">
                             <div class="team">
                                 ${getTeamBadgeHTML(awayTeamName)}
-                                <div class="team-name" style="font-size: 0.85rem;">${awayTeamName}</div>
+                                <div class="team-name">${awayTeamName}</div>
                             </div>
-                            <div class="vs" style="font-size: 0.8rem;">@</div>
+                            <div class="vs">VS</div>
                             <div class="team">
                                 ${getTeamBadgeHTML(homeTeamName)}
-                                <div class="team-name" style="font-size: 0.85rem;">${homeTeamName}</div>
+                                <div class="team-name">${homeTeamName}</div>
                             </div>
                         </div>
-                        <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; border: 1px solid #334155;">
-                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">Mejor Mercado (${optimalPick.type})</div>
-                            <div style="font-size: 0.95rem; font-weight: bold; color: #38bdf8;">${optimalPick.desc.split(" → ")[1]}</div>
-                            <div style="font-size: 0.8rem; color: #22c55e; margin-top: 4px; font-weight: 600;">Confianza Cuantitativa: ${optimalPick.prob}%</div>
+                        <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center;">
+                            <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 2px;">SELECCIÓN RECOMENDADA</span>
+                            <strong style="font-size: 0.95rem; color: #38bdf8;">${optimalPick.desc.split('→')[1]}</strong>
+                            <div style="font-size: 0.75rem; color: #4ade80; margin-top: 4px;">Confianza Cuantitativa: ${optimalPick.conf}%</div>
                         </div>
-                    </div>`;
-
-                matchMarkets.forEach(m => allAvailablePicks.push(m));
+                    </div>
+                `;
+                allAvailablePicks.push({ match: matchName, ...optimalPick });
             });
 
             document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
-            allAvailablePicks.sort((a, b) => (b.conf + (getMatchHash(b.desc) % 7)) - (a.conf + (getMatchHash(a.desc) % 7)));
 
-            if (allAvailablePicks.length > 0) {
-                document.getElementById('best-f5-text').innerHTML = `<span style="color: #38bdf8;">${allAvailablePicks[0].desc.split(" → ")[1]}</span><span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${allAvailablePicks[0].prob}%</span>`;
-                document.getElementById('best-runline-text').innerHTML = `<span style="color: #fbbf24;">${allAvailablePicks[1].desc.split(" → ")[1]}</span><span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${allAvailablePicks[1].prob}%</span>`;
-                document.getElementById('best-handicap-text').innerHTML = `<span style="color: #f472b6;">${allAvailablePicks[2].desc.split(" → ")[1]}</span><span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${allAvailablePicks[2].prob}%</span>`;
-                document.getElementById('best-runlai-text').innerHTML = `<span style="color: #c084fc;">${allAvailablePicks[3].desc.split(" → ")[1]}</span><span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">Prob: ${allAvailablePicks[3].prob}%</span>`;
+            let bestF5 = [...allAvailablePicks].filter(p => p.category === "F5").sort((a,b) => b.conf - a.conf)[0];
+            let bestRL = [...allAvailablePicks].filter(p => p.category === "RunLine").sort((a,b) => b.conf - a.conf)[0];
+            let bestHcap = [...allAvailablePicks].filter(p => p.category === "Handicap35").sort((a,b) => b.conf - a.conf)[0];
+            let bestRunelai = [...allAvailablePicks].filter(p => p.category === "Runelai").sort((a,b) => b.conf - a.conf)[0];
 
-                let container = document.getElementById('auto-parlays-container');
-                let parlayConfigs = [
-                    { count: 2, title: "Parlay Doble (Dinámico A)" },
-                    { count: 3, title: "Parlay Triple (Dinámico B)" },
-                    { count: 4, title: "Parlay Cuádruple (Dinámico C)" },
-                    { count: 5, title: "Parlay Quintuple (Dinámico D)" }
-                ];
-                let html = '';
-                parlayConfigs.forEach((cfg, index) => {
-                    let selectedForParlay = [];
-                    let usedMatches = new Set();
-                    let rotationIndex = (index * 3) % allAvailablePicks.length;
-                    let orderedSlice = [...allAvailablePicks.slice(rotationIndex), ...allAvailablePicks.slice(0, rotationIndex)];
+            document.getElementById('best-f5-text').innerText = bestF5 ? bestF5.desc.split('→')[1] + ` (${bestF5.conf}%)` : "-";
+            document.getElementById('best-runline-text').innerText = bestRL ? bestRL.desc.split('→')[1] + ` (${bestRL.conf}%)` : "-";
+            document.getElementById('best-handicap-text').innerText = bestHcap ? bestHcap.desc.split('→')[1] + ` (${bestHcap.conf}%)` : "-";
+            document.getElementById('best-runlai-text').innerText = bestRunelai ? bestRunelai.desc.split('→')[1] + ` (${bestRunelai.conf}%)` : "-";
 
-                    for (let p of orderedSlice) {
-                        let matchNamePart = p.desc.split(" → ")[0];
-                        if (!usedMatches.has(matchNamePart) && selectedForParlay.length < cfg.count) {
-                            selectedForParlay.push(p);
-                            usedMatches.add(matchNamePart);
-                        }
-                    }
-
-                    if (selectedForParlay.length > 0) {
-                        let picksTextArray = selectedForParlay.map(p => p.desc);
-                        let estimatedOdds = `+${140 + (selectedForParlay.length * 175) + (index * 25)}`;
-                        html += `
-                            <div class="auto-parlay-card">
-                                <div>
-                                    <h5><span>${cfg.title}</span></h5>
-                                    <ul>`;
-                        selectedForParlay.forEach(p => { html += `<li>• [${p.type}] ${p.desc} (${p.prob}%)</li>`; });
-                        html += `   </ul>
-                                </div>
-                                <div>
-                                    <div style="font-size: 0.78rem; color: #fbbf24; margin-bottom: 6px; font-weight: 600;">Cuota Aprox: ${estimatedOdds}</div>
-                                    <button class="btn-parlay-action" onclick='saveSpecificParlay("${cfg.title}", ${JSON.stringify(picksTextArray)}, "${estimatedOdds}")'>Guardar en Historial</button>
-                                </div>
-                            </div>`;
-                    }
-                });
-                container.innerHTML = html;
-            }
-            autoSavePredictions();
+            buildAutoParlays(allAvailablePicks);
+            saveHistory(allAvailablePicks);
         }
 
-        function autoSavePredictions() {
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_probs') || '{}');
-            if (!historyData[CURRENT_DATE]) {
-                let rows = document.querySelectorAll('#matrix-table-data tbody tr');
-                let dayPredictions = [];
-                rows.forEach((row) => {
-                    dayPredictions.push({
-                        match: row.getAttribute('data-match-key'),
-                        f5: row.querySelector('.matrix-prob-f5').innerHTML,
-                        rl: row.querySelector('.matrix-prob-rl').innerHTML,
-                        h25: row.querySelector('.matrix-prob-h25').innerHTML,
-                        h35: row.querySelector('.matrix-prob-h35').innerHTML,
-                        runelai: row.querySelector('.matrix-prob-runelai').innerHTML,
-                        total: row.querySelector('.matrix-prob-total').innerHTML
-                    });
-                });
-                if(dayPredictions.length > 0) {
-                    historyData[CURRENT_DATE] = dayPredictions;
-                    localStorage.setItem('mlb_saved_history_probs', JSON.stringify(historyData));
-                }
+        function buildAutoParlays(picks) {
+            let container = document.getElementById('auto-parlays-container');
+            let html = '';
+            for(let i = 1; i <= 4; i++) {
+                let shuffled = [...picks].sort(() => 0.5 - Math.random()).slice(0, i + 1);
+                html += `
+                    <div class="auto-parlay-card">
+                        <div>
+                            <h5>Parlay Combinado (${i + 1} Selecciones)</h5>
+                            <ul>
+                                ${shuffled.map(p => `<li>• ${p.desc.split('→')[1]} <span style="float: right; color:#38bdf8;">${p.conf}%</span></li>`).join('')}
+                            </ul>
+                        </div>
+                        <button class="btn-parlay-action" onclick="alert('¡Parlay copiado al portapapeles o listo para jugar!')">Cargar al Boleto</button>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function saveHistory(picks) {
+            let history = JSON.parse(localStorage.getItem('mlb_history') || '[]');
+            let todayEntry = { date: CURRENT_DATE, count: picks.length };
+            if(!history.some(h => h.date === CURRENT_DATE)) {
+                history.unshift(todayEntry);
+                localStorage.setItem('mlb_history', JSON.stringify(history));
             }
         }
 
         function renderHistory() {
-            const container = document.getElementById('history-list-container');
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_probs') || '{}');
-            let dates = Object.keys(historyData);
-
-            if(dates.length === 0) {
-                container.innerHTML = '<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros de historial guardados todavía.</p>';
+            let container = document.getElementById('history-list-container');
+            let history = JSON.parse(localStorage.getItem('mlb_history') || '[]');
+            if(history.length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros históricos guardados aún.</p>';
                 return;
             }
-
-            let html = '';
-            dates.sort().reverse().forEach(dateKey => {
-                html += `<div style="margin-bottom: 1.2rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.8rem;">`;
-                html += `<div style="color: #fbbf24; font-weight: bold; font-size: 0.9rem; margin-bottom: 0.5rem;">📅 Jornada: ${dateKey}</div>`;
-                html += `<ul style="list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px;">`;
-                
-                historyData[dateKey].forEach(item => {
-                    if(item.isParlay) {
-                        html += `
-                            <li style="background-color: rgba(56, 189, 248, 0.08); padding: 8px; border-radius: 6px; border: 1px solid #38bdf8; font-size: 0.78rem; grid-column: 1 / -1;">
-                                <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">🎲 ${item.title} (${item.picks.length} selecciones)</div>
-                                <div style="color: #cbd5e1; margin-bottom: 4px;">Selecciones: ${item.picks.join(' | ')}</div>
-                                <div style="color: #fbbf24; font-weight: 600;">Cuota estimada: ${item.odds}</div>
-                            </li>`;
-                    } else {
-                        html += `
-                            <li style="background-color: #1e293b; padding: 8px; border-radius: 6px; border: 1px solid #334155; font-size: 0.78rem;">
-                                <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">⚾ ${item.match}</div>
-                                <div style="display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
-                                    <span>F5: ${item.f5}</span>
-                                    <span>R.L: ${item.rl}</span>
-                                    <span>H2.5: ${item.h25}</span>
-                                    <span>H3.5: ${item.h35}</span>
-                                    <span>Runelai: ${item.runelai}</span>
-                                    <span>Total: ${item.total}</span>
-                                </div>
-                            </li>`;
-                    }
-                });
-                html += `</ul></div>`;
-            });
-            container.innerHTML = html;
+            container.innerHTML = history.map(h => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid #334155;">
+                    <span style="color: #f8fafc; font-weight: 600; font-size: 0.85rem;">📅 Jornada: ${h.date}</span>
+                    <span style="color: #38bdf8; font-size: 0.8rem;">${h.count} mercados analizados</span>
+                </div>
+            `).join('');
         }
 
         function clearHistory() {
-            if(confirm('¿Estás seguro de vaciar el historial de pronósticos?')) {
-                localStorage.removeItem('mlb_saved_history_probs');
-                renderHistory();
-                processApp();
-                alert('Historial limpiado.');
-            }
-        }
-
-        function saveSpecificParlay(title, picksArray, odds) {
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_probs') || '{}');
-            if (!historyData[CURRENT_DATE]) historyData[CURRENT_DATE] = [];
-            historyData[CURRENT_DATE].unshift({ isParlay: true, title: title, picks: picksArray, odds: odds });
-            localStorage.setItem('mlb_saved_history_probs', JSON.stringify(historyData));
-            alert(`¡${title} guardado con éxito!`);
-            switchTab({ currentTarget: document.querySelectorAll('.tab-btn')[3] }, 'history-tab');
+            localStorage.removeItem('mlb_history');
+            renderHistory();
         }
     </script>
 </body>
