@@ -428,19 +428,19 @@
                                 <div style="font-weight: 600; color: #f8fafc;">{{ match.away }} @ {{ match.home }}</div>
                             </td>
                             <td>
-                                <span class="badge-pick">{{ match.nrfi_yrfi | default('NRFI Proyectado') }}</span>
+                                <span class="badge-pick">{{ match.nrfi_yrfi }}</span>
                             </td>
                             <td>
-                                <span class="badge-alt">{{ match.f5_winner | default(match.away if match.prob_away > match.prob_home else match.home) }}</span>
+                                <span class="badge-alt">{{ match.f5_winner }}</span>
                             </td>
                             <td>
                                 <span class="badge-pick">{{ match.away if match.prob_away > match.prob_home else match.home }}</span>
                             </td>
                             <td>
-                                <span style="color: #cbd5e1; font-size: 0.85rem;">{{ match.run_line | default('-1.5 / +1.5 Estándar') }}</span>
+                                <span style="color: #cbd5e1; font-size: 0.85rem;">{{ match.run_line }}</span>
                             </td>
                             <td>
-                                <span style="color: #38bdf8; font-weight: 600;">{{ match.extra_inning_prob | default('8.4% (Bajo)') }}</span>
+                                <span style="color: #38bdf8; font-weight: 600;">{{ match.extra_inning_prob }}</span>
                             </td>
                         </tr>
                         {% endfor %}
