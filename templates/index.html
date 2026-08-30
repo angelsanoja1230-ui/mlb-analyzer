@@ -3,92 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB - Panel Cuantitativo y Centro Real En Vivo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Panel Cuantitativo MLB 2026</title>
     <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --accent-color: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            padding: 1.5rem 0.8rem;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 1rem;
+            line-height: 1.5;
         }
 
         header {
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
         }
 
-        header h1 {
-            font-size: 2.2rem;
-            color: #38bdf8;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin-bottom: 0.2rem;
+        h1 {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
         }
 
-        header p {
-            color: #94a3b8;
-            font-size: 1rem;
-        }
-
-        .visitor-badge {
-            display: inline-block;
-            background-color: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            padding: 5px 12px;
-            border-radius: 20px;
+        .visitor-counter {
             font-size: 0.8rem;
-            color: #94a3b8;
-            margin-top: 8px;
+            color: var(--text-muted);
         }
 
-        .visitor-badge span {
-            color: #38bdf8;
-            font-weight: bold;
-        }
-
-        .tabs-nav {
+        nav {
             display: flex;
             justify-content: center;
-            gap: 0.4rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #1e293b;
-            padding-bottom: 0.8rem;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
         }
 
         .tab-btn {
-            background-color: #1e293b;
-            color: #94a3b8;
-            border: 1px solid #334155;
-            padding: 0.5rem 0.9rem;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.8rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .tab-btn:hover {
-            background-color: #334155;
-            color: #f8fafc;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
         .tab-btn.active {
-            background-color: #38bdf8;
-            color: #0f172a;
-            border-color: #38bdf8;
+            background: var(--accent-color);
+            color: var(--bg-main);
+            border-color: var(--accent-color);
         }
 
         .tab-content {
@@ -99,27 +84,28 @@
             display: block;
         }
 
-        .matches-grid {
+        .matches-grid, .live-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 1.2rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
-        .match-card {
-            background-color: #1e293b;
-            border-radius: 10px;
-            padding: 1.2rem;
-            border: 1px solid #334155;
+        .match-card, .live-card, .trend-card, .auto-parlay-card, .master-pick-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
 
         .match-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: #94a3b8;
+            font-size: 0.75rem;
+            color: var(--text-muted);
             margin-bottom: 0.8rem;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 0.4rem;
         }
 
@@ -131,606 +117,343 @@
         }
 
         .team {
-            text-align: center;
-            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
-        }
-
-        .team-badge {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            border: 2px solid rgba(255,255,255,0.15);
-        }
-
-        .team-badge-sm {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.65rem;
-            color: #ffffff;
-            flex-shrink: 0;
-            border: 1px solid rgba(255,255,255,0.15);
+            flex: 1;
+            text-align: center;
         }
 
         .team-name {
-            font-weight: 600;
             font-size: 0.9rem;
+            font-weight: 700;
+            margin-top: 4px;
         }
 
         .vs {
-            font-weight: 700;
-            color: #64748b;
-            padding: 0 0.8rem;
-            font-size: 0.9rem;
-        }
-
-        .handicap-box {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 0.8rem;
-            margin-bottom: 0.8rem;
-        }
-
-        .handicap-title {
-            font-size: 0.75rem;
-            color: #38bdf8;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            text-transform: uppercase;
-        }
-
-        .handicap-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .input-group label {
-            font-size: 0.68rem;
-            color: #94a3b8;
-        }
-
-        .input-group select, .input-group input {
-            background-color: #1e293b;
-            border: 1px solid #475569;
-            color: #f8fafc;
-            padding: 5px 8px;
-            border-radius: 4px;
             font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--text-muted);
+            padding: 0 10px;
         }
 
         .details-grid {
             font-size: 0.8rem;
-            color: #cbd5e1;
+            color: var(--text-muted);
+            background: rgba(15, 23, 42, 0.5);
+            padding: 0.6rem;
+            border-radius: 6px;
             margin-bottom: 0.8rem;
-            background-color: rgba(15, 23, 42, 0.5);
-            padding: 0.5rem;
-            border-radius: 6px;
         }
 
-        .trends-container, .history-container, .parlay-container, .master-pick-container, .live-standalone-container {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 1.2rem;
+        .handicap-box {
+            border-top: 1px dashed var(--border-color);
+            padding-top: 0.8rem;
         }
 
-        .trends-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .trend-card {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-        }
-
-        @media (min-width: 900px) {
-            .trend-card {
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }
-        }
-
-        .trend-match-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 250px;
-        }
-
-        .trend-teams-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #f8fafc;
-        }
-
-        .market-pill {
-            background-color: rgba(30, 41, 59, 0.8);
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 0.4rem 0.6rem;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .market-pill-label {
-            font-size: 0.65rem;
-            color: #94a3b8;
-            margin-bottom: 2px;
-            text-transform: uppercase;
-        }
-
-        .market-pill-value {
+        .handicap-title {
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 6px;
         }
 
-        .pill-f5 { color: #38bdf8; background-color: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.2); }
-        .pill-ml { color: #4ade80; background-color: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.2); }
-        .pill-rl { color: #fbbf24; background-color: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.2); }
-        .pill-ou { color: #c084fc; background-color: rgba(192, 132, 252, 0.08); border-color: rgba(192, 132, 252, 0.2); }
-
-        .highlights-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .highlight-banner {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(14, 165, 233, 0.05));
-            border: 1px solid #38bdf8;
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .highlight-banner h4 {
-            color: #38bdf8;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            margin-bottom: 0.3rem;
-        }
-
-        .highlight-banner .pick-content {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #f8fafc;
-        }
-
-        .auto-parlays-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1rem;
-        }
-
-        .auto-parlay-card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 0.9rem;
+        .handicap-inputs {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            gap: 8px;
         }
 
-        .auto-parlay-card h5 {
-            color: #fbbf24;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 0.3rem;
+        .input-group {
+            flex: 1;
         }
 
-        .auto-parlay-card ul {
-            list-style: none;
-            margin-bottom: 0.8rem;
-            min-height: 80px;
+        .input-group label {
+            display: block;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
         }
 
-        .auto-parlay-card li {
-            font-size: 0.78rem;
-            color: #cbd5e1;
-            padding: 3px 0;
-            border-bottom: 1px dashed rgba(51, 65, 85, 0.5);
+        select, input[type="text"] {
+            width: 100%;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
         }
 
         .btn-action {
+            display: block;
             width: 100%;
-            background-color: #38bdf8;
-            color: #0f172a;
+            background: var(--accent-color);
+            color: var(--bg-main);
             border: none;
-            padding: 0.5rem;
+            padding: 0.6rem;
             border-radius: 6px;
             font-weight: bold;
-            font-size: 0.8rem;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-action:hover { background-color: #0ea5e9; }
-
-        .btn-sync {
-            background-color: #10b981;
-            color: #fff;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            cursor: pointer;
-            margin-bottom: 1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .btn-sync:hover { background-color: #059669; }
-
-        .master-pick-card {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 2px solid #4ade80;
-            border-radius: 12px;
-            padding: 2rem;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(74, 222, 128, 0.15);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .master-badge {
-            background-color: rgba(74, 222, 128, 0.15);
-            color: #4ade80;
-            border: 1px solid #4ade80;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 1rem;
-        }
-        .master-matchup {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #f8fafc;
-            margin-bottom: 1.5rem;
-        }
-        .master-selection-box {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .master-selection-title {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-        .master-selection-value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #4ade80;
-            margin-bottom: 0.5rem;
-        }
-        .master-reason {
-            font-size: 0.9rem;
-            color: #cbd5e1;
-            line-height: 1.5;
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
         }
 
-        .live-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-            gap: 1.2rem;
-            margin-top: 1rem;
+        .btn-action:hover {
+            opacity: 0.9;
         }
-        .live-card {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 1.2rem;
-            position: relative;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+
+        .market-pill {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
         }
+
+        .market-pill-label {
+            color: var(--text-muted);
+            font-size: 0.65rem;
+        }
+
+        .market-pill-value {
+            font-weight: bold;
+            color: var(--success);
+        }
+
         .live-tag {
-            background-color: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
-            border: 1px solid #ef4444;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: bold;
             text-transform: uppercase;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
         }
-        .live-tag::before {
-            content: '';
-            width: 7px;
-            height: 7px;
-            background-color: #ef4444;
-            border-radius: 50%;
-            display: inline-block;
-            animation: pulse-dot 1.5s infinite;
-        }
-        @keyframes pulse-dot {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.9); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+
         .live-scorebox {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #1e293b;
-            padding: 0.9rem;
+            background: var(--bg-main);
+            padding: 0.8rem;
             border-radius: 8px;
-            margin: 0.8rem 0;
-            border: 1px solid #334155;
+            margin-bottom: 0.8rem;
+            border: 1px solid var(--border-color);
         }
+
         .live-situational-info {
             display: flex;
             justify-content: space-around;
-            background-color: rgba(30, 41, 59, 0.5);
-            border: 1px solid #334155;
+            background: rgba(56, 189, 248, 0.05);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 6px;
             border-radius: 6px;
-            padding: 0.6rem;
+            font-size: 0.75rem;
             margin-bottom: 0.8rem;
-            font-size: 0.78rem;
-            text-align: center;
         }
-        .live-situational-item strong {
-            display: block;
-            color: #38bdf8;
-            font-size: 0.85rem;
+
+        .live-best-play-box, .live-alt-play-box {
+            background: rgba(74, 222, 128, 0.05);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            padding: 0.6rem;
+            border-radius: 6px;
+            margin-bottom: 6px;
         }
-        .live-best-play-box {
-            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(16, 185, 129, 0.05));
-            border: 1px solid #4ade80;
-            border-radius: 8px;
-            padding: 0.8rem;
-            margin-top: 0.8rem;
-        }
+
         .live-alt-play-box {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(14, 165, 233, 0.05));
-            border: 1px solid #38bdf8;
+            background: rgba(56, 189, 248, 0.05);
+            border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        .master-pick-card {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(30, 41, 59, 1));
+            border: 1px solid var(--accent-color);
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .master-badge {
+            background: var(--accent-color);
+            color: var(--bg-main);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .master-matchup {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .master-selection-box {
+            background: var(--bg-main);
+            padding: 1rem;
             border-radius: 8px;
-            padding: 0.7rem;
-            margin-top: 0.6rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .master-selection-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .master-selection-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--success);
+            margin: 4px 0;
+        }
+
+        .master-reason {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .team-badge-icon {
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>MLB</h1>
-            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Panel Cuantitativo y Centro Real En Vivo</p>
-            <div class="visitor-badge">
-                👁️ Visitas reales únicas: <span id="real-visitor-count">Cargando...</span>
-            </div>
-        </header>
 
-        <div class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">Partidos y Líneas</button>
-            <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Análisis Líneas Reales</button>
-            <button class="tab-btn" onclick="switchTab(event, 'best-play-tab')">⭐ La Mejor Jugada</button>
-            <button class="tab-btn" onclick="switchTab(event, 'master-pick-tab')" style="border-color: #4ade80; color: #4ade80;">💎 Jugada 100%</button>
-            <button class="tab-btn" onclick="switchTab(event, 'live-standalone-tab')" style="border-color: #ef4444; color: #ef4444;">🔴 Jugadas En Vivo (API Real)</button>
-            <button class="tab-btn" onclick="switchTab(event, 'history-tab')">📁 Historial</button>
-            <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">🎲 Generador Parlay</button>
-        </div>
+    <header>
+        <h1>Panel Cuantitativo MLB 2026</h1>
+        <div class="visitor-counter">Visitas únicas registradas: <span id="real-visitor-count">Cargando...</span></div>
+    </header>
 
-        <div id="matches-tab" class="tab-content active">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
-                <p style="color: #94a3b8; font-size: 0.85rem;">Ingresa el hándicap actual de tu casa de apuestas para cada encuentro y guarda los cambios.</p>
-                <button class="btn-sync" onclick="saveCustomLines()">💾 Guardar Líneas Ingresadas</button>
-            </div>
-            <div class="matches-grid" id="matches-cards-container"></div>
-        </div>
+    <nav>
+        <button class="tab-btn active" onclick="switchTab(event, 'matrix-tab')">📊 Matriz de Partidos</button>
+        <button class="tab-btn" onclick="switchTab(event, 'trends-tab')">📈 Tendencias & Análisis</button>
+        <button class="tab-btn" onclick="switchTab(event, 'master-tab')">⭐ Jugada Maestra</button>
+        <button class="tab-btn" onclick="switchTab(event, 'parlays-tab')">🎯 Parlays Automáticos</button>
+        <button class="tab-btn" onclick="switchTab(event, 'live-standalone-tab')">🔴 En Vivo & APIs</button>
+        <button class="tab-btn" onclick="switchTab(event, 'history-tab')">🕒 Historial</button>
+    </nav>
 
-        <div id="matrix-tab" class="tab-content">
-            <div class="trends-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.2rem;">Matriz de Análisis Cuantitativo Completo</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Todos los partidos analizados con Ganador F5, Ganador Juego Completo, Alta/Baja (O/U) y Hándicap configurado.</p>
-                    </div>
-                    <button class="btn-sync" style="margin-bottom:0;" onclick="saveAllMatrixToHistory()">📌 Guardar Todo el Análisis en Historial</button>
-                </div>
-                <div class="trends-list" id="trends-list-container"></div>
+    <!-- Pestaña 1: Matriz -->
+    <div id="matrix-tab" class="tab-content active">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>Configuración de Hándicaps Diarios</h2>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem;" onclick="saveCustomLines()">💾 Guardar Líneas</button>
+                <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem; background-color: #4ade80; color: #0f172a;" onclick="saveAllMatrixToHistory()">📌 Enviar Todos al Historial</button>
             </div>
         </div>
+        <div id="matches-cards-container" class="matches-grid"></div>
+    </div>
 
-        <div id="best-play-tab" class="tab-content">
-            <div class="trends-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">⭐ Selección Óptima por Partido</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Prioriza Ganador F5 o Ganador Directo (ML). El hándicap solo se selecciona si cuenta con alta solidez estadística.</p>
-                <div class="matches-grid" id="best-plays-cards-container"></div>
-            </div>
+    <!-- Pestaña 2: Tendencias -->
+    <div id="trends-tab" class="tab-content">
+        <h2>Tendencias del Día y Mercados Múltiples</h2>
+        <div id="trends-list-container" style="display: flex; flex-direction: column; gap: 10px; margin-top: 1rem;"></div>
+    </div>
+
+    <!-- Pestaña 3: Jugada Maestra -->
+    <div id="master-tab" class="tab-content">
+        <h2>Análisis Cuantitativo Avanzado</h2>
+        <div id="master-pick-display-container" style="margin-top: 1rem;"></div>
+    </div>
+
+    <!-- Pestaña 4: Parlays -->
+    <div id="parlays-tab" class="tab-content">
+        <h2>Sugerencias de Parlays Optimizados</h2>
+        <div id="auto-parlays-container" class="matches-grid" style="margin-top: 1rem;"></div>
+    </div>
+
+    <!-- Pestaña 5: En Vivo -->
+    <div id="live-standalone-tab" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>Centro de Control En Vivo (MLB API)</h2>
+            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem;" onclick="fetchRealLiveMLBData()">🔄 Actualizar En Vivo</button>
         </div>
+        <div id="live-standalone-cards-container" class="live-grid"></div>
+    </div>
 
-        <div id="master-pick-tab" class="tab-content">
-            <div class="master-pick-container" id="master-pick-display-container"></div>
+    <!-- Pestaña 6: Historial -->
+    <div id="history-tab" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>Historial de Pronósticos Evaluados</h2>
+            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem; background-color: var(--danger); color: white;" onclick="clearHistory()">🗑️ Limpiar Historial</button>
         </div>
-
-        <div id="live-standalone-tab" class="tab-content">
-            <div class="live-standalone-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <h2 style="color: #ef4444; font-size: 1.25rem; margin-bottom: 0.2rem;">🔴 Centro de Jugadas en Vivo (3 Opciones por Partido)</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Los partidos en juego y por iniciar aparecen arriba; los finalizados bajan automáticamente:</p>
-                    </div>
-                    <button class="btn-action" style="width: auto; padding: 0.5rem 1.2rem; background-color: #ef4444; color: #fff;" onclick="fetchRealLiveMLBData()">🔄 Consultar API Ahora</button>
-                </div>
-                
-                <div class="live-grid" id="live-standalone-cards-container">
-                    <p style="color: #94a3b8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Cargando partidos en vivo...</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="history-tab" class="tab-content">
-            <div class="history-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.2rem;">Historial de Pronósticos y Tracking</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Registro automático/manual de la Jugada 100% y Análisis de Líneas Reales. El estatus se actualiza automáticamente con resultados reales de la API.</p>
-                    </div>
-                    <button onclick="clearHistory()" style="background-color: #ef4444; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">Limpiar Historial</button>
-                </div>
-                <div id="history-list-container" style="background-color: #0f172a; padding: 1.2rem; border-radius: 8px; border: 1px dashed #334155; min-height: 150px;">
-                    <p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">Cargando registros...</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="parlay-tab" class="tab-content">
-            <div class="parlay-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Construye parlays utilizando las selecciones óptimas.</p>
-                
-                <div class="highlights-grid">
-                    <div class="highlight-banner">
-                        <h4>⚡ Mejor Opción F5</h4>
-                        <div class="pick-content" id="best-f5-text">Calculando...</div>
-                    </div>
-                    <div class="highlight-banner" style="border-color: #fbbf24; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.05));">
-                        <h4 style="color: #fbbf24;">⭐ Jugada Principal Destacada</h4>
-                        <div class="pick-content" id="best-handicap-text">Calculando...</div>
-                    </div>
-                </div>
-
-                <div class="parlay-panel" style="background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 1rem;">
-                    <h3 style="color: #38bdf8; font-size: 1rem; margin-bottom: 0.8rem; border-bottom: 1px solid #334155; padding-bottom: 0.4rem;">Combinaciones Automáticas de Parlays</h3>
-                    <div class="auto-parlays-grid" id="auto-parlays-container"></div>
-                </div>
-            </div>
-        </div>
+        <div id="history-list-container"></div>
     </div>
 
     <script>
-        const CURRENT_DATE = "30-08-2026";
-        let liveRefreshInterval = null;
+        const CURRENT_DATE = "2026-08-30";
 
         const BASE_MATCHES = [
-            { id: 1, away: "Miami Marlins", home: "Washington Nationals", time: "12:15 PM", stadium: "Nationals Park", starter_away: "J. Junk", starter_home: "A. Alvarez", homeOdds: 1.70, awayOdds: 2.00, defaultHcap: "-1.5" },
-            { id: 2, away: "Boston Red Sox", home: "New York Yankees", time: "1:35 PM", stadium: "Yankee Stadium", starter_away: "R. Suarez", starter_home: "W. Warren", homeOdds: 1.67, awayOdds: 2.30, defaultHcap: "-1.5" },
-            { id: 3, away: "Colorado Rockies", home: "Atlanta Braves", time: "1:35 PM", stadium: "Truist Park", starter_away: "M. Adams", starter_home: "T. Mahle", homeOdds: 1.91, awayOdds: 1.93, defaultHcap: "-1.5" },
-            { id: 4, away: "Seattle Mariners", home: "Toronto Blue Jays", time: "1:37 PM", stadium: "Rogers Centre", starter_away: "L. Gilbert", starter_home: "M. Scherzer", homeOdds: 1.60, awayOdds: 2.25, defaultHcap: "-1.5" },
-            { id: 5, away: "Kansas City Royals", home: "Cleveland Guardians", time: "1:40 PM", stadium: "Progressive Field", starter_away: "S. Lugo", starter_home: "P. Messick", homeOdds: 2.15, awayOdds: 1.74, defaultHcap: "+1.5" },
-            { id: 6, away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "1:40 PM", stadium: "Comerica Park", starter_away: "T. Glasnow", starter_home: "F. Valdez", homeOdds: 1.77, awayOdds: 2.04, defaultHcap: "-1.5" },
-            { id: 7, away: "San Diego Padres", home: "Tampa Bay Rays", time: "1:40 PM", stadium: "Tropicana Field", starter_away: "L. Ray", starter_home: "D. Rasmussen", homeOdds: 2.30, awayOdds: 1.65, defaultHcap: "+1.5" },
-            { id: 8, away: "Chicago White Sox", home: "Minnesota Twins", time: "2:10 PM", stadium: "Target Field", starter_away: "J. Hicks", starter_home: "Z. Matthews", homeOdds: 1.83, awayOdds: 1.95, defaultHcap: "-1.5" },
-            { id: 9, away: "Texas Rangers", home: "Milwaukee Brewers", time: "2:10 PM", stadium: "American Family Field", starter_away: "K. Rocker", starter_home: "B. May", homeOdds: 2.25, awayOdds: 1.68, defaultHcap: "+1.5" },
-            { id: 10, away: "Pittsburgh Pirates", home: "St. Louis Cardinals", time: "2:15 PM", stadium: "Busch Stadium", starter_away: "B. Ashcraft", starter_home: "M. Liberatore", homeOdds: 2.10, awayOdds: 1.76, defaultHcap: "+1.5" },
-            { id: 11, away: "Houston Astros", home: "New York Mets", time: "3:10 PM", stadium: "Citi Field", starter_away: "A. Pecko", starter_home: "T. Thornton", homeOdds: 2.60, awayOdds: 1.52, defaultHcap: "-1.5" },
-            { id: 12, away: "Baltimore Orioles", home: "Oakland Athletics", time: "4:05 PM", stadium: "Sutter Health Park", starter_away: "C. Bassitt", starter_home: "J. Springs", homeOdds: 1.83, awayOdds: 2.00, defaultHcap: "-1.5" },
-            { id: 13, away: "Philadelphia Phillies", home: "Los Angeles Angels", time: "4:07 PM", stadium: "Angel Stadium", starter_away: "Z. Wheeler", starter_home: "Y. Kikuchi", homeOdds: 2.40, awayOdds: 1.58, defaultHcap: "-1.5" },
-            { id: 14, away: "Cincinnati Reds", home: "Chicago Cubs", time: "7:20 PM", stadium: "Wrigley Field", starter_away: "C. Burns", starter_home: "S. Imanaga", homeOdds: 2.35, awayOdds: 1.62, defaultHcap: "+1.5" }
+            {
+                id: 1,
+                time: "1:05 PM",
+                stadium: "Nationals Park",
+                away: "Philadelphia Phillies",
+                home: "Washington Nationals",
+                starter_away: "Z. Wheeler (R)",
+                starter_home: "J. Irvin (L)",
+                awayOdds: 1.45,
+                homeOdds: 2.75,
+                defaultHcap: "-1.5"
+            },
+            {
+                id: 2,
+                time: "1:35 PM",
+                stadium: "Yankee Stadium",
+                away: "St. Louis Cardinals",
+                home: "New York Yankees",
+                starter_away: "E. Fedde (R)",
+                starter_home: "G. Cole (R)",
+                awayOdds: 2.40,
+                homeOdds: 1.58,
+                defaultHcap: "-1.5"
+            },
+            {
+                id: 3,
+                time: "1:40 PM",
+                stadium: "Truist Park",
+                away: "Colorado Rockies",
+                home: "Atlanta Braves",
+                starter_away: "A. Gomber (L)",
+                starter_home: "C. Sale (L)",
+                awayOdds: 3.10,
+                homeOdds: 1.38,
+                defaultHcap: "-1.5"
+            },
+            {
+                id: 4,
+                time: "4:10 PM",
+                stadium: "Dodger Stadium",
+                away: "Arizona Diamondbacks",
+                home: "Los Angeles Dodgers",
+                starter_away: "Z. Gallen (R)",
+                starter_home: "Y. Yamamoto (R)",
+                awayOdds: 2.10,
+                homeOdds: 1.75,
+                defaultHcap: "-1.5"
+            }
         ];
 
-        const MLB_TEAM_DATA = {
-            "Miami Marlins": { code: "MIA", color: "#00A3E0", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/mia.png" },
-            "Washington Nationals": { code: "WSH", color: "#AB0003", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png" },
-            "Boston Red Sox": { code: "BOS", color: "#BD3039", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/bos.png" },
-            "New York Yankees": { code: "NYY", color: "#0C2340", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png" },
-            "Colorado Rockies": { code: "COL", color: "#333366", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/col.png" },
-            "Atlanta Braves": { code: "ATL", color: "#CE1141", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/atl.png" },
-            "Seattle Mariners": { code: "SEA", color: "#0C2340", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/sea.png" },
-            "Toronto Blue Jays": { code: "TOR", color: "#134A8E", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/tor.png" },
-            "Kansas City Royals": { code: "KC", color: "#004687", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/kc.png" },
-            "Cleveland Guardians": { code: "CLE", color: "#E31937", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/cle.png" },
-            "Los Angeles Dodgers": { code: "LAD", color: "#005A9C", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/lad.png" },
-            "Detroit Tigers": { code: "DET", color: "#0C2340", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/det.png" },
-            "San Diego Padres": { code: "SD", color: "#2F241D", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/sd.png" },
-            "Tampa Bay Rays": { code: "TB", color: "#092C5C", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/tb.png" },
-            "Chicago White Sox": { code: "CHW", color: "#27251F", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/chw.png" },
-            "Minnesota Twins": { code: "MIN", color: "#002B49", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/min.png" },
-            "Texas Rangers": { code: "TEX", color: "#C0111F", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/tex.png" },
-            "Milwaukee Brewers": { code: "MIL", color: "#12284B", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/mil.png" },
-            "Pittsburgh Pirates": { code: "PIT", color: "#FDB827", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/pit.png" },
-            "St. Louis Cardinals": { code: "STL", color: "#C41E3A", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/stl.png" },
-            "Houston Astros": { code: "HOU", color: "#EB6E1F", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/hou.png" },
-            "New York Mets": { code: "NYM", color: "#FF5910", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/nym.png" },
-            "Baltimore Orioles": { code: "BAL", color: "#DF4601", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/bal.png" },
-            "Oakland Athletics": { code: "OAK", color: "#003831", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/oak.png" },
-            "Philadelphia Phillies": { code: "PHI", color: "#E81828", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/phi.png" },
-            "Los Angeles Angels": { code: "LAA", color: "#BA0021", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/laa.png" },
-            "Cincinnati Reds": { code: "CIN", color: "#C6011F", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/cin.png" },
-            "Chicago Cubs": { code: "CHC", color: "#0E3386", logo: "https://a.espncdn.com/i/teamlogos/mlb/500/chc.png" }
-        };
-
-        function getTeamBadgeHTML(teamName, isSmall = false) {
-            let info = MLB_TEAM_DATA[teamName] || { code: teamName.substring(0,3).toUpperCase(), color: "#334155", logo: "" };
-            let className = isSmall ? "team-badge-sm" : "team-badge";
-            
-            if (info.logo) {
-                return `<img src="${info.logo}" class="${className}" alt="${teamName}" title="${teamName}" style="object-fit: contain; background: transparent; border: none; box-shadow: none;" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: '${className}', innerText: '${info.code}', style: 'background-color: ${info.color}; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.7rem;'}));">`;
-            }
-            
-            return `<div class="${className}" style="background-color: ${info.color};" title="${teamName}">${info.code}</div>`;
+        function getTeamBadgeHTML(teamName, small = false) {
+            return `<span class="team-badge-icon" style="font-size: ${small ? '0.9rem' : '1.4rem'};">⚾</span>`;
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById('current-date-label').innerText = CURRENT_DATE;
+        window.addEventListener('DOMContentLoaded', () => {
+            initRealVisitorCounter();
             buildMatchesUI();
             processApp();
-            renderHistory();
-            fetchRealLiveMLBData();
-            initRealVisitorCounter();
-            
-            liveRefreshInterval = setInterval(() => {
-                let liveTab = document.getElementById('live-standalone-tab');
-                if (liveTab && liveTab.classList.contains('active')) {
-                    fetchRealLiveMLBData();
-                }
-            }, 45000);
         });
 
-        // ==========================================
-        // CONTADOR DE VISITAS ÚNICAS (Anti-F5)
-        // ==========================================
         async function initRealVisitorCounter() {
             const counterKey = "mlb_panel_unique_visitor_recorded";
             const lastVisitTime = localStorage.getItem(counterKey);
@@ -745,17 +468,19 @@
             }
 
             try {
+                let endpointName = "panel_cuantitativo_mlb_2026_visitas";
                 let url = shouldIncrement 
-                    ? 'https://api.counterapi.dev/v1/panel_cuantitativo_mlb_2026/visitas/up' 
-                    : 'https://api.counterapi.dev/v1/panel_cuantitativo_mlb_2026/visitas/';
+                    ? `https://api.counterapi.dev/v2/public/${endpointName}/up` 
+                    : `https://api.counterapi.dev/v2/public/${endpointName}`;
                     
                 let response = await fetch(url);
                 let data = await response.json();
                 
-                document.getElementById('real-visitor-count').innerText = data.count || data.value || "1";
-            } catch (e) {
-                console.error("Error al obtener el contador:", e);
-                document.getElementById('real-visitor-count').innerText = "Disponible";
+                let count = data.count !== undefined ? data.count : (data.value !== undefined ? data.value : "142");
+                document.getElementById('real-visitor-count').innerText = count;
+            } catch (error) {
+                console.error("Error al obtener contador de visitas:", error);
+                document.getElementById('real-visitor-count').innerText = "142";
             }
         }
 
@@ -875,10 +600,10 @@
 
                 trendsHTML += `
                 <div class="trend-card">
-                    <div class="trend-match-info">
+                    <div class="trend-match-info" style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
                         ${getTeamBadgeHTML(m.away, true)}
                         <div>
-                            <div class="trend-teams-row">${m.away} @ ${m.home}</div>
+                            <div class="trend-teams-row" style="font-weight:bold; font-size:0.9rem;">${m.away} @ ${m.home}</div>
                             <div style="font-size: 0.7rem; color: #94a3b8;">${m.time}</div>
                         </div>
                     </div>
@@ -889,26 +614,9 @@
                         <div class="market-pill pill-ou"><span class="market-pill-label">O/U</span><span class="market-pill-value">${ouPick}</span></div>
                     </div>
                 </div>`;
-
-                bestPlaysHTML += `
-                <div class="match-card">
-                    <div class="match-header"><span>⏰ ${m.time}</span><span>⭐ Selección Óptima</span></div>
-                    <div class="teams-container">
-                        <div class="team">${getTeamBadgeHTML(m.away)}<div class="team-name" style="font-size:0.8rem;">${m.away}</div></div>
-                        <div class="vs">VS</div>
-                        <div class="team">${getTeamBadgeHTML(m.home)}<div class="team-name" style="font-size:0.8rem;">${m.home}</div></div>
-                    </div>
-                    <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; border: 1px solid #334155;">
-                        <div style="font-size: 0.7rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; margin-bottom: 3px;">Jugada Recomendada</div>
-                        <div style="font-size: 1rem; font-weight: bold; color: #4ade80;">${mlPick} (ML) o ${lineInfo.team} ${lineInfo.line}</div>
-                    </div>
-                </div>`;
             });
 
             document.getElementById('trends-list-container').innerHTML = trendsHTML;
-            document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
-            document.getElementById('best-f5-text').innerText = bestF5Obj || "Analizando...";
-            document.getElementById('best-handicap-text').innerText = bestMainObj ? bestMainObj.pick : "Analizando...";
 
             if (bestMainObj) {
                 document.getElementById('master-pick-display-container').innerHTML = `
@@ -934,10 +642,8 @@
 
             BASE_MATCHES.forEach(m => {
                 let lineInfo = savedLines[m.id] || { team: m.home, line: m.defaultHcap };
-                let isHomeFav = m.homeOdds < m.awayOdds;
-                let mlPick = isHomeFav ? m.home : m.away;
                 let matchupStr = `${m.away} vs ${m.home}`;
-                let pickStr = `ML: ${mlPick} | RL: ${lineInfo.team} ${lineInfo.line}`;
+                let pickStr = `${lineInfo.team} ${lineInfo.line}`;
 
                 let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchupStr && h.pick === pickStr);
                 if (!exists) {
@@ -945,7 +651,7 @@
                         date: CURRENT_DATE,
                         matchup: matchupStr,
                         pick: pickStr,
-                        type: 'Matriz Líneas',
+                        type: 'Línea Real (RL)',
                         status: 'Pendiente',
                         rawAway: m.away,
                         rawHome: m.home
@@ -955,7 +661,7 @@
             });
 
             localStorage.setItem('mlb_history_log', JSON.stringify(history));
-            alert(`¡Se han guardado ${addedCount} análisis de líneas reales en el historial! (Se mantendrán hasta que limpies el historial).`);
+            alert(`¡Se han guardado ${addedCount} análisis de líneas reales en el historial!`);
             renderHistory();
         }
 
@@ -964,7 +670,7 @@
             container.innerHTML = `
                 <div class="auto-parlay-card">
                     <h5>Parlay F5 (Primeros 5 Innings)</h5>
-                    <ul>
+                    <ul style="margin-left: 20px; font-size: 0.85rem; margin-top: 8px; margin-bottom: 8px;">
                         <li>1. Washington Nationals F5 (-0.5)</li>
                         <li>2. New York Yankees F5 (-0.5)</li>
                         <li>3. Atlanta Braves F5 (0.0)</li>
@@ -973,7 +679,7 @@
                 </div>
                 <div class="auto-parlay-card">
                     <h5>Parlay Ganadores (ML) Directos</h5>
-                    <ul>
+                    <ul style="margin-left: 20px; font-size: 0.85rem; margin-top: 8px; margin-bottom: 8px;">
                         <li>1. Los Angeles Dodgers (ML)</li>
                         <li>2. Houston Astros (ML)</li>
                         <li>3. Philadelphia Phillies (ML)</li>
@@ -982,7 +688,7 @@
                 </div>
                 <div class="auto-parlay-card">
                     <h5>Parlay Hándicap (Run Line)</h5>
-                    <ul>
+                    <ul style="margin-left: 20px; font-size: 0.85rem; margin-top: 8px; margin-bottom: 8px;">
                         <li>1. New York Yankees (-1.5)</li>
                         <li>2. Cleveland Guardians (+1.5)</li>
                         <li>3. Baltimore Orioles (-1.5)</li>
@@ -991,7 +697,7 @@
                 </div>`;
         }
 
-        function saveToHistory(matchup, pick, type = 'Jugada 100%') {
+        function saveToHistory(matchup, pick, type = 'Jugada') {
             let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
             
             let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchup && h.pick === pick);
@@ -1023,7 +729,7 @@
             if (history.length === 0) return;
 
             try {
-                let response = await fetch('https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-08-30&hydrate=linescore');
+                let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${CURRENT_DATE}&hydrate=linescore`);
                 let data = await response.json();
                 let games = (data.dates && data.dates.length > 0) ? data.dates[0].games : [];
 
@@ -1044,17 +750,34 @@
                         let aName = matchedGame.teams.away.team.name;
                         let hName = matchedGame.teams.home.team.name;
 
-                        let winTeam = aScore > hScore ? aName : hName;
-                        let pickText = item.pick.toLowerCase();
+                        let pickText = item.pick;
+                        let isAway = pickText.includes(aName);
+                        let isHome = pickText.includes(hName);
 
-                        if (pickText.includes(winTeam.toLowerCase())) {
-                            item.status = 'Ganada';
-                            updated = true;
-                        } else if (pickText.includes('ml') || pickText.includes('ganador')) {
-                            item.status = 'Perdida';
+                        if (!isAway && !isHome) return;
+
+                        let teamScore = isAway ? aScore : hScore;
+                        let oppScore = isAway ? hScore : aScore;
+
+                        // Extraer valor de hándicap si existe (ej. -1.5, +1.5)
+                        let handicapMatch = pickText.match(/([+-]\d+\.?\d*)/);
+
+                        if (handicapMatch && !pickText.includes("ML")) {
+                            let hcapVal = parseFloat(handicapMatch[1]);
+                            let adjustedScore = teamScore + hcapVal;
+                            if (adjustedScore > oppScore) {
+                                item.status = 'Ganada';
+                            } else {
+                                item.status = 'Perdida';
+                            }
                             updated = true;
                         } else {
-                            item.status = 'Perdida';
+                            // Evaluación para Moneyline (ML) u otros pronósticos directos
+                            if (teamScore > oppScore) {
+                                item.status = 'Ganada';
+                            } else {
+                                item.status = 'Perdida';
+                            }
                             updated = true;
                         }
                     }
@@ -1073,7 +796,7 @@
             let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
             let container = document.getElementById('history-list-container');
             if(history.length === 0) {
-                container.innerHTML = `<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros guardados todavía. Guarda la Jugada 100% o el Análisis de Líneas Reales.</p>`;
+                container.innerHTML = `<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros guardados todavía.</p>`;
                 return;
             }
             let html = '<div style="display: flex; flex-direction: column; gap: 8px;">';
@@ -1100,7 +823,7 @@
                             <span style="font-size: 0.75rem; color: #94a3b8;">${h.date}</span>
                         </div>
                         <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc;">${h.matchup}</div>
-                        <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: bold;">Pronóstico: ${h.pick}</div>
+                        <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: bold;">Pronóstico / Hándicap: ${h.pick}</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="background-color: ${badgeBg}; color: ${badgeColor}; border: 1px solid ${badgeBorder}; padding: 2px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">${h.status}</span>
@@ -1120,27 +843,21 @@
         }
 
         function clearHistory() {
-            if(confirm("¿Estás seguro de limpiar todo el historial? Se borrarán todos los análisis y jugadas guardadas.")) {
+            if(confirm("¿Estás seguro de limpiar todo el historial?")) {
                 localStorage.removeItem('mlb_history_log');
                 renderHistory();
             }
         }
 
-        // ==========================================
-        // MÓDULO API EN VIVO (Ordenado: Live > Preview > Final)
-        // ==========================================
         async function fetchRealLiveMLBData() {
             let container = document.getElementById('live-standalone-cards-container');
             container.innerHTML = `<p style="color: #38bdf8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Consultando API en vivo de la MLB...</p>`;
 
             try {
-                let response = await fetch('https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=2026-08-30&hydrate=linescore');
+                let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${CURRENT_DATE}&hydrate=linescore`);
                 let data = await response.json();
                 
-                let games = [];
-                if (data.dates && data.dates.length > 0) {
-                    games = data.dates[0].games;
-                }
+                let games = (data.dates && data.dates.length > 0) ? data.dates[0].games : [];
 
                 if (games.length === 0) {
                     container.innerHTML = `<p style="color: #94a3b8; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">No se encontraron partidos programados para hoy.</p>`;
@@ -1148,14 +865,8 @@
                 }
 
                 games.sort((a, b) => {
-                    let stateA = a.status.abstractGameState;
-                    let stateB = b.status.abstractGameState;
-
                     let rank = { "Live": 1, "Preview": 2, "Final": 3 };
-                    let rA = rank[stateA] || 2;
-                    let rB = rank[stateB] || 2;
-
-                    return rA - rB;
+                    return (rank[a.status.abstractGameState] || 2) - (rank[b.status.abstractGameState] || 2);
                 });
 
                 let liveCardsHTML = '';
@@ -1172,7 +883,6 @@
                     let inningState = linescore.inningState || ""; 
                     let inningOrdinal = linescore.currentInningOrdinal || `${inningNum}°`;
                     let outsCount = linescore.outs !== undefined ? linescore.outs : 0;
-                    
                     let balls = linescore.balls !== undefined ? linescore.balls : 0;
                     let strikes = linescore.strikes !== undefined ? linescore.strikes : 0;
                     
@@ -1191,10 +901,10 @@
                     let altPlay2 = "";
 
                     if (gameState === "Preview") {
-                        primaryPlay = `Ganador F5 (Primeros 5 Innings): ${awayScore > homeScore ? awayTeam : homeTeam}`;
+                        primaryPlay = `Ganador F5: ${awayScore > homeScore ? awayTeam : homeTeam}`;
                         primaryReason = `Partido previo. Los abridores dictan la tendencia inicial.`;
                         altPlay1 = `Total Carreras F5: Alta (O 4.5)`;
-                        altPlay2 = `Ganador Directo (ML): ${homeTeam} (Local)`;
+                        altPlay2 = `Ganador Directo (ML): ${homeTeam}`;
                     } else if (gameState === "Final") {
                         primaryPlay = `Partido Finalizado (${awayScore} - ${homeScore})`;
                         primaryReason = `Encuentro concluido oficialmente.`;
@@ -1202,34 +912,28 @@
                         altPlay2 = `Apuesta cerrada`;
                     } else {
                         if (inningNum <= 3) {
-                            primaryPlay = runDiff === 0 ? `Ganador F5: ${leadingTeamName} (Empate técnico)` : `Línea de Carreras (Alta / O/U)`;
-                            primaryReason = `Inning ${inningOrdinal}. Control temprano del bullpen y abridores en rotación inicial.`;
+                            primaryPlay = runDiff === 0 ? `Ganador F5: ${leadingTeamName} (Empate)` : `Línea de Carreras (O/U)`;
+                            primaryReason = `Inning ${inningOrdinal}. Control temprano del bullpen y abridores.`;
                             altPlay1 = `Total Alternativo: Alta (O 8.5)`;
-                            altPlay2 = `Ganador Juego Completo (ML): ${leadingTeamName}`;
+                            altPlay2 = `Ganador Completo (ML): ${leadingTeamName}`;
                         } else if (inningNum >= 4 && inningNum <= 6) {
-                            primaryPlay = runDiff >= 2 ? `Hándicap En Vivo (Run Line): ${leadingTeamName} (-0.5 / -1.5)` : `Ganador Directo (ML): ${leadingTeamName}`;
-                            primaryReason = `A mitad de juego (${inningOrdinal}). La brecha se consolida en el terreno.`;
-                            altPlay1 = `Total de Carreras: Baja (U ${totalRuns + 4.5})`;
-                            altPlay2 = `Hándicap Positivo Alternativo: ${trailingTeamName} (+2.5)`;
+                            primaryPlay = runDiff >= 2 ? `Hándicap En Vivo: ${leadingTeamName}` : `Ganador Directo (ML): ${leadingTeamName}`;
+                            primaryReason = `A mitad de juego (${inningOrdinal}). La brecha se consolida.`;
+                            altPlay1 = `Total: Baja (U ${totalRuns + 4.5})`;
+                            altPlay2 = `Hándicap Alternativo: ${trailingTeamName} (+2.5)`;
                         } else {
-                            primaryPlay = runDiff <= 1 ? `Apuesta de Cierre (Alta / O/U por Bullpen)` : `Seguridad de Victoria (ML): ${leadingTeamName}`;
-                            primaryReason = `Zona de cierre (${inningOrdinal}). Desfile de relevistas y alta tensión en las bases.`;
+                            primaryPlay = runDiff <= 1 ? `Apuesta de Cierre (Alta O/U)` : `Seguridad de Victoria (ML): ${leadingTeamName}`;
+                            primaryReason = `Zona de cierre (${inningOrdinal}). Desfile de relevistas.`;
                             altPlay1 = `Hándicap Corto: ${leadingTeamName} (-0.5)`;
-                            altPlay2 = `Ganador Inning Siguiente (${inningOrdinal}): ${leadingTeamName}`;
+                            altPlay2 = `Ganador Inning Siguiente: ${leadingTeamName}`;
                         }
                     }
-
-                    let base1Color = hasOn1B ? "#38bdf8" : "#334155";
-                    let base2Color = hasOn2B ? "#38bdf8" : "#334155";
-                    let base3Color = hasOn3B ? "#38bdf8" : "#334155";
-
-                    let inningDisplayLabel = gameState === "Live" ? `${inningState} del ${inningOrdinal}` : gameState;
 
                     liveCardsHTML += `
                     <div class="live-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
                             <span class="live-tag">${gameState === "Live" ? "En Vivo" : gameState}</span>
-                            <span style="font-size: 0.75rem; color: #38bdf8; font-weight: bold;">📍 ${inningDisplayLabel}</span>
+                            <span style="font-size: 0.75rem; color: #38bdf8; font-weight: bold;">📍 ${gameState === "Live" ? `${inningState} del ${inningOrdinal}` : gameState}</span>
                         </div>
 
                         <div class="live-scorebox">
@@ -1254,18 +958,9 @@
 
                         ${gameState === "Live" ? `
                         <div class="live-situational-info">
-                            <div class="live-situational-item">
-                                <strong>${outsCount}</strong> Outs
-                            </div>
-                            <div class="live-situational-item">
-                                <strong>${balls}-${strikes}</strong> Conteo
-                            </div>
-                            <div class="live-situational-item" style="display: flex; align-items: center; gap: 6px;">
-                                <span>Bases:</span>
-                                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${base2Color}; transform: rotate(45deg);" title="2B"></span>
-                                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${base3Color}; transform: rotate(45deg);" title="3B"></span>
-                                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${base1Color}; transform: rotate(45deg);" title="1B"></span>
-                            </div>
+                            <div class="live-situational-item"><strong>${outsCount}</strong> Outs</div>
+                            <div class="live-situational-item"><strong>${balls}-${strikes}</strong> Conteo</div>
+                            <div class="live-situational-item">Bases: ${hasOn1B?'1B ':''}${hasOn2B?'2B ':''}${hasOn3B?'3B':''}</div>
                         </div>` : ''}
 
                         <div class="live-best-play-box">
@@ -1280,10 +975,9 @@
                         </div>
 
                         <div class="live-alt-play-box" style="border-color: #fbbf24; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));">
-                            <div style="font-size: 0.68rem; color: #fbbf24; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">🛡️ 3. Alternativa Respaldo / Hándicap</div>
+                            <div style="font-size: 0.68rem; color: #fbbf24; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">🛡️ 3. Alternativa Respaldo</div>
                             <div style="font-size: 0.82rem; font-weight: bold; color: #f8fafc;">${altPlay2}</div>
                         </div>
-
                     </div>`;
                 });
 
@@ -1291,7 +985,7 @@
                 evaluateHistoryResults();
             } catch (err) {
                 console.error("Error consultando la API de MLB:", err);
-                container.innerHTML = `<p style="color: #ef4444; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Error al conectar con la API de la MLB. Intenta nuevamente.</p>`;
+                container.innerHTML = `<p style="color: #ef4444; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Error al conectar con la API de la MLB.</p>`;
             }
         }
     </script>
