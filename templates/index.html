@@ -152,12 +152,65 @@
             </section>
         </div>
 
-        <!-- CONTENIDO: PESTAÑA 4 - HISTÓRICO (Placeholder temporal) -->
+        <!-- CONTENIDO: PESTAÑA 4 - HISTÓRICO Y TRACKING -->
         <div id="tab-historico" class="tab-content hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
-                <h2 class="text-2xl font-bold text-emerald-400 mb-2">📊 Histórico y Tracking Diario</h2>
-                <p class="text-slate-400">Próximamente: Archivo y comparación de pronósticos anteriores.</p>
-            </div>
+            <section class="mb-8">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl mb-6 border-emerald-500/30">
+                    <h2 class="text-2xl font-bold text-emerald-400 mb-2 flex items-center gap-2">📊 Histórico y Tracking de Pronósticos</h2>
+                    <p class="text-slate-400 text-sm">Registro guardado automáticamente en el servidor para comparar las proyecciones con los resultados reales al final de la jornada.</p>
+                </div>
+
+                <div class="space-y-6">
+                    {% for entry in history %}
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
+                            <h3 class="text-xl font-extrabold text-emerald-400">📅 Fecha: {{ entry.date }}</h3>
+                            <span class="text-xs text-slate-500">Guardado: {{ entry.timestamp }}</span>
+                        </div>
+
+                        <!-- Jugada Segura Registrada -->
+                        {% if entry.safest_pick %}
+                        <div class="mb-4 bg-slate-950/60 border border-slate-800 rounded-xl p-4">
+                            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">🔥 Jugada Más Segura Registrada</span>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="text-slate-400 text-xs">{{ entry.safest_pick.match }}</span>
+                                    <p class="text-lg font-bold text-white">{{ entry.safest_pick.pick }}</p>
+                                </div>
+                                <span class="text-emerald-400 font-bold text-sm">{{ entry.safest_pick.confidence_str }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Parlays Registrados -->
+                        {% if entry.parlays %}
+                        <div class="space-y-3">
+                            <h4 class="text-sm font-bold text-indigo-300">🎯 Parlays Guardados del Día:</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {% for count, legs in entry.parlays.items() %}
+                                <div class="bg-slate-950/40 border border-indigo-500/20 rounded-xl p-4">
+                                    <span class="text-xs font-bold text-indigo-400 block mb-2">Parlay de {{ count }} Logros</span>
+                                    <ul class="space-y-2 text-xs text-slate-300">
+                                        {% for leg in legs %}
+                                        <li class="border-b border-slate-900 pb-1">
+                                            <strong>{{ leg.match }}</strong><br>
+                                            <span class="text-emerald-400">👉 {{ leg.pick }}</span>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
+                        <p class="text-slate-400">Aún no hay registros en el histórico.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
         </div>
     </div>
 
