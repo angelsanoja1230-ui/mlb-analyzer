@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="URL-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MLB - Pronóstico Cuantitativo y Generador Multimercado (±3.5)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -232,12 +232,6 @@
             min-width: 250px;
         }
 
-        .trend-match-teams {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
         .trend-teams-row {
             display: flex;
             align-items: center;
@@ -451,7 +445,7 @@
         <div id="best-play-tab" class="tab-content">
             <div class="trends-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">⭐ La Mejor Jugada por Partido</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Selección cuantitativa óptima diversificada entre Ganador F5, Run Line, Hándicaps y Totales O/U según el valor de cada cuota.</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Filtrado estricto: El Hándicap / Run Line (±1.5) solo se selecciona cuando el diferencial de cuotas es cerrado (duelo parejo). De lo contrario, prioriza Ganador F5, Totales o hándicaps de mayor seguridad.</p>
                 <div class="matches-grid" id="best-plays-cards-container"></div>
             </div>
         </div>
@@ -593,6 +587,10 @@
             let favProb = Math.max(homeProb, awayProb);
             let dogProb = 100 - favProb;
 
+            // Determinar si el partido es muy cerrado entre los abridores/cuotas (Diferencial menor a 5%)
+            let oddsDifference = Math.abs(match.homeOdds - match.awayOdds);
+            let isMatchClose = oddsDifference < 0.15; // Cuotas muy parejas indican duelo cerrado
+
             let markets = [];
 
             // 1. F5 Market (0.5)
@@ -601,12 +599,20 @@
             let f5Conf = favProb >= 55 ? favProb - 5 : dogProb + 10;
             markets.push({ category: "F5", type: "Ganador F5", desc: `${f5Team} (${f5Sign})`, prob: Math.min(92, Math.max(45, f5Conf)) });
 
-            // 2. Run Line (±1.5)
+            // 2. Run Line (±1.5) - Condicionado: Solo se prioriza si el partido es cerrado o si el hándicap es claramente favorable (dog +1.5 en partidos parejos)
             let rlIsMinus = favProb >= 60;
             let rlTeam = rlIsMinus ? favTeam : dogTeam;
             let rlSign = rlIsMinus ? "-1.5" : "+1.5";
             let rlConf = rlIsMinus ? Math.round(favProb * 0.78) : Math.round(72 + (dogProb * 0.15));
-            markets.push({ category: "RunLine", type: "Run Line", desc: `${rlTeam} (${rlSign})`, prob: Math.min(90, Math.max(48, rlConf)) });
+            let rlObject = { category: "RunLine", type: "Run Line", desc: `${rlTeam} (${rlSign})`, prob: Math.min(90, Math.max(48, rlConf)) };
+            
+            if (isMatchClose) {
+                // Si el duelo es cerrado, el Run Line / Hándicap gana prioridad natural
+                markets.push(rlObject);
+            } else {
+                // Si no es cerrado, penalizamos artificialmente el peso del hándicap de 1.5 para que el algoritmo elija otras opciones (F5 o Totales)
+                markets.push({ ...rlObject, prob: rlObject.prob - 25 });
+            }
 
             // 3. Handicap (±2.5)
             let h25IsMinus = favProb >= 70;
@@ -621,7 +627,6 @@
             markets.push({ category: "Handicap35", type: "Hcap 3.5", desc: `${h35Team} (${h35Sign})`, prob: h35IsMinus ? 68 : 89 });
 
             // 5. Runelai
-            let runelaiType = match.totalLine <= 8.0 ? "NRFI" : "YRFI";
             let runelaiDesc = match.totalLine <= 8.0 ? "NRFI (Sin carrera 1I)" : "YRFI (Sí carrera 1I)";
             markets.push({ category: "Runelai", type: "Runelai", desc: runelaiDesc, prob: match.totalLine <= 8.0 ? 62 : 58 });
 
@@ -629,15 +634,13 @@
             let ouDesc = match.totalLine >= 9.0 ? `Alta (${match.totalLine})` : `Baja (${match.totalLine})`;
             markets.push({ category: "Total", type: "Total O/U", desc: ouDesc, prob: 65 });
 
-            // Variador determinista para evitar que todos los partidos elijan siempre el mismo mercado (F5)
+            // Ordenar por la probabilidad real calculada para elegir la mejor opción disponible
             let candidateMarkets = [...markets];
             candidateMarkets.sort((a, b) => b.prob - a.prob);
             
-            // Rotamos entre las mejores opciones según el índice del partido para diversificar
-            let selectedOptionIndex = index % Math.min(3, candidateMarkets.length);
-            let bestHcapOption = candidateMarkets[selectedOptionIndex];
+            let bestHcapOption = candidateMarkets[0];
 
-            return { homeProb, awayProb, markets, bestHcapOption, favTeam };
+            return { homeProb, awayProb, markets, bestHcapOption, favTeam, isMatchClose };
         }
 
         function buildMatchesUI() {
@@ -761,6 +764,7 @@
 
                 let optimalPick = marketData.bestHcapOption;
                 let fullPlayDescription = `${m.away} @ ${m.home} → [${optimalPick.type}] ${optimalPick.desc}`;
+                let contextBadge = marketData.isMatchClose ? "⚖️ Duelo Cerrado (Hándicap Válido)" : "⚡ Partido Desnivelado (Prioriza F5 / Totales)";
 
                 bestPlaysHTML += `
                     <div class="match-card" style="border-left: 4px solid #38bdf8;">
@@ -782,7 +786,7 @@
                         <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; margin-bottom: 0.8rem;">
                             <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 2px;">MERCADO ÓPTIMO RECOMENDADO</span>
                             <strong style="font-size: 0.95rem; color: #38bdf8;">${optimalPick.desc}</strong>
-                            <div style="font-size: 0.75rem; color: #4ade80; margin-top: 4px;">Confianza del Modelo: ${optimalPick.prob}% (${optimalPick.type})</div>
+                            <div style="font-size: 0.75rem; color: #4ade80; margin-top: 4px;">Confianza: ${optimalPick.prob}% | ${contextBadge}</div>
                         </div>
                         <button class="btn-parlay-action" onclick="saveSpecificPlay('${encodeURIComponent(fullPlayDescription)}')">Guardar en Historial</button>
                     </div>
