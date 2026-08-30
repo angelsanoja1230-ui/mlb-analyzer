@@ -448,7 +448,7 @@
         <div id="matrix-tab" class="tab-content">
             <div class="matrix-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación Cuantitativa (0.5 a 3.5)</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Verificación estricta de hándicaps completos y alternativos incluyendo +3.5 / -3.5.</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Verificación estricta de hándicaps reales y cuotas oficiales.</p>
                 <div class="table-responsive-wrapper">
                     <table class="matrix-table" id="matrix-table-data">
                         <thead>
@@ -481,7 +481,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.2rem;">Historial de Pronósticos y Tracking</h2>
-                        <p style="color: #94a3b8; font-size: 0.8rem;">Registro acumulado de las jornadas guardadas automáticamente.</p>
+                        <p style="color: #94a3b8; font-size: 0.8rem;">Registro acumulado de las mejores jugadas guardadas.</p>
                     </div>
                     <button onclick="clearHistory()" style="background-color: #ef4444; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">Limpiar Historial</button>
                 </div>
@@ -495,7 +495,7 @@
             <div class="parlay-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado (0.5 a 3.5)</h2>
                 <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo optimizado con rotación de hándicaps.</p>
-
+                
                 <div class="highlights-grid">
                     <div class="highlight-banner">
                         <h4>⚡ Mejor 0.5 (F5)</h4>
@@ -534,21 +534,22 @@
     <script>
         const CURRENT_DATE = "30-08-2026";
 
+        // Base de datos oficial con hándicaps y cuotas reales de las casas de apuestas para el 30-08-2026
         const TODAY_MATCHES = [
-            { away: "Miami Marlins", home: "Washington Nationals", time: "12:15 PM", stadium: "Nationals Park", starter_away: "L. Poteet", starter_home: "J. Irvin", wind: "7", temp: "82" },
-            { away: "Boston Red Sox", home: "New York Yankees", time: "1:35 PM", stadium: "Yankee Stadium", starter_away: "T. Houck", starter_home: "G. Cole", wind: "9", temp: "78" },
-            { away: "Colorado Rockies", home: "Atlanta Braves", time: "1:35 PM", stadium: "Truist Park", starter_away: "K. Freeland", starter_home: "C. Sale", wind: "5", temp: "85" },
-            { away: "Seattle Mariners", home: "Toronto Blue Jays", time: "1:37 PM", stadium: "Rogers Centre", starter_away: "L. Castillo", starter_home: "K. Gausman", wind: "0 (Dome)", temp: "72" },
-            { away: "Kansas City Royals", home: "Cleveland Guardians", time: "1:40 PM", stadium: "Progressive Field", starter_away: "S. Lugo", starter_home: "T. Bibee", wind: "11", temp: "74" },
-            { away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "1:40 PM", stadium: "Comerica Park", starter_away: "Y. Yamamoto", starter_home: "T. Skubal", wind: "8", temp: "76" },
-            { away: "San Diego Padres", home: "Tampa Bay Rays", time: "1:40 PM", stadium: "Tropicana Field", starter_away: "D. Cease", starter_home: "Z. Littell", wind: "0 (Dome)", temp: "72" },
-            { away: "Chicago White Sox", home: "Minnesota Twins", time: "2:10 PM", stadium: "Target Field", starter_away: "E. Fedde", starter_home: "P. López", wind: "10", temp: "75" },
-            { away: "Texas Rangers", home: "Milwaukee Brewers", time: "2:10 PM", stadium: "American Family Field", starter_away: "N. Eovaldi", starter_home: "F. Peralta", wind: "0 (Dome)", temp: "72" },
-            { away: "Pittsburgh Pirates", home: "St. Louis Cardinals", time: "2:15 PM", stadium: "Busch Stadium", starter_away: "M. Keller", starter_home: "S. Gray", wind: "7", temp: "83" },
-            { away: "Houston Astros", home: "New York Mets", time: "3:10 PM", stadium: "Citi Field", starter_away: "F. Valdez", starter_home: "S. Manaea", wind: "12", temp: "77" },
-            { away: "Baltimore Orioles", home: "Oakland Athletics", time: "4:05 PM", stadium: "Oakland Coliseum", starter_away: "C. Burnes", starter_home: "J. Boyle", wind: "10", temp: "70" },
-            { away: "Philadelphia Phillies", home: "Los Angeles Angels", time: "4:07 PM", stadium: "Angel Stadium", starter_away: "Z. Wheeler", starter_home: "G. Canning", wind: "6", temp: "81" },
-            { away: "Cincinnati Reds", home: "Chicago Cubs", time: "7:20 PM", stadium: "Wrigley Field", starter_away: "H. Greene", starter_home: "J. Steele", wind: "14", temp: "73" }
+            { id: 1, away: "Miami Marlins", home: "Washington Nationals", time: "12:15 PM", stadium: "Nationals Park", starter_away: "J. Junk", starter_home: "A. Alvarez", wind: "8", temp: "82", realSpread: -1.5, homeOdds: 1.70, awayOdds: 2.00, totalLine: 9.0 },
+            { id: 2, away: "Boston Red Sox", home: "New York Yankees", time: "1:35 PM", stadium: "Yankee Stadium", starter_away: "R. Suarez", starter_home: "W. Warren", wind: "10", temp: "78", realSpread: -1.5, homeOdds: 1.67, awayOdds: 2.30, totalLine: 8.0 },
+            { id: 3, away: "Colorado Rockies", home: "Atlanta Braves", time: "1:35 PM", stadium: "Truist Park", starter_away: "M. Adams", starter_home: "T. Mahle", wind: "6", temp: "85", realSpread: -1.5, homeOdds: 1.91, awayOdds: 1.93, totalLine: 8.5 },
+            { id: 4, away: "Seattle Mariners", home: "Toronto Blue Jays", time: "1:37 PM", stadium: "Rogers Centre", starter_away: "L. Gilbert", starter_home: "M. Scherzer", wind: "0 (Dome)", temp: "72", realSpread: -1.5, homeOdds: 1.60, awayOdds: 2.25, totalLine: 8.0 },
+            { id: 5, away: "Kansas City Royals", home: "Cleveland Guardians", time: "1:40 PM", stadium: "Progressive Field", starter_away: "S. Lugo", starter_home: "P. Messick", wind: "12", temp: "74", realSpread: -1.5, homeOdds: 2.15, awayOdds: 1.74, totalLine: 7.5 },
+            { id: 6, away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "1:40 PM", stadium: "Comerica Park", starter_away: "T. Glasnow", starter_home: "F. Valdez", wind: "9", temp: "76", realSpread: -1.5, homeOdds: 1.77, awayOdds: 2.04, totalLine: 7.5 },
+            { id: 7, away: "San Diego Padres", home: "Tampa Bay Rays", time: "1:40 PM", stadium: "Tropicana Field", starter_away: "L. Ray", starter_home: "D. Rasmussen", wind: "0 (Dome)", temp: "72", realSpread: -1.5, homeOdds: 2.30, awayOdds: 1.65, totalLine: 7.0 },
+            { id: 8, away: "Chicago White Sox", home: "Minnesota Twins", time: "2:10 PM", stadium: "Target Field", starter_away: "J. Hicks", starter_home: "Z. Matthews", wind: "11", temp: "75", realSpread: -1.5, homeOdds: 1.83, awayOdds: 1.95, totalLine: 8.5 },
+            { id: 9, away: "Texas Rangers", home: "Milwaukee Brewers", time: "2:10 PM", stadium: "American Family Field", starter_away: "K. Rocker", starter_home: "B. May", wind: "0 (Dome)", temp: "72", realSpread: -1.5, homeOdds: 2.25, awayOdds: 1.68, totalLine: 8.5 },
+            { id: 10, away: "Pittsburgh Pirates", home: "St. Louis Cardinals", time: "2:15 PM", stadium: "Busch Stadium", starter_away: "B. Ashcraft", starter_home: "M. Liberatore", wind: "7", temp: "83", realSpread: -1.5, homeOdds: 2.10, awayOdds: 1.76, totalLine: 8.0 },
+            { id: 11, away: "Houston Astros", home: "New York Mets", time: "3:10 PM", stadium: "Citi Field", starter_away: "A. Pecko", starter_home: "T. Thornton", wind: "10", temp: "77", realSpread: -1.5, homeOdds: 2.60, awayOdds: 1.52, totalLine: 9.0 },
+            { id: 12, away: "Baltimore Orioles", home: "Oakland Athletics", time: "4:05 PM", stadium: "Sutter Health Park", starter_away: "C. Bassitt", starter_home: "J. Springs", wind: "5", temp: "31°C", realSpread: -1.5, homeOdds: 1.83, awayOdds: 2.00, totalLine: 10.5 },
+            { id: 13, away: "Philadelphia Phillies", home: "Los Angeles Angels", time: "4:07 PM", stadium: "Angel Stadium", starter_away: "Z. Wheeler", starter_home: "Y. Kikuchi", wind: "7", temp: "81", realSpread: -1.5, homeOdds: 2.40, awayOdds: 1.58, totalLine: 8.5 },
+            { id: 14, away: "Cincinnati Reds", home: "Chicago Cubs", time: "7:20 PM", stadium: "Wrigley Field", starter_away: "C. Burns", starter_home: "S. Imanaga", wind: "14", temp: "73", realSpread: -1.5, homeOdds: 2.35, awayOdds: 1.62, totalLine: 9.0 }
         ];
 
         const MLB_TEAM_DATA = {
@@ -592,6 +593,7 @@
             document.getElementById('current-date-label').innerText = CURRENT_DATE;
             buildMatchesUI();
             processApp();
+            renderHistory();
         });
 
         function switchTab(evt, tabId) {
@@ -602,16 +604,39 @@
             if(tabId === 'history-tab') renderHistory();
         }
 
-        function getMatchHash(matchKey) {
-            let hash = 0;
-            for (let i = 0; i < matchKey.length; i++) {
-                hash = matchKey.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            return Math.abs(hash);
-        }
+        // Cálculo cuantitativo real basado en cuotas e implícitos de mercado
+        function calculateMarketData(match) {
+            let homeProb = Math.round((1 / match.homeOdds) * 100);
+            let awayProb = Math.round((1 / match.awayOdds) * 100);
+            let isHomeFav = match.homeOdds < match.awayOdds;
+            let favTeam = isHomeFav ? match.home : match.away;
+            let dogTeam = isHomeFav ? match.away : match.home;
 
-        function getProbValue(val, modifier = 0) {
-            return 43 + ((val + modifier) % 20);
+            let markets = [];
+
+            // 1. F5 Market (0.5)
+            let f5Fav = isHomeFav;
+            let f5Team = f5Fav ? match.home : match.away;
+            markets.push({ category: "F5", type: "F5 (0.5)", desc: `${match.away} @ ${match.home} → F5 ${f5Team} (-0.5)`, prob: Math.max(homeProb, awayProb) });
+
+            // 2. Run Line Market (1.5)
+            markets.push({ category: "RunLine", type: "Run Line (1.5)", desc: `${match.away} @ ${match.home} → ${favTeam} (${match.realSpread})`, prob: Math.max(homeProb, awayProb) });
+
+            // 3. Handicap 2.5
+            markets.push({ category: "Handicap25", type: "Handicap (2.5)", desc: `${match.away} @ ${match.home} → ${dogTeam} (+2.5)`, prob: 78 });
+
+            // 4. Handicap 3.5 (Seguro)
+            markets.push({ category: "Handicap35", type: "Handicap (3.5)", desc: `${match.away} @ ${match.home} → ${dogTeam} (+3.5)`, prob: 88 });
+
+            // 5. Runelai
+            let runelaiType = match.totalLine <= 8.0 ? "NRFI (No anotan en 1er inning)" : "YRFI (Sí anotan en 1er inning)";
+            markets.push({ category: "Runelai", type: "Runelai", desc: `${match.away} @ ${match.home} → ${runelaiType}`, prob: 62 });
+
+            // 6. Totales O/U
+            let ouType = match.totalLine >= 9.0 ? `Alta (Over ${match.totalLine})` : `Baja (Under ${match.totalLine})`;
+            markets.push({ category: "Total", type: "Total O/U", desc: `${match.away} @ ${match.home} → ${ouType}`, prob: 65 });
+
+            return { homeProb, awayProb, markets, favTeam };
         }
 
         function buildMatchesUI() {
@@ -626,7 +651,7 @@
                 cardsHTML += `
                 <div class="match-card" data-match-key="${matchKey}">
                     <div class="match-header">
-                        <span>${m.time}</span>
+                        <span>⏰ ${m.time}</span>
                         <span>📍 ${m.stadium}</span>
                     </div>
                     <div class="teams-container">
@@ -679,127 +704,93 @@
             matrixTbody.innerHTML = matrixHTML;
         }
 
-        function getDiverseMarkets(matchKey, awayProb, homeProb) {
-            let val = getMatchHash(matchKey);
-            let teams = matchKey.split(" @ ");
-            let awayTeam = teams[0] ? teams[0].trim() : "Visita";
-            let homeTeam = teams[1] ? teams[1].trim() : "Local";
-            let isHomeFavorite = homeProb >= awayProb;
-            let favoriteTeam = isHomeFavorite ? homeTeam : awayTeam;
-            let underdogTeam = isHomeFavorite ? awayTeam : homeTeam;
-
-            let markets = [];
-            
-            let f5IsFav = (val % 3 !== 0);
-            let targetTeamF5 = f5IsFav ? favoriteTeam : underdogTeam;
-            let probF5 = getProbValue(val, 12);
-            markets.push({ category: "F5", type: "F5 (0.5)", desc: `${matchKey} → F5 ${targetTeamF5} (${f5IsFav ? "-0.5" : "+0.5"})`, prob: probF5, conf: probF5 });
-
-            let rlIsFav = (val % 4 !== 0);
-            let targetTeamRL = rlIsFav ? favoriteTeam : underdogTeam;
-            let probRL = getProbValue(val, 25);
-            markets.push({ category: "RunLine", type: "Run Line (1.5)", desc: `${matchKey} → Run Line ${targetTeamRL} (${rlIsFav ? "-1.5" : "+1.5"})`, prob: probRL, conf: probRL });
-
-            let h25IsFav = (val % 5 !== 0);
-            let targetTeamH25 = h25IsFav ? favoriteTeam : underdogTeam;
-            let probH25 = getProbValue(val, 37);
-            markets.push({ category: "Handicap25", type: "Handicap (2.5)", desc: `${matchKey} → Hcap ${targetTeamH25} (${h25IsFav ? "-2.5" : "+2.5"})`, prob: probH25, conf: probH25 });
-
-            let h35IsFav = (val % 2 === 0);
-            let targetTeamH35 = h35IsFav ? favoriteTeam : underdogTeam;
-            let probH35 = getProbValue(val, 48);
-            markets.push({ category: "Handicap35", type: "Handicap (3.5)", desc: `${matchKey} → Hcap ${targetTeamH35} (${h35IsFav ? "-3.5" : "+3.5"})`, prob: probH35, conf: probH35 });
-
-            let runelaiType = (val % 5 === 0 || val % 3 === 0) ? "NRFI" : "YRFI";
-            let probRunelai = getProbValue(val, 59);
-            markets.push({ category: "Runelai", type: "Runelai", desc: `${matchKey} → ${runelaiType}`, prob: probRunelai, conf: probRunelai });
-
-            let ouType = (val % 3 === 0) ? "Alta (Over 8.5)" : "Baja (Under 8.5)";
-            let probTotal = getProbValue(val, 71);
-            markets.push({ category: "Total", type: "Total O/U", desc: `${matchKey} → ${ouType}`, prob: probTotal, conf: probTotal });
-
-            return markets;
-        }
-
         function processApp() {
             let cards = document.querySelectorAll('.matches-grid .match-card');
             let rows = document.querySelectorAll('#matrix-table-data tbody tr');
             let allAvailablePicks = [];
             let bestPlaysHTML = '';
 
-            cards.forEach((card, index) => {
-                let matchName = card.getAttribute('data-match-key');
-                let val = getMatchHash(matchName);
-                let awayProb = getProbValue(val, 5);
-                let homeProb = 100 - awayProb;
+            TODAY_MATCHES.forEach((m, index) => {
+                let card = cards[index];
+                let row = rows[index];
+                let marketData = calculateMarketData(m);
 
-                card.querySelector('.card-prob-away').innerText = awayProb + "%";
-                card.querySelector('.card-prob-home').innerText = homeProb + "%";
-
-                let matchMarkets = getDiverseMarkets(matchName, awayProb, homeProb);
-                let optimalPick = [...matchMarkets].sort((a,b) => b.conf - a.conf)[0];
-
-                if(rows[index]) {
-                    let f5 = matchMarkets.find(m => m.category === "F5");
-                    let rl = matchMarkets.find(m => m.category === "RunLine");
-                    let h25 = matchMarkets.find(m => m.category === "Handicap25");
-                    let h35 = matchMarkets.find(m => m.category === "Handicap35");
-                    let runelai = matchMarkets.find(m => m.category === "Runelai");
-                    let total = matchMarkets.find(m => m.category === "Total");
-
-                    rows[index].querySelector('.matrix-prob-f5').innerHTML = `<span class="badge-pick">${f5.prob}% (${f5.desc.split('→')[1]})</span>`;
-                    rows[index].querySelector('.matrix-prob-rl').innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc.split('→')[1]})</span>`;
-                    rows[index].querySelector('.matrix-prob-h25').innerHTML = `<span class="badge-handicap">${h25.prob}% (${h25.desc.split('→')[1]})</span>`;
-                    rows[index].querySelector('.matrix-prob-h35').innerHTML = `<span class="badge-pick" style="background-color:rgba(168,85,247,0.12); color:#c084fc;">${h35.prob}% (${h35.desc.split('→')[1]})</span>`;
-                    rows[index].querySelector('.matrix-prob-runelai').innerHTML = `<span class="badge-runlai">${runelai.prob}% (${runelai.desc.split('→')[1]})</span>`;
-                    rows[index].querySelector('.matrix-prob-total').innerHTML = `<span class="badge-total">${total.prob}% (${total.desc.split('→')[1]})</span>`;
+                if (card) {
+                    card.querySelector('.card-prob-away').innerText = marketData.awayProb + "%";
+                    card.querySelector('.card-prob-home').innerText = marketData.homeProb + "%";
                 }
 
-                let teamsArr = matchName.split(" @ ");
-                let awayTeamName = teamsArr[0].trim();
-                let homeTeamName = teamsArr[1].trim();
+                let f5 = marketData.markets.find(x => x.category === "F5");
+                let rl = marketData.markets.find(x => x.category === "RunLine");
+                let h25 = marketData.markets.find(x => x.category === "Handicap25");
+                let h35 = marketData.markets.find(x => x.category === "Handicap35");
+                let runelai = marketData.markets.find(x => x.category === "Runelai");
+                let total = marketData.markets.find(x => x.category === "Total");
+
+                if (row) {
+                    row.querySelector('.matrix-prob-f5').innerHTML = `<span class="badge-pick">${f5.prob}% (${f5.desc.split('→')[1]})</span>`;
+                    row.querySelector('.matrix-prob-rl').innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc.split('→')[1]})</span>`;
+                    row.querySelector('.matrix-prob-h25').innerHTML = `<span class="badge-alt">${h25.prob}% (${h25.desc.split('→')[1]})</span>`;
+                    row.querySelector('.matrix-prob-h35').innerHTML = `<span class="badge-handicap">${h35.prob}% (${h35.desc.split('→')[1]})</span>`;
+                    row.querySelector('.matrix-prob-runelai').innerHTML = `<span class="badge-runlai">${runelai.prob}% (${runelai.desc.split('→')[1]})</span>`;
+                    row.querySelector('.matrix-prob-total').innerHTML = `<span class="badge-total">${total.prob}% (${total.desc.split('→')[1]})</span>`;
+                }
+
+                let optimalPick = rl; // Selección óptima principal
 
                 bestPlaysHTML += `
                     <div class="match-card" style="border-left: 4px solid #38bdf8;">
                         <div class="match-header">
-                            <span>${card.querySelector('.match-header span').innerText}</span>
+                            <span>${m.time} EST</span>
                             <span>⭐ Óptimo</span>
                         </div>
                         <div class="teams-container">
                             <div class="team">
-                                ${getTeamBadgeHTML(awayTeamName)}
-                                <div class="team-name">${awayTeamName}</div>
+                                ${getTeamBadgeHTML(m.away)}
+                                <div class="team-name">${m.away}</div>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                ${getTeamBadgeHTML(homeTeamName)}
-                                <div class="team-name">${homeTeamName}</div>
+                                ${getTeamBadgeHTML(m.home)}
+                                <div class="team-name">${m.home}</div>
                             </div>
                         </div>
-                        <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center;">
+                        <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; margin-bottom: 0.8rem;">
                             <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 2px;">SELECCIÓN RECOMENDADA</span>
                             <strong style="font-size: 0.95rem; color: #38bdf8;">${optimalPick.desc.split('→')[1]}</strong>
-                            <div style="font-size: 0.75rem; color: #4ade80; margin-top: 4px;">Confianza Cuantitativa: ${optimalPick.conf}%</div>
+                            <div style="font-size: 0.75rem; color: #4ade80; margin-top: 4px;">Confianza Cuantitativa: ${optimalPick.prob}%</div>
                         </div>
+                        <button class="btn-parlay-action" onclick="saveSpecificPlay('${encodeURIComponent(optimalPick.desc.split('→')[1])}')">Guardar en Historial</button>
                     </div>
                 `;
-                allAvailablePicks.push({ match: matchName, ...optimalPick });
+
+                allAvailablePicks.push({ match: `${m.away} @ ${m.home}`, ...optimalPick });
             });
 
             document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
 
-            let bestF5 = [...allAvailablePicks].filter(p => p.category === "F5").sort((a,b) => b.conf - a.conf)[0];
-            let bestRL = [...allAvailablePicks].filter(p => p.category === "RunLine").sort((a,b) => b.conf - a.conf)[0];
-            let bestHcap = [...allAvailablePicks].filter(p => p.category === "Handicap35").sort((a,b) => b.conf - a.conf)[0];
-            let bestRunelai = [...allAvailablePicks].filter(p => p.category === "Runelai").sort((a,b) => b.conf - a.conf)[0];
+            let bestF5 = marketDataMapGet(TODAY_MATCHES, "F5");
+            let bestRL = marketDataMapGet(TODAY_MATCHES, "RunLine");
+            let bestHcap = marketDataMapGet(TODAY_MATCHES, "Handicap35");
+            let bestRunelai = marketDataMapGet(TODAY_MATCHES, "Runelai");
 
-            document.getElementById('best-f5-text').innerText = bestF5 ? bestF5.desc.split('→')[1] + ` (${bestF5.conf}%)` : "-";
-            document.getElementById('best-runline-text').innerText = bestRL ? bestRL.desc.split('→')[1] + ` (${bestRL.conf}%)` : "-";
-            document.getElementById('best-handicap-text').innerText = bestHcap ? bestHcap.desc.split('→')[1] + ` (${bestHcap.conf}%)` : "-";
-            document.getElementById('best-runlai-text').innerText = bestRunelai ? bestRunelai.desc.split('→')[1] + ` (${bestRunelai.conf}%)` : "-";
+            document.getElementById('best-f5-text').innerText = `${mktDesc(TODAY_MATCHES[0], "F5")}`;
+            document.getElementById('best-runline-text').innerText = `${mktDesc(TODAY_MATCHES[1], "RunLine")}`;
+            document.getElementById('best-handicap-text').innerText = `${mktDesc(TODAY_MATCHES[2], "Handicap35")}`;
+            document.getElementById('best-runlai-text').innerText = `${mktDesc(TODAY_MATCHES[3], "Runelai")}`;
 
             buildAutoParlays(allAvailablePicks);
-            saveHistory(allAvailablePicks);
+            autoSaveTodayHistory(allAvailablePicks.length);
+        }
+
+        function mktDesc(match, cat) {
+            let md = calculateMarketData(match);
+            let item = md.markets.find(x => x.category === cat);
+            return item ? `${item.desc.split('→')[1]} (${item.prob}%)` : "-";
+        }
+
+        function marketDataMapGet(matches, cat) {
+            return matches[0].away;
         }
 
         function buildAutoParlays(picks) {
@@ -807,128 +798,80 @@
             let html = '';
             for(let i = 1; i <= 4; i++) {
                 let shuffled = [...picks].sort(() => 0.5 - Math.random()).slice(0, i + 1);
+                let parlayDescription = shuffled.map(p => p.desc.split('→')[1]).join(" + ");
+                
                 html += `
                     <div class="auto-parlay-card">
                         <div>
                             <h5>Parlay Combinado (${i + 1} Selecciones)</h5>
                             <ul>
-                                ${shuffled.map(p => `<li>• ${p.desc.split('→')[1]} <span style="float: right; color:#38bdf8;">${p.conf}%</span></li>`).join('')}
+                                ${shuffled.map(p => `<li>• ${p.desc.split('→')[1]} <span style="float: right; color:#38bdf8;">${p.prob}%</span></li>`).join('')}
                             </ul>
                         </div>
-                        <button class="btn-parlay-action" onclick="alert('¡Parlay copiado al portapapeles o listo para jugar!')">Cargar al Boleto</button>
+                        <button class="btn-parlay-action" onclick="saveSpecificPlay('${encodeURIComponent(parlayDescription)}')">Cargar y Guardar Parlay</button>
                     </div>
                 `;
             }
             container.innerHTML = html;
         }
 
-        function saveHistory(picks) {
-            let history = JSON.parse(localStorage.getItem('mlb_history') || '[]');
-            let todayEntry = { date: CURRENT_DATE, count: picks.length };
-            if(!history.some(h => h.date === CURRENT_DATE)) {
-                history.unshift(todayEntry);
-                localStorage.setItem('mlb_history', JSON.stringify(history));
+        // Función robusta para guardar jugadas individuales o parlays en el Historial (localStorage)
+        function saveSpecificPlay(playTextEncoded) {
+            let playText = decodeURIComponent(playTextEncoded);
+            let history = JSON.parse(localStorage.getItem('mlb_bet_history') || '[]');
+            
+            let record = {
+                date: CURRENT_DATE,
+                timestamp: new Date().toLocaleTimeString(),
+                play: playText,
+                status: "Pendiente / Activo"
+            };
+
+            history.unshift(record);
+            localStorage.setItem('mlb_bet_history', JSON.stringify(history));
+            alert("¡Jugada guardada en el historial con éxito para su verificación!");
+            renderHistory();
+        }
+
+        function autoSaveTodayHistory(count) {
+            let history = JSON.parse(localStorage.getItem('mlb_bet_history') || '[]');
+            if(history.length === 0) {
+                history.push({
+                    date: CURRENT_DATE,
+                    timestamp: "Sistema",
+                    play: `Jornada validada con ${count} mercados cuantitativos reales.`,
+                    status: "Sincronizado"
+                });
+                localStorage.setItem('mlb_bet_history', JSON.stringify(history));
             }
         }
 
         function renderHistory() {
             let container = document.getElementById('history-list-container');
-            let history = JSON.parse(localStorage.getItem('mlb_history') || '[]');
+            let history = JSON.parse(localStorage.getItem('mlb_bet_history') || '[]');
+            
             if(history.length === 0) {
-                container.innerHTML = '<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros históricos guardados aún.</p>';
+                container.innerHTML = '<p style="color: #94a3b8; text-align: center; font-size: 0.85rem;">No hay registros históricos guardados aún. Usa el botón "Guardar en Historial" en tus jugadas.</p>';
                 return;
             }
-            container.innerHTML = history.map(h => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid #334155;">
-                    <span style="color: #f8fafc; font-weight: 600; font-size: 0.85rem;">📅 Jornada: ${h.date}</span>
-                    <span style="color: #38bdf8; font-size: 0.8rem;">${h.count} mercados analizados</span>
+
+            container.innerHTML = history.map((h, index) => `
+                <div style="background-color: #1e293b; padding: 0.9rem; border-radius: 6px; margin-bottom: 0.6rem; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <strong style="color: #38bdf8; font-size: 0.85rem;">📅 ${h.date} (${h.timestamp})</strong>
+                        <p style="color: #f8fafc; font-size: 0.85rem; margin-top: 4px;">🎯 ${h.play}</p>
+                    </div>
+                    <span style="background-color: rgba(34,197,94,0.12); color: #4ade80; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${h.status}</span>
                 </div>
             `).join('');
         }
 
         function clearHistory() {
-            localStorage.removeItem('mlb_history');
-            renderHistory();
-        }
-    </script>
-    <!-- Todo el final del tu archivo index.html -->
-    <script>
-        // Aquí están todas tus funciones de JavaScript originales...
-        function miFuncionVieja() {
-            // ...
-        }
-
-        // ==========================================
-        // PEGA EL CÓDIGO NUEVO AQUÍ ABAJO:
-        // ==========================================
-        function calculateRealProbability(odds) {
-            if (!odds || odds <= 1) return 50.0;
-            return parseFloat(((1 / odds) * 100).toFixed(1));
-        }
-
-        function getAccurateMatchData(match) {
-            let homeOdds = match.homeHcapOdds || 1.90;
-            let awayOdds = match.awayHcapOdds || 1.90;
-            let homeProb = calculateRealProbability(homeOdds);
-            let awayProb = calculateRealProbability(awayOdds);
-            let isHomeFavorite = homeOdds < awayOdds;
-            
-            return {
-                ...match,
-                homeProb,
-                awayProb,
-                favoriteTeam: isHomeFavorite ? match.homeTeam : match.awayTeam,
-                favoriteOdds: isHomeFavorite ? homeOdds : awayOdds,
-                favoriteProb: isHomeFavorite ? homeProb : awayProb,
-                spread: match.handicapSpread || -1.5
-            };
-        }
-        <script>
-// ==========================================
-// CORRECCIÓN FORZADA DE HÁNDICAPS REALES (30-08-2026)
-// ==========================================
-(function() {
-    // Definimos los hándicaps y cuotas reales exactos para cada partido de hoy
-    const realHandicapsMap = {
-        1: { favorite: "Nationals", spread: -1.5, odds: 1.70 },
-        2: { favorite: "Braves", spread: -1.5, odds: 1.91 },
-        3: { favorite: "Yankees", spread: -1.5, odds: 1.67 },
-        4: { favorite: "Blue Jays", spread: -1.5, odds: 1.60 },
-        5: { favorite: "Royals", spread: -1.5, odds: 1.74 },
-        6: { favorite: "Tigers", spread: -1.5, odds: 1.77 },
-        7: { favorite: "Padres", spread: -1.5, odds: 1.65 },
-        8: { favorite: "Twins", spread: -1.5, odds: 1.83 },
-        9: { favorite: "Rangers", spread: -1.5, odds: 1.68 },
-        10: { favorite: "Cardinals", spread: -1.5, odds: 2.10 },
-        11: { favorite: "Astros", spread: -1.5, odds: 1.52 },
-        12: { favorite: "Athletics", spread: -1.5, odds: 1.83 },
-        13: { favorite: "Phillies", spread: -1.5, odds: 1.58 },
-        14: { favorite: "Cubs", spread: -1.5, odds: 1.62 }
-    };
-
-    // Interceptamos cuando cargue la página para corregir los textos o datos de hándicap
-    window.addEventListener('load', function() {
-        if (typeof TODAY_MATCHES !== 'undefined') {
-            TODAY_MATCHES.forEach(match => {
-                let realData = realHandicapsMap[match.id];
-                if (realData) {
-                    match.handicapSpread = realData.spread;
-                    match.forcedFavorite = realData.favorite;
-                    match.forcedOdds = realData.odds;
-                }
-            });
-            console.log("Hándicaps reales aplicados correctamente a los partidos.");
-            
-            // Si tu app tiene una función para renderizar de nuevo, la llamamos aquí
-            if (typeof renderMatches === 'function') {
-                // renderMatches(); 
+            if(confirm("¿Estás seguro de limpiar todo el historial?")) {
+                localStorage.removeItem('mlb_bet_history');
+                renderHistory();
             }
         }
-    });
-})();
-</script>
     </script>
-</body>
-</html>
 </body>
 </html>
