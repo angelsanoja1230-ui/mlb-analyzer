@@ -346,7 +346,10 @@
     <div id="matrix-tab" class="tab-content active">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h2>Configuración de Hándicaps Diarios</h2>
-            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem;" onclick="saveCustomLines()">💾 Guardar Líneas</button>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem;" onclick="saveCustomLines()">💾 Guardar Líneas</button>
+                <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem; background-color: #4ade80; color: #0f172a;" onclick="saveAllMatrixToHistory()">📌 Enviar Todos al Historial</button>
+            </div>
         </div>
         <div id="matches-cards-container" class="matches-grid"></div>
     </div>
@@ -381,7 +384,7 @@
     <!-- Pestaña 6: Historial -->
     <div id="history-tab" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2>Historial de Pronósticos Guardados</h2>
+            <h2>Historial de Pronósticos Evaluados</h2>
             <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem; background-color: var(--danger); color: white;" onclick="clearHistory()">🗑️ Limpiar Historial</button>
         </div>
         <div id="history-list-container"></div>
@@ -487,7 +490,10 @@
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
             
-            if(tabId === 'history-tab') renderHistory();
+            if(tabId === 'history-tab') {
+                evaluateHistoryResults();
+                renderHistory();
+            }
             if(tabId === 'live-standalone-tab') fetchRealLiveMLBData();
         }
 
@@ -601,13 +607,12 @@
                             <div style="font-size: 0.7rem; color: #94a3b8;">${m.time}</div>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
-                        <div class="market-pill"><span class="market-pill-label">F5</span><span class="market-pill-value">${f5Pick}</span></div>
-                        <div class="market-pill"><span class="market-pill-label">Ganador</span><span class="market-pill-value">${mlPick}</span></div>
-                        <div class="market-pill"><span class="market-pill-label">Hándicap</span><span class="market-pill-value">${lineInfo.team} ${lineInfo.line}</span></div>
-                        <div class="market-pill"><span class="market-pill-label">O/U</span><span class="market-pill-value">${ouPick}</span></div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <div class="market-pill pill-f5"><span class="market-pill-label">F5</span><span class="market-pill-value">${f5Pick}</span></div>
+                        <div class="market-pill pill-ml"><span class="market-pill-label">Ganador</span><span class="market-pill-value">${mlPick}</span></div>
+                        <div class="market-pill pill-rl"><span class="market-pill-label">Hándicap</span><span class="market-pill-value">${lineInfo.team} ${lineInfo.line}</span></div>
+                        <div class="market-pill pill-ou"><span class="market-pill-label">O/U</span><span class="market-pill-value">${ouPick}</span></div>
                     </div>
-                    <button class="btn-action" style="padding: 0.4rem; font-size: 0.75rem;" onclick="saveToHistory('${m.away} vs ${m.home}', '${lineInfo.team} ${lineInfo.line}', 'Hándicap')">📌 Guardar Hándicap en Historial</button>
                 </div>`;
             });
 
@@ -628,6 +633,36 @@
             }
 
             renderAutoParlays();
+        }
+
+        function saveAllMatrixToHistory() {
+            let savedLines = getSavedLines();
+            let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
+            let addedCount = 0;
+
+            BASE_MATCHES.forEach(m => {
+                let lineInfo = savedLines[m.id] || { team: m.home, line: m.defaultHcap };
+                let matchupStr = `${m.away} vs ${m.home}`;
+                let pickStr = `${lineInfo.team} ${lineInfo.line}`;
+
+                let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchupStr && h.pick === pickStr);
+                if (!exists) {
+                    history.unshift({
+                        date: CURRENT_DATE,
+                        matchup: matchupStr,
+                        pick: pickStr,
+                        type: 'Línea Real (RL)',
+                        status: 'Pendiente',
+                        rawAway: m.away,
+                        rawHome: m.home
+                    });
+                    addedCount++;
+                }
+            });
+
+            localStorage.setItem('mlb_history_log', JSON.stringify(history));
+            alert(`¡Se han guardado ${addedCount} análisis de líneas reales en el historial!`);
+            renderHistory();
         }
 
         function renderAutoParlays() {
@@ -671,16 +706,90 @@
                 return;
             }
 
+            let parts = matchup.split(" vs ");
+            let awayTeam = parts[0] || "";
+            let homeTeam = parts[1] || "";
+
             history.unshift({
                 date: CURRENT_DATE,
                 matchup: matchup,
                 pick: pick,
                 type: type,
-                status: 'Pendiente'
+                status: 'Pendiente',
+                rawAway: awayTeam,
+                rawHome: homeTeam
             });
             localStorage.setItem('mlb_history_log', JSON.stringify(history));
             alert("¡Selección guardada exitosamente en el historial!");
             renderHistory();
+        }
+
+        async function evaluateHistoryResults() {
+            let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
+            if (history.length === 0) return;
+
+            try {
+                let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${CURRENT_DATE}&hydrate=linescore`);
+                let data = await response.json();
+                let games = (data.dates && data.dates.length > 0) ? data.dates[0].games : [];
+
+                let updated = false;
+
+                history.forEach(item => {
+                    if (item.status === 'Ganada' || item.status === 'Perdida') return;
+
+                    let matchedGame = games.find(g => {
+                        let a = g.teams.away.team.name;
+                        let h = g.teams.home.team.name;
+                        return item.matchup.includes(a) && item.matchup.includes(h);
+                    });
+
+                    if (matchedGame && matchedGame.status.abstractGameState === "Final") {
+                        let aScore = matchedGame.teams.away.score || 0;
+                        let hScore = matchedGame.teams.home.score || 0;
+                        let aName = matchedGame.teams.away.team.name;
+                        let hName = matchedGame.teams.home.team.name;
+
+                        let pickText = item.pick;
+                        let isAway = pickText.includes(aName);
+                        let isHome = pickText.includes(hName);
+
+                        if (!isAway && !isHome) return;
+
+                        let teamScore = isAway ? aScore : hScore;
+                        let oppScore = isAway ? hScore : aScore;
+
+                        // Extraer valor de hándicap si existe (ej. -1.5, +1.5)
+                        let handicapMatch = pickText.match(/([+-]\d+\.?\d*)/);
+
+                        if (handicapMatch && !pickText.includes("ML")) {
+                            let hcapVal = parseFloat(handicapMatch[1]);
+                            let adjustedScore = teamScore + hcapVal;
+                            if (adjustedScore > oppScore) {
+                                item.status = 'Ganada';
+                            } else {
+                                item.status = 'Perdida';
+                            }
+                            updated = true;
+                        } else {
+                            // Evaluación para Moneyline (ML) u otros pronósticos directos
+                            if (teamScore > oppScore) {
+                                item.status = 'Ganada';
+                            } else {
+                                item.status = 'Perdida';
+                            }
+                            updated = true;
+                        }
+                    }
+                });
+
+                if (updated) {
+                    localStorage.setItem('mlb_history_log', JSON.stringify(history));
+                    renderHistory();
+                }
+            } catch (e) {
+                console.error("Error evaluando historial con API:", e);
+            }
         }
 
         function renderHistory() {
@@ -710,11 +819,11 @@
                 <div style="background-color: #1e293b; padding: 0.8rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155;">
                     <div>
                         <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 2px;">
-                            <span style="font-size: 0.65rem; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 1px 6px; border-radius: 4px; font-weight: bold;">[${h.type}]</span>
+                            <span style="font-size: 0.65rem; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 1px 6px; border-radius: 4px; font-weight: bold;">[${h.type || 'Jugada'}]</span>
                             <span style="font-size: 0.75rem; color: #94a3b8;">${h.date}</span>
                         </div>
                         <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc;">${h.matchup}</div>
-                        <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: bold;">Pronóstico: ${h.pick}</div>
+                        <div style="font-size: 0.8rem; color: #cbd5e1; font-weight: bold;">Pronóstico / Hándicap: ${h.pick}</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="background-color: ${badgeBg}; color: ${badgeColor}; border: 1px solid ${badgeBorder}; padding: 2px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">${h.status}</span>
@@ -873,6 +982,7 @@
                 });
 
                 container.innerHTML = liveCardsHTML;
+                evaluateHistoryResults();
             } catch (err) {
                 console.error("Error consultando la API de MLB:", err);
                 container.innerHTML = `<p style="color: #ef4444; text-align: center; font-size: 0.9rem; grid-column: 1 / -1; padding: 2rem;">Error al conectar con la API de la MLB.</p>`;
