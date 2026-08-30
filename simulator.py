@@ -1,6 +1,6 @@
 import random
 
-def run_monte_carlo_simulation(match_data, iterations=1000):
+def run_monte_carlo_simulation(match_data, iterations=500):
     away_wins = 0
     home_wins = 0
     f5_away_wins = 0
@@ -21,9 +21,8 @@ def run_monte_carlo_simulation(match_data, iterations=1000):
             else:
                 f5_home_wins += 1
 
-        bullpen_fatigue = random.uniform(0.96, 1.04)
-        total_away = f5_score_away + (random.gauss(2.1, 1.0) * bullpen_fatigue)
-        total_home = f5_score_home + (random.gauss(2.2, 1.0) * bullpen_fatigue)
+        total_away = f5_score_away + random.gauss(2.1, 1.0)
+        total_home = f5_score_home + random.gauss(2.2, 1.0)
 
         if abs(total_away - total_home) < 0.35:
             extra_innings_count += 1
@@ -49,11 +48,8 @@ def run_monte_carlo_simulation(match_data, iterations=1000):
 def process_all_matches(matches_list):
     processed_matches = []
     for match in matches_list:
-        sim_results = run_monte_carlo_simulation(match, iterations=1000)
+        sim_results = run_monte_carlo_simulation(match, iterations=500)
         match_updated = match.copy()
-        match_updated.update(sim_results)
-        processed_matches.append(match_updated)
-    return processed_matches
         match_updated.update(sim_results)
         processed_matches.append(match_updated)
     return processed_matches
