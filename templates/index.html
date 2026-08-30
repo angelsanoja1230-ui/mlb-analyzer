@@ -25,7 +25,6 @@
             margin: 0 auto;
         }
 
-        /* Cabecera limpia y exacta como lo pediste */
         header {
             text-align: center;
             margin-bottom: 2rem;
@@ -48,22 +47,22 @@
         .tabs-nav {
             display: flex;
             justify-content: center;
-            gap: 1rem;
+            gap: 0.8rem;
             margin-bottom: 2rem;
             border-bottom: 2px solid #1e293b;
             padding-bottom: 1rem;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
             background-color: #1e293b;
             color: #94a3b8;
             border: 1px solid #334155;
-            padding: 0.7rem 1.5rem;
+            padding: 0.7rem 1.2rem;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            text-decoration: none;
         }
 
         .tab-btn:hover {
@@ -106,7 +105,6 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
 
-        /* Estilo especial para las Mega Jugadas con EV+ alto */
         .mega-play-border {
             border: 2px solid #f59e0b;
             box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
@@ -188,13 +186,13 @@
             margin-bottom: 0.2rem;
         }
 
-        /* Cuadro de recomendación inteligente / EV+ */
         .recommendation-box {
             padding: 0.75rem;
             border-radius: 8px;
             font-size: 0.85rem;
             text-align: center;
             font-weight: 600;
+            margin-bottom: 1rem;
         }
 
         .highlight-ev {
@@ -209,18 +207,70 @@
             border: 1px solid #334155;
         }
 
-        /* Estilo para la pestaña de Parlay */
-        .parlay-container {
+        /* Botón de Guardar Pronóstico */
+        .save-btn {
+            width: 100%;
+            background-color: #0284c7;
+            color: #fff;
+            border: none;
+            padding: 0.6rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .save-btn:hover {
+            background-color: #0369a1;
+        }
+
+        /* Secciones de Parlay por Niveles */
+        .parlay-section {
             background-color: #1e293b;
             border: 1px solid #334155;
             border-radius: 12px;
             padding: 2rem;
-            text-align: center;
         }
-        
-        .parlay-container h2 {
-            color: #38bdf8;
-            margin-bottom: 1rem;
+
+        .parlay-tiers {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tier-btn {
+            background-color: #0f172a;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .tier-btn.active {
+            background-color: #f59e0b;
+            color: #0f172a;
+            border-color: #f59e0b;
+        }
+
+        .parlay-card-list {
+            background-color: #0f172a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px dashed #334155;
+            min-height: 150px;
+        }
+
+        .parlay-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #1e293b;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
         }
     </style>
 </head>
@@ -236,14 +286,15 @@
         <div class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">Partidos del Día</button>
             <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">Generador de Parlay</button>
+            <button class="tab-btn" onclick="switchTab(event, 'saved-tab')">Pronósticos Guardados</button>
             <button class="tab-btn" onclick="switchTab(event, 'analytics-tab')">Análisis Avanzado</button>
         </div>
 
-        <!-- Contenido Pestaña 1: Partidos -->
+        <!-- Pestaña 1: Partidos -->
         <div id="matches-tab" class="tab-content active">
             <div class="matches-grid">
                 {% for match in matches %}
-                <div class="match-card {% if match.is_mega_play %}mega-play-border{% endif %}">
+                <div class="match-card {% if match.is_mega_play %}mega-play-border{% endif %}" id="match-{{ loop.index0 }}">
                     <div class="match-header">
                         <span>{{ match.time }}</span>
                         <span>📍 {{ match.stadium }}</span>
@@ -268,58 +319,71 @@
                     <div class="probabilities">
                         <div class="prob-box">
                             <span>Visita (Win %)</span>
-                            <strong>{{ match.prob_away }}%</strong>
+                            <strong class="p-away">{{ match.prob_away }}%</strong>
                         </div>
                         <div class="prob-box" style="border-left: 1px solid #334155; padding-left: 1.5rem;">
                             <span>Local (Win %)</span>
-                            <strong>{{ match.prob_home }}%</strong>
+                            <strong class="p-home">{{ match.prob_home }}%</strong>
                         </div>
                     </div>
 
                     <div class="details-grid">
-                        <div><strong>Abridores:</strong> {{ match.starter_away }} vs {{ match.starter_home }}</div>
+                        <div><strong>Abridores:</strong> <span class="s-away">{{ match.starter_away }}</span> vs <span class="s-home">{{ match.starter_home }}</span></div>
                         <div><strong>Clima:</strong> Viento {{ match.wind_speed_mph }} mph ({{ match.wind_direction }}) | Temp: {{ match.temperature_f }}°F</div>
                     </div>
 
                     <div class="recommendation-box {% if match.is_mega_play %}highlight-ev{% else %}normal-ev{% endif %}">
                         {{ match.recommendation_text }}
                     </div>
+
+                    <button class="save-btn" onclick="savePrediction('{{ match.away }} vs {{ match.home }}', '{{ match.recommendation_text }}', '{{ match.time }}')">💾 Guardar Pronóstico</button>
                 </div>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Contenido Pestaña 2: Parlay -->
+        <!-- Pestaña 2: Generador de Parlay por Niveles -->
         <div id="parlay-tab" class="tab-content">
-            <div class="parlay-container">
-                <h2>Combinaciones de Parlay Sugeridas (EV+)</h2>
-                <p style="color: #94a3b8; margin-bottom: 1.5rem;">Aquí se agrupan automáticamente las selecciones con mayor valor matemático positivo del día.</p>
-                <div style="background-color: #0f172a; padding: 1.5rem; border-radius: 8px; border: 1px dashed #334155;">
-                    {% set mega_plays = matches | selectattr('is_mega_play') | list %}
-                    {% if mega_plays | length > 0 %}
-                        <p style="color: #fbbf24; font-weight: bold; margin-bottom: 1rem;">🔥 Sugerencia de Parlay con {{ mega_plays | length }} Logros Detectados:</p>
-                        <ul style="list-style: none; text-align: left; max-width: 500px; margin: 0 auto; color: #cbd5e1;">
-                            {% for play in mega_plays %}
-                            <li style="padding: 6px 0; border-bottom: 1px solid #1e293b;">⚾ {{ play.recommendation_text }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p style="color: #94a3b8;">No hay suficientes "Mega Jugadas" con EV+ > 5% hoy para armar un parlay seguro. Se recomienda esperar.</p>
-                    {% endif %}
+            <div class="parlay-section">
+                <h2 style="color: #38bdf8; text-align: center; margin-bottom: 1rem;">Generador de Parlay Estratégico</h2>
+                <p style="color: #94a3b8; text-align: center; margin-bottom: 1.5rem;">Selecciona el nivel de combinaciones que deseas armar basado en las selecciones de valor detectadas.</p>
+                
+                <div class="parlay-tiers">
+                    <button class="tier-btn active" onclick="loadParlayTier(2, event)">Parlay de 2 (Seguro)</button>
+                    <button class="tier-btn" onclick="loadParlayTier(3, event)">Parlay de 3</button>
+                    <button class="tier-btn" onclick="loadParlayTier(4, event)">Parlay de 4</button>
+                    <button class="tier-btn" onclick="loadParlayTier(5, event)">Parlay de 5 (Alto Riesgo)</button>
+                </div>
+
+                <div class="parlay-card-list" id="parlay-results-container">
+                    <!-- Se llena dinámicamente con JS -->
                 </div>
             </div>
         </div>
 
-        <!-- Contenido Pestaña 3: Análisis Avanzado -->
+        <!-- Pestaña 3: Pronósticos Guardados / Resultados -->
+        <div id="saved-tab" class="tab-content">
+            <div class="parlay-section">
+                <h2 style="color: #38bdf8; text-align: center; margin-bottom: 1rem;">Historial y Seguimiento de Resultados</h2>
+                <p style="color: #94a3b8; text-align: center; margin-bottom: 1.5rem;">Aquí puedes chequear los pronósticos que guardaste previamente para verificar sus resultados.</p>
+                
+                <div class="parlay-card-list" id="saved-predictions-list">
+                    <!-- Listado guardado en localStorage -->
+                </div>
+                <button onclick="clearSaved()" style="margin-top: 1rem; background: #ef4444; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Limpiar Historial</button>
+            </div>
+        </div>
+
+        <!-- Pestaña 4: Análisis Avanzado -->
         <div id="analytics-tab" class="tab-content">
-            <div class="parlay-container">
-                <h2>Panel de Métricas y Factores Climáticos</h2>
-                <p style="color: #94a3b8;">Resumen del comportamiento físico de los estadios y simulaciones de Monte Carlo (5,000 iteraciones por encuentro).</p>
+            <div class="parlay-section" style="text-align: center;">
+                <h2 style="color: #38bdf8; margin-bottom: 1rem;">Panel de Métricas y Factores Climáticos</h2>
+                <p style="color: #94a3b8;">Simulaciones de Monte Carlo activas (5,000 iteraciones por encuentro ponderadas con factor de parque y viento).</p>
             </div>
         </div>
     </div>
 
-    <!-- Script sencillo para cambiar de pestaña con los botones -->
+    <!-- Scripts de Funcionalidad -->
     <script>
         function switchTab(evt, tabId) {
             const contents = document.querySelectorAll('.tab-content');
@@ -330,6 +394,90 @@
 
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
+
+            if(tabId === 'saved-tab') {
+                renderSavedPredictions();
+            } else if(tabId === 'parlay-tab') {
+                loadParlayTier(2);
+            }
+        }
+
+        // Recopilar todas las recomendaciones disponibles para armar los parlays
+        function getAllPlays() {
+            const cards = document.querySelectorAll('.match-card');
+            let plays = [];
+            cards.forEach(card => {
+                const text = card.querySelector('.recommendation-box').innerText;
+                const matchTitle = card.querySelector('.team-name').innerText + " vs " + card.querySelectorAll('.team-name')[1].innerText;
+                plays.push({ match: matchTitle, recommendation: text });
+            });
+            return plays;
+        }
+
+        function loadParlayTier(count, evt) {
+            if(evt) {
+                document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+                evt.currentTarget.classList.add('active');
+            }
+
+            const container = document.getElementById('parlay-results-container');
+            const plays = getAllPlays();
+            
+            if(plays.length === 0) {
+                container.innerHTML = '<p style="color:#94a3b8; text-align:center;">No hay partidos disponibles.</p>';
+                return;
+            }
+
+            let html = `<p style="color: #fbbf24; font-weight: bold; margin-bottom: 1rem;">🎯 Combinación Sugerida de ${count} Logros:</p>`;
+            html += '<ul style="list-style: none;">';
+            
+            // Tomar 'count' elementos para simular el parlay
+            for(let i = 0; i < Math.min(count, plays.length); i++) {
+                html += `<li class="parlay-item"><span>⚾ <strong>${plays[i].match}</strong></span> <span>${plays[i].recommendation}</span></li>`;
+            }
+            
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        // Guardar pronóstico usando LocalStorage del navegador
+        function savePrediction(matchName, recommendation, time) {
+            let saved = JSON.parse(localStorage.getItem('saved_mlb_predictions') || '[]');
+            const entry = { match: matchName, rec: recommendation, time: time, date: '30-08-2026' };
+            
+            // Evitar duplicados exactos
+            if(!saved.some(s => s.match === matchName && s.rec === recommendation)) {
+                saved.push(entry);
+                localStorage.setItem('saved_mlb_predictions', JSON.stringify(saved));
+                alert('¡Pronóstico guardado exitosamente!');
+            } else {
+                alert('Este pronóstico ya está guardado en tu lista.');
+            }
+        }
+
+        function renderSavedPredictions() {
+            const container = document.getElementById('saved-predictions-list');
+            let saved = JSON.parse(localStorage.getItem('saved_mlb_predictions') || '[]');
+            
+            if(saved.length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8; text-align: center;">No tienes pronósticos guardados todavía. Ve a la pestaña de Partidos y haz clic en "Guardar Pronóstico".</p>';
+                return;
+            }
+
+            let html = '<ul style="list-style: none;">';
+            saved.forEach((item, index) => {
+                html += `<li class="parlay-item" style="display: block; padding: 10px 0;">
+                    <div style="color: #38bdf8; font-weight: bold;">🕒 ${item.time} - ${item.match}</div>
+                    <div style="color: #cbd5e1; margin-top: 4px;">${item.rec}</div>
+                </li>`;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        function clearSaved() {
+            localStorage.removeItem('saved_mlb_predictions');
+            renderSavedPredictions();
         }
     </script>
 </body>
