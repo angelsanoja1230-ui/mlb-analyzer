@@ -1,16 +1,17 @@
+from flask import Flask, render_template
+import json
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from simulator import process_all_matches
 
 app = Flask(__name__)
 
-# Archivo simple para llevar el registro de visitas diarias
 VISIT_FILE = "visits.txt"
 
 def get_visit_count():
     if not os.path.exists(VISIT_FILE):
         return 0
     try:
-        with open(VISIT_FILE, "r") as f:
+        with open(VISIT_FILE, "r", encoding="utf-8") as f:
             content = f.read().strip()
             return int(content) if content.isdigit() else 0
     except:
@@ -19,19 +20,32 @@ def get_visit_count():
 def increment_visit_count():
     count = get_visit_count() + 1
     try:
-        with open(VISIT_FILE, "w") as f:
+        with open(VISIT_FILE, "w", encoding="utf-8") as f:
             f.write(str(count))
     except:
         pass
     return count
 
+def load_data():
+    if os.path.exists('data.json'):
+        with open('data.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {}
+
 @app.route('/')
-def home():
-    # Cada vez que cargan la página principal, sumamos 1 visita
+def index():
     total_visits = increment_visit_count()
+    data = load_data()
+    raw_matches = data.get('matches', [])
+    simulated_matches = process_all_matches(raw_matches)
     
-    # Aquí puedes pasar las variables de tus partidos a la plantilla
-    return render_template('index.html', visits=total_visits)
+    return render_template(
+        'index.html', 
+        matches=simulated_matches, 
+        team_logos=data.get('team_logos', {}), 
+        DAILY_ARCHIVE=data.get('DAILY_ARCHIVE', {}),
+        visits=total_visits
+    )
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
