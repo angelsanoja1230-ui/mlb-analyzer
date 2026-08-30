@@ -292,7 +292,11 @@
         <div id="matches-tab" class="tab-content active">
             <div class="matches-grid">
                 {% for match in matches %}
-                <div class="match-card {% if match.is_mega_play %}mega-play-border{% endif %}">
+                <div class="match-card {% if match.is_mega_play %}mega-play-border{% endif %}" 
+                     data-away="{{ match.away }}" 
+                     data-home="{{ match.home }}" 
+                     data-prob-away="{{ match.prob_away }}" 
+                     data-prob-home="{{ match.prob_home }}">
                     <div class="match-header">
                         <span>{{ match.time }}</span>
                         <span>📍 {{ match.stadium }}</span>
@@ -334,23 +338,23 @@
                         {{ match.recommendation_text }}
                     </div>
 
-                    <button class="save-btn" onclick="savePrediction('{{ match.away }} vs {{ match.home }}', '{{ match.recommendation_text }}', '{{ match.time }}')">💾 Guardar Pronóstico</button>
+                    <button class="save-btn" onclick="savePrediction('{{ match.away }} vs {{ match.home }}', 'Ganador Proyectado: {{ match.away if match.prob_away > match.prob_home else match.home }}', '{{ match.time }}')">💾 Guardar Pronóstico</button>
                 </div>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Pestaña 2: Generador de Parlay Inteligente -->
+        <!-- Pestaña 2: Generador de Parlay Dinámico -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-section">
-                <h2 style="color: #38bdf8; text-align: center; margin-bottom: 1rem;">Generador de Parlay Estratégico</h2>
-                <p style="color: #94a3b8; text-align: center; margin-bottom: 1.5rem;">Selecciona el nivel de combinaciones. El sistema filtra solo partidos con valor real (EV+) y mezcla las opciones de forma única.</p>
+                <h2 style="color: #38bdf8; text-align: center; margin-bottom: 1rem;">Generador de Parlay Dinámico</h2>
+                <p style="color: #94a3b8; text-align: center; margin-bottom: 1.5rem;">Selecciona el nivel de combinaciones. El sistema toma automáticamente al equipo con mayor probabilidad matemática de cada encuentro.</p>
                 
                 <div class="parlay-tiers">
-                    <button class="tier-btn active" onclick="loadParlayTier(2, event)">Parlay de 2 (Seguro)</button>
+                    <button class="tier-btn active" onclick="loadParlayTier(2, event)">Parlay de 2</button>
                     <button class="tier-btn" onclick="loadParlayTier(3, event)">Parlay de 3</button>
                     <button class="tier-btn" onclick="loadParlayTier(4, event)">Parlay de 4</button>
-                    <button class="tier-btn" onclick="loadParlayTier(5, event)">Parlay de 5 (Alto Riesgo)</button>
+                    <button class="tier-btn" onclick="loadParlayTier(5, event)">Parlay de 5</button>
                 </div>
 
                 <div class="parlay-card-list" id="parlay-results-container">
@@ -398,22 +402,41 @@
             }
         }
 
-        // Recopila EXCLUSIVAMENTE los partidos que son Mega Jugadas (EV+ > 5%)
-        function getMegaPlaysOnly() {
+        // Extrae TODOS los partidos y selecciona matemáticamente al favorito de cada uno
+        function getAllMatchPredictions() {
             const cards = document.querySelectorAll('.match-card');
             let plays = [];
+            
             cards.forEach(card => {
-                const recText = card.querySelector('.recommendation-box').innerText;
-                // Ignorar partidos sin valor suficiente
-                if (!recText.includes("Sin margen de valor")) {
-                    const matchTitle = card.querySelector('.team-name').innerText + " vs " + card.querySelectorAll('.team-name')[1].innerText;
-                    plays.push({ match: matchTitle, recommendation: recText });
+                const away = card.getAttribute('data-away');
+                const home = card.getAttribute('data-home');
+                const probAway = parseFloat(card.getAttribute('data-prob-away'));
+                const probHome = parseFloat(card.getAttribute('data-prob-home'));
+                
+                let selectedTeam = "";
+                let selectedProb = 0;
+
+                // Definir automáticamente al equipo con mayor probabilidad matemática
+                if (probAway >= probHome) {
+                    selectedTeam = away;
+                    selectedProb = probAway;
+                } else {
+                    selectedTeam = home;
+                    selectedProb = probHome;
                 }
+
+                plays.push({
+                    match: `${away} vs ${home}`,
+                    pick: `Apostar a ${selectedTeam} (${selectedProb}%)`,
+                    probability: selectedProb
+                });
             });
+
+            // Ordenar de mayor a menor probabilidad para darte siempre las mejores opciones primero
+            plays.sort((a, b) => b.probability - a.probability);
             return plays;
         }
 
-        // Función para mezclar aleatoriamente el array de jugadas (Algoritmo Fisher-Yates)
         function shuffleArray(array) {
             let arr = [...array];
             for (let i = arr.length - 1; i > 0; i--) {
@@ -430,31 +453,26 @@
             }
 
             const container = document.getElementById('parlay-results-container');
-            let plays = getMegaPlaysOnly();
+            let plays = getAllMatchPredictions();
             
             if(plays.length === 0) {
-                container.innerHTML = '<p style="color:#94a3b8; text-align:center;">No hay suficientes Mega Jugadas con valor hoy para armar combinaciones.</p>';
+                container.innerHTML = '<p style="color:#94a3b8; text-align:center;">No hay partidos cargados.</p>';
                 return;
             }
 
-            // Mezclar aleatoriamente para que salgan combinaciones distintas cada vez
+            // Mezclar para dinamismo
             plays = shuffleArray(plays);
 
-            if(plays.length < count) {
-                container.innerHTML = `<p style="color: #fbbf24; text-align:center;">Solo hay ${plays.length} jugadas con valor positivo hoy. Mostrando la combinación máxima disponible:</p>`;
-            } else {
-                container.innerHTML = `<p style="color: #fbbf24; font-weight: bold; margin-bottom: 1rem;">🎯 Combinación Sugerida de ${count} Logros:</p>`;
-            }
-
-            let html = '<ul style="list-style: none;">';
-            let limit = Math.min(count, plays.length);
+            let html = `<p style="color: #fbbf24; font-weight: bold; margin-bottom: 1rem;">🎯 Combinación Sugerida de ${count} Logros:</p>`;
+            html += '<ul style="list-style: none;">';
             
+            let limit = Math.min(count, plays.length);
             for(let i = 0; i < limit; i++) {
-                html += `<li class="parlay-item"><span>⚾ <strong>${plays[i].match}</strong></span> <span style="color: #38bdf8;">${plays[i].recommendation}</span></li>`;
+                html += `<li class="parlay-item"><span>⚾ <strong>${plays[i].match}</strong></span> <span style="color: #38bdf8; font-weight: 600;">${plays[i].pick}</span></li>`;
             }
             
             html += '</ul>';
-            container.innerHTML += html;
+            container.innerHTML = html;
         }
 
         function savePrediction(matchName, recommendation, time) {
