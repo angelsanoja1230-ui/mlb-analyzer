@@ -120,11 +120,29 @@
         .team {
             text-align: center;
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .team-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.15);
         }
 
         .team-name {
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .vs {
@@ -175,24 +193,35 @@
             padding: 1.2rem;
         }
 
+        /* Contenedor con Scroll para evitar desbordes */
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid #334155;
+        }
+
         .matrix-table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
             font-size: 0.78rem;
+            min-width: 850px; /* Asegura distribución ordenada en pantallas pequeñas con scroll */
         }
 
         .matrix-table th {
             background-color: #0f172a;
             color: #38bdf8;
-            padding: 8px;
+            padding: 10px 8px;
             font-weight: 600;
             border-bottom: 2px solid #334155;
             white-space: nowrap;
         }
 
         .matrix-table td {
-            padding: 8px;
+            padding: 9px 8px;
             border-bottom: 1px solid #334155;
             color: #cbd5e1;
             white-space: nowrap;
@@ -252,16 +281,30 @@
         .table-match-cell {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .team-mini-box {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             font-weight: 600;
             font-size: 0.8rem;
             color: #f8fafc;
+        }
+
+        .team-logo-sm {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.6rem;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.15);
+            flex-shrink: 0;
         }
 
         /* Padlet Iframe */
@@ -433,24 +476,26 @@
         <div id="matrix-tab" class="tab-content">
             <div class="matrix-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación Cuantitativa (0.5 a 3.5)</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Verificación estricta de hándicaps completos y alternativos incluyendo +3.5 / -3.5 y el equipo opuesto ("el que no es").</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Verificación estricta de hándicaps completos y alternativos incluyendo +3.5 / -3.5 y el equipo opuesto ("el que no es"). Desliza horizontalmente si es necesario.</p>
                 
-                <table class="matrix-table" id="matrix-table-data">
-                    <thead>
-                        <tr>
-                            <th>Encuentro</th>
-                            <th>Ganador F5 / Hcap 0.5</th>
-                            <th>Run Line (1.5)</th>
-                            <th>Handicap (2.5)</th>
-                            <th>Handicap (3.5) [±]</th>
-                            <th>Runelai</th>
-                            <th>Alta / Baja</th>
-                        </tr>
-                    </thead>
-                    <tbody id="matrix-tbody-container">
-                        <!-- Generado por JavaScript -->
-                    </tbody>
-                </table>
+                <div class="table-responsive-wrapper">
+                    <table class="matrix-table" id="matrix-table-data">
+                        <thead>
+                            <tr>
+                                <th>Encuentro</th>
+                                <th>Ganador F5 / Hcap 0.5</th>
+                                <th>Run Line (1.5)</th>
+                                <th>Handicap (2.5)</th>
+                                <th>Handicap (3.5) [±]</th>
+                                <th>Runelai</th>
+                                <th>Alta / Baja</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrix-tbody-container">
+                            <!-- Generado por JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -469,7 +514,7 @@
         <!-- Pestaña 4: Historial -->
         <div id="history-tab" class="tab-content">
             <div class="history-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.2rem;">Historial de Pronósticos y Tracking</h2>
                         <p style="color: #94a3b8; font-size: 0.8rem;">Registro acumulado de las jornadas guardadas automáticamente.</p>
@@ -551,6 +596,23 @@
             { away: "Cincinnati Reds", home: "Chicago Cubs", time: "7:20 PM", stadium: "Wrigley Field", starter_away: "H. Greene", starter_home: "J. Steele", wind: "14", temp: "73" }
         ];
 
+        // Función utilitaria para generar iniciales y color distintivo de logo para cada equipo
+        function getTeamBadgeHTML(teamName, isSmall = false) {
+            let words = teamName.split(" ");
+            let initials = words.length > 1 ? words[words.length - 1].substring(0, 2).toUpperCase() : teamName.substring(0, 2).toUpperCase();
+            
+            let hash = 0;
+            for (let i = 0; i < teamName.length; i++) {
+                hash = teamName.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            let c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+            let colorCode = "#" + "00000".substring(0, 6 - c.length) + c;
+
+            // Evitar colores muy claros asegurando tonalidades visibles
+            let classSize = isSmall ? "team-logo-sm" : "team-logo";
+            return `<div class="${classSize}" style="background-color: ${colorCode};" title="${teamName}">${initials}</div>`;
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('current-date-label').innerText = CURRENT_DATE;
             buildMatchesUI();
@@ -604,10 +666,12 @@
 
                     <div class="teams-container">
                         <div class="team">
+                            ${getTeamBadgeHTML(m.away)}
                             <div class="team-name">${m.away}</div>
                         </div>
                         <div class="vs">VS</div>
                         <div class="team">
+                            ${getTeamBadgeHTML(m.home)}
                             <div class="team-name">${m.home}</div>
                         </div>
                     </div>
@@ -634,11 +698,11 @@
                 <tr data-match-key="${matchKey}">
                     <td>
                         <div class="table-match-cell">
-                            <div class="team-mini-box"><span>${m.away}</span></div>
+                            <div class="team-mini-box">${getTeamBadgeHTML(m.away, true)}<span>${m.away}</span></div>
                             <span style="color: #64748b; font-size: 0.75rem;">@</span>
-                            <div class="team-mini-box"><span>${m.home}</span></div>
+                            <div class="team-mini-box">${getTeamBadgeHTML(m.home, true)}<span>${m.home}</span></div>
                         </div>
-                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">${m.time}</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px; padding-left: 32px;">${m.time}</div>
                     </td>
                     <td><span class="matrix-prob-f5">-</span></td>
                     <td><span class="matrix-prob-rl">-</span></td>
@@ -666,7 +730,7 @@
 
             let markets = [];
             
-            // F5 (0.5) - Rotando entre favorito y el equipo opuesto (underdog)
+            // F5 (0.5)
             let f5IsFav = (val % 3 !== 0);
             let f5Team = f5IsFav ? favoriteTeam : underdogTeam;
             let f5Spread = f5IsFav ? "-0.5" : "+0.5";
@@ -679,7 +743,7 @@
                 conf: probF5 
             });
 
-            // Run Line (1.5) - Rotando entre favorito y underdog ("el que no es")
+            // Run Line (1.5)
             let rlIsFav = (val % 4 !== 0);
             let rlTeam = rlIsFav ? favoriteTeam : underdogTeam;
             let rlSpread = rlIsFav ? "-1.5" : "+1.5";
@@ -705,7 +769,7 @@
                 conf: probH25 
             });
 
-            // Handicap (3.5) -> Cálculo estricto de -3.5 (favorito) y +3.5 (el equipo opuesto / underdog)
+            // Handicap (3.5)
             let h35IsFav = (val % 2 === 0);
             let h35Team = h35IsFav ? favoriteTeam : underdogTeam;
             let h35Spread = h35IsFav ? "-3.5" : "+3.5";
@@ -787,6 +851,9 @@
                 }
 
                 let teamsArr = matchName.split(" @ ");
+                let awayTeamName = teamsArr[0] ? teamsArr[0].trim() : "";
+                let homeTeamName = teamsArr[1] ? teamsArr[1].trim() : "";
+
                 bestPlaysHTML += `
                     <div class="match-card" style="border-left: 4px solid #38bdf8;">
                         <div class="match-header">
@@ -795,11 +862,13 @@
                         </div>
                         <div class="teams-container" style="margin-bottom: 0.8rem;">
                             <div class="team">
-                                <div class="team-name" style="font-size: 0.9rem;">${teamsArr[0] || ''}</div>
+                                ${getTeamBadgeHTML(awayTeamName)}
+                                <div class="team-name" style="font-size: 0.85rem;">${awayTeamName}</div>
                             </div>
                             <div class="vs" style="font-size: 0.8rem;">@</div>
                             <div class="team">
-                                <div class="team-name" style="font-size: 0.9rem;">${teamsArr[1] || ''}</div>
+                                ${getTeamBadgeHTML(homeTeamName)}
+                                <div class="team-name" style="font-size: 0.85rem;">${homeTeamName}</div>
                             </div>
                         </div>
                         <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; border: 1px solid #334155;">
