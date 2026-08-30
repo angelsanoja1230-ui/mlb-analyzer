@@ -330,7 +330,7 @@ function registerParlayToAudit(parlayName, odds) {
     alert(`${parlayName} registrado correctamente en la Hoja de Auditoría.`);
 }
 
-// Actualización del renderizador de En Vivo para adoptar un estilo profesional inspirado en MLB/ESPN
+// Corrección del contenedor de En Vivo para diseño de tarjetas en cuadrícula flexible y adición de mercados predictivos en vivo (Primeros 5 innings, Ganador de Juego y Run Line)
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
     if (!container) return;
@@ -358,7 +358,12 @@ function renderLiveControl() {
             sortOrder = 1;
         }
 
-        return { ...m, gameState, awayScore, homeScore, inningInfo, statusBadgeClass, sortOrder };
+        // Generación de pronósticos automáticos en vivo para apuestas
+        let f5Pick = awayScore > homeScore ? `${m.away} F5 (-0.5)` : `${m.home} F5 (-0.5)`;
+        let mlPick = awayScore > homeScore ? `Gana ${m.away}` : `Gana ${m.home}`;
+        let rlPick = Math.abs(awayScore - homeScore) >= 2 ? `${mlPick} (Cover)` : `${m.home} Hándicap (+1.5)`;
+
+        return { ...m, gameState, awayScore, homeScore, inningInfo, statusBadgeClass, sortOrder, f5Pick, mlPick, rlPick };
     });
 
     processedMatches.sort((a, b) => a.sortOrder - b.sortOrder);
@@ -367,9 +372,10 @@ function renderLiveControl() {
         <style>
             .espn-scoreboard-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-                gap: 1rem;
+                grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+                gap: 1.25rem;
                 width: 100%;
+                box-sizing: border-box;
             }
             .espn-card {
                 background: linear-gradient(145deg, #161f30, #0d131f);
@@ -377,6 +383,9 @@ function renderLiveControl() {
                 border-radius: 12px;
                 overflow: hidden;
                 box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
                 transition: transform 0.2s ease, border-color 0.2s ease;
             }
             .espn-card:hover {
@@ -388,7 +397,7 @@ function renderLiveControl() {
                 justify-content: space-between;
                 align-items: center;
                 background: rgba(0, 0, 0, 0.35);
-                padding: 0.5rem 1rem;
+                padding: 0.6rem 1rem;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.05);
                 font-size: 0.75rem;
                 font-weight: 700;
@@ -467,6 +476,24 @@ function renderLiveControl() {
                 border-radius: 6px;
                 border: 1px solid rgba(255, 255, 255, 0.05);
             }
+            .live-predictions-box {
+                background: rgba(56, 189, 248, 0.06);
+                border-top: 1px dashed rgba(56, 189, 248, 0.2);
+                padding: 0.75rem 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.4rem;
+            }
+            .prediction-row {
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.78rem;
+                color: #cbd5e1;
+            }
+            .prediction-value {
+                color: #38bdf8;
+                font-weight: 700;
+            }
             .espn-footer {
                 display: flex;
                 justify-content: space-between;
@@ -481,44 +508,60 @@ function renderLiveControl() {
         <div class="espn-scoreboard-grid">
             ${processedMatches.map(m => `
                 <div class="espn-card">
-                    <div class="espn-header">
-                        <span class="status-badge ${m.statusBadgeClass}">
-                            ${m.gameState === 'EN VIVO' ? 'EN VIVO' : m.gameState} &bull; ${m.inningInfo}
-                        </span>
-                        <span>${m.stadium}</span>
-                    </div>
-                    <div class="espn-body">
-                        <div class="espn-team-row">
-                            <div class="espn-team-info">
-                                ${getTeamBadgeHTML(m.away, true)}
-                                <div>
-                                    <div class="espn-team-name">${m.away}</div>
-                                    <div style="font-size: 0.7rem; color: #64748b;">(Visita) &bull; ${m.starter_away}</div>
-                                </div>
-                            </div>
-                            <div class="espn-score">${m.awayScore}</div>
+                    <div>
+                        <div class="espn-header">
+                            <span class="status-badge ${m.statusBadgeClass}">
+                                ${m.gameState === 'EN VIVO' ? 'EN VIVO' : m.gameState} &bull; ${m.inningInfo}
+                            </span>
+                            <span>${m.stadium}</span>
                         </div>
-                        <div class="espn-team-row">
-                            <div class="espn-team-info">
-                                ${getTeamBadgeHTML(m.home, true)}
-                                <div>
-                                    <div class="espn-team-name">${m.home}</div>
-                                    <div style="font-size: 0.7rem; color: #64748b;">(Local) &bull; ${m.starter_home}</div>
+                        <div class="espn-body">
+                            <div class="espn-team-row">
+                                <div class="espn-team-info">
+                                    ${getTeamBadgeHTML(m.away, true)}
+                                    <div>
+                                        <div class="espn-team-name">${m.away}</div>
+                                        <div style="font-size: 0.7rem; color: #64748b;">(Visita) &bull; ${m.starter_away}</div>
+                                    </div>
                                 </div>
+                                <div class="espn-score">${m.awayScore}</div>
                             </div>
-                            <div class="espn-score">${m.homeScore}</div>
+                            <div class="espn-team-row">
+                                <div class="espn-team-info">
+                                    ${getTeamBadgeHTML(m.home, true)}
+                                    <div>
+                                        <div class="espn-team-name">${m.home}</div>
+                                        <div style="font-size: 0.7rem; color: #64748b;">(Local) &bull; ${m.starter_home}</div>
+                                    </div>
+                                </div>
+                                <div class="espn-score">${m.homeScore}</div>
+                            </div>
+                        </div>
+                        <div class="live-predictions-box">
+                            <div style="font-size:0.75rem; font-weight:800; color:#38bdf8; margin-bottom:0.1rem; text-transform:uppercase;">🎯 Jugada Recomendada Live:</div>
+                            <div class="prediction-row">
+                                <span>Ganador 5 Innings (F5):</span>
+                                <span class="prediction-value">${m.f5Pick}</span>
+                            </div>
+                            <div class="prediction-row">
+                                <span>Ganador de Juego (ML):</span>
+                                <span class="prediction-value">${m.mlPick}</span>
+                            </div>
+                            <div class="prediction-row">
+                                <span>Run Line / Margen:</span>
+                                <span class="prediction-value">${m.rlPick}</span>
+                            </div>
                         </div>
                     </div>
                     <div class="espn-footer">
-                        <span>⚾ MLB Regular Season</span>
-                        <span style="color: #38bdf8; font-weight: 600;">Odds: V ${m.awayOdds} / L ${m.homeOdds}</span>
+                        <span>⚾ MLB Gamecast</span>
+                        <span style="color: #38bdf8; font-weight: 600;">Cuotas: V ${m.awayOdds} / L ${m.homeOdds}</span>
                     </div>
                 </div>
             `).join('')}
         </div>
     `;
 }
-
 function renderAuditHistory() {
     const container = document.getElementById('history-list-container');
     if (!container) return;
