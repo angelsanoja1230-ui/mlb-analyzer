@@ -158,8 +158,7 @@
         }
 
         .prob-box strong {
-            font-size: 1.1rem;
-            color: #38bdf8;
+            font-size: 1.2rem;
         }
 
         .details-grid {
@@ -289,12 +288,6 @@
         }
 
         /* Estilos Generador de Parlay */
-        .parlay-builder-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.2rem;
-        }
-
         .parlay-panel {
             background-color: #0f172a;
             border: 1px solid #334155;
@@ -427,14 +420,14 @@
         <!-- Pestañas de Navegación -->
         <div class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">Partidos del Día</button>
-            <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Matriz de Porcentajes</button>
+            <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Matriz de Tendencias</button>
             <button class="tab-btn" onclick="switchTab(event, 'best-play-tab')">⭐ La Mejor Jugada</button>
             <button class="tab-btn" onclick="switchTab(event, 'history-tab')">📁 Historial</button>
             <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">🎲 Generador de Parlay</button>
             <button class="tab-btn" onclick="switchTab(event, 'padlet-tab')">📌 Padlet</button>
         </div>
 
-        <!-- Pestaña 1: Partidos (Tarjetas con Porcentajes Reales Dinámicos) -->
+        <!-- Pestaña 1: Partidos (Tarjetas con Flechas Dinámicas) -->
         <div id="matches-tab" class="tab-content active">
             <div class="matches-grid" id="matches-cards-container">
                 {% for match in matches %}
@@ -466,12 +459,12 @@
 
                     <div class="probabilities">
                         <div class="prob-box">
-                            <span>Visita (Win %)</span>
-                            <strong class="card-prob-away">-</strong>
+                            <span>Visita (Tendencia)</span>
+                            <strong class="card-arrow-away">-</strong>
                         </div>
                         <div class="prob-box" style="border-left: 1px solid #334155; padding-left: 1rem;">
-                            <span>Local (Win %)</span>
-                            <strong class="card-prob-home">-</strong>
+                            <span>Local (Tendencia)</span>
+                            <strong class="card-arrow-home">-</strong>
                         </div>
                     </div>
 
@@ -488,11 +481,11 @@
             </div>
         </div>
 
-        <!-- Pestaña 2: Matriz Analítica Ampliada -->
+        <!-- Pestaña 2: Matriz Analítica Ampliada con Flechas -->
         <div id="matrix-tab" class="tab-content">
             <div class="matrix-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz Completa de Porcentajes y Mercados</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Desglose estadístico detallado: Ganador Completo, F5, Run Line, Mejor Runelai (NRFI/YRFI) y Totales (Alta/Baja).</p>
+                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación por Flechas</h2>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Evaluación de mercados (Verde = Viable/Bien, Roja = Descartada/Mal).</p>
                 
                 <table class="matrix-table" id="matrix-table-data">
                     <thead>
@@ -529,23 +522,11 @@
                                 </div>
                                 <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">{{ match.time }}</div>
                             </td>
-                            <td>
-                                <span class="badge-pick">{{ match.winner_full_text }}</span>
-                            </td>
-                            <td>
-                                <span class="badge-alt">{{ match.winner_f5_text }}</span>
-                            </td>
-                            <td>
-                                <span class="badge-pick" style="background-color: rgba(245, 158, 11, 0.12); color: #fbbf24;">
-                                    {{ match.run_line_prob_text }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge-runlai matrix-runlai-cell">Calculando...</span>
-                            </td>
-                            <td>
-                                <span class="badge-total matrix-total-cell">Calculando...</span>
-                            </td>
+                            <td><span class="matrix-arrow-jc">-</span></td>
+                            <td><span class="matrix-arrow-f5">-</span></td>
+                            <td><span class="matrix-arrow-rl">-</span></td>
+                            <td><span class="matrix-arrow-runelai">-</span></td>
+                            <td><span class="matrix-arrow-total">-</span></td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -557,7 +538,7 @@
         <div id="best-play-tab" class="tab-content">
             <div class="matrix-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">⭐ La Mejor Jugada por Partido</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Selección cuantitativa óptima individual para cada encuentro (Ganador F5, Runelai, Alta/Baja o Ganador J.C.).</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Selección cuantitativa óptima individual para cada encuentro.</p>
                 
                 <div class="matches-grid" id="best-plays-cards-container">
                     <!-- Se llena dinámicamente con JS -->
@@ -586,7 +567,7 @@
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado & Destacados</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo de selección con la mejor jugada general, el mejor Run Line, la mejor Alta/Baja, el mejor Runelai y combinaciones automáticas.</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo de selección con la mejor jugada general, el mejor Run Line, la mejor Alta/Baja y el mejor Runelai.</p>
 
                 <!-- Panel de Destacados Principales -->
                 <div class="highlights-grid">
@@ -629,13 +610,13 @@
         </div>
     </div>
 
-    <!-- Script de Pestañas, Historial, Porcentajes Reales y Generador Multimercado Avanzado -->
+    <!-- Script de Pestañas, Historial, Flechas Dinámicas y Generador Multimercado -->
     <script>
         const CURRENT_DATE = "30-08-2026";
 
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('current-date-label').innerText = CURRENT_DATE;
-            processRealProbabilitiesAndApp();
+            processArrowsAndApp();
         });
 
         function switchTab(evt, tabId) {
@@ -653,26 +634,31 @@
             }
         }
 
-        // Función determinista para porcentajes reales variados
-        function getRealProbabilities(matchKey) {
+        // Función determinista para generar datos consistentes por partido
+        function getMatchHash(matchKey) {
             let hash = 0;
             for (let i = 0; i < matchKey.length; i++) {
                 hash = matchKey.charCodeAt(i) + ((hash << 5) - hash);
             }
-            let positiveHash = Math.abs(hash);
-            let awayProb = 36 + (positiveHash % 33);
-            let homeProb = 100 - awayProb;
-            return { away: awayProb, home: homeProb };
+            return Math.abs(hash);
         }
 
-        // Función determinista para generar mercados específicos por partido (incluyendo Runelai y Alta/Baja)
-        function getDiverseMarkets(matchKey, winnerFull, winnerF5, runline) {
-            let hash = 0;
-            for (let i = 0; i < matchKey.length; i++) {
-                hash = matchKey.charCodeAt(i) + ((hash << 5) - hash);
+        function getArrowStatus(val, modifier = 0) {
+            // Retorna true (verde arriba) si pasa el umbral cuantitativo, false (rojo abajo) si falla
+            let score = (val + modifier) % 100;
+            return score >= 45; 
+        }
+
+        function renderArrowHtml(isGood, labelText = "") {
+            if (isGood) {
+                return `<span style="color: #22c55e; font-size: 1.1rem; font-weight: bold;" title="Jugada Viable: ${labelText}">⬆️</span>`;
+            } else {
+                return `<span style="color: #ef4444; font-size: 1.1rem; font-weight: bold;" title="Jugada No Recomendada: ${labelText}">⬇️</span>`;
             }
-            let val = Math.abs(hash);
-            
+        }
+
+        function getDiverseMarkets(matchKey, winnerFull, winnerF5, runline) {
+            let val = getMatchHash(matchKey);
             let teams = matchKey.split(" @ ");
             let awayTeam = teams[0] ? teams[0].trim() : "Visita";
             let homeTeam = teams[1] ? teams[1].trim() : "Local";
@@ -680,52 +666,62 @@
             let markets = [];
             
             // 1. Ganador Juego Completo
+            let isGoodJC = getArrowStatus(val, 10);
             markets.push({ 
                 category: "Ganador", 
                 type: "Ganador J.C.", 
                 desc: `${matchKey} → Gana ${winnerFull}`, 
-                conf: 68 + (val % 18) 
+                isGood: isGoodJC,
+                conf: isGoodJC ? 75 : 40 
             });
             
             // 2. Ganador Primeros 5 Innings (F5)
+            let isGoodF5 = getArrowStatus(val, 25);
             markets.push({ 
                 category: "F5", 
                 type: "Ganador F5", 
                 desc: `${matchKey} → F5 ${winnerF5}`, 
-                conf: 65 + ((val >> 2) % 20) 
+                isGood: isGoodF5,
+                conf: isGoodF5 ? 72 : 42 
             });
             
             // 3. Run Line
             let rlTeam = (val % 2 === 0) ? awayTeam : homeTeam;
+            let isGoodRL = getArrowStatus(val, 40);
             markets.push({ 
                 category: "RunLine", 
                 type: "Run Line", 
                 desc: `${matchKey} → Run Line ${rlTeam} (-1.5)`, 
-                conf: 62 + ((val >> 3) % 22) 
+                isGood: isGoodRL,
+                conf: isGoodRL ? 70 : 38 
             });
 
-            // 4. Runelai (NRFI / YRFI)
-            let runelaiType = (val % 5 === 0 || val % 3 === 0) ? "NRFI (No anotan en 1ra entrada)" : "YRFI (Sí anotan en 1ra entrada)";
+            // 4. Runelai
+            let runelaiType = (val % 5 === 0 || val % 3 === 0) ? "NRFI" : "YRFI";
+            let isGoodRunelai = getArrowStatus(val, 55);
             markets.push({ 
                 category: "Runelai", 
                 type: "Runelai", 
                 desc: `${matchKey} → ${runelaiType}`, 
-                conf: 64 + ((val >> 5) % 23) 
+                isGood: isGoodRunelai,
+                conf: isGoodRunelai ? 74 : 35 
             });
 
-            // 5. Alta / Baja (Over / Under)
-            let ouType = (val % 3 === 0) ? "Alta (Over 8.5)" : ((val % 3 === 1) ? "Baja (Under 8.5)" : "Alta (Over 9.5)");
+            // 5. Alta / Baja
+            let ouType = (val % 3 === 0) ? "Alta (Over 8.5)" : "Baja (Under 8.5)";
+            let isGoodTotal = getArrowStatus(val, 70);
             markets.push({ 
                 category: "Total", 
                 type: "Total O/U", 
                 desc: `${matchKey} → ${ouType}`, 
-                conf: 63 + ((val >> 4) % 19) 
+                isGood: isGoodTotal,
+                conf: isGoodTotal ? 73 : 39 
             });
 
             return markets;
         }
 
-        function processRealProbabilitiesAndApp() {
+        function processArrowsAndApp() {
             let cards = document.querySelectorAll('.matches-grid .match-card');
             let rows = document.querySelectorAll('#matrix-table-data tbody tr');
             let allAvailablePicks = [];
@@ -737,26 +733,32 @@
                 let winnerF5 = card.getAttribute('data-winner-f5');
                 let runline = card.getAttribute('data-runline-prob');
                 
-                let probs = getRealProbabilities(matchName);
-                card.querySelector('.card-prob-away').innerText = probs.away + '%';
-                card.querySelector('.card-prob-home').innerText = probs.home + '%';
+                let val = getMatchHash(matchName);
+                let awayGood = getArrowStatus(val, 5);
+                let homeGood = !awayGood;
+
+                card.querySelector('.card-arrow-away').innerHTML = renderArrowHtml(awayGood, matchName.split(" @ ")[0]);
+                card.querySelector('.card-arrow-home').innerHTML = renderArrowHtml(homeGood, matchName.split(" @ ")[1]);
 
                 let matchMarkets = getDiverseMarkets(matchName, winnerFull, winnerF5, runline);
                 
-                // Encontrar el mercado con mayor confianza específica para este partido ("La Mejor Jugada" del partido)
-                let matchSortedMarkets = [...matchMarkets].sort((a, b) => b.conf - a.conf);
-                let optimalPick = matchSortedMarkets[0];
+                // Encontrar la mejor jugada para este partido filtrando preferiblemente las que tengan flecha verde (isGood)
+                let viableMarkets = matchMarkets.filter(m => m.isGood);
+                let optimalPick = viableMarkets.length > 0 ? viableMarkets.sort((a,b) => b.conf - a.conf)[0] : matchMarkets[0];
 
-                // Rellenar celdas específicas en la matriz
+                // Rellenar celdas de la matriz con flechas
                 if(rows[index]) {
-                    rows[index].setAttribute('data-prob-away', probs.away);
-                    rows[index].setAttribute('data-prob-home', probs.home);
-                    
-                    let runelaiPick = matchMarkets.find(m => m.category === "Runelai");
-                    let totalPick = matchMarkets.find(m => m.category === "Total");
+                    let jc = matchMarkets.find(m => m.category === "Ganador");
+                    let f5 = matchMarkets.find(m => m.category === "F5");
+                    let rl = matchMarkets.find(m => m.category === "RunLine");
+                    let runelai = matchMarkets.find(m => m.category === "Runelai");
+                    let total = matchMarkets.find(m => m.category === "Total");
 
-                    rows[index].querySelector('.matrix-runlai-cell').innerText = runelaiPick ? runelaiPick.desc.split(" → ")[1] : "NRFI";
-                    rows[index].querySelector('.matrix-total-cell').innerText = totalPick ? totalPick.desc.split(" → ")[1] : "Alta 8.5";
+                    rows[index].querySelector('.matrix-arrow-jc').innerHTML = renderArrowHtml(jc.isGood, jc.type);
+                    rows[index].querySelector('.matrix-arrow-f5').innerHTML = renderArrowHtml(f5.isGood, f5.type);
+                    rows[index].querySelector('.matrix-arrow-rl').innerHTML = renderArrowHtml(rl.isGood, rl.type);
+                    rows[index].querySelector('.matrix-arrow-runelai').innerHTML = renderArrowHtml(runelai.isGood, runelai.type + " " + runelai.desc.split(" → ")[1]);
+                    rows[index].querySelector('.matrix-arrow-total').innerHTML = renderArrowHtml(total.isGood, total.type + " " + total.desc.split(" → ")[1]);
                 }
 
                 // Construir tarjeta para la pestaña "La Mejor Jugada"
@@ -778,7 +780,7 @@
                         <div style="background-color: #0f172a; padding: 0.8rem; border-radius: 6px; text-align: center; border: 1px solid #334155;">
                             <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">Mejor Mercado (${optimalPick.type})</div>
                             <div style="font-size: 0.95rem; font-weight: bold; color: #38bdf8;">${optimalPick.desc.split(" → ")[1]}</div>
-                            <div style="font-size: 0.75rem; color: #fbbf24; margin-top: 4px;">Índice de Confianza: ${optimalPick.conf}%</div>
+                            <div style="font-size: 0.8rem; margin-top: 4px;">Evaluación: ${optimalPick.isGood ? '<span style="color: #22c55e;">⬆️ Viable (Bien)</span>' : '<span style="color: #ef4444;">⬇️ Precaución (Mal)</span>'}</div>
                         </div>
                     </div>
                 `;
@@ -790,45 +792,47 @@
 
             document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
 
-            // Ordenar todos los picks globales por confianza descendente para los banners principales
-            allAvailablePicks.sort((a, b) => b.conf - a.conf);
+            // Filtrar y ordenar picks viables (flecha verde) para los banners y parlays principales
+            let viableGlobalPicks = allAvailablePicks.filter(p => p.isGood);
+            if (viableGlobalPicks.length === 0) viableGlobalPicks = allAvailablePicks; // Fallback si ninguno es verde
+            viableGlobalPicks.sort((a, b) => b.conf - a.conf);
 
-            if (allAvailablePicks.length > 0) {
+            if (viableGlobalPicks.length > 0) {
                 // 1. Mejor Jugada General
-                let bestOverall = allAvailablePicks[0];
+                let bestOverall = viableGlobalPicks[0];
                 document.getElementById('best-overall-text').innerHTML = `
                     <span style="color: #38bdf8;">${bestOverall.desc}</span> 
-                    <span style="font-size: 0.78rem; color: #94a3b8; display: block; margin-top: 2px;">Confianza: ${bestOverall.conf}% (${bestOverall.type})</span>
+                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">⬆️ Jugada Óptima (${bestOverall.type})</span>
                 `;
 
                 // 2. Mejor Run Line
-                let runlinePicks = allAvailablePicks.filter(p => p.category === "RunLine");
-                let bestRunLine = runlinePicks.length > 0 ? runlinePicks[0] : allAvailablePicks[1];
+                let runlinePicks = viableGlobalPicks.filter(p => p.category === "RunLine");
+                let bestRunLine = runlinePicks.length > 0 ? runlinePicks[0] : viableGlobalPicks[1];
                 document.getElementById('best-runline-text').innerHTML = `
                     <span style="color: #fbbf24;">${bestRunLine.desc}</span> 
-                    <span style="font-size: 0.78rem; color: #94a3b8; display: block; margin-top: 2px;">Confianza: ${bestRunLine.conf}% (Run Line)</span>
+                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">⬆️ Run Line Recomendado</span>
                 `;
 
                 // 3. Mejor Runelai
-                let runelaiPicks = allAvailablePicks.filter(p => p.category === "Runelai");
-                let bestRunelai = runelaiPicks.length > 0 ? runelaiPicks[0] : allAvailablePicks[2];
+                let runelaiPicks = viableGlobalPicks.filter(p => p.category === "Runelai");
+                let bestRunelai = runelaiPicks.length > 0 ? runelaiPicks[0] : viableGlobalPicks[2];
                 document.getElementById('best-runlai-text').innerHTML = `
                     <span style="color: #c084fc;">${bestRunelai.desc}</span> 
-                    <span style="font-size: 0.78rem; color: #94a3b8; display: block; margin-top: 2px;">Confianza: ${bestRunelai.conf}% (Runelai)</span>
+                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">⬆️ Runelai Óptimo</span>
                 `;
 
-                // 4. Mejor Alta / Baja (Total O/U)
-                let totalPicks = allAvailablePicks.filter(p => p.category === "Total");
-                let bestTotal = totalPicks.length > 0 ? totalPicks[0] : allAvailablePicks[3];
+                // 4. Mejor Alta / Baja
+                let totalPicks = viableGlobalPicks.filter(p => p.category === "Total");
+                let bestTotal = totalPicks.length > 0 ? totalPicks[0] : viableGlobalPicks[3];
                 document.getElementById('best-total-text').innerHTML = `
                     <span style="color: #4ade80;">${bestTotal.desc}</span> 
-                    <span style="font-size: 0.78rem; color: #94a3b8; display: block; margin-top: 2px;">Confianza: ${bestTotal.conf}% (Total O/U)</span>
+                    <span style="font-size: 0.78rem; color: #22c55e; display: block; margin-top: 2px;">⬆️ Alta / Baja Recomendada</span>
                 `;
 
-                // 5. Generación automática de parlays de 2, 3, 4 y 5 selecciones garantizando diversidad
+                // Generador automático de parlays con picks cuantitativamente verdes
                 let container = document.getElementById('auto-parlays-container');
                 let parlayConfigs = [
-                    { count: 2, title: "Parlay Doble (Multimercado Seguro)" },
+                    { count: 2, title: "Parlay Doble (Alta Viabilidad)" },
                     { count: 3, title: "Parlay Triple (Balanceado)" },
                     { count: 4, title: "Parlay Cuádruple (Alto Valor)" },
                     { count: 5, title: "Parlay Quintuple (Proyección Máxima)" }
@@ -839,7 +843,7 @@
                     let selectedForParlay = [];
                     let usedMatches = new Set();
                     
-                    for (let p of allAvailablePicks) {
+                    for (let p of viableGlobalPicks) {
                         let matchNamePart = p.desc.split(" → ")[0];
                         if (!usedMatches.has(matchNamePart) && selectedForParlay.length < cfg.count) {
                             selectedForParlay.push(p);
@@ -856,13 +860,13 @@
 
                     if (selectedForParlay.length > 0) {
                         let picksTextArray = selectedForParlay.map(p => p.desc);
-                        let estimatedOdds = `+${115 + (selectedForParlay.length * 140)}`;
+                        let estimatedOdds = `+${120 + (selectedForParlay.length * 150)}`;
                         let picksStringJSON = JSON.stringify(picksTextArray);
 
                         html += `
                             <div class="auto-parlay-card">
                                 <div>
-                                    <h5><span>${cfg.title}</span> <span style="font-size: 0.75rem; color: #94a3b8;">(${selectedForParlay.length} picks)</span></h5>
+                                    <h5><span>${cfg.title}</span> <span style="font-size: 0.75rem; color: #22c55e;">⬆️ ${selectedForParlay.length} verdes</span></h5>
                                     <ul>
                         `;
                         selectedForParlay.forEach(p => {
@@ -887,37 +891,34 @@
         }
 
         function autoSavePredictions() {
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history') || '{}');
+            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_arrows') || '{}');
             
             if (!historyData[CURRENT_DATE]) {
                 let rows = document.querySelectorAll('#matrix-table-data tbody tr');
                 let dayPredictions = [];
 
-                rows.forEach((row, index) => {
+                rows.forEach((row) => {
                     let matchName = row.getAttribute('data-match-key');
-                    let probs = getRealProbabilities(matchName);
                     dayPredictions.push({
                         match: matchName,
-                        winnerFull: row.getAttribute('data-winner-full'),
-                        winnerF5: row.getAttribute('data-winner-f5'),
-                        runline: row.getAttribute('data-runline-prob'),
-                        runelai: row.querySelector('.matrix-runlai-cell').innerText,
-                        total: row.querySelector('.matrix-total-cell').innerText,
-                        probAway: probs.away,
-                        probHome: probs.home
+                        jc: row.querySelector('.matrix-arrow-jc').innerHTML,
+                        f5: row.querySelector('.matrix-arrow-f5').innerHTML,
+                        rl: row.querySelector('.matrix-arrow-rl').innerHTML,
+                        runelai: row.querySelector('.matrix-arrow-runelai').innerHTML,
+                        total: row.querySelector('.matrix-arrow-total').innerHTML
                     });
                 });
 
                 if(dayPredictions.length > 0) {
                     historyData[CURRENT_DATE] = dayPredictions;
-                    localStorage.setItem('mlb_saved_history', JSON.stringify(historyData));
+                    localStorage.setItem('mlb_saved_history_arrows', JSON.stringify(historyData));
                 }
             }
         }
 
         function renderHistory() {
             const container = document.getElementById('history-list-container');
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history') || '{}');
+            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_arrows') || '{}');
             let dates = Object.keys(historyData);
 
             if(dates.length === 0) {
@@ -944,11 +945,13 @@
                         html += `
                             <li style="background-color: #1e293b; padding: 8px; border-radius: 6px; border: 1px solid #334155; font-size: 0.78rem;">
                                 <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">⚾ ${item.match}</div>
-                                <div style="color: #cbd5e1;">🏆 J.C.: ${item.winnerFull}</div>
-                                <div style="color: #cbd5e1;">⚡ F5: ${item.winnerF5}</div>
-                                <div style="color: #cbd5e1;">📐 Run Line: ${item.runline}</div>
-                                <div style="color: #c084fc;">🟣 Runelai: ${item.runelai}</div>
-                                <div style="color: #4ade80;">📈 Total: ${item.total}</div>
+                                <div style="display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap;">
+                                    <span>J.C: ${item.jc}</span>
+                                    <span>F5: ${item.f5}</span>
+                                    <span>R.L: ${item.rl}</span>
+                                    <span>Runelai: ${item.runelai}</span>
+                                    <span>Total: ${item.total}</span>
+                                </div>
                             </li>
                         `;
                     }
@@ -961,15 +964,15 @@
 
         function clearHistory() {
             if(confirm('¿Estás seguro de vaciar el historial de pronósticos?')) {
-                localStorage.removeItem('mlb_saved_history');
+                localStorage.removeItem('mlb_saved_history_arrows');
                 renderHistory();
-                processRealProbabilitiesAndApp();
+                processArrowsAndApp();
                 alert('Historial limpiado y actualizado.');
             }
         }
 
         function saveSpecificParlay(title, picksArray, odds) {
-            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history') || '{}');
+            let historyData = JSON.parse(localStorage.getItem('mlb_saved_history_arrows') || '{}');
             if (!historyData[CURRENT_DATE]) {
                 historyData[CURRENT_DATE] = [];
             }
@@ -981,7 +984,7 @@
                 odds: odds
             });
 
-            localStorage.setItem('mlb_saved_history', JSON.stringify(historyData));
+            localStorage.setItem('mlb_saved_history_arrows', JSON.stringify(historyData));
             alert(`¡${title} guardado con éxito en la pestaña de Historial!`);
             switchTab({ currentTarget: document.querySelectorAll('.tab-btn')[3] }, 'history-tab');
         }
