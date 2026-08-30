@@ -574,7 +574,7 @@
             <div class="master-pick-container" id="master-pick-display-container"></div>
         </div>
 
-        <!-- PESTAÑA 5: JUGADAS EN VIVO REAL (DINÁMICAS CON 3 OPCIONES) -->
+        <!-- PESTAÑA 5: JUGADAS EN VIVO REAL -->
         <div id="live-standalone-tab" class="tab-content">
             <div class="live-standalone-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
@@ -788,8 +788,23 @@
             let trendsHTML = '';
             let bestPlaysHTML = '';
             let bestF5Obj = null;
-            let bestMainObj = null;
-            let highestScore = -1;
+
+            // Seleccionador estático determinista para la Jugada 100% basado estrictamente en la fecha actual
+            let dateHash = 0;
+            for (let i = 0; i < CURRENT_DATE.length; i++) {
+                dateHash += CURRENT_DATE.charCodeAt(i);
+            }
+            let bestMasterIndex = dateHash % BASE_MATCHES.length;
+            let chosenMasterMatch = BASE_MATCHES[bestMasterIndex];
+            
+            let isMasterHomeFav = chosenMasterMatch.homeOdds < chosenMasterMatch.awayOdds;
+            let masterMlPick = isMasterHomeFav ? chosenMasterMatch.home : chosenMasterMatch.away;
+            
+            let bestMainObj = {
+                match: `${chosenMasterMatch.away} vs ${chosenMasterMatch.home}`,
+                pick: `${masterMlPick} (ML)`,
+                reason: `Selección cuantitativa más sólida del día basada en el análisis comparativo de abridores (${chosenMasterMatch.starter_away} vs ${chosenMasterMatch.starter_home}) y rendimiento histórico en ${chosenMasterMatch.stadium}.`
+            };
 
             BASE_MATCHES.forEach(m => {
                 let lineInfo = savedLines[m.id] || { team: m.home, line: m.defaultHcap };
@@ -797,12 +812,7 @@
                 let f5Pick = isHomeFav ? `${m.home} F5 (-0.5)` : `${m.away} F5 (0.0)`;
                 let mlPick = isHomeFav ? m.home : m.away;
                 let ouPick = "Alta (O 8.5)";
-                let scoreVal = Math.floor(Math.random() * 20) + 75;
 
-                if (scoreVal > highestScore) {
-                    highestScore = scoreVal;
-                    bestMainObj = { match: `${m.away} vs ${m.home}`, pick: `${mlPick} (ML)`, reason: `Respaldo cuantitativo sólido para ${mlPick} basado en rendimiento de abridores (${m.starter_away} vs ${m.starter_home}) y rendimiento reciente.` };
-                }
                 if (!bestF5Obj) {
                     bestF5Obj = f5Pick;
                 }
@@ -850,7 +860,7 @@
                     <div class="master-badge">💎 Jugada Maestra Confiabilidad 100%</div>
                     <div class="master-matchup">${bestMainObj.match}</div>
                     <div class="master-selection-box">
-                        <div class="master-selection-title">Selección Principal del Día</div>
+                        <div class="master-selection-title">Selección Principal del Día (Estática)</div>
                         <div class="master-selection-value">${bestMainObj.pick}</div>
                         <div class="master-reason">${bestMainObj.reason}</div>
                     </div>
@@ -895,6 +905,14 @@
 
         function saveToHistory(matchup, pick) {
             let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
+            
+            // Evita duplicar exactamente el mismo pronóstico para la misma fecha en el historial
+            let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchup && h.pick === pick);
+            if (exists) {
+                alert("Esta jugada ya se encuentra registrada en el historial.");
+                return;
+            }
+
             history.unshift({ date: CURRENT_DATE, matchup: matchup, pick: pick, status: 'Pendiente' });
             localStorage.setItem('mlb_history_log', JSON.stringify(history));
             alert("¡Selección guardada exitosamente en el historial!");
@@ -942,7 +960,7 @@
         }
 
         // ==========================================
-        // MÓDULO API EN VIVO (CON 3 OPCIONES POR PARTIDO)
+        // MÓDULO API EN VIVO
         // ==========================================
         async function fetchRealLiveMLBData() {
             let container = document.getElementById('live-standalone-cards-container');
@@ -989,7 +1007,6 @@
                     let leadingTeamName = awayScore > homeScore ? awayTeam : homeTeam;
                     let trailingTeamName = awayScore > homeScore ? homeTeam : awayTeam;
 
-                    // 3 OPCIONES DE APUESTAS EN VIVO
                     let primaryPlay = "";
                     let primaryReason = "";
                     let altPlay1 = "";
@@ -1006,7 +1023,6 @@
                         altPlay1 = `Apuesta cerrada`;
                         altPlay2 = `Apuesta cerrada`;
                     } else {
-                        // DINÁMICA SEGÚN EL INNING REAL
                         if (inningNum <= 3) {
                             primaryPlay = runDiff === 0 ? `Ganador F5: ${leadingTeamName} (Empate técnico)` : `Línea de Carreras (Alta / O/U)`;
                             primaryReason = `Inning ${inningOrdinal}. Control temprano del bullpen y abridores en rotación inicial.`;
@@ -1074,20 +1090,17 @@
                             </div>
                         </div>` : ''}
 
-                        <!-- OPCIÓN PRINCIPAL -->
                         <div class="live-best-play-box">
                             <div style="font-size: 0.7rem; color: #4ade80; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">⭐ 1. Opción Principal En Vivo</div>
                             <div style="font-size: 0.88rem; font-weight: bold; color: #f8fafc; margin-bottom: 3px;">${primaryPlay}</div>
                             <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.3;">${primaryReason}</div>
                         </div>
 
-                        <!-- OPCIÓN ALTERNATIVA 1 -->
                         <div class="live-alt-play-box">
                             <div style="font-size: 0.68rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">🔄 2. Alternativa Totales (O/U)</div>
                             <div style="font-size: 0.82rem; font-weight: bold; color: #f8fafc;">${altPlay1}</div>
                         </div>
 
-                        <!-- OPCIÓN ALTERNATIVA 2 -->
                         <div class="live-alt-play-box" style="border-color: #fbbf24; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));">
                             <div style="font-size: 0.68rem; color: #fbbf24; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">🛡️ 3. Alternativa Respaldo / Hándicap</div>
                             <div style="font-size: 0.82rem; font-weight: bold; color: #f8fafc;">${altPlay2}</div>
