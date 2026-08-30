@@ -48,8 +48,6 @@ def load_history():
 
 def save_daily_history(date_str, safest_pick, parlays):
     history = load_history()
-    
-    # Verificar si la fecha de hoy ya está guardada para no duplicar en la misma sesión
     entry_exists = any(item.get('date') == date_str for item in history)
     
     if not entry_exists and safest_pick:
@@ -59,7 +57,7 @@ def save_daily_history(date_str, safest_pick, parlays):
             "parlays": parlays,
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        history.insert(0, new_entry) # Agregar al inicio
+        history.insert(0, new_entry)
         try:
             with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
                 json.dump(history, f, ensure_ascii=False, indent=4)
@@ -81,7 +79,7 @@ def extract_best_plays(simulated_matches):
                 "confidence": prob_away,
                 "confidence_str": f"{prob_away}% Probabilidad",
                 "type": "Moneyline Visitante",
-                "reason": match.get('value_bet', 'Alta ventaja proyectada por simulación Monte Carlo.')
+                "reason": match.get('value_bet', 'Alta ventaja proyectada.')
             })
         elif prob_home >= 55:
             best_plays.append({
@@ -90,7 +88,7 @@ def extract_best_plays(simulated_matches):
                 "confidence": prob_home,
                 "confidence_str": f"{prob_home}% Probabilidad",
                 "type": "Moneyline Local",
-                "reason": match.get('value_bet', 'Alta ventaja proyectada por simulación Monte Carlo.')
+                "reason": match.get('value_bet', 'Alta ventaja proyectada.')
             })
             
         f5_away = match.get('f5_away', 50)
@@ -102,7 +100,7 @@ def extract_best_plays(simulated_matches):
                 "confidence": f5_away,
                 "confidence_str": f"{f5_away}% Probabilidad F5",
                 "type": "First 5 Innings",
-                "reason": f"Sólido rendimiento del abridor visitante {match.get('starter_away', '')}."
+                "reason": f"Sólido rendimiento analítico del abridor visitante."
             })
         elif f5_home >= 56:
             best_plays.append({
@@ -111,7 +109,7 @@ def extract_best_plays(simulated_matches):
                 "confidence": f5_home,
                 "confidence_str": f"{f5_home}% Probabilidad F5",
                 "type": "First 5 Innings",
-                "reason": f"Sólido rendimiento del abridor local {match.get('starter_home', '')}."
+                "reason": f"Sólido rendimiento analítico del abridor local."
             })
             
     best_plays.sort(key=lambda x: x['confidence'], reverse=True)
@@ -146,7 +144,6 @@ def index():
         daily_archive_data = data.get('DAILY_ARCHIVE', {})
         date_str = daily_archive_data.get('date', datetime.now().strftime('%Y-%m-%d'))
         
-        # Guardar en el histórico persistente (history.json)
         full_history = save_daily_history(date_str, safest_pick, parlays)
         
         return render_template(
