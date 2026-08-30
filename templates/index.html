@@ -333,8 +333,9 @@
         <div class="visitor-counter">Visitas únicas registradas: <span id="real-visitor-count">Cargando...</span></div>
     </header>
 
+    <!-- Navegación con la pestaña original restaurada -->
     <nav>
-        <button class="tab-btn active" onclick="switchTab(event, 'matrix-tab')">📊 Matriz de Partidos</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">⚾ Partidos del Día</button>
         <button class="tab-btn" onclick="switchTab(event, 'trends-tab')">📈 Tendencias & Análisis</button>
         <button class="tab-btn" onclick="switchTab(event, 'master-tab')">⭐ Jugada Maestra</button>
         <button class="tab-btn" onclick="switchTab(event, 'parlays-tab')">🎯 Parlays Automáticos</button>
@@ -342,8 +343,8 @@
         <button class="tab-btn" onclick="switchTab(event, 'history-tab')">🕒 Historial</button>
     </nav>
 
-    <!-- Pestaña 1: Matriz -->
-    <div id="matrix-tab" class="tab-content active">
+    <!-- Pestaña 1: Partidos del Día (ID original restaurado) -->
+    <div id="matches-tab" class="tab-content active">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h2>Configuración de Hándicaps Diarios</h2>
             <button class="btn-action" style="margin-top:0; width: auto; padding: 0.4rem 0.8rem;" onclick="saveCustomLines()">💾 Guardar Líneas</button>
