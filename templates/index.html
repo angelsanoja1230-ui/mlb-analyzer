@@ -321,8 +321,17 @@
             color: var(--text-muted);
         }
 
-        .team-badge-icon {
-            font-size: 1.2rem;
+        /* Estilo para los escudos/logos de texto modernos */
+        .team-logo-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--border-color), var(--bg-main));
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            font-weight: 800;
+            border-radius: 8px;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -390,7 +399,6 @@
     <script>
         const CURRENT_DATE = "2026-08-30";
 
-        // Listado completo de los 14 partidos del día correspondientes a la cartelera
         const BASE_MATCHES = [
             { id: 1, time: "12:15 PM", stadium: "Nationals Park", away: "Miami Marlins", home: "Washington Nationals", starter_away: "J. Junk", starter_home: "A. Alvarez", awayOdds: 2.00, homeOdds: 1.70, defaultHcap: "-1.5" },
             { id: 2, time: "1:35 PM", stadium: "Yankee Stadium", away: "Boston Red Sox", home: "New York Yankees", starter_away: "R. Suarez", starter_home: "W. Warren", awayOdds: 2.30, homeOdds: 1.67, defaultHcap: "-1.5" },
@@ -408,8 +416,29 @@
             { id: 14, time: "7:20 PM", stadium: "Wrigley Field", away: "Cincinnati Reds", home: "Chicago Cubs", starter_away: "C. Burns", starter_home: "S. Imanaga", awayOdds: 1.62, homeOdds: 2.35, defaultHcap: "+1.5" }
         ];
 
+        // Diccionario de siglas oficiales para los logos/badges
+        const TEAM_CODES = {
+            "Miami Marlins": "MIA", "Washington Nationals": "WSH",
+            "Boston Red Sox": "BOS", "New York Yankees": "NYY",
+            "Colorado Rockies": "COL", "Atlanta Braves": "ATL",
+            "Seattle Mariners": "SEA", "Toronto Blue Jays": "TOR",
+            "Kansas City Royals": "KC", "Cleveland Guardians": "CLE",
+            "Los Angeles Dodgers": "LAD", "Detroit Tigers": "DET",
+            "San Diego Padres": "SD", "Tampa Bay Rays": "TB",
+            "Chicago White Sox": "CWS", "Minnesota Twins": "MIN",
+            "Texas Rangers": "TEX", "Milwaukee Brewers": "MIL",
+            "Pittsburgh Pirates": "PIT", "St. Louis Cardinals": "STL",
+            "Houston Astros": "HOU", "New York Mets": "NYM",
+            "Baltimore Orioles": "BAL", "Oakland Athletics": "OAK",
+            "Philadelphia Phillies": "PHI", "Los Angeles Angels": "LAA",
+            "Cincinnati Reds": "CIN", "Chicago Cubs": "CHC"
+        };
+
         function getTeamBadgeHTML(teamName, small = false) {
-            return `<span class="team-badge-icon" style="font-size: ${small ? '0.9rem' : '1.4rem'};">⚾</span>`;
+            let code = TEAM_CODES[teamName] || teamName.substring(0, 3).toUpperCase();
+            let size = small ? '32px' : '48px';
+            let fontSize = small ? '0.75rem' : '0.95rem';
+            return `<div class="team-logo-badge" style="width: ${size}; height: ${size}; font-size: ${fontSize};">${code}</div>`;
         }
 
         window.addEventListener('DOMContentLoaded', () => {
