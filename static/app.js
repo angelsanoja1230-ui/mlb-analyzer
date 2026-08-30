@@ -65,12 +65,12 @@ function saveAuditRecords(records) {
 
 function getTeamBadgeHTML(teamName, small = false) {
     let teamData = MLB_TEAMS[teamName] || { code: teamName ? teamName.substring(0, 3).toUpperCase() : "MLB", primary: "#1e293b", secondary: "#38bdf8" };
-    let size = small ? '40px' : '52px';
-    let fontSize = small ? '0.75rem' : '1.05rem';
+    let size = small ? '44px' : '60px';
+    let fontSize = small ? '0.8rem' : '1.15rem';
     
     return `
-    <div class="team-insignia" style="width: ${size}; height: ${size}; min-width: ${size}; min-height: ${size}; background: linear-gradient(135deg, ${teamData.primary}, #090d16); border-color: ${teamData.secondary}; display:flex; align-items:center; justify-content:center; border-radius:12px; border:2px solid;">
-        <span style="font-size: ${fontSize}; color: #ffffff; font-weight: 900; letter-spacing: -0.05em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${teamData.code}</span>
+    <div class="team-insignia" style="width: ${size}; height: ${size}; min-width: ${size}; min-height: ${size}; background: linear-gradient(135deg, ${teamData.primary}, #090d16); border-color: ${teamData.secondary}; display:flex; align-items:center; justify-content:center; border-radius:14px; border:2px solid; box-shadow: 0 4px 10px rgba(0,0,0,0.4);">
+        <span style="font-size: ${fontSize}; color: #ffffff; font-weight: 900; letter-spacing: -0.05em; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${teamData.code}</span>
     </div>`;
 }
 
@@ -88,42 +88,42 @@ function renderMatches() {
     const container = document.getElementById('matches-cards-container');
     if (!container) return;
     container.innerHTML = BASE_MATCHES.map(m => `
-        <div class="match-card" style="background:var(--card-bg, #111827); padding:1rem; border-radius:12px; border:1px solid var(--border-subtle, #374151); margin-bottom:1rem;">
-            <div class="match-header" style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.85rem; color:#9ca3af;">
+        <div class="match-card" style="background:var(--card-bg, #111827); padding:1.2rem; border-radius:14px; border:1px solid var(--border-subtle, #374151); margin-bottom:1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <div class="match-header" style="display:flex; justify-content:space-between; margin-bottom:0.8rem; font-size:0.85rem; color:#9ca3af; font-weight:600;">
                 <span>🕒 ${m.time}</span>
                 <span>🏟️ ${m.stadium}</span>
             </div>
-            <div class="teams-container" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                <div class="team" style="display:flex; align-items:center; gap:0.5rem;">
+            <div class="teams-container" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <div class="team" style="display:flex; align-items:center; gap:0.8rem;">
                     ${getTeamBadgeHTML(m.away, true)}
                     <div>
-                        <div style="font-size:0.7rem; color:#9ca3af;">Visitor</div>
-                        <div style="font-weight:700; font-size:0.9rem;">${m.away}</div>
-                        <div style="font-size:0.7rem; color:#9ca3af;">${m.starter_away}</div>
+                        <div style="font-size:0.7rem; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em;">Visitor</div>
+                        <div style="font-weight:700; font-size:0.95rem; color:#fff;">${m.away}</div>
+                        <div style="font-size:0.75rem; color:#38bdf8;">⚾ ${m.starter_away}</div>
                     </div>
                 </div>
-                <div class="vs" style="font-weight:800; color:#38bdf8;">VS</div>
-                <div class="team" style="display:flex; align-items:center; gap:0.5rem; text-align:right;">
+                <div class="vs" style="font-weight:900; color:#38bdf8; font-size:1.1rem;">VS</div>
+                <div class="team" style="display:flex; align-items:center; gap:0.8rem; text-align:right;">
                     <div>
-                        <div style="font-size:0.7rem; color:#9ca3af;">Home</div>
-                        <div style="font-weight:700; font-size:0.9rem;">${m.home}</div>
-                        <div style="font-size:0.7rem; color:#9ca3af;">${m.starter_home}</div>
+                        <div style="font-size:0.7rem; color:#9ca3af; text-transform:uppercase; letter-spacing:0.05em;">Home</div>
+                        <div style="font-weight:700; font-size:0.95rem; color:#fff;">${m.home}</div>
+                        <div style="font-size:0.75rem; color:#38bdf8;">⚾ ${m.starter_home}</div>
                     </div>
                     ${getTeamBadgeHTML(m.home, true)}
                 </div>
             </div>
-            <div class="handicap-box" style="background:rgba(0,0,0,0.2); padding:0.8rem; border-radius:8px;">
-                <div style="font-size:0.8rem; font-weight:700; margin-bottom:0.4rem;">⚙️ Línea Configurable</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+            <div class="handicap-box" style="background:rgba(0,0,0,0.3); padding:0.9rem; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+                <div style="font-size:0.8rem; font-weight:700; margin-bottom:0.5rem; color:#38bdf8;">⚙️ Configuración de Línea Personalizada</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem;">
                     <div>
-                        <label style="font-size:0.75rem; color:#9ca3af;">Hándicap</label>
-                        <input type="text" id="hcap-${m.id}" value="${m.defaultHcap}" style="width:100%; padding:0.4rem; background:#1f2937; border:1px solid #4b5563; color:#fff; border-radius:6px;">
+                        <label style="font-size:0.75rem; color:#9ca3af; display:block; margin-bottom:0.2rem;">Hándicap</label>
+                        <input type="text" id="hcap-${m.id}" value="${m.defaultHcap}" style="width:100%; padding:0.5rem; background:#1f2937; border:1px solid #4b5563; color:#fff; border-radius:6px; font-weight:600;">
                     </div>
                     <div>
-                        <label style="font-size:0.75rem; color:#9ca3af;">Predicción</label>
-                        <select id="pick-${m.id}" style="width:100%; padding:0.4rem; background:#1f2937; border:1px solid #4b5563; color:#fff; border-radius:6px;">
-                            <option value="Gana Local (${m.home})">Gana Local</option>
-                            <option value="Gana Visitante (${m.away})">Gana Visitante</option>
+                        <label style="font-size:0.75rem; color:#9ca3af; display:block; margin-bottom:0.2rem;">Predicción</label>
+                        <select id="pick-${m.id}" style="width:100%; padding:0.5rem; background:#1f2937; border:1px solid #4b5563; color:#fff; border-radius:6px; font-weight:600;">
+                            <option value="Gana Local (${m.home})">Gana Local (${m.home})</option>
+                            <option value="Gana Visitante (${m.away})">Gana Visitante (${m.away})</option>
                             <option value="Over 8.5">Over 8.5</option>
                             <option value="Under 8.5">Under 8.5</option>
                         </select>
@@ -138,33 +138,39 @@ function renderTrends() {
     const container = document.getElementById('trends-list-container');
     if (!container) return;
     container.innerHTML = BASE_MATCHES.map(m => `
-        <div class="trend-card" style="background:var(--card-bg, #111827); padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid var(--border-subtle, #374151);">
-            <div class="match-header" style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.85rem; color:#9ca3af;">
+        <div class="trend-card" style="background:var(--card-bg, #111827); padding:1.2rem; border-radius:14px; margin-bottom:1rem; border:1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <div class="match-header" style="display:flex; justify-content:space-between; margin-bottom:0.8rem; font-size:0.85rem; color:#9ca3af; font-weight:600;">
                 <span>🕒 ${m.time}</span>
                 <span>🏟️ ${m.stadium}</span>
             </div>
-            <div class="teams-container" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                <div class="team" style="display:flex; align-items:center; gap:0.5rem;">
+            <div class="teams-container" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <div class="team" style="display:flex; align-items:center; gap:0.8rem;">
                     ${getTeamBadgeHTML(m.away, true)}
                     <div>
-                        <div style="font-weight:700; font-size:0.9rem;">${m.away}</div>
-                        <div style="font-size:0.7rem; color:#9ca3af;">${m.starter_away}</div>
+                        <div style="font-weight:700; font-size:0.95rem; color:#fff;">${m.away}</div>
+                        <div style="font-size:0.75rem; color:#38bdf8;">⚾ ${m.starter_away}</div>
                     </div>
                 </div>
-                <div class="vs" style="font-weight:800; color:#38bdf8;">VS</div>
-                <div class="team" style="display:flex; align-items:center; gap:0.5rem; text-align:right;">
+                <div class="vs" style="font-weight:900; color:#38bdf8; font-size:1.1rem;">VS</div>
+                <div class="team" style="display:flex; align-items:center; gap:0.8rem; text-align:right;">
                     <div>
-                        <div style="font-weight:700; font-size:0.9rem;">${m.home}</div>
-                        <div style="font-size:0.7rem; color:#9ca3af;">${m.starter_home}</div>
+                        <div style="font-weight:700; font-size:0.95rem; color:#fff;">${m.home}</div>
+                        <div style="font-size:0.75rem; color:#38bdf8;">⚾ ${m.starter_home}</div>
                     </div>
                     ${getTeamBadgeHTML(m.home, true)}
                 </div>
             </div>
-            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:0.5rem; margin-bottom:0.8rem; font-size:0.8rem;">
-                <div style="background:rgba(56,189,248,0.1); padding:0.4rem; border-radius:6px;">Moneyline Prob: <strong>68.2%</strong></div>
-                <div style="background:rgba(56,189,248,0.1); padding:0.4rem; border-radius:6px;">Bullpen Rating: <strong style="color:#34d399;">Top Tier</strong></div>
+            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:0.8rem; margin-bottom:1rem; font-size:0.85rem;">
+                <div style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.2); padding:0.6rem; border-radius:8px; display:flex; flex-direction:column; gap:0.2rem;">
+                    <span style="color:#9ca3af; font-size:0.75rem;">Probabilidad Moneyline</span>
+                    <strong style="color:#38bdf8; font-size:1rem;">68.2% (Elite)</strong>
+                </div>
+                <div style="background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.2); padding:0.6rem; border-radius:8px; display:flex; flex-direction:column; gap:0.2rem;">
+                    <span style="color:#9ca3af; font-size:0.75rem;">Estado de Bullpen</span>
+                    <strong style="color:#34d399; font-size:1rem;">Descanso Óptimo</strong>
+                </div>
             </div>
-            <button class="btn-action" style="width:100%; padding:0.6rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer;" onclick="registerTrendPick('${m.away}', '${m.home}')">📌 Registrar Análisis en Auditoría</button>
+            <button class="btn-action" style="width:100%; padding:0.8rem; background:linear-gradient(135deg, #38bdf8, #0284c7); color:#0f172a; border:none; border-radius:10px; font-weight:800; cursor:pointer; font-size:0.9rem; box-shadow: 0 4px 12px rgba(56,189,248,0.3); transition:all 0.2s;" onclick="registerTrendPick('${m.away}', '${m.home}')">📌 Registrar Análisis de Tendencia en Auditoría</button>
         </div>
     `).join('');
 }
@@ -174,10 +180,56 @@ function renderMasterPick() {
     if (!container) return;
     
     container.innerHTML = `
-        <div style="padding: 1.5rem; background: var(--card-bg, #111827); border-radius: 12px; border: 1px solid var(--border-subtle, #374151);">
-            <h3 style="color:#38bdf8; margin-bottom:0.5rem;">🔥 Jugada Maestra del Día</h3>
-            <p style="color: #9ca3af; margin-top: 0.5rem; font-size:0.95rem;">Philadelphia Phillies vs Los Angeles Angels — Respaldado por la salida de Z. Wheeler y un diferencial de bullpen altamente favorable.</p>
-            <button class="btn-action" style="margin-top: 1rem; padding:0.6rem 1.2rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer;" onclick="registerMasterPickToAudit()">Enviar a Hoja de Auditoría</button>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.2rem; width:100%;">
+            <div style="padding: 1.5rem; background: var(--card-bg, #111827); border-radius: 16px; border: 1px solid rgba(56,189,248,0.3); box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <span style="background:rgba(56,189,248,0.15); color:#38bdf8; padding:0.3rem 0.8rem; border-radius:8px; font-size:0.8rem; font-weight:800; border:1px solid rgba(56,189,248,0.3);">⚡ JUGADA MAESTRA #1</span>
+                        <span style="color:#34d399; font-weight:800; font-size:0.9rem;">78.4% Probabilidad</span>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; padding:0.8rem; background:rgba(0,0,0,0.3); border-radius:10px;">
+                        <div style="display:flex; align-items:center; gap:0.6rem;">
+                            ${getTeamBadgeHTML("Philadelphia Phillies", true)}
+                            <span style="font-weight:700; color:#fff;">Phillies</span>
+                        </div>
+                        <span style="font-weight:800; color:#38bdf8;">VS</span>
+                        <div style="display:flex; align-items:center; gap:0.6rem; text-align:right;">
+                            <span style="font-weight:700; color:#fff;">Angels</span>
+                            ${getTeamBadgeHTML("Los Angeles Angels", true)}
+                        </div>
+                    </div>
+                    <p style="color: #9ca3af; margin: 0.5rem 0; font-size:0.9rem; line-height:1.5;">Z. Wheeler domina la lomita con efectividad élite y un bullpen con descanso óptimo frente a un rival con debilidad ante rectas veloces.</p>
+                </div>
+                <div style="margin-top:1.2rem;">
+                    <div style="font-size:0.85rem; color:#38bdf8; margin-bottom:0.8rem; background:rgba(56,189,248,0.08); padding:0.6rem; border-radius:8px;">Selección Sugerida: <strong style="color:#fff;">Phillies ML (-1.5) & Under 9.5</strong></div>
+                    <button class="btn-action" style="width:100%; padding:0.7rem; background:linear-gradient(135deg, #38bdf8, #0284c7); color:#0f172a; border:none; border-radius:10px; font-weight:800; cursor:pointer;" onclick="registerCustomMasterPick('Philadelphia Phillies vs Los Angeles Angels', 'Phillies ML (-1.5) & Under 9.5', '78.4%')">Enviar a Hoja de Auditoría</button>
+                </div>
+            </div>
+
+            <div style="padding: 1.5rem; background: var(--card-bg, #111827); border-radius: 16px; border: 1px solid rgba(56,189,248,0.3); box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <span style="background:rgba(56,189,248,0.15); color:#38bdf8; padding:0.3rem 0.8rem; border-radius:8px; font-size:0.8rem; font-weight:800; border:1px solid rgba(56,189,248,0.3);">⚡ JUGADA MAESTRA #2</span>
+                        <span style="color:#34d399; font-weight:800; font-size:0.9rem;">72.1% Probabilidad</span>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; padding:0.8rem; background:rgba(0,0,0,0.3); border-radius:10px;">
+                        <div style="display:flex; align-items:center; gap:0.6rem;">
+                            ${getTeamBadgeHTML("New York Yankees", true)}
+                            <span style="font-weight:700; color:#fff;">Yankees</span>
+                        </div>
+                        <span style="font-weight:800; color:#38bdf8;">VS</span>
+                        <div style="display:flex; align-items:center; gap:0.6rem; text-align:right;">
+                            <span style="font-weight:700; color:#fff;">Red Sox</span>
+                            ${getTeamBadgeHTML("Boston Red Sox", true)}
+                        </div>
+                    </div>
+                    <p style="color: #9ca3af; margin: 0.5rem 0; font-size:0.9rem; line-height:1.5;">Duelo divisional con tendencia clara al poder ofensivo local en los primeros 5 innings y ventaja abrumadora en WHIP de abridores.</p>
+                </div>
+                <div style="margin-top:1.2rem;">
+                    <div style="font-size:0.85rem; color:#38bdf8; margin-bottom:0.8rem; background:rgba(56,189,248,0.08); padding:0.6rem; border-radius:8px;">Selección Sugerida: <strong style="color:#fff;">Yankees ML (-1.5)</strong></div>
+                    <button class="btn-action" style="width:100%; padding:0.7rem; background:linear-gradient(135deg, #38bdf8, #0284c7); color:#0f172a; border:none; border-radius:10px; font-weight:800; cursor:pointer;" onclick="registerCustomMasterPick('New York Yankees vs Boston Red Sox', 'Yankees ML (-1.5)', '72.1%')">Enviar a Hoja de Auditoría</button>
+                </div>
+            </div>
         </div>
     `;
 }
@@ -187,16 +239,41 @@ function renderParlays() {
     if (!container) return;
     
     container.innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; width:100%;">
-            <div style="padding: 1.2rem; background: var(--card-bg, #111827); border-radius: 12px; border: 1px solid var(--border-subtle, #374151);">
-                <h4 style="color:#34d399; margin-top:0;">Parlay Combinado Principal</h4>
-                <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.5rem 0;">Yankees ML + Dodgers ML + Braves ML</p>
-                <button class="btn-action" style="padding:0.5rem 1rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Parlay Principal ML')">Registrar Parlay</button>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; width:100%;">
+            <div style="padding: 1.3rem; background: var(--card-bg, #111827); border-radius: 14px; border: 1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h4 style="color:#34d399; margin-top:0; font-size:1.05rem; display:flex; align-items:center; gap:0.4rem;">🎯 Parlay Combinado Principal</h4>
+                    <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.8rem 0; line-height:1.4;">Yankees ML + Dodgers ML + Braves ML</p>
+                    <div style="font-size:0.8rem; color:#38bdf8; margin-bottom:1rem; background:rgba(56,189,248,0.1); padding:0.4rem 0.8rem; border-radius:6px; display:inline-block;">Cuota Estimada: <strong>+425</strong></div>
+                </div>
+                <button class="btn-action" style="padding:0.7rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Parlay Principal ML (Yankees + Dodgers + Braves)', '+425')">Registrar Parlay</button>
             </div>
-            <div style="padding: 1.2rem; background: var(--card-bg, #111827); border-radius: 12px; border: 1px solid var(--border-subtle, #374151);">
-                <h4 style="color:#34d399; margin-top:0;">Parlay de Totales (Over/Under)</h4>
-                <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.5rem 0;">Phillies Under 9.5 + Astros Over 8.5</p>
-                <button class="btn-action" style="padding:0.5rem 1rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Parlay Totales')">Registrar Parlay</button>
+            
+            <div style="padding: 1.3rem; background: var(--card-bg, #111827); border-radius: 14px; border: 1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h4 style="color:#34d399; margin-top:0; font-size:1.05rem; display:flex; align-items:center; gap:0.4rem;">⚡ Parlay de Hándicaps</h4>
+                    <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.8rem 0; line-height:1.4;">Philadelphia Phillies -1.5 + Houston Astros -1.5</p>
+                    <div style="font-size:0.8rem; color:#38bdf8; margin-bottom:1rem; background:rgba(56,189,248,0.1); padding:0.4rem 0.8rem; border-radius:6px; display:inline-block;">Cuota Estimada: <strong>+310</strong></div>
+                </div>
+                <button class="btn-action" style="padding:0.7rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Parlay Hándicaps (Phillies + Astros)', '+310')">Registrar Parlay</button>
+            </div>
+
+            <div style="padding: 1.3rem; background: var(--card-bg, #111827); border-radius: 14px; border: 1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h4 style="color:#34d399; margin-top:0; font-size:1.05rem; display:flex; align-items:center; gap:0.4rem;">📊 Parlay de Totales</h4>
+                    <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.8rem 0; line-height:1.4;">Marlins vs Nationals Under 8.5 + Red Sox vs Yankees Over 9.0</p>
+                    <div style="font-size:0.8rem; color:#38bdf8; margin-bottom:1rem; background:rgba(56,189,248,0.1); padding:0.4rem 0.8rem; border-radius:6px; display:inline-block;">Cuota Estimada: <strong>+265</strong></div>
+                </div>
+                <button class="btn-action" style="padding:0.7rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Parlay Totales (Under/Over)', '+265')">Registrar Parlay</button>
+            </div>
+
+            <div style="padding: 1.3rem; background: var(--card-bg, #111827); border-radius: 14px; border: 1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h4 style="color:#34d399; margin-top:0; font-size:1.05rem; display:flex; align-items:center; gap:0.4rem;">🔥 Mega Parlay de Cierres</h4>
+                    <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.8rem 0; line-height:1.4;">Seattle Mariners + Cleveland Guardians + San Diego Padres</p>
+                    <div style="font-size:0.8rem; color:#38bdf8; margin-bottom:1rem; background:rgba(56,189,248,0.1); padding:0.4rem 0.8rem; border-radius:6px; display:inline-block;">Cuota Estimada: <strong>+680</strong></div>
+                </div>
+                <button class="btn-action" style="padding:0.7rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Mega Parlay Cierres', '+680')">Registrar Parlay</button>
             </div>
         </div>
     `;
@@ -219,31 +296,31 @@ function registerTrendPick(away, home) {
     alert(`Análisis de tendencias de ${away} @ ${home} registrado exitosamente en la Hoja de Auditoría.`);
 }
 
-function registerMasterPickToAudit() {
+function registerCustomMasterPick(matchName, pickText, probText) {
     let records = getSavedAuditRecords();
     let newRecord = {
         id: Date.now(),
         date: CURRENT_DATE,
-        match: "Philadelphia Phillies vs Los Angeles Angels",
-        selection: "Phillies ML & Under 9.5",
-        prob: "78.4%",
+        match: matchName,
+        selection: pickText,
+        prob: probText,
         result: "En Desarrollo",
         status: "PENDIENTE"
     };
     records.unshift(newRecord);
     saveAuditRecords(records);
     renderAuditHistory();
-    alert('¡Jugada Maestra enviada a la Hoja de Comparación con éxito!');
+    alert(`Jugada Maestra enviada a la Hoja de Comparación con éxito (${matchName}).`);
 }
 
-function registerParlayToAudit(parlayName) {
+function registerParlayToAudit(parlayName, odds) {
     let records = getSavedAuditRecords();
     let newRecord = {
         id: Date.now(),
         date: CURRENT_DATE,
         match: "Combinación Múltiple",
-        selection: parlayName,
-        prob: "52.0%",
+        selection: `${parlayName} [Cuota: ${odds}]`,
+        prob: "55.0%",
         result: "En Desarrollo",
         status: "PENDIENTE"
     };
@@ -283,26 +360,28 @@ function renderLiveControl() {
     processedMatches.sort((a, b) => a.sortOrder - b.sortOrder);
 
     container.innerHTML = processedMatches.map(m => `
-        <div class="live-card" style="background:var(--card-bg, #111827); padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid var(--border-subtle, #374151);">
-            <div class="match-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; font-size:0.85rem;">
-                <span style="font-weight:800; color:${m.gameState === 'EN VIVO' ? '#ef4444' : '#38bdf8'};">🔴 ${m.gameState} (${m.inningInfo})</span>
-                <span style="color:#9ca3af;">🏟️ ${m.stadium}</span>
+        <div class="live-card" style="background:var(--card-bg, #111827); padding:1.2rem; border-radius:14px; margin-bottom:1rem; border:1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <div class="match-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem; font-size:0.85rem;">
+                <span style="font-weight:800; color:${m.gameState === 'EN VIVO' ? '#ef4444' : '#38bdf8'}; background:rgba(0,0,0,0.3); padding:0.3rem 0.8rem; border-radius:8px; display:inline-flex; align-items:center; gap:0.4rem;">
+                    ${m.gameState === 'EN VIVO' ? '🔴 EN VIVO' : m.gameState === 'PRÓXIMAMENTE' ? '⏰ PRÓXIMAMENTE' : '🏁 FINALIZADO'} <span style="color:#9ca3af; font-weight:600;">(${m.inningInfo})</span>
+                </span>
+                <span style="color:#9ca3af; font-weight:600;">🏟️ ${m.stadium}</span>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin:0.8rem 0;">
-                <div style="display:flex; align-items:center; gap:0.6rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:1rem 0;">
+                <div style="display:flex; align-items:center; gap:0.8rem;">
                     ${getTeamBadgeHTML(m.away, true)}
                     <div>
-                        <div style="font-weight:700; font-size:0.9rem;">${m.away}</div>
-                        <div style="font-size:0.75rem; color:#9ca3af;">Abridor: ${m.starter_away}</div>
+                        <div style="font-weight:700; font-size:0.95rem; color:#fff;">${m.away}</div>
+                        <div style="font-size:0.75rem; color:#38bdf8;">Abridor: ${m.starter_away}</div>
                     </div>
                 </div>
-                <div style="font-size:1.6rem; font-weight:900; color:#38bdf8; background:rgba(0,0,0,0.3); padding:0.2rem 1rem; border-radius:8px;">
+                <div style="font-size:1.8rem; font-weight:900; color:#38bdf8; background:rgba(0,0,0,0.4); padding:0.4rem 1.2rem; border-radius:10px; border:1px solid rgba(56,189,248,0.2); letter-spacing:0.05em;">
                     ${m.awayScore} - ${m.homeScore}
                 </div>
-                <div style="display:flex; align-items:center; gap:0.6rem; text-align:right;">
+                <div style="display:flex; align-items:center; gap:0.8rem; text-align:right;">
                     <div>
-                        <div style="font-weight:700; font-size:0.9rem;">${m.home}</div>
-                        <div style="font-size:0.75rem; color:#9ca3af;">Abridor: ${m.starter_home}</div>
+                        <div style="font-weight:700; font-size:0.95rem; color:#fff;">${m.home}</div>
+                        <div style="font-size:0.75rem; color:#38bdf8;">Abridor: ${m.starter_home}</div>
                     </div>
                     ${getTeamBadgeHTML(m.home, true)}
                 </div>
