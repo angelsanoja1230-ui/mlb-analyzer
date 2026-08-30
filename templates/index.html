@@ -666,6 +666,7 @@
 
             let markets = [];
             
+            // F5 (0.5)
             let f5IsFav = (val % 3 !== 0);
             let f5Team = f5IsFav ? favoriteTeam : underdogTeam;
             let f5Spread = f5IsFav ? "-0.5" : "+0.5";
@@ -678,6 +679,7 @@
                 conf: probF5 
             });
 
+            // Run Line (1.5)
             let rlIsFav = (val % 4 !== 0);
             let rlTeam = rlIsFav ? favoriteTeam : underdogTeam;
             let rlSpread = rlIsFav ? "-1.5" : "+1.5";
@@ -690,6 +692,7 @@
                 conf: probRL 
             });
 
+            // Handicap (2.5) -> Alternando favorito y underdog para cubrir ambas opciones
             let h25IsFav = (val % 5 !== 0);
             let h25Team = h25IsFav ? favoriteTeam : underdogTeam;
             let h25Spread = h25IsFav ? "-2.5" : "+2.5";
@@ -697,11 +700,12 @@
             markets.push({ 
                 category: "Handicap25", 
                 type: "Handicap (2.5)", 
-                desc: `${matchKey} → Handicap ${h25Team} (${h25Spread})`, 
+                desc: `${matchKey} → Hcap ${h25Team} (${h25Spread})`, 
                 prob: probH25, 
                 conf: probH25 
             });
 
+            // Handicap (3.5) -> Incluyendo explícitamente tanto el menos 3.5 (favorito) como el más 3.5 (underdog) de forma dinámica
             let h35IsFav = (val % 2 === 0);
             let h35Team = h35IsFav ? favoriteTeam : underdogTeam;
             let h35Spread = h35IsFav ? "-3.5" : "+3.5";
@@ -709,11 +713,12 @@
             markets.push({ 
                 category: "Handicap35", 
                 type: "Handicap (3.5)", 
-                desc: `${matchKey} → Handicap ${h35Team} (${h35Spread})`, 
+                desc: `${matchKey} → Hcap ${h35Team} (${h35Spread})`, 
                 prob: probH35, 
                 conf: probH35 
             });
 
+            // Runelai
             let runelaiType = (val % 5 === 0 || val % 3 === 0) ? "NRFI" : "YRFI";
             let probRunelai = getProbValue(val, 59);
             markets.push({ 
@@ -724,6 +729,7 @@
                 conf: probRunelai 
             });
 
+            // Total Alta / Baja
             let ouType = (val % 3 === 0) ? "Alta (Over 8.5)" : "Baja (Under 8.5)";
             let probTotal = getProbValue(val, 71);
             markets.push({ 
@@ -772,12 +778,12 @@
                     let runelaiSpan = rows[index].querySelector('.matrix-prob-runelai');
                     let totalSpan = rows[index].querySelector('.matrix-prob-total');
 
-                    if (f5Span) f5Span.innerHTML = `<span class="badge-pick">${f5.prob}% (${f5.desc.split('(')[1] || ''}</span>`;
-                    if (rlSpan) rlSpan.innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc.split('(')[1] || ''}</span>`;
-                    if (h25Span) h25Span.innerHTML = `<span class="badge-handicap">${h25.prob}% (${h25.desc.split('(')[1] || ''}</span>`;
-                    if (h35Span) h35Span.innerHTML = `<span class="badge-pick" style="background-color:rgba(168,85,247,0.12); color:#c084fc;">${h35.prob}% (${h35.desc.split('(')[1] || ''}</span>`;
-                    if (runelaiSpan) runelaiSpan.innerHTML = `<span class="badge-runlai">${runelai.prob}%</span>`;
-                    if (totalSpan) totalSpan.innerHTML = `<span class="badge-total">${total.prob}%</span>`;
+                    if (f5Span) f5Span.innerHTML = `<span class="badge-pick">${f5.prob}% (${f5.desc.split('→')[1] || ''})</span>`;
+                    if (rlSpan) rlSpan.innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc.split('→')[1] || ''})</span>`;
+                    if (h25Span) h25Span.innerHTML = `<span class="badge-handicap">${h25.prob}% (${h25.desc.split('→')[1] || ''})</span>`;
+                    if (h35Span) h35Span.innerHTML = `<span class="badge-pick" style="background-color:rgba(168,85,247,0.12); color:#c084fc;">${h35.prob}% (${h35.desc.split('→')[1] || ''})</span>`;
+                    if (runelaiSpan) runelaiSpan.innerHTML = `<span class="badge-runlai">${runelai.prob}% (${runelai.desc.split('→')[1] || ''})</span>`;
+                    if (totalSpan) totalSpan.innerHTML = `<span class="badge-total">${total.prob}% (${total.desc.split('→')[1] || ''})</span>`;
                 }
 
                 let teamsArr = matchName.split(" @ ");
@@ -870,7 +876,7 @@
                         let usedMatches = new Set();
                         
                         let rotationIndex = (index * 3) % allAvailablePicks.length;
-                        let orderedSlice = [...allAvailablePicks.slice(rotationIndex), ...allAvailablePicks.slice(0, rotationIndex)];
+                        let orderedSlice = [...allAvailablePicks.slice(rotationIndex), ...allAvailablePước = allAvailablePicks.slice(0, rotationIndex)];
 
                         for (let p of orderedSlice) {
                             let matchNamePart = p.desc.split(" → ")[0];
@@ -968,6 +974,7 @@
                 historyData[dateKey].forEach(item => {
                     if(item.isParlay) {
                         html += `
+                            <script>/* safe */</script>
                             <li style="background-color: rgba(56, 189, 248, 0.08); padding: 8px; border-radius: 6px; border: 1px solid #38bdf8; font-size: 0.78rem; grid-column: 1 / -1;">
                                 <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">🎲 ${item.title} (${item.picks.length} selecciones)</div>
                                 <div style="color: #cbd5e1; margin-bottom: 4px;">Selecciones: ${item.picks.join(' | ')}</div>
