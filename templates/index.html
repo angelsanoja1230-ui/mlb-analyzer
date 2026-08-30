@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Motor de Pronósticos MLB - Nivel Cuantitativo</title>
+    <title>MLB - Pronóstico Cuantitativo</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -25,22 +25,67 @@
             margin: 0 auto;
         }
 
+        /* Cabecera limpia y exacta como lo pediste */
         header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
 
         header h1 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             color: #38bdf8;
-            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
         }
 
         header p {
             color: #94a3b8;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
 
+        /* Sistema de Pestañas (Tabs) */
+        .tabs-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background-color: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .tab-btn:hover {
+            background-color: #334155;
+            color: #f8fafc;
+        }
+
+        .tab-btn.active {
+            background-color: #38bdf8;
+            color: #0f172a;
+            border-color: #38bdf8;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cuadrícula de Partidos */
         .matches-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -163,61 +208,129 @@
             color: #64748b;
             border: 1px solid #334155;
         }
+
+        /* Estilo para la pestaña de Parlay */
+        .parlay-container {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .parlay-container h2 {
+            color: #38bdf8;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Cabecera limpia solicitada -->
         <header>
-            <h1>⚾ Panel Cuantitativo MLB</h1>
-            <p>Simulador de Monte Carlo con Modelado Climático y Filtro de Valor Esperado (EV+)</p>
+            <h1>MLB</h1>
+            <p>Fecha: 30-08-2026 | Pronóstico</p>
         </header>
 
-        <div class="matches-grid">
-            {% for match in matches %}
-            <div class="match-card {% if match.is_mega_play %}mega-play-border{% endif %}">
-                <div class="match-header">
-                    <span>{{ match.time }}</span>
-                    <span>📍 {{ match.stadium }}</span>
-                </div>
+        <!-- Pestañas de Navegación -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">Partidos del Día</button>
+            <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">Generador de Parlay</button>
+            <button class="tab-btn" onclick="switchTab(event, 'analytics-tab')">Análisis Avanzado</button>
+        </div>
 
-                <div class="teams-container">
-                    <div class="team">
-                        {% if team_logos and match.away in team_logos %}
-                        <img src="{{ team_logos[match.away] }}" alt="{{ match.away }}">
-                        {% endif %}
-                        <div class="team-name">{{ match.away }}</div>
+        <!-- Contenido Pestaña 1: Partidos -->
+        <div id="matches-tab" class="tab-content active">
+            <div class="matches-grid">
+                {% for match in matches %}
+                <div class="match-card {% if match.is_mega_play %}mega-play-border{% endif %}">
+                    <div class="match-header">
+                        <span>{{ match.time }}</span>
+                        <span>📍 {{ match.stadium }}</span>
                     </div>
-                    <div class="vs">VS</div>
-                    <div class="team">
-                        {% if team_logos and match.home in team_logos %}
-                        <img src="{{ team_logos[match.home] }}" alt="{{ match.home }}">
-                        {% endif %}
-                        <div class="team-name">{{ match.home }}</div>
+
+                    <div class="teams-container">
+                        <div class="team">
+                            {% if team_logos and match.away in team_logos %}
+                            <img src="{{ team_logos[match.away] }}" alt="{{ match.away }}">
+                            {% endif %}
+                            <div class="team-name">{{ match.away }}</div>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team">
+                            {% if team_logos and match.home in team_logos %}
+                            <img src="{{ team_logos[match.home] }}" alt="{{ match.home }}">
+                            {% endif %}
+                            <div class="team-name">{{ match.home }}</div>
+                        </div>
+                    </div>
+
+                    <div class="probabilities">
+                        <div class="prob-box">
+                            <span>Visita (Win %)</span>
+                            <strong>{{ match.prob_away }}%</strong>
+                        </div>
+                        <div class="prob-box" style="border-left: 1px solid #334155; padding-left: 1.5rem;">
+                            <span>Local (Win %)</span>
+                            <strong>{{ match.prob_home }}%</strong>
+                        </div>
+                    </div>
+
+                    <div class="details-grid">
+                        <div><strong>Abridores:</strong> {{ match.starter_away }} vs {{ match.starter_home }}</div>
+                        <div><strong>Clima:</strong> Viento {{ match.wind_speed_mph }} mph ({{ match.wind_direction }}) | Temp: {{ match.temperature_f }}°F</div>
+                    </div>
+
+                    <div class="recommendation-box {% if match.is_mega_play %}highlight-ev{% else %}normal-ev{% endif %}">
+                        {{ match.recommendation_text }}
                     </div>
                 </div>
+                {% endfor %}
+            </div>
+        </div>
 
-                <div class="probabilities">
-                    <div class="prob-box">
-                        <span>Visita (Win %)</span>
-                        <strong>{{ match.prob_away }}%</strong>
-                    </div>
-                    <div class="prob-box" style="border-left: 1px solid #334155; padding-left: 1.5rem;">
-                        <span>Local (Win %)</span>
-                        <strong>{{ match.prob_home }}%</strong>
-                    </div>
-                </div>
-
-                <div class="details-grid">
-                    <div><strong>Abridores:</strong> {{ match.starter_away }} vs {{ match.starter_home }}</div>
-                    <div><strong>Clima:</strong> Viento {{ match.wind_speed_mph }} mph ({{ match.wind_direction }}) | Temp: {{ match.temperature_f }}°F</div>
-                </div>
-
-                <div class="recommendation-box {% if match.is_mega_play %}highlight-ev{% else %}normal-ev{% endif %}">
-                    {{ match.recommendation_text }}
+        <!-- Contenido Pestaña 2: Parlay -->
+        <div id="parlay-tab" class="tab-content">
+            <div class="parlay-container">
+                <h2>Combinaciones de Parlay Sugeridas (EV+)</h2>
+                <p style="color: #94a3b8; margin-bottom: 1.5rem;">Aquí se agrupan automáticamente las selecciones con mayor valor matemático positivo del día.</p>
+                <div style="background-color: #0f172a; padding: 1.5rem; border-radius: 8px; border: 1px dashed #334155;">
+                    {% set mega_plays = matches | selectattr('is_mega_play') | list %}
+                    {% if mega_plays | length > 0 %}
+                        <p style="color: #fbbf24; font-weight: bold; margin-bottom: 1rem;">🔥 Sugerencia de Parlay con {{ mega_plays | length }} Logros Detectados:</p>
+                        <ul style="list-style: none; text-align: left; max-width: 500px; margin: 0 auto; color: #cbd5e1;">
+                            {% for play in mega_plays %}
+                            <li style="padding: 6px 0; border-bottom: 1px solid #1e293b;">⚾ {{ play.recommendation_text }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: #94a3b8;">No hay suficientes "Mega Jugadas" con EV+ > 5% hoy para armar un parlay seguro. Se recomienda esperar.</p>
+                    {% endif %}
                 </div>
             </div>
-            {% endfor %}
+        </div>
+
+        <!-- Contenido Pestaña 3: Análisis Avanzado -->
+        <div id="analytics-tab" class="tab-content">
+            <div class="parlay-container">
+                <h2>Panel de Métricas y Factores Climáticos</h2>
+                <p style="color: #94a3b8;">Resumen del comportamiento físico de los estadios y simulaciones de Monte Carlo (5,000 iteraciones por encuentro).</p>
+            </div>
         </div>
     </div>
+
+    <!-- Script sencillo para cambiar de pestaña con los botones -->
+    <script>
+        function switchTab(evt, tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+    </script>
 </body>
 </html>
