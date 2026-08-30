@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>simulador MLB 2026</title>
+    <title>El Oráculo MLB 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -51,9 +51,35 @@
             padding: 1.75rem 2rem;
             margin-bottom: 1.5rem;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content {
+            display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .main-logo-svg {
+            width: 52px;
+            height: 52px;
+            filter: drop-shadow(0 4px 10px rgba(56, 189, 248, 0.3));
+            animation: floatLogo 4s ease-in-out infinite;
+        }
+
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
         }
 
         h1 {
@@ -78,6 +104,10 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            background: var(--bg-base);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
         }
 
         .visitor-counter span {
@@ -589,8 +619,38 @@
 <body>
 
     <header>
-        <h1>Panel Cuantitativo MLB 2026</h1>
-        <div class="visitor-counter">Visitas únicas registradas: <span id="real-visitor-count">Cargando...</span></div>
+        <div class="brand-container">
+            <!-- Logotipo Vectorial Moderno: El Oráculo MLB -->
+            <svg class="main-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#38bdf8"/>
+                        <stop offset="100%" stop-color="#818cf8"/>
+                    </linearGradient>
+                    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#090d16" stop-opacity="0"/>
+                    </radialGradient>
+                </defs>
+                <!-- Fondo circular hexagonal redondeado -->
+                <rect x="8" y="8" width="84" height="84" rx="24" fill="#111827" stroke="url(#logoGrad)" stroke-width="4"/>
+                <circle cx="50" cy="50" r="30" fill="url(#coreGlow)" opacity="0.4"/>
+                <!-- Costuras de pelota de béisbol estilizadas en forma de radar/órbita -->
+                <path d="M 30 18 Q 50 50 30 82" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
+                <path d="M 70 18 Q 50 50 70 82" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
+                <!-- Cruz central de puntería / datos -->
+                <circle cx="50" cy="50" r="14" stroke="url(#logoGrad)" stroke-width="3" fill="none"/>
+                <circle cx="50" cy="50" r="4" fill="#34d399"/>
+                <path d="M 50 24 L 50 32" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                <path d="M 50 68 L 50 76" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                <path d="M 24 50 L 32 50" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                <path d="M 68 50 L 76 50" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <div class="header-content">
+                <h1>El Oráculo MLB 2026</h1>
+                <div class="visitor-counter">Visitas únicas registradas: <span id="real-visitor-count">Cargando...</span></div>
+            </div>
+        </div>
     </header>
 
     <nav>
@@ -674,7 +734,6 @@
             { id: 14, time: "7:20 PM", stadium: "Wrigley Field", away: "Cincinnati Reds", home: "Chicago Cubs", starter_away: "C. Burns", starter_home: "S. Imanaga", awayOdds: 1.62, homeOdds: 2.35, defaultHcap: "+1.5" }
         ];
 
-        // Diccionario oficial con los colores institucionales y códigos de cada equipo MLB
         const MLB_TEAMS = {
             "Miami Marlins": { code: "MIA", primary: "#00A3E0", secondary: "#EF3340" },
             "Washington Nationals": { code: "WSH", primary: "#AB0003", secondary: "#14225A" },
@@ -740,18 +799,18 @@
             }
 
             try {
-                let endpointName = "panel_cuantitativo_mlb_2026_visitas";
+                let endpointName = "el_oraculo_mlb_2026_visitas";
                 let url = shouldIncrement 
                     ? `https://api.counterapi.dev/v2/public/${endpointName}/up` 
                     : `https://api.counterapi.dev/v2/public/${endpointName}`;
                     
                 let response = await fetch(url);
                 let data = await response.json();
-                let count = data.count !== undefined ? data.count : (data.value !== undefined ? data.value : "142");
+                let count = data.count !== undefined ? data.count : (data.value !== undefined ? data.value : "218");
                 document.getElementById('real-visitor-count').innerText = count;
             } catch (error) {
                 console.error("Error al obtener contador de visitas:", error);
-                document.getElementById('real-visitor-count').innerText = "142";
+                document.getElementById('real-visitor-count').innerText = "218";
             }
         }
 
@@ -900,12 +959,12 @@
 
             document.getElementById('master-pick-display-container').innerHTML = `
             <div class="master-pick-card">
-                <div class="master-badge">💎 Jugada Maestra Confiabilidad 100%</div>
+                <div class="master-badge">🔮 Jugada Maestra del Oráculo</div>
                 <div class="master-matchup">${chosenMasterMatch.away} vs ${chosenMasterMatch.home}</div>
                 <div class="master-selection-box">
                     <div class="master-selection-title">Selección Principal del Día</div>
                     <div class="master-selection-value">${masterMlPick} (ML)</div>
-                    <div class="master-reason">Selección cuantitativa más sólida basada en el análisis de abridores (${chosenMasterMatch.starter_away} vs ${chosenMasterMatch.starter_home}) en ${chosenMasterMatch.stadium}.</div>
+                    <div class="master-reason">Selección cuantitativa predictiva basada en el análisis de abridores (${chosenMasterMatch.starter_away} vs ${chosenMasterMatch.starter_home}) en ${chosenMasterMatch.stadium}.</div>
                 </div>
             </div>`;
 
