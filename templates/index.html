@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB - Pronóstico Cuantitativo y Generador de Parlay Avanzado</title>
+    <title>MLB - Pronóstico Cuantitativo y Generador Multimercado (±3.5)</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -409,7 +409,7 @@
         <!-- Cabecera -->
         <header>
             <h1>MLB</h1>
-            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Pronóstico Cuantitativo y Generador Multimercado Dinámico</p>
+            <p>Fecha: <span id="current-date-label">30-08-2026</span> | Pronóstico Cuantitativo y Generador Multimercado Dinámico (Incluyendo ±3.5)</p>
         </header>
 
         <!-- Pestañas de Navegación -->
@@ -433,7 +433,7 @@
         <div id="matrix-tab" class="tab-content">
             <div class="matrix-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación Cuantitativa (0.5 a 3.5)</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Verificación estricta de favoritos (-) y underdogs (+) en hándicaps de 1ra mitad (0.5) y juego completo (1.5, 2.5, 3.5).</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Verificación estricta de hándicaps completos y alternativos incluyendo +3.5 / -3.5 y el equipo opuesto ("el que no es").</p>
                 
                 <table class="matrix-table" id="matrix-table-data">
                     <thead>
@@ -442,7 +442,7 @@
                             <th>Ganador F5 / Hcap 0.5</th>
                             <th>Run Line (1.5)</th>
                             <th>Handicap (2.5)</th>
-                            <th>Handicap (3.5)</th>
+                            <th>Handicap (3.5) [±]</th>
                             <th>Runelai</th>
                             <th>Alta / Baja</th>
                         </tr>
@@ -487,7 +487,7 @@
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado (0.5 a 3.5)</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo optimizado con rotación de encuentros para combinaciones variadas.</p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo optimizado con rotación de hándicaps positivos y negativos.</p>
 
                 <!-- Panel de Destacados Principales -->
                 <div class="highlights-grid">
@@ -500,7 +500,7 @@
                         <div class="pick-content" id="best-runline-text">Calculando...</div>
                     </div>
                     <div class="highlight-banner handicap">
-                        <h4>🛡️ Mejor Hcap (2.5 / 3.5)</h4>
+                        <h4>🛡️ Mejor Hcap (±3.5)</h4>
                         <div class="pick-content" id="best-handicap-text">Calculando...</div>
                     </div>
                     <div class="highlight-banner runlai">
@@ -666,7 +666,7 @@
 
             let markets = [];
             
-            // F5 (0.5)
+            // F5 (0.5) - Rotando entre favorito y el equipo opuesto (underdog)
             let f5IsFav = (val % 3 !== 0);
             let f5Team = f5IsFav ? favoriteTeam : underdogTeam;
             let f5Spread = f5IsFav ? "-0.5" : "+0.5";
@@ -679,7 +679,7 @@
                 conf: probF5 
             });
 
-            // Run Line (1.5)
+            // Run Line (1.5) - Rotando entre favorito y underdog ("el que no es")
             let rlIsFav = (val % 4 !== 0);
             let rlTeam = rlIsFav ? favoriteTeam : underdogTeam;
             let rlSpread = rlIsFav ? "-1.5" : "+1.5";
@@ -692,7 +692,7 @@
                 conf: probRL 
             });
 
-            // Handicap (2.5) -> Alternando favorito y underdog para cubrir ambas opciones
+            // Handicap (2.5)
             let h25IsFav = (val % 5 !== 0);
             let h25Team = h25IsFav ? favoriteTeam : underdogTeam;
             let h25Spread = h25IsFav ? "-2.5" : "+2.5";
@@ -705,7 +705,7 @@
                 conf: probH25 
             });
 
-            // Handicap (3.5) -> Incluyendo explícitamente tanto el menos 3.5 (favorito) como el más 3.5 (underdog) de forma dinámica
+            // Handicap (3.5) -> Cálculo estricto de -3.5 (favorito) y +3.5 (el equipo opuesto / underdog)
             let h35IsFav = (val % 2 === 0);
             let h35Team = h35IsFav ? favoriteTeam : underdogTeam;
             let h35Spread = h35IsFav ? "-3.5" : "+3.5";
@@ -876,7 +876,7 @@
                         let usedMatches = new Set();
                         
                         let rotationIndex = (index * 3) % allAvailablePicks.length;
-                        let orderedSlice = [...allAvailablePicks.slice(rotationIndex), ...allAvailablePước = allAvailablePicks.slice(0, rotationIndex)];
+                        let orderedSlice = [...allAvailablePicks.slice(rotationIndex), ...allAvailablePicks.slice(0, rotationIndex)];
 
                         for (let p of orderedSlice) {
                             let matchNamePart = p.desc.split(" → ")[0];
@@ -974,7 +974,6 @@
                 historyData[dateKey].forEach(item => {
                     if(item.isParlay) {
                         html += `
-                            <script>/* safe */</script>
                             <li style="background-color: rgba(56, 189, 248, 0.08); padding: 8px; border-radius: 6px; border: 1px solid #38bdf8; font-size: 0.78rem; grid-column: 1 / -1;">
                                 <div style="color: #38bdf8; font-weight: bold; margin-bottom: 3px;">🎲 ${item.title} (${item.picks.length} selecciones)</div>
                                 <div style="color: #cbd5e1; margin-bottom: 4px;">Selecciones: ${item.picks.join(' | ')}</div>
