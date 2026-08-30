@@ -455,7 +455,6 @@
             line-height: 1.4;
         }
 
-        /* ESCUDO / LOGO PREMIUM TIPO INSIGNIA */
         .team-insignia {
             display: inline-flex;
             flex-direction: column;
@@ -488,26 +487,47 @@
             border-bottom: 1px solid var(--border-subtle);
         }
 
-        .history-item {
-            background-color: var(--bg-surface);
-            padding: 1.25rem;
-            border-radius: var(--radius-md);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* TABLA DE COMPARACIÓN HOJA DE RESULTADOS */
+        .comparison-table-wrapper {
+            background: var(--bg-surface);
             border: 1px solid var(--border-subtle);
-            margin-bottom: 0.75rem;
-            transition: var(--transition);
+            border-radius: var(--radius-lg);
+            overflow-x: auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .history-item:hover {
-            border-color: var(--border-accent);
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .comparison-table th {
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            padding: 1rem;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+        }
+
+        .comparison-table tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
         }
 
         .status-badge {
-            padding: 0.35rem 0.85rem;
+            padding: 0.3rem 0.75rem;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 800;
             text-transform: uppercase;
         }
@@ -515,6 +535,17 @@
         .status-pending { background: rgba(251, 191, 36, 0.15); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.3); }
         .status-won { background: var(--success-bg); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.3); }
         .status-lost { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.3); }
+
+        .result-input {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            padding: 0.4rem 0.6rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            width: 90px;
+            text-align: center;
+        }
 
         .auto-parlay-card h5 {
             font-size: 1rem;
@@ -555,7 +586,7 @@
         <button class="tab-btn" onclick="switchTab(event, 'master-tab')">⭐ Jugada Maestra</button>
         <button class="tab-btn" onclick="switchTab(event, 'parlays-tab')">🎯 Parlays Automáticos</button>
         <button class="tab-btn" onclick="switchTab(event, 'live-standalone-tab')">🔴 En Vivo & APIs</button>
-        <button class="tab-btn" onclick="switchTab(event, 'history-tab')">🕒 Historial</button>
+        <button class="tab-btn" onclick="switchTab(event, 'history-tab')">📊 Hoja de Comparación (Auditoría)</button>
     </nav>
 
     <!-- Pestaña 1: Partidos del Día -->
@@ -571,6 +602,7 @@
     <div id="trends-tab" class="tab-content">
         <div class="section-header-flex">
             <h2>Tendencias del Día y Mercados Múltiples</h2>
+            <span style="font-size: 0.8rem; color: var(--success); font-weight: 700;">✨ Guardado automático activo en la hoja de auditoría</span>
         </div>
         <div id="trends-list-container" class="matches-grid" style="margin-top: 1rem;"></div>
     </div>
@@ -600,11 +632,11 @@
         <div id="live-standalone-cards-container" class="live-grid"></div>
     </div>
 
-    <!-- Pestaña 6: Historial -->
+    <!-- Pestaña 6: Hoja de Comparación / Historial -->
     <div id="history-tab" class="tab-content">
         <div class="section-header-flex">
-            <h2>Historial de Pronósticos Guardados</h2>
-            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.6rem 1.25rem; background-color: var(--danger); color: white;" onclick="clearHistory()">🗑️ Limpiar Historial</button>
+            <h2>Hoja de Comparación y Auditoría de Tendencias</h2>
+            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.6rem 1.25rem; background-color: var(--danger); color: white;" onclick="clearHistory()">🗑️ Limpiar Hoja</button>
         </div>
         <div id="history-list-container"></div>
     </div>
@@ -774,21 +806,7 @@
         function processApp() {
             let savedLines = getSavedLines();
             let trendsHTML = '';
-
-            let dateHash = 0;
-            for (let i = 0; i < CURRENT_DATE.length; i++) {
-                dateHash += CURRENT_DATE.charCodeAt(i);
-            }
-            let bestMasterIndex = dateHash % BASE_MATCHES.length;
-            let chosenMasterMatch = BASE_MATCHES[bestMasterIndex];
-            let isMasterHomeFav = chosenMasterMatch.homeOdds < chosenMasterMatch.awayOdds;
-            let masterMlPick = isMasterHomeFav ? chosenMasterMatch.home : chosenMasterMatch.away;
-            
-            let bestMainObj = {
-                match: `${chosenMasterMatch.away} vs ${chosenMasterMatch.home}`,
-                pick: `${masterMlPick} (ML)`,
-                reason: `Selección cuantitativa más sólida del día basada en el análisis comparativo de abridores (${chosenMasterMatch.starter_away} vs ${chosenMasterMatch.starter_home}) y rendimiento histórico en ${chosenMasterMatch.stadium}.`
-            };
+            let automaticHistoryEntries = [];
 
             BASE_MATCHES.forEach(m => {
                 let lineInfo = savedLines[m.id] || { team: m.home, line: m.defaultHcap };
@@ -796,6 +814,19 @@
                 let f5Pick = isHomeFav ? `${m.home} F5 (-0.5)` : `${m.away} F5 (0.0)`;
                 let mlPick = isHomeFav ? m.home : m.away;
                 let ouPick = "Alta (O 8.5)";
+
+                // Generar objeto para el guardado automático en la hoja de auditoría
+                automaticHistoryEntries.push({
+                    id: m.id,
+                    date: CURRENT_DATE,
+                    matchup: `${m.away} @ ${m.home}`,
+                    f5: f5Pick,
+                    ml: mlPick,
+                    handicap: `${lineInfo.team} ${lineInfo.line}`,
+                    ou: ouPick,
+                    actualResult: "",
+                    status: 'Pendiente'
+                });
 
                 trendsHTML += `
                 <div class="trend-card">
@@ -812,27 +843,127 @@
                         <div class="market-pill"><span class="market-pill-label">Hándicap</span><span class="market-pill-value">${lineInfo.team} ${lineInfo.line}</span></div>
                         <div class="market-pill"><span class="market-pill-label">Total O/U</span><span class="market-pill-value">${ouPick}</span></div>
                     </div>
-                    <button class="btn-action" onclick="saveToHistory('${m.away} vs ${m.home}', '${lineInfo.team} ${lineInfo.line}', 'Hándicap')">📌 Guardar en Historial</button>
                 </div>`;
             });
 
             document.getElementById('trends-list-container').innerHTML = trendsHTML;
 
-            if (bestMainObj) {
-                document.getElementById('master-pick-display-container').innerHTML = `
-                <div class="master-pick-card">
-                    <div class="master-badge">💎 Jugada Maestra Confiabilidad 100%</div>
-                    <div class="master-matchup">${bestMainObj.match}</div>
-                    <div class="master-selection-box">
-                        <div class="master-selection-title">Selección Principal del Día</div>
-                        <div class="master-selection-value">${bestMainObj.pick}</div>
-                        <div class="master-reason">${bestMainObj.reason}</div>
-                    </div>
-                    <button class="btn-action" style="max-width: 250px; margin: 0 auto; background-color: var(--success); color: var(--bg-base);" onclick="saveToHistory('${bestMainObj.match}', '${bestMainObj.pick}', 'Jugada 100%')">📌 Guardar en Historial</button>
-                </div>`;
+            // Guardar o actualizar de forma inteligente en localStorage conservando resultados previos si ya se ingresaron
+            syncAutomaticHistory(automaticHistoryEntries);
+
+            // Jugada Maestra
+            let dateHash = 0;
+            for (let i = 0; i < CURRENT_DATE.length; i++) {
+                dateHash += CURRENT_DATE.charCodeAt(i);
             }
+            let bestMasterIndex = dateHash % BASE_MATCHES.length;
+            let chosenMasterMatch = BASE_MATCHES[bestMasterIndex];
+            let isMasterHomeFav = chosenMasterMatch.homeOdds < chosenMasterMatch.awayOdds;
+            let masterMlPick = isMasterHomeFav ? chosenMasterMatch.home : chosenMasterMatch.away;
+
+            document.getElementById('master-pick-display-container').innerHTML = `
+            <div class="master-pick-card">
+                <div class="master-badge">💎 Jugada Maestra Confiabilidad 100%</div>
+                <div class="master-matchup">${chosenMasterMatch.away} vs ${chosenMasterMatch.home}</div>
+                <div class="master-selection-box">
+                    <div class="master-selection-title">Selección Principal del Día</div>
+                    <div class="master-selection-value">${masterMlPick} (ML)</div>
+                    <div class="master-reason">Selección cuantitativa más sólida basada en el análisis de abridores (${chosenMasterMatch.starter_away} vs ${chosenMasterMatch.starter_home}) en ${chosenMasterMatch.stadium}.</div>
+                </div>
+            </div>`;
 
             renderAutoParlays();
+        }
+
+        function syncAutomaticHistory(newEntries) {
+            let existingHistory = JSON.parse(localStorage.getItem('mlb_audit_sheet') || '[]');
+            
+            // Fusionar manteniendo resultados reales o estados ya ingresados por el usuario
+            let merged = newEntries.map(newItem => {
+                let found = existingHistory.find(ex => ex.id === newItem.id && ex.date === newItem.date);
+                if (found) {
+                    return {
+                        ...newItem,
+                        actualResult: found.actualResult || "",
+                        status: found.status || "Pendiente"
+                    };
+                }
+                return newItem;
+            });
+
+            localStorage.setItem('mlb_audit_sheet', JSON.stringify(merged));
+        }
+
+        function renderHistory() {
+            let history = JSON.parse(localStorage.getItem('mlb_audit_sheet') || '[]');
+            let container = document.getElementById('history-list-container');
+            
+            if(history.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; padding: 3rem;">No hay tendencias guardadas para hoy todavía. Visita la pestaña de Tendencias para generarlas.</p>`;
+                return;
+            }
+
+            let html = `
+            <div class="comparison-table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Partido</th>
+                            <th>Tendencia F5</th>
+                            <th>Tendencia ML</th>
+                            <th>Tendencia Hándicap</th>
+                            <th>Resultado Real (Auditoría)</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            history.forEach((h, idx) => {
+                let statusClass = "status-pending";
+                if (h.status === 'Ganada') statusClass = "status-won";
+                else if (h.status === 'Perdida') statusClass = "status-lost";
+
+                html += `
+                        <tr>
+                            <td style="font-weight: 700;">${h.matchup}</td>
+                            <td><span style="color: var(--accent);">${h.f5}</span></td>
+                            <td><span style="color: var(--success);">${h.ml}</span></td>
+                            <td>${h.handicap}</td>
+                            <td>
+                                <input type="text" class="result-input" placeholder="Ej. 5-3 / Won" value="${h.actualResult}" onchange="updateActualResult(${idx}, this.value)">
+                            </td>
+                            <td>
+                                <select onchange="updateAuditStatus(${idx}, this.value)" style="padding: 0.3rem; font-size: 0.75rem; width: 110px;">
+                                    <option value="Pendiente" ${h.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                                    <option value="Ganada" ${h.status === 'Ganada' ? 'selected' : ''}>Acertada</option>
+                                    <option value="Perdida" ${h.status === 'Perdida' ? 'selected' : ''}>Fallida</option>
+                                </select>
+                            </td>
+                        </tr>`;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            </div>`;
+            container.innerHTML = html;
+        }
+
+        function updateActualResult(index, val) {
+            let history = JSON.parse(localStorage.getItem('mlb_audit_sheet') || '[]');
+            if(history[index]) {
+                history[index].actualResult = val;
+                localStorage.setItem('mlb_audit_sheet', JSON.stringify(history));
+            }
+        }
+
+        function updateAuditStatus(index, statusVal) {
+            let history = JSON.parse(localStorage.getItem('mlb_audit_sheet') || '[]');
+            if(history[index]) {
+                history[index].status = statusVal;
+                localStorage.setItem('mlb_audit_sheet', JSON.stringify(history));
+                renderHistory();
+            }
         }
 
         function renderAutoParlays() {
@@ -867,69 +998,9 @@
                 </div>`;
         }
 
-        function saveToHistory(matchup, pick, type = 'Jugada') {
-            let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
-            let exists = history.some(h => h.date === CURRENT_DATE && h.matchup === matchup && h.pick === pick);
-            if (exists) {
-                alert("Esta jugada ya se encuentra registrada en el historial.");
-                return;
-            }
-
-            history.unshift({
-                date: CURRENT_DATE,
-                matchup: matchup,
-                pick: pick,
-                type: type,
-                status: 'Pendiente'
-            });
-            localStorage.setItem('mlb_history_log', JSON.stringify(history));
-            alert("¡Selección guardada exitosamente en el historial!");
-            renderHistory();
-        }
-
-        function renderHistory() {
-            let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
-            let container = document.getElementById('history-list-container');
-            if(history.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; padding: 3rem;">No hay registros guardados todavía.</p>`;
-                return;
-            }
-            let html = '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
-            history.forEach((h, idx) => {
-                let statusClass = "status-pending";
-                if (h.status === 'Ganada') statusClass = "status-won";
-                else if (h.status === 'Perdida') statusClass = "status-lost";
-
-                html += `
-                <div class="history-item">
-                    <div>
-                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 0.35rem;">
-                            <span style="font-size: 0.7rem; color: var(--accent); background: var(--accent-glow); padding: 2px 8px; border-radius: 4px; font-weight: 700;">[${h.type}]</span>
-                            <span style="font-size: 0.75rem; color: var(--text-muted);">${h.date}</span>
-                        </div>
-                        <div style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">${h.matchup}</div>
-                        <div style="font-size: 0.85rem; color: var(--success); font-weight: 700;">Pronóstico: ${h.pick}</div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <span class="status-badge ${statusClass}">${h.status}</span>
-                        <button onclick="deleteHistoryItem(${idx})" style="background: none; border: none; cursor: pointer; font-size: 1.1rem;" title="Eliminar">🗑️</button>
-                    </div>
-                </div>`;
-            });
-            html += '</div>';
-            container.innerHTML = html;
-        }
-
-        function deleteHistoryItem(index) {
-            let history = JSON.parse(localStorage.getItem('mlb_history_log') || '[]');
-            history.splice(index, 1);
-            localStorage.setItem('mlb_history_log', JSON.stringify(history));
-            renderHistory();
-        }
-
         function clearHistory() {
-            if(confirm("¿Estás seguro de limpiar todo el historial?")) {
-                localStorage.removeItem('mlb_history_log');
+            if(confirm("¿Estás seguro de limpiar la hoja de comparación?")) {
+                localStorage.removeItem('mlb_audit_sheet');
                 renderHistory();
             }
         }
