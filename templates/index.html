@@ -42,6 +42,22 @@
             font-size: 1rem;
         }
 
+        .visitor-badge {
+            display: inline-block;
+            background-color: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        .visitor-badge span {
+            color: #38bdf8;
+            font-weight: bold;
+        }
+
         .tabs-nav {
             display: flex;
             justify-content: center;
@@ -530,6 +546,10 @@
         <header>
             <h1>MLB</h1>
             <p>Fecha: <span id="current-date-label">30-08-2026</span> | Panel Cuantitativo y Centro Real En Vivo</p>
+            <!-- CONTADOR DE VISITAS REALES ÚNICAS -->
+            <div class="visitor-badge">
+                👁️ Visitas reales únicas: <span id="real-visitor-count">Cargando...</span>
+            </div>
         </header>
 
         <div class="tabs-nav">
@@ -701,6 +721,7 @@
             processApp();
             renderHistory();
             fetchRealLiveMLBData();
+            initRealVisitorCounter();
             
             liveRefreshInterval = setInterval(() => {
                 let liveTab = document.getElementById('live-standalone-tab');
@@ -709,6 +730,37 @@
                 }
             }, 45000);
         });
+
+        // ==========================================
+        // CONTADOR DE VISITAS ÚNICAS (Anti-F5)
+        // ==========================================
+        async function initRealVisitorCounter() {
+            const counterKey = "mlb_panel_unique_visitor_recorded";
+            const lastVisitTime = localStorage.getItem(counterKey);
+            const now = new Date().getTime();
+            
+            const twentyFourHours = 24 * 60 * 60 * 1000; 
+            let shouldIncrement = false;
+
+            if (!lastVisitTime || (now - parseInt(lastVisitTime)) > twentyFourHours) {
+                shouldIncrement = true;
+                localStorage.setItem(counterKey, now.toString());
+            }
+
+            try {
+                let url = shouldIncrement 
+                    ? 'https://api.counterapi.dev/v1/panel_cuantitativo_mlb_2026/visitas/up' 
+                    : 'https://api.counterapi.dev/v1/panel_cuantitativo_mlb_2026/visitas/';
+                    
+                let response = await fetch(url);
+                let data = await response.json();
+                
+                document.getElementById('real-visitor-count').innerText = data.count || data.value || "1";
+            } catch (e) {
+                console.error("Error al obtener el contador:", e);
+                document.getElementById('real-visitor-count').innerText = "Disponible";
+            }
+        }
 
         function switchTab(evt, tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
