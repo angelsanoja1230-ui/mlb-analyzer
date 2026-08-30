@@ -333,7 +333,6 @@
         <div class="visitor-counter">Visitas únicas registradas: <span id="real-visitor-count">Cargando...</span></div>
     </header>
 
-    <!-- Navegación con la pestaña original restaurada -->
     <nav>
         <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">⚾ Partidos del Día</button>
         <button class="tab-btn" onclick="switchTab(event, 'trends-tab')">📈 Tendencias & Análisis</button>
@@ -343,7 +342,7 @@
         <button class="tab-btn" onclick="switchTab(event, 'history-tab')">🕒 Historial</button>
     </nav>
 
-    <!-- Pestaña 1: Partidos del Día (ID original restaurado) -->
+    <!-- Pestaña 1: Partidos del Día -->
     <div id="matches-tab" class="tab-content active">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h2>Configuración de Hándicaps Diarios</h2>
@@ -391,55 +390,22 @@
     <script>
         const CURRENT_DATE = "2026-08-30";
 
+        // Listado completo de los 14 partidos del día correspondientes a la cartelera
         const BASE_MATCHES = [
-            {
-                id: 1,
-                time: "1:05 PM",
-                stadium: "Nationals Park",
-                away: "Philadelphia Phillies",
-                home: "Washington Nationals",
-                starter_away: "Z. Wheeler (R)",
-                starter_home: "J. Irvin (L)",
-                awayOdds: 1.45,
-                homeOdds: 2.75,
-                defaultHcap: "-1.5"
-            },
-            {
-                id: 2,
-                time: "1:35 PM",
-                stadium: "Yankee Stadium",
-                away: "St. Louis Cardinals",
-                home: "New York Yankees",
-                starter_away: "E. Fedde (R)",
-                starter_home: "G. Cole (R)",
-                awayOdds: 2.40,
-                homeOdds: 1.58,
-                defaultHcap: "-1.5"
-            },
-            {
-                id: 3,
-                time: "1:40 PM",
-                stadium: "Truist Park",
-                away: "Colorado Rockies",
-                home: "Atlanta Braves",
-                starter_away: "A. Gomber (L)",
-                starter_home: "C. Sale (L)",
-                awayOdds: 3.10,
-                homeOdds: 1.38,
-                defaultHcap: "-1.5"
-            },
-            {
-                id: 4,
-                time: "4:10 PM",
-                stadium: "Dodger Stadium",
-                away: "Arizona Diamondbacks",
-                home: "Los Angeles Dodgers",
-                starter_away: "Z. Gallen (R)",
-                starter_home: "Y. Yamamoto (R)",
-                awayOdds: 2.10,
-                homeOdds: 1.75,
-                defaultHcap: "-1.5"
-            }
+            { id: 1, time: "12:15 PM", stadium: "Nationals Park", away: "Miami Marlins", home: "Washington Nationals", starter_away: "J. Junk", starter_home: "A. Alvarez", awayOdds: 2.00, homeOdds: 1.70, defaultHcap: "-1.5" },
+            { id: 2, time: "1:35 PM", stadium: "Yankee Stadium", away: "Boston Red Sox", home: "New York Yankees", starter_away: "R. Suarez", starter_home: "W. Warren", awayOdds: 2.30, homeOdds: 1.67, defaultHcap: "-1.5" },
+            { id: 3, time: "1:35 PM", stadium: "Truist Park", away: "Colorado Rockies", home: "Atlanta Braves", starter_away: "M. Adams", starter_home: "T. Mahle", awayOdds: 1.93, homeOdds: 1.91, defaultHcap: "-1.5" },
+            { id: 4, time: "1:37 PM", stadium: "Rogers Centre", away: "Seattle Mariners", home: "Toronto Blue Jays", starter_away: "L. Gilbert", starter_home: "M. Scherzer", awayOdds: 2.25, homeOdds: 1.60, defaultHcap: "-1.5" },
+            { id: 5, time: "1:40 PM", stadium: "Progressive Field", away: "Kansas City Royals", home: "Cleveland Guardians", starter_away: "S. Lugo", starter_home: "P. Messick", awayOdds: 1.74, homeOdds: 2.15, defaultHcap: "+1.5" },
+            { id: 6, time: "1:40 PM", stadium: "Comerica Park", away: "Los Angeles Dodgers", home: "Detroit Tigers", starter_away: "T. Glasnow", starter_home: "F. Valdez", awayOdds: 2.04, homeOdds: 1.77, defaultHcap: "-1.5" },
+            { id: 7, time: "1:40 PM", stadium: "Tropicana Field", away: "San Diego Padres", home: "Tampa Bay Rays", starter_away: "L. Ray", starter_home: "D. Rasmussen", awayOdds: 1.65, homeOdds: 2.30, defaultHcap: "+1.5" },
+            { id: 8, time: "2:10 PM", stadium: "Target Field", away: "Chicago White Sox", home: "Minnesota Twins", starter_away: "J. Hicks", starter_home: "Z. Matthews", awayOdds: 1.95, homeOdds: 1.83, defaultHcap: "-1.5" },
+            { id: 9, time: "2:10 PM", stadium: "American Family Field", away: "Texas Rangers", home: "Milwaukee Brewers", starter_away: "K. Rocker", starter_home: "B. May", awayOdds: 1.68, homeOdds: 2.25, defaultHcap: "+1.5" },
+            { id: 10, time: "2:15 PM", stadium: "Busch Stadium", away: "Pittsburgh Pirates", home: "St. Louis Cardinals", starter_away: "B. Ashcraft", starter_home: "M. Liberatore", awayOdds: 1.76, homeOdds: 2.10, defaultHcap: "+1.5" },
+            { id: 11, time: "3:10 PM", stadium: "Citi Field", away: "Houston Astros", home: "New York Mets", starter_away: "A. Pecko", starter_home: "T. Thornton", awayOdds: 1.52, homeOdds: 2.60, defaultHcap: "-1.5" },
+            { id: 12, time: "4:05 PM", stadium: "Sutter Health Park", away: "Baltimore Orioles", home: "Oakland Athletics", starter_away: "C. Bassitt", starter_home: "J. Springs", awayOdds: 2.00, homeOdds: 1.83, defaultHcap: "-1.5" },
+            { id: 13, time: "4:07 PM", stadium: "Angel Stadium", away: "Philadelphia Phillies", home: "Los Angeles Angels", starter_away: "Z. Wheeler", starter_home: "Y. Kikuchi", awayOdds: 1.58, homeOdds: 2.40, defaultHcap: "-1.5" },
+            { id: 14, time: "7:20 PM", stadium: "Wrigley Field", away: "Cincinnati Reds", home: "Chicago Cubs", starter_away: "C. Burns", starter_home: "S. Imanaga", awayOdds: 1.62, homeOdds: 2.35, defaultHcap: "+1.5" }
         ];
 
         function getTeamBadgeHTML(teamName, small = false) {
@@ -563,7 +529,6 @@
         function processApp() {
             let savedLines = getSavedLines();
             let trendsHTML = '';
-            let bestPlaysHTML = '';
             let bestF5Obj = null;
 
             let dateHash = 0;
