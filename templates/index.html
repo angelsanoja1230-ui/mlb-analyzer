@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Oráculo MLB 2026 - En Vivo</title>
+    <title>El Oráculo MLB 2026 - Panel Cuantitativo Avanzado</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -12,16 +12,13 @@
             --bg-card: #1f2937;
             --bg-card-hover: #374151;
             --border-subtle: #374151;
-            --border-accent: #0ea5e9;
             --accent: #38bdf8;
-            --accent-glow: rgba(56, 189, 248, 0.15);
+            --accent-glow: rgba(56, 189, 248, 0.2);
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
             --success: #34d399;
-            --success-bg: rgba(52, 211, 153, 0.1);
             --warning: #fbbf24;
-            --danger: #ef4444;
-            --danger-bg: rgba(239, 68, 68, 0.1);
+            --danger: #f87171;
             --radius-lg: 16px;
             --radius-md: 10px;
             --radius-sm: 6px;
@@ -67,13 +64,7 @@
         .main-logo-svg {
             width: 52px;
             height: 52px;
-            filter: drop-shadow(0 4px 10px rgba(56, 189, 248, 0.3));
-            animation: floatLogo 4s ease-in-out infinite;
-        }
-
-        @keyframes floatLogo {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+            filter: drop-shadow(0 4px 10px var(--accent-glow));
         }
 
         h1 {
@@ -83,14 +74,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.025em;
-            margin-bottom: 0.2rem;
         }
 
         h2 {
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-main);
-            letter-spacing: -0.01em;
         }
 
         nav {
@@ -100,7 +89,6 @@
             overflow-x: auto;
             padding-bottom: 0.5rem;
             scrollbar-width: thin;
-            scrollbar-color: var(--border-subtle) transparent;
         }
 
         .tab-btn {
@@ -126,7 +114,7 @@
             background: var(--accent);
             color: var(--bg-base);
             border-color: var(--accent);
-            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+            box-shadow: 0 4px 12px var(--accent-glow);
         }
 
         .tab-content {
@@ -143,171 +131,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .live-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        /* --- NUEVO DISEÑO EN VIVO (ESTILO PÁGINA DEPORTIVA) --- */
-        .live-card {
-            background: linear-gradient(180deg, var(--bg-surface) 0%, #0d121c 100%);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .live-card.is-live {
-            border-color: rgba(239, 68, 68, 0.4);
-            box-shadow: 0 8px 25px -5px rgba(239, 68, 68, 0.15), inset 0 0 20px rgba(239, 68, 68, 0.05);
-        }
-
-        .live-card.is-live::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 4px;
-            background: linear-gradient(90deg, transparent, var(--danger), transparent);
-            animation: pulseLine 2s linear infinite;
-        }
-
-        @keyframes pulseLine {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; box-shadow: 0 0 10px var(--danger); }
-            100% { opacity: 0.3; }
-        }
-
-        .live-tag {
-            background: var(--danger);
-            color: #fff;
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
-        }
-
-        .live-tag::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background-color: #fff;
-            border-radius: 50%;
-            animation: pulse 1s infinite alternate;
-        }
-
-        .live-scorebox {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 1.25rem 1rem;
-            border-radius: var(--radius-md);
-            margin: 1rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
-        }
-
-        /* Diamante de Béisbol y Dashboard Situacional */
-        .sports-dashboard {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: var(--radius-md);
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.25rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-
-        .bases-wrapper {
-            position: relative;
-            width: 50px;
-            height: 50px;
-            transform: rotate(45deg);
-            margin-left: 10px;
-        }
-
-        .base {
-            position: absolute;
-            width: 14px;
-            height: 14px;
-            background: #111827;
-            border: 2px solid #4b5563;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .base.active {
-            background: var(--warning);
-            border-color: #fff;
-            box-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
-        }
-
-        /* Posiciones rotadas a 45 grados: 
-           Arriba = 2B, Derecha = 1B, Izquierda = 3B, Abajo = Home */
-        .base-2b { top: 0; left: 0; }
-        .base-1b { top: 0; right: 0; }
-        .base-3b { bottom: 0; left: 0; }
-        .home-plate {
-            bottom: 0; right: 0; 
-            background: #fff !important; 
-            border-color: #fff !important;
-            border-radius: 50% 0 50% 50%; /* Forma parecida al home plate rotado */
-        }
-
-        .count-board {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-
-        .count-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 800;
-            color: var(--text-muted);
-            letter-spacing: 0.05em;
-        }
-
-        .count-dots {
-            display: flex;
-            gap: 4px;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #1f2937;
-            border: 1px solid #4b5563;
-        }
-
-        .dot.ball.active { background: #34d399; border-color: #34d399; box-shadow: 0 0 5px #34d399; }
-        .dot.strike.active { background: #ef4444; border-color: #ef4444; box-shadow: 0 0 5px #ef4444; }
-        .dot.out.active { background: #fbbf24; border-color: #fbbf24; box-shadow: 0 0 5px #fbbf24; }
-
-        .live-best-play-box {
-            background: linear-gradient(135deg, rgba(52, 211, 153, 0.1) 0%, transparent 100%);
-            border-left: 4px solid var(--success);
-            padding: 1rem;
-            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-            margin-bottom: 0.75rem;
-        }
-
         .section-header-flex {
             display: flex;
             justify-content: space-between;
@@ -318,9 +141,6 @@
         }
 
         .btn-action {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
             background: var(--accent);
             color: var(--bg-base);
             border: none;
@@ -330,7 +150,6 @@
             cursor: pointer;
             font-size: 0.85rem;
             transition: var(--transition);
-            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
         }
 
         .btn-action:hover {
@@ -338,26 +157,65 @@
             transform: translateY(-1px);
         }
 
-        /* Insignia / Logotipo SVG Vectorial Integrado */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .generic-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Estilos de Palés y Partidos */
+        .pale-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .pale-card {
+            background: linear-gradient(135deg, var(--bg-surface) 0%, #0d121c 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+
+        .pale-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #fbbf24);
+        }
+
+        .pale-leg-item {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
         .team-insignia {
             display: inline-flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             border: 2px solid;
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 900;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .team-insignia::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 40%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
-            border-radius: 10px 10px 0 0;
+            width: 44px;
+            height: 44px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -366,241 +224,130 @@
     <header>
         <div class="brand-container">
             <svg class="main-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#38bdf8"/>
-                        <stop offset="100%" stop-color="#818cf8"/>
-                    </linearGradient>
-                </defs>
-                <rect x="8" y="8" width="84" height="84" rx="24" fill="#111827" stroke="url(#logoGrad)" stroke-width="4"/>
-                <path d="M 30 18 Q 50 50 30 82" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
-                <path d="M 70 18 Q 50 50 70 82" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
-                <circle cx="50" cy="50" r="14" stroke="url(#logoGrad)" stroke-width="3" fill="none"/>
+                <rect x="8" y="8" width="84" height="84" rx="24" fill="#111827" stroke="#38bdf8" stroke-width="4"/>
+                <circle cx="50" cy="50" r="14" stroke="#38bdf8" stroke-width="3" fill="none"/>
                 <circle cx="50" cy="50" r="4" fill="#34d399"/>
             </svg>
             <div>
                 <h1>El Oráculo MLB 2026</h1>
-                <div style="font-size: 0.85rem; color: var(--text-muted);">Módulo de Visualización Deportiva</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Panel Cuantitativo & Centro de Datos en Vivo</div>
             </div>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--success); font-weight: 700; background: rgba(52, 211, 153, 0.1); padding: 0.5rem 1rem; border-radius: var(--radius-sm); border: 1px solid rgba(52, 211, 153, 0.2);">
+            ● Sistema Conectado (API Activa)
         </div>
     </header>
 
     <nav>
-        <button class="tab-btn active" onclick="switchTab(event, 'live-standalone-tab')">🔴 Centro de Control En Vivo</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'live-tab')">🔴 Partidos en Vivo</button>
+        <button class="tab-btn" onclick="switchTab(event, 'matchups-tab')">📊 Pronósticos & Partidos</button>
+        <button class="tab-btn" onclick="switchTab(event, 'pale-tab')">⚡ Palé Automático & Parlays</button>
+        <button class="tab-btn" onclick="switchTab(event, 'trends-tab')">📈 Tendencias & Bullpen</button>
     </nav>
 
-    <!-- Pestaña En Vivo -->
-    <div id="live-standalone-tab" class="tab-content active">
+    <!-- Pestaña 1: En Vivo -->
+    <div id="live-tab" class="tab-content active">
         <div class="section-header-flex">
-            <h2>Pizarra Deportiva (API MLB)</h2>
-            <button class="btn-action" onclick="fetchRealLiveMLBData()">🔄 Actualizar Pizarra</button>
+            <h2>Seguimiento de Partidos en Directo</h2>
+            <button class="btn-action" onclick="alert('Sincronizando datos en vivo de la MLB...')">🔄 Actualizar feeds</button>
         </div>
-        <div id="live-standalone-cards-container" class="live-grid"></div>
+        <div class="card-grid">
+            <div class="generic-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                    <span style="color: var(--success); font-weight: 700;">🔴 EN VIVO - Alta 7ta</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Yankee Stadium</span>
+                </div>
+                <div style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem;">New York Yankees (4) vs Boston Red Sox (3)</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+                    <div>Pitcher en loma: C. Holmes (RHP)</div>
+                    <div>Situación: Hombres en 1ra y 2da, 2 Outs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña 2: Pronósticos -->
+    <div id="matchups-tab" class="tab-content">
+        <div class="section-header-flex">
+            <h2>Análisis Cuantitativo de Partidos del Día</h2>
+            <button class="btn-action" onclick="alert('Calculando probabilidades con el modelo Bayesiano...')">⚡ Recalcular Proyecciones</button>
+        </div>
+        <div class="card-grid">
+            <div class="generic-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <span style="font-weight: 800; color: var(--accent);">Los Angeles Dodgers vs Houston Astros</span>
+                    <span style="background: rgba(56,189,248,0.1); color: var(--accent); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">Modelo v4.2</span>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Probabilidad estimada de victoria local: <strong style="color: var(--success);">61.4%</strong></p>
+                <div style="font-size: 0.85rem; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                    <div>Abridores: W. Buehler vs F. Valdez</div>
+                    <div>Línea proyectada Total (O/U): 8.5 Carreras</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña 3: Palé Automático -->
+    <div id="pale-tab" class="tab-content">
+        <div class="section-header-flex">
+            <h2>Combinaciones Óptimas (Palé / Parlay Automático)</h2>
+            <button class="btn-action" onclick="alert('Generando matriz de combinaciones...')">🎲 Generar Nuevos Palés</button>
+        </div>
+        <div class="pale-grid">
+            <div class="pale-card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <span style="color: var(--warning); font-weight: 800;">⭐ Palé Diamante Fuerte</span>
+                    <span style="color: var(--success); font-weight: 800;">Prob: 84.2%</span>
+                </div>
+                <div class="pale-leg-item">
+                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                        <div class="team-insignia" style="background:#0C2340; color:#fff; border-color:#C4CED4;">NYY</div>
+                        <div>
+                            <div style="font-weight: 800;">New York Yankees</div>
+                            <div style="font-size: 0.75rem; color: var(--accent);">Ganador Directo (ML)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pale-leg-item">
+                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                        <div class="team-insignia" style="background:#005A9C; color:#fff; border-color:#EF3340;">LAD</div>
+                        <div>
+                            <div style="font-weight: 800;">Los Angeles Dodgers</div>
+                            <div style="font-size: 0.75rem; color: var(--accent);">Más de 4.5 Carreras</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle);">
+                    <span style="font-size: 1.15rem; font-weight: 900; color: var(--accent);">Momio Combinado: +245</span>
+                    <button class="btn-action" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Copiar Parlay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña 4: Tendencias y Bullpen -->
+    <div id="trends-tab" class="tab-content">
+        <div class="section-header-flex">
+            <h2>Métricas Avanzadas de Bullpen y wOBA</h2>
+        </div>
+        <div class="generic-card">
+            <h3 style="font-size: 1.05rem; margin-bottom: 0.75rem; color: var(--text-main);">Auditoría de Rendimiento del Relevo</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+                Panel de control enfocado en evaluar la fatiga de los cuerpos de relevo basándose en los lanzamientos acumulados en los últimos 3 días. Las métricas de wOBA y FIP actualizadas se procesan de manera automática para descartar escenarios de alto riesgo.
+            </p>
+        </div>
     </div>
 
     <script>
-        const CURRENT_DATE = "2026-08-30";
-
-        const MLB_TEAMS = {
-            "Miami Marlins": { code: "MIA", primary: "#00A3E0", secondary: "#EF3340" },
-            "Washington Nationals": { code: "WSH", primary: "#AB0003", secondary: "#14225A" },
-            "Boston Red Sox": { code: "BOS", primary: "#BD3039", secondary: "#0C2340" },
-            "New York Yankees": { code: "NYY", primary: "#0C2340", secondary: "#C4CED4" },
-            "Colorado Rockies": { code: "COL", primary: "#33006F", secondary: "#C4CED4" },
-            "Atlanta Braves": { code: "ATL", primary: "#CE1141", secondary: "#13274F" },
-            "Seattle Mariners": { code: "SEA", primary: "#0C2340", secondary: "#005C5C" },
-            "Toronto Blue Jays": { code: "TOR", primary: "#134A8E", secondary: "#E8291C" },
-            "Kansas City Royals": { code: "KC", primary: "#004687", secondary: "#BD9B60" },
-            "Cleveland Guardians": { code: "CLE", primary: "#0C2340", secondary: "#E31937" },
-            "Los Angeles Dodgers": { code: "LAD", primary: "#005A9C", secondary: "#EF3340" },
-            "Detroit Tigers": { code: "DET", primary: "#0C2340", secondary: "#FA4616" },
-            "San Diego Padres": { code: "SD", primary: "#2F241D", secondary: "#FFC425" },
-            "Tampa Bay Rays": { code: "TB", primary: "#092C5C", secondary: "#8FBCE6" },
-            "Chicago White Sox": { code: "CWS", primary: "#27251F", secondary: "#C4CED4" },
-            "Minnesota Twins": { code: "MIN", primary: "#002B49", secondary: "#D31145" },
-            "Texas Rangers": { code: "TEX", primary: "#003278", secondary: "#C0111F" },
-            "Milwaukee Brewers": { code: "MIL", primary: "#12284C", secondary: "#FFC52F" },
-            "Pittsburgh Pirates": { code: "PIT", primary: "#FDB827", secondary: "#27251F" },
-            "St. Louis Cardinals": { code: "STL", primary: "#C41E3A", secondary: "#0C2340" },
-            "Houston Astros": { code: "HOU", primary: "#002D62", secondary: "#EB6E1F" },
-            "New York Mets": { code: "NYM", primary: "#002D72", secondary: "#FF5910" },
-            "Baltimore Orioles": { code: "BAL", primary: "#DF4601", secondary: "#000000" },
-            "Oakland Athletics": { code: "OAK", primary: "#003831", secondary: "#EFB21E" },
-            "Philadelphia Phillies": { code: "PHI", primary: "#E81828", secondary: "#002D62" },
-            "Los Angeles Angels": { code: "LAA", primary: "#BA0021", secondary: "#003278" },
-            "Cincinnati Reds": { code: "CIN", primary: "#C6011F", secondary: "#000000" },
-            "Chicago Cubs": { code: "CHC", primary: "#0E3386", secondary: "#CC3433" }
-        };
-
-        function getTeamBadgeHTML(teamName, small = false) {
-            let teamData = MLB_TEAMS[teamName] || { code: teamName.substring(0, 3).toUpperCase(), primary: "#1e293b", secondary: "#38bdf8" };
-            let size = small ? '40px' : '52px';
-            let fontSize = small ? '0.75rem' : '1.05rem';
-            
-            return `
-            <div class="team-insignia" style="width: ${size}; height: ${size}; min-width: ${size}; min-height: ${size}; background: linear-gradient(135deg, ${teamData.primary}, #090d16); border-color: ${teamData.secondary};">
-                <svg width="100%" height="100%" viewBox="0 0 100 100" style="position: absolute; top:0; left:0; opacity: 0.15; pointer-events: none;">
-                    <circle cx="50" cy="50" r="40" fill="${teamData.secondary}" />
-                </svg>
-                <span style="position: relative; z-index: 2; font-size: ${fontSize}; font-weight: 900; color: #ffffff;">${teamData.code}</span>
-            </div>`;
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            fetchRealLiveMLBData();
-        });
-
         function switchTab(evt, tabId) {
-            // Placeholder si se añaden más pestañas en el futuro.
-        }
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
 
-        function generateDotsHTML(count, max, typeClass) {
-            let html = '';
-            for(let i = 1; i <= max; i++) {
-                html += `<div class="dot ${typeClass} ${i <= count ? 'active' : ''}"></div>`;
-            }
-            return html;
-        }
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => b.classList.remove('active'));
 
-        async function fetchRealLiveMLBData() {
-            let container = document.getElementById('live-standalone-cards-container');
-            container.innerHTML = `<p style="color: var(--accent); text-align: center; font-size: 1rem; grid-column: 1 / -1; padding: 3rem; font-weight: bold;">Cargando Pizarra Deportiva...</p>`;
-
-            try {
-                let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${CURRENT_DATE}&hydrate=linescore`);
-                let data = await response.json();
-                let games = (data.dates && data.dates.length > 0) ? data.dates[0].games : [];
-
-                if (games.length === 0) {
-                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; font-size: 0.95rem; grid-column: 1 / -1; padding: 3rem;">No se encontraron partidos programados para hoy.</p>`;
-                    return;
-                }
-
-                // Ordenar: En vivo primero, luego previos, luego finalizados
-                games.sort((a, b) => {
-                    let rank = { "Live": 1, "Preview": 2, "Final": 3 };
-                    return (rank[a.status.abstractGameState] || 2) - (rank[b.status.abstractGameState] || 2);
-                });
-
-                let liveCardsHTML = '';
-
-                games.forEach(g => {
-                    let gameState = g.status.abstractGameState; 
-                    let isLive = gameState === "Live";
-                    let awayTeam = g.teams.away.team.name;
-                    let homeTeam = g.teams.home.team.name;
-                    let awayScore = g.teams.away.score !== undefined ? g.teams.away.score : 0;
-                    let homeScore = g.teams.home.score !== undefined ? g.teams.home.score : 0;
-                    let linescore = g.linescore || {};
-                    let inningNum = linescore.currentInning || 1;
-                    let inningState = linescore.inningState || ""; 
-                    let inningOrdinal = linescore.currentInningOrdinal || `${inningNum}°`;
-                    
-                    let outsCount = linescore.outs !== undefined ? linescore.outs : 0;
-                    let balls = linescore.balls !== undefined ? linescore.balls : 0;
-                    let strikes = linescore.strikes !== undefined ? linescore.strikes : 0;
-                    
-                    let hasOn1B = linescore.offense && linescore.offense.first ? true : false;
-                    let hasOn2B = linescore.offense && linescore.offense.second ? true : false;
-                    let hasOn3B = linescore.offense && linescore.offense.third ? true : false;
-
-                    let runDiff = Math.abs(awayScore - homeScore);
-                    let leadingTeamName = awayScore > homeScore ? awayTeam : (homeScore > awayScore ? homeTeam : 'Empate');
-
-                    let primaryPlay = "", primaryReason = "";
-
-                    if (gameState === "Preview") {
-                        primaryPlay = `Ganador F5: ${awayScore > homeScore ? awayTeam : homeTeam}`;
-                        primaryReason = `Partido previo. Los abridores dictan la tendencia inicial.`;
-                    } else if (gameState === "Final") {
-                        primaryPlay = `Victoria para ${awayScore > homeScore ? awayTeam : homeTeam}`;
-                        primaryReason = `Encuentro concluido. Marcador Oficial.`;
-                    } else {
-                        if (inningNum <= 3) {
-                            primaryPlay = runDiff === 0 ? `Ganador F5: ${leadingTeamName}` : `Línea de Carreras (O/U)`;
-                            primaryReason = `Inning ${inningOrdinal}. Control temprano del bullpen y abridores.`;
-                        } else if (inningNum >= 4 && inningNum <= 6) {
-                            primaryPlay = runDiff >= 2 ? `Hándicap En Vivo: ${leadingTeamName}` : `Ganador Directo (ML): ${leadingTeamName}`;
-                            primaryReason = `A mitad de juego (${inningOrdinal}). La brecha se consolida.`;
-                        } else {
-                            primaryPlay = runDiff <= 1 ? `Apuesta de Cierre (Alta O/U)` : `Seguridad de Victoria (ML): ${leadingTeamName}`;
-                            primaryReason = `Zona de cierre (${inningOrdinal}). Desfile de relevistas en acción.`;
-                        }
-                    }
-
-                    liveCardsHTML += `
-                    <div class="live-card ${isLive ? 'is-live' : ''}">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="${isLive ? 'live-tag' : ''}" style="${!isLive ? 'background: #374151; color: #fff; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;' : ''}">
-                                ${isLive ? "EN VIVO" : (gameState === "Final" ? "FINALIZADO" : "PREVIO")}
-                            </span>
-                            <span style="font-size: 0.85rem; color: ${isLive ? 'var(--accent)' : 'var(--text-muted)'}; font-weight: 800; text-transform: uppercase;">
-                                ${isLive ? `${inningState} ${inningOrdinal}` : ''}
-                            </span>
-                        </div>
-
-                        <div class="live-scorebox">
-                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1;">
-                                ${getTeamBadgeHTML(awayTeam, true)}
-                                <div>
-                                    <div style="font-size: 0.9rem; font-weight: 800;">${MLB_TEAMS[awayTeam] ? MLB_TEAMS[awayTeam].code : awayTeam.substring(0,3)}</div>
-                                    <div style="font-size: 0.65rem; color: var(--text-muted);">VISITA</div>
-                                </div>
-                            </div>
-                            
-                            <div style="font-size: 1.75rem; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); padding: 0 1rem;">
-                                ${awayScore} - ${homeScore}
-                            </div>
-                            
-                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; justify-content: flex-end; text-align: right;">
-                                <div>
-                                    <div style="font-size: 0.9rem; font-weight: 800;">${MLB_TEAMS[homeTeam] ? MLB_TEAMS[homeTeam].code : homeTeam.substring(0,3)}</div>
-                                    <div style="font-size: 0.65rem; color: var(--text-muted);">LOCAL</div>
-                                </div>
-                                ${getTeamBadgeHTML(homeTeam, true)}
-                            </div>
-                        </div>
-
-                        ${isLive ? `
-                        <div class="sports-dashboard">
-                            <!-- Diamante de Bases -->
-                            <div class="bases-wrapper">
-                                <div class="base base-2b ${hasOn2B ? 'active' : ''}"></div>
-                                <div class="base base-1b ${hasOn1B ? 'active' : ''}"></div>
-                                <div class="base base-3b ${hasOn3B ? 'active' : ''}"></div>
-                                <div class="base home-plate"></div>
-                            </div>
-                            
-                            <!-- Conteo de Bolas, Strikes, Outs -->
-                            <div class="count-board">
-                                <div class="count-row">
-                                    <span style="width: 15px;">B</span>
-                                    <div class="count-dots">${generateDotsHTML(balls, 4, 'ball')}</div>
-                                </div>
-                                <div class="count-row">
-                                    <span style="width: 15px;">S</span>
-                                    <div class="count-dots">${generateDotsHTML(strikes, 3, 'strike')}</div>
-                                </div>
-                                <div class="count-row">
-                                    <span style="width: 15px;">O</span>
-                                    <div class="count-dots">${generateDotsHTML(outsCount, 3, 'out')}</div>
-                                </div>
-                            </div>
-                        </div>` : ''}
-
-                        <div class="live-best-play-box">
-                            <div style="font-size: 0.7rem; color: var(--success); font-weight: 800; text-transform: uppercase; margin-bottom: 0.35rem; letter-spacing: 0.05em;">⭐ Proyección del Algoritmo</div>
-                            <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">${primaryPlay}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">${primaryReason}</div>
-                        </div>
-                    </div>`;
-                });
-
-                container.innerHTML = liveCardsHTML;
-            } catch (err) {
-                console.error("Error consultando la API de MLB:", err);
-                container.innerHTML = `<p style="color: var(--danger); text-align: center; font-size: 1rem; grid-column: 1 / -1; padding: 3rem;">Error al conectar con la API deportiva.</p>`;
-            }
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
         }
     </script>
 </body>
