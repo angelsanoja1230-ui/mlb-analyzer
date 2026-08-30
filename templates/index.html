@@ -36,29 +36,34 @@
                 {% for match in matches %}
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
                     <div>
-                        <!-- Teams & Logos -->
+                        <!-- Teams & Logos with Local/Visitor labels -->
                         <div class="flex justify-between items-center mb-6">
                             <div class="flex items-center gap-3 w-1/2">
                                 <img src="{{ team_logos.get(match.away, '') }}" alt="{{ match.away }}" class="w-10 h-10 object-contain">
-                                <span class="font-bold text-lg truncate">{{ match.away }} <span class="text-xs text-slate-500">(Visitor)</span></span>
+                                <div>
+                                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">Visitante</span>
+                                    <span class="font-bold text-base truncate block">{{ match.away }}</span>
+                                </div>
                             </div>
                             <span class="text-slate-500 font-bold px-2">VS</span>
                             <div class="flex items-center gap-3 w-1/2 justify-end text-right">
-                                <span class="font-bold text-lg truncate"><span class="text-xs text-slate-500">(Home)</span> {{ match.home }}</span>
+                                <div>
+                                    <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Local</span>
+                                    <span class="font-bold text-base truncate block">{{ match.home }}</span>
+                                </div>
                                 <img src="{{ team_logos.get(match.home, '') }}" alt="{{ match.home }}" class="w-10 h-10 object-contain">
                             </div>
                         </div>
 
-                        <!-- Starters, Hora y Estadio -->
-                        <div class="bg-slate-950/60 rounded-xl p-4 text-sm space-y-2 text-slate-300">
-                            <p><strong class="text-slate-400">Pitcher Visitante:</strong> {{ match.starter_away }}</p>
-                            <p><strong class="text-slate-400">Pitcher Local:</strong> {{ match.starter_home }}</p>
-                            {% if match.time %}
-                            <p><strong class="text-slate-400">Hora:</strong> {{ match.time }}</p>
-                            {% endif %}
-                            {% if match.stadium %}
-                            <p><strong class="text-slate-400">Estadio:</strong> {{ match.stadium }}</p>
-                            {% endif %}
+                        <!-- Fecha, Hora, Estadio y Pitchers -->
+                        <div class="bg-slate-950/60 rounded-xl p-4 text-sm space-y-2 text-slate-300 border border-slate-800/80">
+                            <div class="grid grid-cols-2 gap-2 pb-2 border-b border-slate-800 text-xs">
+                                <p><strong class="text-slate-400">📅 Fecha:</strong> {{ DAILY_ARCHIVE.date }}</p>
+                                <p><strong class="text-slate-400">⏰ Hora:</strong> {{ match.time if match.time else 'Por definir' }}</p>
+                            </div>
+                            <p class="pt-1"><strong class="text-slate-400">🏟️ Estadio:</strong> {{ match.stadium if match.stadium else 'Estadio Principal' }}</p>
+                            <p><strong class="text-slate-400">⚾ Pitcher Visitante:</strong> {{ match.starter_away }}</p>
+                            <p><strong class="text-slate-400">⚾ Pitcher Local:</strong> {{ match.starter_home }}</p>
                         </div>
                     </div>
                 </div>
