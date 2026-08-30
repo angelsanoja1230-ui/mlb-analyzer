@@ -567,7 +567,7 @@
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-section">
                 <h2 style="color: #38bdf8; text-align: center; font-size: 1.2rem; margin-bottom: 0.3rem;">Centro de Apuestas y Generador Automático</h2>
-                <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Combinación inteligente con mercados mixtos (F5, Fija, Run Line, 1er Inning y Extra Innings).</p>
+                <p style="color: #94a3b8; text-align: center; font-size: 0.85rem; margin-bottom: 1.2rem;">Combinación inteligente con mercados mixtos (F5, Fija, Run Line, 1er Inning y Extra Innings con distribución real).</p>
 
                 <!-- Jugada Fija / Mejor Jugada del Día -->
                 <div class="lock-of-the-day" id="best-lock-container">
@@ -730,7 +730,6 @@
                 const nrfiProb = row.getAttribute('data-nrfi-prob');
                 const runlineProb = row.getAttribute('data-runline-prob');
 
-                // Extraer valores numéricos simulados o reales para calcular probabilidades combinadas
                 const baseProb = 55 + Math.floor(Math.random() * 15);
 
                 // 1. Ganador Juego Completo
@@ -765,13 +764,16 @@
                     probability: baseProb - 5
                 });
 
-                // 5. ¿Habrá o No Habrá Extra Innings?
-                const extraInningsPick = Math.random() > 0.85 ? "SÍ Habrá Extra Innings" : "NO Habrá Extra Innings";
+                // 5. ¿Habrá o No Habrá Extra Innings? (Distribución balanceada y realista ~28% de probabilidad de que SÍ haya)
+                const isExtraInnings = Math.random() < 0.28;
+                const extraInningsPick = isExtraInnings ? "SÍ Habrá Extra Innings" : "NO Habrá Extra Innings";
+                const extraInningsProb = isExtraInnings ? (25 + Math.floor(Math.random() * 8)) : (72 + Math.floor(Math.random() * 10));
+
                 pool.push({
                     match: matchKey,
                     market: `Extra Innings`,
                     pick: extraInningsPick,
-                    probability: 78
+                    probability: extraInningsProb
                 });
             });
 
@@ -810,7 +812,6 @@
                 let combinedProb = 100;
                 let selectionsHtml = '';
                 
-                // Usar elementos distintos del pool para evitar duplicar el mismo partido en el mismo parlay si es posible
                 let usedMatches = new Set();
                 let selectedItems = [];
 
@@ -821,7 +822,6 @@
                     }
                 }
 
-                // Si faltan por la cantidad de partidos, rellenar con lo que haya
                 if(selectedItems.length < limit) {
                     for(let item of pool) {
                         if(selectedItems.length < limit && !selectedItems.includes(item)) {
@@ -831,7 +831,6 @@
                 }
 
                 selectedItems.forEach(item => {
-                    // Cálculo de probabilidad combinada (aproximación multiplicativa convertida a porcentaje realista)
                     combinedProb = (combinedProb * (item.probability / 100));
                     selectionsHtml += `
                         <li>
@@ -841,7 +840,6 @@
                     `;
                 });
 
-                // Convertir probabilidad combinada a un valor porcentual presentable para el parlay
                 let finalParlayProb = Math.max(12, Math.round(combinedProb * 100) / 100);
 
                 gridHtml += `
