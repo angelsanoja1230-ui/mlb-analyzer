@@ -69,7 +69,7 @@ function getTeamBadgeHTML(teamName, small = false) {
     let fontSize = small ? '0.75rem' : '1.05rem';
     
     return `
-    <div class="team-insignia" style="width: ${size}; height: ${size}; min-width: ${size}; min-height: ${size}; background: linear-gradient(135deg, ${teamData.primary}, #090d16); border-color: ${teamData.secondary};">
+    <div class="team-insignia" style="width: ${size}; height: ${size}; min-width: ${size}; min-height: ${size}; background: linear-gradient(135deg, ${teamData.primary}, #090d16); border-color: ${teamData.secondary}; display:flex; align-items:center; justify-content:center; border-radius:12px; border:2px solid;">
         <span style="font-size: ${fontSize}; color: #ffffff; font-weight: 900; letter-spacing: -0.05em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${teamData.code}</span>
     </div>`;
 }
@@ -88,39 +88,40 @@ function renderMatches() {
     const container = document.getElementById('matches-cards-container');
     if (!container) return;
     container.innerHTML = BASE_MATCHES.map(m => `
-        <div class="match-card">
-            <div class="match-header">
+        <div class="match-card" style="background:var(--card-bg, #111827); padding:1rem; border-radius:12px; border:1px solid var(--border-subtle, #374151); margin-bottom:1rem;">
+            <div class="match-header" style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.85rem; color:#9ca3af;">
                 <span>🕒 ${m.time}</span>
                 <span>🏟️ ${m.stadium}</span>
             </div>
-            <div class="teams-container">
-                <div class="team">
+            <div class="teams-container" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+                <div class="team" style="display:flex; align-items:center; gap:0.5rem;">
                     ${getTeamBadgeHTML(m.away, true)}
-                    <span class="team-role">Visitor</span>
-                    <span class="team-name">${m.away}</span>
-                    <span style="font-size:0.75rem; color:var(--text-muted);">${m.starter_away}</span>
-                </div>
-                <div class="vs">VS</div>
-                <div class="team">
-                    ${getTeamBadgeHTML(m.home, true)}
-                    <span class="team-role">Home</span>
-                    <span class="team-name">${m.home}</span>
-                    <span style="font-size:0.75rem; color:var(--text-muted);">${m.starter_home}</span>
-                </div>
-            </div>
-            <div class="details-grid">
-                <div>Cuotas ML: Away (${m.awayOdds}) | Home (${m.homeOdds})</div>
-            </div>
-            <div class="handicap-box">
-                <div class="handicap-title">⚙️ Línea Configurable</div>
-                <div class="handicap-inputs">
-                    <div class="input-group">
-                        <label>Hándicap</label>
-                        <input type="text" id="hcap-${m.id}" value="${m.defaultHcap}">
+                    <div>
+                        <div style="font-size:0.7rem; color:#9ca3af;">Visitor</div>
+                        <div style="font-weight:700; font-size:0.9rem;">${m.away}</div>
+                        <div style="font-size:0.7rem; color:#9ca3af;">${m.starter_away}</div>
                     </div>
-                    <div class="input-group">
-                        <label>Predicción</label>
-                        <select id="pick-${m.id}">
+                </div>
+                <div class="vs" style="font-weight:800; color:#38bdf8;">VS</div>
+                <div class="team" style="display:flex; align-items:center; gap:0.5rem; text-align:right;">
+                    <div>
+                        <div style="font-size:0.7rem; color:#9ca3af;">Home</div>
+                        <div style="font-weight:700; font-size:0.9rem;">${m.home}</div>
+                        <div style="font-size:0.7rem; color:#9ca3af;">${m.starter_home}</div>
+                    </div>
+                    ${getTeamBadgeHTML(m.home, true)}
+                </div>
+            </div>
+            <div class="handicap-box" style="background:rgba(0,0,0,0.2); padding:0.8rem; border-radius:8px;">
+                <div style="font-size:0.8rem; font-weight:700; margin-bottom:0.4rem;">⚙️ Línea Configurable</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                    <div>
+                        <label style="font-size:0.75rem; color:#9ca3af;">Hándicap</label>
+                        <input type="text" id="hcap-${m.id}" value="${m.defaultHcap}" style="width:100%; padding:0.4rem; background:#1f2937; border:1px solid #4b5563; color:#fff; border-radius:6px;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; color:#9ca3af;">Predicción</label>
+                        <select id="pick-${m.id}" style="width:100%; padding:0.4rem; background:#1f2937; border:1px solid #4b5563; color:#fff; border-radius:6px;">
                             <option value="Gana Local (${m.home})">Gana Local</option>
                             <option value="Gana Visitante (${m.away})">Gana Visitante</option>
                             <option value="Over 8.5">Over 8.5</option>
@@ -137,68 +138,56 @@ function renderTrends() {
     const container = document.getElementById('trends-list-container');
     if (!container) return;
     container.innerHTML = BASE_MATCHES.map(m => `
-        <div class="trend-card">
-            <div class="match-header">
+        <div class="trend-card" style="background:var(--card-bg, #111827); padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid var(--border-subtle, #374151);">
+            <div class="match-header" style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.85rem; color:#9ca3af;">
                 <span>🕒 ${m.time}</span>
                 <span>🏟️ ${m.stadium}</span>
             </div>
-            <div class="teams-container">
-                <div class="team">
-                    ${getTeamBadgeHTML(m.away, true)}
-                    <span class="team-role">Visitor</span>
-                    <span class="team-name">${m.away}</span>
-                </div>
-                <div class="vs">VS</div>
-                <div class="team">
-                    ${getTeamBadgeHTML(m.home, true)}
-                    <span class="team-role">Home</span>
-                    <span class="team-name">${m.home}</span>
-                </div>
+            <div class="teams-container" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+                <div class="team" style="display:flex; align-items:center; gap:0.5rem;">${getTeamBadgeHTML(m.away, true)} <span style="font-weight:700;">${m.away}</span></div>
+                <div class="vs" style="font-weight:800; color:#38bdf8;">VS</div>
+                <div class="team" style="display:flex; align-items:center; gap:0.5rem;"><span style="font-weight:700;">${m.home}</span> ${getTeamBadgeHTML(m.home, true)}</div>
             </div>
-            <div class="markets-container">
-                <div class="market-pill">
-                    <span class="market-pill-label">Moneyline Prob</span>
-                    <span class="market-pill-value">61.4%</span>
-                </div>
-                <div class="market-pill">
-                    <span class="market-pill-label">F5 Spread</span>
-                    <span class="market-pill-value">Safe Line -0.5</span>
-                </div>
-                <div class="market-pill">
-                    <span class="market-pill-label">Bullpen Rating</span>
-                    <span class="market-pill-value" style="color:var(--accent);">Optimizado</span>
-                </div>
-                <div class="market-pill">
-                    <span class="market-pill-label">Total Esperado</span>
-                    <span class="market-pill-value">9.2 Carreras</span>
-                </div>
+            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:0.5rem; margin-bottom:0.8rem; font-size:0.8rem;">
+                <div style="background:rgba(56,189,248,0.1); padding:0.4rem; border-radius:6px;">Moneyline Prob: <strong>61.4%</strong></div>
+                <div style="background:rgba(56,189,248,0.1); padding:0.4rem; border-radius:6px;">Bullpen Rating: <strong style="color:#34d399;">Optimizado</strong></div>
             </div>
-            <button class="btn-action" onclick="registerTrendPick('${m.away}', '${m.home}')">📌 Registrar Análisis en Auditoría</button>
+            <button class="btn-action" style="width:100%; padding:0.6rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer;" onclick="registerTrendPick('${m.away}', '${m.home}')">📌 Registrar Análisis en Auditoría</button>
         </div>
     `).join('');
 }
 
 function renderMasterPick() {
-    const container = document.getElementById('master-pick-container');
+    const container = document.getElementById('master-pick-display-container');
     if (!container) return;
+    const match = BASE_MATCHES[12]; // Phillies vs Angels
     container.innerHTML = `
-        <div style="padding: 1.5rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-subtle);">
-            <h3>🔥 Jugada Maestra del Día</h3>
-            <p style="color: var(--text-muted); margin-top: 0.5rem;">Philadelphia Phillies vs Los Angeles Angels — Probabilidad alta de acierto con Z. Wheeler en la lomita.</p>
-            <button class="btn-action" style="margin-top: 1rem;" onclick="registerMasterPickToAudit()">Enviar a Hoja de Auditoría</button>
+        <div style="padding: 1.5rem; background: var(--card-bg, #111827); border-radius: 12px; border: 1px solid var(--border-subtle, #374151);">
+            <h3 style="color:#38bdf8; margin-bottom:0.5rem;">🔥 Jugada Maestra del Día</h3>
+            <p style="color: #9ca3af; margin-top: 0.5rem; font-size:0.95rem;">${match.away} vs ${match.home} — Respaldado por el abridor ${match.starter_away} vs ${match.starter_home}. Alta probabilidad de acierto.</p>
+            <button class="btn-action" style="margin-top: 1rem; padding:0.6rem 1.2rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer;" onclick="registerMasterPickToAudit()">Enviar a Hoja de Auditoría</button>
         </div>
     `;
 }
 
 function renderParlays() {
-    const container = document.getElementById('parlays-container');
+    const container = document.getElementById('auto-parlays-container');
     if (!container) return;
+    const m1 = BASE_MATCHES[1]; // Yankees
+    const m2 = BASE_MATCHES[5]; // Dodgers
+    const m3 = BASE_MATCHES[2]; // Braves
+    
     container.innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-            <div style="padding: 1.2rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-subtle);">
-                <h4>Parlay Combinado Principal</h4>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.5rem 0;">Yankees ML + Dodgers ML + Braves ML</p>
-                <button class="btn-action" onclick="registerParlayToAudit('Parlay Principal ML')">Registrar Parlay</button>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; width:100%;">
+            <div style="padding: 1.2rem; background: var(--card-bg, #111827); border-radius: 12px; border: 1px solid var(--border-subtle, #374151);">
+                <h4 style="color:#34d399;">Parlay Combinado Principal</h4>
+                <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.5rem 0;">${m1.home} ML + ${m2.home} ML + ${m3.home} ML</p>
+                <button class="btn-action" style="padding:0.5rem 1rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('${m1.home} ML + ${m2.home} ML + ${m3.home} ML')">Registrar Parlay</button>
+            </div>
+            <div style="padding: 1.2rem; background: var(--card-bg, #111827); border-radius: 12px; border: 1px solid var(--border-subtle, #374151);">
+                <h4 style="color:#34d399;">Parlay de Totales</h4>
+                <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.5rem 0;">${BASE_MATCHES[0].away} vs ${BASE_MATCHES[0].home} Under 8.5</p>
+                <button class="btn-action" style="padding:0.5rem 1rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Parlay Totales Combinado')">Registrar Parlay</button>
             </div>
         </div>
     `;
@@ -217,11 +206,7 @@ function registerTrendPick(away, home) {
     };
     records.unshift(newRecord);
     saveAuditRecords(records);
-    
-    if(document.getElementById('history-tab').classList.contains('active')) {
-        renderAuditHistory();
-    }
-    
+    renderAuditHistory();
     alert(`Análisis de tendencias de ${away} @ ${home} registrado exitosamente en la Hoja de Auditoría.`);
 }
 
@@ -238,11 +223,7 @@ function registerMasterPickToAudit() {
     };
     records.unshift(newRecord);
     saveAuditRecords(records);
-
-    if(document.getElementById('history-tab').classList.contains('active')) {
-        renderAuditHistory();
-    }
-
+    renderAuditHistory();
     alert('¡Jugada Maestra enviada a la Hoja de Comparación con éxito!');
 }
 
@@ -259,11 +240,7 @@ function registerParlayToAudit(parlayName) {
     };
     records.unshift(newRecord);
     saveAuditRecords(records);
-
-    if(document.getElementById('history-tab').classList.contains('active')) {
-        renderAuditHistory();
-    }
-
+    renderAuditHistory();
     alert(`${parlayName} registrado correctamente en la Hoja de Auditoría.`);
 }
 
@@ -272,89 +249,40 @@ function renderLiveControl() {
     if (!container) return;
     
     const processedMatches = BASE_MATCHES.map((m, idx) => {
-        let statusType = 'FINAL';
         let gameState = 'FINALIZADO';
         let awayScore = (idx * 3) % 8;
         let homeScore = (idx + 2) % 7;
-        let situational = '🏁 Encuentro Finalizado';
-        let pickStatus = '✔️ Apuesta cerrada y auditada';
         let sortOrder = 3;
 
         if (m.time === "7:20 PM") {
-            statusType = 'UPCOMING';
             gameState = 'PRÓXIMAMENTE';
             awayScore = '-';
             homeScore = '-';
-            situational = '⏳ Juego programado (Sin iniciar)';
-            pickStatus = '🔒 Esperando apertura de lanzadores';
             sortOrder = 2;
         } 
         else if (m.time === "4:05 PM" || m.time === "4:07 PM") {
-            statusType = 'LIVE';
             gameState = 'EN VIVO (Inning 7)';
-            situational = '⚾ Outs: 1 | 🏃 Bases: 2da y 3ra';
-            pickStatus = '⚠️ Siguiendo fluctuación de cuotas';
             sortOrder = 1;
         }
 
-        return {
-            ...m,
-            statusType,
-            gameState,
-            awayScore,
-            homeScore,
-            situational,
-            pickStatus,
-            sortOrder
-        };
+        return { ...m, gameState, awayScore, homeScore, sortOrder };
     });
 
     processedMatches.sort((a, b) => a.sortOrder - b.sortOrder);
 
-    container.innerHTML = processedMatches.map(m => {
-        let isFinal = m.statusType === 'FINAL';
-        let isUpcoming = m.statusType === 'UPCOMING';
-
-        return `
-            <div class="live-card">
-                <div class="match-header">
-                    <span class="${isFinal ? 'badge-pending' : isUpcoming ? '' : 'live-tag'}" style="${isFinal ? 'background: rgba(156,163,175,0.1); color: var(--text-muted); border-color: var(--border-subtle); font-size: 0.65rem;' : isUpcoming ? 'background: rgba(56,189,248,0.1); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 800;' : ''}">
-                        ${m.gameState}
-                    </span>
-                    <span>🕒 ${m.time} | 🏟️ ${m.stadium}</span>
-                </div>
-                
-                <div class="live-scorebox" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
-                        ${getTeamBadgeHTML(m.away, true)}
-                        <span style="font-weight: 700; font-size: 0.85rem; line-height: 1.1;">${m.away}</span>
-                    </div>
-                    
-                    <div style="display: flex; align-items: center; justify-content: center; padding: 0 0.5rem;">
-                        <span style="font-size: 1.5rem; font-weight: 900; color: ${isUpcoming ? 'var(--text-muted)' : 'var(--accent)'}; letter-spacing: 0.05em;">
-                            ${m.awayScore} - ${m.homeScore}
-                        </span>
-                    </div>
-                    
-                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex: 1; text-align: right;">
-                        <span style="font-weight: 700; font-size: 0.85rem; line-height: 1.1;">${m.home}</span>
-                        ${getTeamBadgeHTML(m.home, true)}
-                    </div>
-                </div>
-
-                <div class="live-situational-info">
-                    <span>${m.situational}</span>
-                </div>
-                
-                <div class="live-best-play-box">
-                    <span style="font-size: 0.7rem; font-weight: 700; color: var(--success); text-transform: uppercase;">Estado del pronóstico</span>
-                    <div style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-top:2px;">
-                        ${m.pickStatus}
-                    </div>
-                </div>
+    container.innerHTML = processedMatches.map(m => `
+        <div class="live-card" style="background:var(--card-bg, #111827); padding:1rem; border-radius:12px; margin-bottom:1rem; border:1px solid var(--border-subtle, #374151);">
+            <div class="match-header" style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.85rem;">
+                <span style="font-weight:700; color:var(--accent, #38bdf8);">${m.gameState}</span>
+                <span style="color:#9ca3af;">🕒 ${m.time}</span>
             </div>
-        `;
-    }).join('');
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:0.8rem 0;">
+                <div style="font-weight:700; font-size:0.9rem;">${m.away}</div>
+                <div style="font-size:1.4rem; font-weight:900; color:#38bdf8;">${m.awayScore} - ${m.homeScore}</div>
+                <div style="font-weight:700; font-size:0.9rem;">${m.home}</div>
+            </div>
+        </div>
+    `).join('');
 }
 
 function renderAuditHistory() {
@@ -363,28 +291,28 @@ function renderAuditHistory() {
     const records = getSavedAuditRecords();
 
     container.innerHTML = `
-        <div class="comparison-table-wrapper">
-            <table class="comparison-table">
+        <div class="comparison-table-wrapper" style="overflow-x:auto; margin-top:1rem;">
+            <table class="comparison-table" style="width:100%; border-collapse:collapse; background:var(--card-bg, #111827); border-radius:12px; overflow:hidden;">
                 <thead>
-                    <tr>
-                        <th>Fecha / Partido</th>
-                        <th>Línea / Selección</th>
-                        <th>Prob. Modelo</th>
-                        <th>Resultado Real</th>
-                        <th>Estatus Auditoría</th>
+                    <tr style="border-bottom: 1px solid #374151; text-align:left; background:rgba(0,0,0,0.2);">
+                        <th style="padding:0.8rem; font-size:0.85rem;">Fecha / Partido</th>
+                        <th style="padding:0.8rem; font-size:0.85rem;">Línea / Selección</th>
+                        <th style="padding:0.8rem; font-size:0.85rem;">Prob. Modelo</th>
+                        <th style="padding:0.8rem; font-size:0.85rem;">Resultado Real</th>
+                        <th style="padding:0.8rem; font-size:0.85rem;">Estatus</th>
                     </tr>
                 </thead>
                 <tbody>
                     ${records.map(r => `
-                        <tr>
-                            <td><strong>${r.date}</strong><br>${r.match}</td>
-                            <td>${r.selection}</td>
-                            <td>${r.prob}</td>
-                            <td>${r.result}</td>
-                            <td>
-                                ${r.status === 'ACERTADO' ? '<span class="badge-check">ACERTADO</span>' : 
-                                  r.status === 'FALLADO' ? '<span class="badge-cross">FALLADO</span>' : 
-                                  '<span class="badge-pending">PENDIENTE</span>'}
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding:0.8rem; font-size:0.85rem;"><strong>${r.date}</strong><br><span style="color:#9ca3af;">${r.match}</span></td>
+                            <td style="padding:0.8rem; font-size:0.85rem;">${r.selection}</td>
+                            <td style="padding:0.8rem; font-size:0.85rem;">${r.prob}</td>
+                            <td style="padding:0.8rem; font-size:0.85rem;">${r.result}</td>
+                            <td style="padding:0.8rem; font-size:0.85rem;">
+                                ${r.status === 'ACERTADO' ? '<span style="color:#34d399; font-weight:700;">ACERTADO</span>' : 
+                                  r.status === 'FALLADO' ? '<span style="color:#ef4444; font-weight:700;">FALLADO</span>' : 
+                                  '<span style="color:#38bdf8; font-weight:700;">PENDIENTE</span>'}
                             </td>
                         </tr>
                     `).join('')}
@@ -417,6 +345,7 @@ function saveCustomLines() {
     });
 
     saveAuditRecords(records);
+    renderAuditHistory();
     alert(`Se han guardado ${savedCount} líneas de partidos del día y se han sincronizado con la Hoja de Auditoría.`);
 }
 
