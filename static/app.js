@@ -86,6 +86,7 @@ function switchTab(evt, tabId) {
 
 function renderMatches() {
     const container = document.getElementById('matches-cards-container');
+    if (!container) return;
     container.innerHTML = BASE_MATCHES.map(m => `
         <div class="match-card">
             <div class="match-header">
@@ -134,6 +135,7 @@ function renderMatches() {
 
 function renderTrends() {
     const container = document.getElementById('trends-list-container');
+    if (!container) return;
     container.innerHTML = BASE_MATCHES.map(m => `
         <div class="trend-card">
             <div class="match-header">
@@ -174,6 +176,32 @@ function renderTrends() {
             <button class="btn-action" onclick="registerTrendPick('${m.away}', '${m.home}')">📌 Registrar Análisis en Auditoría</button>
         </div>
     `).join('');
+}
+
+function renderMasterPick() {
+    const container = document.getElementById('master-pick-container');
+    if (!container) return;
+    container.innerHTML = `
+        <div style="padding: 1.5rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-subtle);">
+            <h3>🔥 Jugada Maestra del Día</h3>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Philadelphia Phillies vs Los Angeles Angels — Probabilidad alta de acierto con Z. Wheeler en la lomita.</p>
+            <button class="btn-action" style="margin-top: 1rem;" onclick="registerMasterPickToAudit()">Enviar a Hoja de Auditoría</button>
+        </div>
+    `;
+}
+
+function renderParlays() {
+    const container = document.getElementById('parlays-container');
+    if (!container) return;
+    container.innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+            <div style="padding: 1.2rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-subtle);">
+                <h4>Parlay Combinado Principal</h4>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.5rem 0;">Yankees ML + Dodgers ML + Braves ML</p>
+                <button class="btn-action" onclick="registerParlayToAudit('Parlay Principal ML')">Registrar Parlay</button>
+            </div>
+        </div>
+    `;
 }
 
 function registerTrendPick(away, home) {
@@ -241,6 +269,7 @@ function registerParlayToAudit(parlayName) {
 
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
+    if (!container) return;
     
     const processedMatches = BASE_MATCHES.map((m, idx) => {
         let statusType = 'FINAL';
@@ -249,9 +278,8 @@ function renderLiveControl() {
         let homeScore = (idx + 2) % 7;
         let situational = '🏁 Encuentro Finalizado';
         let pickStatus = '✔️ Apuesta cerrada y auditada';
-        let sortOrder = 3; // 3 al fondo para finalizados
+        let sortOrder = 3;
 
-        // Partido nocturno (Ej: 7:20 PM) configurado como próximo (sin iniciar)
         if (m.time === "7:20 PM") {
             statusType = 'UPCOMING';
             gameState = 'PRÓXIMAMENTE';
@@ -259,15 +287,14 @@ function renderLiveControl() {
             homeScore = '-';
             situational = '⏳ Juego programado (Sin iniciar)';
             pickStatus = '🔒 Esperando apertura de lanzadores';
-            sortOrder = 2; // 2 en el medio para próximos
+            sortOrder = 2;
         } 
-        // Partidos de la tarde (4:05 PM y 4:07 PM) en pleno desarrollo en vivo
         else if (m.time === "4:05 PM" || m.time === "4:07 PM") {
             statusType = 'LIVE';
             gameState = 'EN VIVO (Inning 7)';
             situational = '⚾ Outs: 1 | 🏃 Bases: 2da y 3ra';
             pickStatus = '⚠️ Siguiendo fluctuación de cuotas';
-            sortOrder = 1; // 1 arriba para en vivo
+            sortOrder = 1;
         }
 
         return {
@@ -282,7 +309,6 @@ function renderLiveControl() {
         };
     });
 
-    // Ordenar correctamente: En vivo (1) arriba, Próximos (2) en medio, Finalizados (3) al fondo
     processedMatches.sort((a, b) => a.sortOrder - b.sortOrder);
 
     container.innerHTML = processedMatches.map(m => {
@@ -333,6 +359,7 @@ function renderLiveControl() {
 
 function renderAuditHistory() {
     const container = document.getElementById('history-list-container');
+    if (!container) return;
     const records = getSavedAuditRecords();
 
     container.innerHTML = `
