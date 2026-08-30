@@ -493,6 +493,22 @@
             margin: 0.8rem 0;
             border: 1px solid #334155;
         }
+        .live-situational-info {
+            display: flex;
+            justify-content: space-around;
+            background-color: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 0.6rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.78rem;
+            text-align: center;
+        }
+        .live-situational-item strong {
+            display: block;
+            color: #38bdf8;
+            font-size: 0.85rem;
+        }
         .live-picks-box {
             background-color: rgba(30, 41, 59, 0.7);
             border: 1px solid #334155;
@@ -501,6 +517,13 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+        }
+        .live-best-play-box {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid #4ade80;
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-top: 0.8rem;
         }
         .live-pick-item {
             display: flex;
@@ -690,7 +713,7 @@
             renderHistory();
             fetchRealLiveMLBData(); // Carga inicial
             
-            // Activar auto-refresco por defecto al iniciar en la pestaña activa (En Vivo si se cambia, o por defecto en la primera)
+            // Activar auto-refresco por defecto al iniciar
             liveRefreshInterval = setInterval(() => {
                 let liveTab = document.getElementById('live-standalone-tab');
                 if (liveTab && liveTab.classList.contains('active')) {
@@ -707,7 +730,6 @@
             
             if(tabId === 'history-tab') renderHistory();
             
-            // Si entra a la pestaña en vivo, actualiza de inmediato
             if(tabId === 'live-standalone-tab') {
                 fetchRealLiveMLBData();
             }
@@ -932,7 +954,7 @@
             
             try {
                 let todayFormatted = new Date().toISOString().split('T')[0];
-                let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${todayFormatted}`);
+                let response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${todayFormatted}&hydrate=linescore,team`);
                 let data = await response.json();
 
                 if (!data.dates || data.dates.length === 0 || !data.dates[0].games) {
@@ -954,18 +976,78 @@
                         let homeTeam = g.teams.home.team.name;
                         let awayScore = g.teams.away.score ?? 0;
                         let homeScore = g.teams.home.score ?? 0;
-                        let inningInfo = g.linescore ? `${g.linescore.inningState} ${g.linescore.currentInningOrdinal}` : detailedState;
+                        
+                        let linescore = g.linescore || {};
+                        let currentInning = linescore.currentInningOrdinal || (linescore.currentInning ? `${linescore.currentInning}°` : "1er");
+                        let inningState = linescore.inningState || "";
+                        let outs = linescore.outs !== undefined ? linescore.outs : 0;
+                        
+                        // Corredores en base
+                        let hasOn1B = linescore.offense && linescore.offense.first;
+                        let hasOn2B = linescore.offense && linescore.offense.second;
+                        let hasOn3B = linescore.offense && linescore.offense.third;
+                        
+                        let basesText = [];
+                        if (hasOn1B) basesText.ico = "1ra";
+                        if (hasOn2B) basesText.push("2da");
+                        if (hasOn3B) basesText.push("3ra");
+                        let baseStr = basesText.length > 0 ? basesText.join(", ") : "Bases limpias ❌";
 
+                        let inningFullDisplay = `${inningState} de ${currentInning}`;
+
+                        // Cruce con base de datos cuantitativa para "La Mejor Jugada En Vivo"
                         let totalRuns = awayScore + homeScore;
+                        let inningNum = linescore.currentInning || 1;
+                        
+                        let liveBestPlayText = "";
+                        let liveBestPlayReason = "";
+
+                        if (inningNum <= 5) {
+                            // Fase Temprana / F5
+                            let leadingTeam = awayScore > homeScore ? awayTeam : (homeScore > awayScore ? homeTeam : "Empate");
+                            if (leadingTeam !== "Empate") {
+                                liveBestPlayText = `Ganador F5 / Directo: ${leadingTeam}`;
+                                liveBestPlayReason = `Inning temprano (${inningNum}°). El equipo dominante muestra control sobre el abridor.`;
+                            } else {
+                                liveBestPlayText = `Alta / Baja enVivo (O/U): Revisar Línea Líquida`;
+                                liveBestPlayReason = `Partido empatado en los primeros innings. Alta volatilidad de carreras.`;
+                            }
+                        } else {
+                            // Fase Avanzada / Juego Completo
+                            let runDiff = Math.abs(awayScore - homeScore);
+                            let aheadTeam = awayScore > homeScore ? awayTeam : homeTeam;
+                            if (runDiff >= 3) {
+                                liveBestPlayText = `Ganador ML / Hándicap en vivo: ${aheadTeam}`;
+                                liveBestPlayReason = `Diferencia sólida de +3 carreras con juego avanzado (${inningNum}° inning).`;
+                            } else {
+                                liveBestPlayText = `Alta (O/U) por Bullpen`;
+                                liveBestPlayReason = `Cierre apretado. Ingreso de relevistas incrementa el ritmo ofensivo.`;
+                            }
+                        }
+
                         let liveAltaBaja = totalRuns >= 7 ? "📉 Oportunidad de BAJA (O/U)" : "📈 Oportunidad de ALTA (O/U)";
                         let badgeClassOU = totalRuns >= 7 ? "badge-baja" : "badge-alta";
-                        let medioJuegoPick = awayScore === homeScore ? "⚠️ Juego Empatado (Alerta Extra Innings)" : (awayScore > homeScore ? `${awayTeam} dominando Medio Inning` : `${homeTeam} dominando Medio Inning`);
 
                         liveHTML += `
                         <div class="live-card">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-                                <span class="live-tag">EN VIVO • ${inningInfo}</span>
+                                <span class="live-tag">EN VIVO • ${inningFullDisplay}</span>
                                 <span style="font-size: 0.72rem; color: #94a3b8;">${g.venue.name}</span>
+                            </div>
+
+                            <div class="live-situational-info">
+                                <div class="live-situational-item">
+                                    <span>Inning actual</span>
+                                    <strong>${currentInning} (${inningState})</strong>
+                                </div>
+                                <div class="live-situational-item">
+                                    <span>Outs</span>
+                                    <strong>${outs} Out${outs === 1 ? '' : 's'}</strong>
+                                </div>
+                                <div class="live-situational-item">
+                                    <span>Corredores</span>
+                                    <strong style="color: ${basesText.length > 0 ? '#4ade80' : '#94a3b8'}">${baseStr}</strong>
+                                </div>
                             </div>
 
                             <div class="live-scorebox">
@@ -983,14 +1065,22 @@
                             </div>
 
                             <div class="live-picks-box">
-                                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">🎯 Proyecciones en Vivo (Datos Reales):</div>
+                                <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">📊 Lectura Situacional:</div>
                                 <div class="live-pick-item">
-                                    <span>Mercado Alta / Baja (O/U):</span>
+                                    <span>Mercado Alta / Baja:</span>
                                     <span class="${badgeClassOU}">${liveAltaBaja}</span>
                                 </div>
-                                <div class="live-pick-item">
-                                    <span>Tendencia Medio Inning / Ganador:</span>
-                                    <span class="badge-medio">${medioJuegoPick}</span>
+                            </div>
+
+                            <div class="live-best-play-box">
+                                <div style="font-size: 0.75rem; color: #4ade80; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                    ⭐ La Mejor Jugada En Vivo
+                                </div>
+                                <div style="font-size: 0.9rem; font-weight: 700; color: #f8fafc; margin-bottom: 2px;">
+                                    ${liveBestPlayText}
+                                </div>
+                                <div style="font-size: 0.72rem; color: #cbd5e1;">
+                                    ${liveBestPlayReason}
                                 </div>
                             </div>
                         </div>`;
