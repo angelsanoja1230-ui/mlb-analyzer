@@ -9,47 +9,64 @@ def simular_partido_mlb(match_data):
     prob_away = match_data.get('prob_away', 50.0)
     prob_home = match_data.get('prob_home', 50.0)
     
+    away_team = match_data.get('away', 'Visitante')
+    home_team = match_data.get('home', 'Local')
+    
     # Simulación de carreras esperadas (Run Expectancy) basadas en las probabilidades relativas
     expected_runs_away = round(3.8 + (prob_away - 50) * 0.05, 1)
     expected_runs_home = round(4.0 + (prob_home - 50) * 0.05, 1)
     
     # -------------------------------------------------------------
-    # A. PRIMER INNING (NRFI / YRFI)
-    # Depende de la efectividad estimada de los abridores en el 1er inning
+    # A. PRIMER INNING (SÍ / NO - NRFI / YRFI) con Porcentajes y Criterio de Abridores
     # -------------------------------------------------------------
-    # Supongamos que evaluamos el promedio de carreras en el inning 1
     run_prob_1st = (expected_runs_away + expected_runs_home) / 9.0
-    if run_prob_1st > 0.95:
-        nrfi_yrfi = "YRFI Proyectado (Alta)"
+    
+    # Calculamos un porcentaje dinámico de anotación en el 1er inning basado en el perfil ofensivo/abridores
+    # Si la expectativa global de carreras es alta, sube la probabilidad del SÍ (YRFI); si es baja, sube el NO (NRFI)
+    base_yrfi_prob = round(min(max(40.0 + (run_prob_1st - 0.85) * 45.0, 32.0), 68.0), 1)
+    
+    if base_yrfi_prob >= 50.0:
+        nrfi_yrfi_choice = "SÍ (YRFI)"
+        nrfi_yrfi_prob = f"{base_yrfi_prob}% Prob. Anotación"
+        recommendation_1st = f"SÍ (Habrá anotación - Duelo favorable a la ofensiva y bullpen inicial en el 1er inning)"
     else:
-        nrfi_yrfi = "NRFI Proyectado (Seguro)"
+        nrfi_yrfi_choice = "NO (NRFI)"
+        nrfi_yrfi_prob = f"{round(100 - base_yrfi_prob, 1)}% Prob. Sin Carrera"
+        recommendation_1st = f"NO (Sin anotación - Control de abridores sólido en la primera entrada)"
 
     # -------------------------------------------------------------
-    # B. GANADOR PRIMEROS 5 INNINGS (F5)
-    # Ponderado fuertemente por el rendimiento de los abridores
+    # B. GANADOR PRIMEROS 5 INNINGS (F5) con Porcentajes
+    # Ponderado por el rendimiento de los abridores
     # -------------------------------------------------------------
     f5_prob_diff = prob_away - prob_home
-    if abs(f5_prob_diff) < 3.0:
-        f5_winner = f"{match_data.get('home', 'Local')} (Leve Ventaja F5)"
-    elif prob_away > prob_home:
-        f5_winner = f"{match_data.get('away', 'Visita')} (F5 Sólido)"
+    f5_prob_away = round(prob_away - 1.2, 1)
+    f5_prob_home = round(prob_home + 1.2, 1)
+    
+    if f5_prob_away >= f5_prob_home:
+        winner_f5_text = f"{away_team}: {f5_prob_away}%"
     else:
-        f5_winner = f"{match_data.get('home', 'Local')} (F5 Sólido)"
+        winner_f5_text = f"{home_team}: {f5_prob_home}%"
 
     # -------------------------------------------------------------
-    # C. RUN LINE (-1.5 / +1.5)
-    # Determinado por la diferencia de carreras proyectadas
+    # C. GANADOR JUEGO COMPLETO CON PORCENTAJES
+    # -------------------------------------------------------------
+    if prob_away >= prob_home:
+        winner_full_text = f"{away_team}: {prob_away}%"
+    else:
+        winner_full_text = f"{home_team}: {prob_home}%"
+
+    # -------------------------------------------------------------
+    # D. RUN LINE (-1.5 / +1.5)
     # -------------------------------------------------------------
     run_diff = abs(expected_runs_home - expected_runs_away)
     if run_diff >= 1.5:
-        favorite = match_data.get('home') if expected_runs_home > expected_runs_away else match_data.get('away')
+        favorite = home_team if expected_runs_home > expected_runs_away else away_team
         run_line = f"{favorite} -1.5 (Margen Amplio)"
     else:
-        run_line = "Juego Cerrado (+1.5 / -1.5 Rizado)"
+        run_line = "Estándar -1.5 / +1.5 (Juego Cerrado)"
 
     # -------------------------------------------------------------
-    # D. PROBABILIDAD DE EXTRA INNINGS (Basado en Bullpen)
-    # Si la diferencia de probabilidades es menor al 6%, aumenta el riesgo de empate
+    # E. PROBABILIDAD DE EXTRA INNINGS (Basado en Bullpen)
     # -------------------------------------------------------------
     paridad = abs(prob_away - prob_home)
     if paridad < 4.0:
@@ -59,10 +76,24 @@ def simular_partido_mlb(match_data):
     else:
         extra_prob = "5.1% (Bajo - Definido en 9 Innings)"
 
-    # Agregar los nuevos campos al diccionario del partido
-    match_data['nrfi_yrfi'] = nrfi_yrfi
-    match_data['f5_winner'] = f5_winner
+    # Asignar al diccionario del partido para que la matriz los renderice correctamente
+    match_data['winner_full_text'] = winner_full_text
+    match_data['winner_f5_text'] = winner_f5_text
+    match_data['nrfi_yrfi_choice'] = nrfi_yrfi_choice
+    match_data['nrfi_yrfi_prob'] = nrfi_yrfi_prob
+    match_data['nrfi_recommendation'] = recommendation_1st
     match_data['run_line'] = run_line
     match_data['extra_inning_prob'] = extra_prob
     
     return match_data
+
+
+def process_all_matches(raw_matches):
+    """
+    Procesa la lista completa de partidos aplicando las simulaciones de la matriz.
+    """
+    simulated_matches = []
+    for match in raw_matches:
+        simulated = simular_partido_mlb(match)
+        simulated_matches.append(simulated)
+    return simulated_matches
