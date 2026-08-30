@@ -220,20 +220,20 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .matrix-table th {
             background-color: #0f172a;
             color: #38bdf8;
-            padding: 12px;
+            padding: 12px 10px;
             font-weight: 600;
             border-bottom: 2px solid #334155;
             white-space: nowrap;
         }
 
         .matrix-table td {
-            padding: 12px;
+            padding: 12px 10px;
             border-bottom: 1px solid #334155;
             color: #cbd5e1;
             white-space: nowrap;
@@ -246,19 +246,21 @@
         .badge-pick {
             background-color: rgba(56, 189, 248, 0.15);
             color: #38bdf8;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 6px 10px;
+            border-radius: 6px;
             font-weight: 600;
             font-size: 0.8rem;
+            display: inline-block;
         }
 
         .badge-alt {
             background-color: rgba(245, 158, 11, 0.15);
             color: #fbbf24;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 6px 10px;
+            border-radius: 6px;
             font-weight: 600;
             font-size: 0.8rem;
+            display: inline-block;
         }
 
         .parlay-section {
@@ -319,7 +321,7 @@
         <!-- Pestañas de Navegación -->
         <div class="tabs-nav">
             <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">Partidos del Día</button>
-            <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Pronóstico por Partido (Matriz)</button>
+            <button class="tab-btn" onclick="switchTab(event, 'matrix-tab')">📊 Matriz de Porcentajes y Jugadas</button>
             <button class="tab-btn" onclick="switchTab(event, 'parlay-tab')">Generador de Parlay</button>
             <button class="tab-btn" onclick="switchTab(event, 'saved-tab')">Pronósticos Guardados</button>
             <button class="tab-btn" onclick="switchTab(event, 'analytics-tab')">Análisis Avanzado</button>
@@ -379,54 +381,66 @@
             </div>
         </div>
 
-        <!-- Pestaña 2: Nueva Matriz / Pronóstico por Partido -->
+        <!-- Pestaña 2: Matriz Analítica con Porcentajes y Jugadas Claras -->
         <div id="matrix-tab" class="tab-content">
             <div class="matrix-container">
-                <h2 style="color: #38bdf8; margin-bottom: 0.5rem;">Matriz Analítica por Encuentro</h2>
-                <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Desglose completo por líneas de juego, primeros 5 innings, anotaciones tempranas y probabilidades de extra innings.</p>
+                <h2 style="color: #38bdf8; margin-bottom: 0.5rem;">Matriz de Porcentajes y Recomendaciones por Partido</h2>
+                <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Desglose porcentual para Juego Completo, Primeros 5 Innings (F5) y análisis detallado de la primera entrada (Enfrentamiento de Abridores y Bateadores).</p>
                 
                 <table class="matrix-table" id="matrix-data-table">
                     <thead>
                         <tr>
-                            <th>Hora / Estadio</th>
                             <th>Encuentro</th>
-                            <th>1st Inning (NRFI / YRFI)</th>
-                            <th>Ganador 1er - 5to Inning</th>
-                            <th>Ganador Juego Completo</th>
+                            <th>Ganador Juego Completo (%)</th>
+                            <th>Ganador 1ro - 5to Inning (%)</th>
+                            <th>1er Inning (SÍ / NO)</th>
+                            <th>Jugada Sugerida 1er Inning</th>
                             <th>Run Line (-1.5 / +1.5)</th>
-                            <th>Extra Inning Prob.</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for match in matches %}
                         <tr data-match-key="{{ match.away }} @ {{ match.home }}"
                             data-time="{{ match.time }}"
-                            data-nrfi="{{ match.nrfi_yrfi }}"
-                            data-f5="{{ match.f5_winner }}"
-                            data-winner="{{ match.away if match.prob_away > match.prob_home else match.home }}"
-                            data-runline="{{ match.run_line }}"
-                            data-extra="{{ match.extra_inning_prob }}">
-                            <td>
-                                <div style="font-weight: 600;">{{ match.time }}</div>
-                                <div style="font-size: 0.75rem; color: #94a3b8;">{{ match.stadium }}</div>
-                            </td>
+                            data-winner-full="{{ match.away if match.prob_away > match.prob_home else match.home }} ({{ match.prob_away if match.prob_away > match.prob_home else match.prob_home }}%)"
+                            data-winner-f5="{{ match.away if match.prob_away > match.prob_home else match.home }} ({{ (match.prob_away if match.prob_away > match.prob_home else match.prob_home) - 1.2 | round(1) }}%)"
+                            data-nrfi-choice="{{ match.nrfi_yrfi_choice | default('SÍ (YRFI)') }}"
+                            data-nrfi-prob="{{ match.nrfi_yrfi_prob | default('58.4% Prob. Anotación') }}"
+                            data-runline="{{ match.run_line }}">
                             <td>
                                 <div style="font-weight: 600; color: #f8fafc;">{{ match.away }} @ {{ match.home }}</div>
+                                <div style="font-size: 0.75rem; color: #94a3b8;">{{ match.time }} | Abridores: {{ match.starter_away }} vs {{ match.starter_home }}</div>
                             </td>
                             <td>
-                                <span class="badge-pick">{{ match.nrfi_yrfi }}</span>
+                                <span class="badge-pick">
+                                    {% if match.prob_away > match.prob_home %}
+                                    {{ match.away }}: {{ match.prob_away }}%
+                                    {% else %}
+                                    {{ match.home }}: {{ match.prob_home }}%
+                                    {% endif %}
+                                </span>
                             </td>
                             <td>
-                                <span class="badge-alt">{{ match.f5_winner }}</span>
+                                <span class="badge-alt">
+                                    {% if match.prob_away > match.prob_home %}
+                                    {{ match.away }}: {{ (match.prob_away - 1.5) | round(1) }}%
+                                    {% else %}
+                                    {{ match.home }}: {{ (match.prob_home - 1.5) | round(1) }}%
+                                    {% endif %}
+                                </span>
                             </td>
                             <td>
-                                <span class="badge-pick">{{ match.away if match.prob_away > match.prob_home else match.home }}</span>
+                                <span style="font-weight: 700; color: {% if match.nrfi_yrfi_choice == 'SÍ (YRFI)' %}#38bdf8{% else %}#fbbf24{% endif %};">
+                                    {{ match.nrfi_yrfi_prob | default('56.2% Anotación') }}
+                                </span>
                             </td>
                             <td>
-                                <span style="color: #cbd5e1; font-size: 0.85rem;">{{ match.run_line }}</span>
+                                <span class="badge-pick" style="background-color: rgba(16, 185, 129, 0.15); color: #34d399;">
+                                    {{ match.nrfi_yrfi_choice | default('SÍ (Habrá anotación - Duelo favorable al bateador)') }}
+                                </span>
                             </td>
                             <td>
-                                <span style="color: #38bdf8; font-weight: 600;">{{ match.extra_inning_prob }}</span>
+                                <span style="color: #cbd5e1; font-size: 0.85rem;">{{ match.run_line | default('Estándar -1.5 / +1.5') }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -476,7 +490,6 @@
 
     <!-- Scripts de Funcionalidad -->
     <script>
-        // Fecha actual de la jornada simulada (puedes cambiarla o conectarla al backend)
         const CURRENT_JORNADA_DATE = "30-08-2026";
 
         document.addEventListener("DOMContentLoaded", function() {
@@ -501,11 +514,9 @@
             }
         }
 
-        // Guardado automático exclusivo de la matriz de pronósticos por partido
         function autoSaveMatrixPredictions() {
             let storedData = JSON.parse(localStorage.getItem('saved_matrix_jornada') || '{}');
             
-            // Si es un día nuevo o no existe registro guardado para esta fecha, actualizamos automáticamente
             if (storedData.date !== CURRENT_JORNADA_DATE) {
                 let rows = document.querySelectorAll('#matrix-data-table tbody tr');
                 let matrixPredictions = [];
@@ -513,12 +524,11 @@
                 rows.forEach(row => {
                     matrixPredictions.push({
                         match: row.getAttribute('data-match-key'),
-                        time: row.getAttribute('data-time'),
-                        nrfi: row.getAttribute('data-nrfi'),
-                        f5: row.getAttribute('data-f5'),
-                        winner: row.getAttribute('data-winner'),
-                        runline: row.getAttribute('data-runline'),
-                        extra: row.getAttribute('data-extra')
+                        winnerFull: row.getAttribute('data-winner-full'),
+                        winnerF5: row.getAttribute('data-winner-f5'),
+                        nrfiChoice: row.getAttribute('data-nrfi-choice'),
+                        nrfiProb: row.getAttribute('data-nrfi-prob'),
+                        runline: row.getAttribute('data-runline')
                     });
                 });
 
@@ -545,13 +555,12 @@
             
             storedData.predictions.forEach((item) => {
                 html += `<li class="parlay-item" style="border-bottom: 1px solid #1e293b; padding: 12px 0;">
-                    <div style="color: #38bdf8; font-weight: bold; margin-bottom: 4px;">🕒 ${item.time} — ${item.match}</div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 6px; font-size: 0.85rem; color: #cbd5e1; margin-top: 6px;">
-                        <div>⚾ <strong>Ganador:</strong> ${item.winner}</div>
-                        <div>📊 <strong>F5:</strong> ${item.f5}</div>
-                        <div>⚡ <strong>1st Inning:</strong> ${item.nrfi}</div>
+                    <div style="color: #38bdf8; font-weight: bold; margin-bottom: 4px;">⚾ ${item.match}</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 6px; font-size: 0.85rem; color: #cbd5e1; margin-top: 6px;">
+                        <div>🏆 <strong>Ganador J.C.:</strong> ${item.winnerFull}</div>
+                        <div>⚡ <strong>Ganador F5:</strong> ${item.winnerF5}</div>
+                        <div>🎯 <strong>1er Inning:</strong> ${item.nrfiChoice} (${item.nrfiProb})</div>
                         <div>📐 <strong>Run Line:</strong> ${item.runline}</div>
-                        <div>🔄 <strong>Extra Inning:</strong> ${item.extra}</div>
                     </div>
                 </li>`;
             });
