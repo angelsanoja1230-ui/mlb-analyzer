@@ -192,110 +192,105 @@
             border-radius: 6px;
         }
 
-        .matrix-container, .history-container, .padlet-container, .parlay-container {
+        /* DISEÑO DE TARJETAS HORIZONTALES PARA TENDENCIAS (SOLUCIÓN DEFINITIVA A DESBORDAMIENTO) */
+        .trends-container {
             background-color: #1e293b;
             border: 1px solid #334155;
             border-radius: 10px;
             padding: 1.2rem;
         }
 
-        .table-responsive-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-top: 0.5rem;
-            border-radius: 6px;
-            border: 1px solid #334155;
+        .trends-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
         }
 
-        .matrix-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.78rem;
-            min-width: 900px;
-        }
-
-        .matrix-table th {
+        .trend-card {
             background-color: #0f172a;
-            color: #38bdf8;
-            padding: 10px 10px;
-            font-weight: 600;
-            border-bottom: 2px solid #334155;
-            white-space: nowrap;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
         }
 
-        .matrix-table td {
-            padding: 9px 10px;
-            border-bottom: 1px solid #334155;
-            color: #cbd5e1;
-            white-space: nowrap;
-            vertical-align: middle;
+        @media (min-width: 900px) {
+            .trend-card {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
         }
 
-        .badge-pick {
-            background-color: rgba(56, 189, 248, 0.12);
-            color: #38bdf8;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        .badge-alt {
-            background-color: rgba(245, 158, 11, 0.12);
-            color: #fbbf24;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        .badge-runlai {
-            background-color: rgba(168, 85, 247, 0.12);
-            color: #c084fc;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        .badge-total {
-            background-color: rgba(34, 197, 94, 0.12);
-            color: #4ade80;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        .badge-handicap {
-            background-color: rgba(236, 72, 153, 0.12);
-            color: #f472b6;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            display: inline-block;
-        }
-
-        .table-match-cell {
+        .trend-match-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            min-width: 250px;
         }
 
-        .team-mini-box {
+        .trend-match-teams {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .trend-teams-row {
             display: flex;
             align-items: center;
             gap: 6px;
+            font-size: 0.85rem;
             font-weight: 600;
-            font-size: 0.8rem;
             color: #f8fafc;
+        }
+
+        .trend-markets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 0.5rem;
+            flex: 1;
+            max-width: 900px;
+        }
+
+        .market-pill {
+            background-color: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 0.4rem 0.6rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .market-pill-label {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .market-pill-value {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .pill-f5 { color: #38bdf8; background-color: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.2); }
+        .pill-rl { color: #fbbf24; background-color: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.2); }
+        .pill-h25 { color: #f472b6; background-color: rgba(236, 72, 153, 0.08); border-color: rgba(236, 72, 153, 0.2); }
+        .pill-h35 { color: #c084fc; background-color: rgba(168, 85, 247, 0.08); border-color: rgba(168, 85, 247, 0.2); }
+        .pill-runelai { color: #4ade80; background-color: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.2); }
+        .pill-total { color: #38bdf8; background-color: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.2); }
+
+        .history-container, .padlet-container, .parlay-container {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 1.2rem;
         }
 
         .padlet-embed {
@@ -446,30 +441,15 @@
         </div>
 
         <div id="matrix-tab" class="tab-content">
-            <div class="matrix-container">
+            <div class="trends-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">Matriz de Validación Cuantitativa (+/- 1.5, 2.5, 3.5)</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Verificación estricta analizando si conviene hándicap positivo (+) o negativo (-).</p>
-                <div class="table-responsive-wrapper">
-                    <table class="matrix-table" id="matrix-table-data">
-                        <thead>
-                            <tr>
-                                <th>Encuentro</th>
-                                <th>Ganador F5 (0.5)</th>
-                                <th>Run Line (±1.5)</th>
-                                <th>Handicap (±2.5)</th>
-                                <th>Handicap (±3.5)</th>
-                                <th>Runelai</th>
-                                <th>Alta / Baja</th>
-                            </tr>
-                        </thead>
-                        <tbody id="matrix-tbody-container"></tbody>
-                    </table>
-                </div>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.5rem;">Diseño adaptativo optimizado para lectura cómoda sin desbordes horizontales.</p>
+                <div class="trends-list" id="trends-list-container"></div>
             </div>
         </div>
 
         <div id="best-play-tab" class="tab-content">
-            <div class="matrix-container">
+            <div class="trends-container">
                 <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">⭐ La Mejor Jugada por Partido</h2>
                 <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1rem;">Selección cuantitativa óptima basada en el análisis de valor de cada línea de hándicap.</p>
                 <div class="matches-grid" id="best-plays-cards-container"></div>
@@ -534,7 +514,6 @@
     <script>
         const CURRENT_DATE = "30-08-2026";
 
-        // Base de datos con cuotas reales de mercado para el 30-08-2026
         const TODAY_MATCHES = [
             { id: 1, away: "Miami Marlins", home: "Washington Nationals", time: "12:15 PM", stadium: "Nationals Park", starter_away: "J. Junk", starter_home: "A. Alvarez", wind: "8", temp: "82", homeOdds: 1.70, awayOdds: 2.00, totalLine: 9.0 },
             { id: 2, away: "Boston Red Sox", home: "New York Yankees", time: "1:35 PM", stadium: "Yankee Stadium", starter_away: "R. Suarez", starter_home: "W. Warren", wind: "10", temp: "78", homeOdds: 1.67, awayOdds: 2.30, totalLine: 8.0 },
@@ -604,7 +583,6 @@
             if(tabId === 'history-tab') renderHistory();
         }
 
-        // Lógica cuantitativa avanzada que evalúa si se debe usar el (+) o el (-) por partido
         function calculateMarketData(match) {
             let homeProb = Math.round((1 / match.homeOdds) * 100);
             let awayProb = Math.round((1 / match.awayOdds) * 100);
@@ -617,41 +595,40 @@
 
             let markets = [];
 
-            // 1. F5 Market (0.5) - Decide si va con el favorito (-0.5) o hembra (+0.5) según cuota
+            // 1. F5 Market (0.5)
             let f5Team = favProb >= 55 ? favTeam : dogTeam;
             let f5Sign = favProb >= 55 ? "-0.5" : "+0.5";
             let f5Conf = favProb >= 55 ? favProb - 5 : dogProb + 10;
-            markets.push({ category: "F5", type: "F5", desc: `F5 ${f5Team} (${f5Sign})`, prob: Math.min(92, Math.max(45, f5Conf)) });
+            markets.push({ category: "F5", type: "Ganador F5", desc: `${f5Team} (${f5Sign})`, prob: Math.min(92, Math.max(45, f5Conf)) });
 
-            // 2. Run Line (±1.5) - El modelo calcula si el favorito gana por más de 1.5 (-) o si el underdog cubre el +1.5 (+)
-            let rlIsMinus = favProb >= 60; // Si el favorito es muy sólido, se arriesga el -1.5, de lo contrario se protege con el +1.5 del underdog
+            // 2. Run Line (±1.5)
+            let rlIsMinus = favProb >= 60;
             let rlTeam = rlIsMinus ? favTeam : dogTeam;
             let rlSign = rlIsMinus ? "-1.5" : "+1.5";
             let rlConf = rlIsMinus ? Math.round(favProb * 0.78) : Math.round(72 + (dogProb * 0.15));
             markets.push({ category: "RunLine", type: "Run Line", desc: `${rlTeam} (${rlSign})`, prob: Math.min(90, Math.max(48, rlConf)) });
 
-            // 3. Handicap (±2.5) - Protección intermedia
+            // 3. Handicap (±2.5)
             let h25IsMinus = favProb >= 70;
             let h25Team = h25IsMinus ? favTeam : dogTeam;
             let h25Sign = h25IsMinus ? "-2.5" : "+2.5";
             markets.push({ category: "Handicap25", type: "Hcap 2.5", desc: `${h25Team} (${h25Sign})`, prob: h25IsMinus ? 60 : 82 });
 
-            // 4. Handicap (±3.5) - Línea de máxima seguridad
+            // 4. Handicap (±3.5)
             let h35IsMinus = favProb >= 80;
             let h35Team = h35IsMinus ? favTeam : dogTeam;
             let h35Sign = h35IsMinus ? "-3.5" : "+3.5";
             markets.push({ category: "Handicap35", type: "Hcap 3.5", desc: `${h35Team} (${h35Sign})`, prob: h35IsMinus ? 68 : 89 });
 
             // 5. Runelai
-            let runelaiType = match.totalLine <= 8.0 ? "NRFI (No anotan en 1er inning)" : "YRFI (Sí anotan en 1er inning)";
-            markets.push({ category: "Runelai", type: "Runelai", desc: runelaiType, prob: match.totalLine <= 8.0 ? 62 : 58 });
+            let runelaiType = match.totalLine <= 8.0 ? "NRFI" : "YRFI";
+            let runelaiDesc = match.totalLine <= 8.0 ? "NRFI (Sin carrera 1I)" : "YRFI (Sí carrera 1I)";
+            markets.push({ category: "Runelai", type: "Runelai", desc: runelaiDesc, prob: match.totalLine <= 8.0 ? 62 : 58 });
 
             // 6. Totales O/U
-            let ouType = match.totalLine >= 9.0 ? `Alta (Over ${match.totalLine})` : `Baja (Under ${match.totalLine})`;
+            let ouType = match.totalLine >= 9.0 ? `Alta (${match.totalLine})` : `Baja (${match.totalLine})`;
             markets.push({ category: "Total", type: "Total O/U", desc: ouType, prob: 65 });
 
-            // Determinación automática de la Mejor Jugada global para el partido
-            // Evaluamos cuál de los hándicaps (F5, Run Line, Hcap 2.5, Hcap 3.5) ofrece el porcentaje más seguro y rentable
             let bestHcapOption = [markets[0], markets[1], markets[2], markets[3]].reduce((prev, current) => (prev.prob > current.prob) ? prev : current);
 
             return { homeProb, awayProb, markets, bestHcapOption, favTeam };
@@ -659,9 +636,9 @@
 
         function buildMatchesUI() {
             let cardsContainer = document.getElementById('matches-cards-container');
-            let matrixTbody = document.getElementById('matrix-tbody-container');
+            let trendsContainer = document.getElementById('trends-list-container');
             let cardsHTML = '';
-            let matrixHTML = '';
+            let trendsHTML = '';
 
             TODAY_MATCHES.forEach((m) => {
                 let matchKey = `${m.away} @ ${m.home}`;
@@ -699,38 +676,60 @@
                     </div>
                 </div>`;
 
-                matrixHTML += `
-                <tr data-match-key="${matchKey}">
-                    <td>
-                        <div class="table-match-cell">
-                            <div class="team-mini-box">${getTeamBadgeHTML(m.away, true)}<span>${m.away}</span></div>
-                            <span style="color: #64748b; font-size: 0.75rem;">@</span>
-                            <div class="team-mini-box">${getTeamBadgeHTML(m.home, true)}<span>${m.home}</span></div>
+                trendsHTML += `
+                <div class="trend-card" data-match-key="${matchKey}">
+                    <div class="trend-match-info">
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <div class="trend-teams-row">${getTeamBadgeHTML(m.away, true)} <span>${m.away}</span></div>
+                            <div class="trend-teams-row">${getTeamBadgeHTML(m.home, true)} <span>${m.home}</span></div>
                         </div>
-                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px; padding-left: 32px;">${m.time}</div>
-                    </td>
-                    <td><span class="matrix-prob-f5">-</span></td>
-                    <td><span class="matrix-prob-rl">-</span></td>
-                    <td><span class="matrix-prob-h25">-</span></td>
-                    <td><span class="matrix-prob-h35">-</span></td>
-                    <td><span class="matrix-prob-runelai">-</span></td>
-                    <td><span class="matrix-prob-total">-</span></td>
-                </tr>`;
+                        <div style="font-size: 0.7rem; color: #94a3b8; border-left: 1px solid #334155; padding-left: 8px;">
+                            <div>⏰ ${m.time}</div>
+                            <div>O/U ${m.totalLine}</div>
+                        </div>
+                    </div>
+                    <div class="trend-markets-grid">
+                        <div class="market-pill pill-f5">
+                            <span class="market-pill-label">F5 (0.5)</span>
+                            <span class="market-pill-value trend-prob-f5">-</span>
+                        </div>
+                        <div class="market-pill pill-rl">
+                            <span class="market-pill-label">Run Line (±1.5)</span>
+                            <span class="market-pill-value trend-prob-rl">-</span>
+                        </div>
+                        <div class="market-pill pill-h25">
+                            <span class="market-pill-label">Hcap (±2.5)</span>
+                            <span class="market-pill-value trend-prob-h25">-</span>
+                        </div>
+                        <div class="market-pill pill-h35">
+                            <span class="market-pill-label">Hcap (±3.5)</span>
+                            <span class="market-pill-value trend-prob-h35">-</span>
+                        </div>
+                        <div class="market-pill pill-runelai">
+                            <span class="market-pill-label">Runelai</span>
+                            <span class="market-pill-value trend-prob-runelai">-</span>
+                        </div>
+                        <div class="market-pill pill-total">
+                            <span class="market-pill-label">Total O/U</span>
+                            <span class="market-pill-value trend-prob-total">-</span>
+                        </div>
+                    </div>
+                </div>`;
             });
 
             cardsContainer.innerHTML = cardsHTML;
-            matrixTbody.innerHTML = matrixHTML;
+            trendsContainer.innerHTML = trendsHTML;
         }
 
         function processApp() {
             let cards = document.querySelectorAll('.matches-grid .match-card');
-            let rows = document.querySelectorAll('#matrix-table-data tbody tr');
+            let trendCards = document.querySelectorAll('.trends-list .trend-card');
             let allAvailablePicks = [];
             let bestPlaysHTML = '';
 
             TODAY_MATCHES.forEach((m, index) => {
                 let card = cards[index];
-                let row = rows[index];
+                let trendCard = trendCards[index];
                 let marketData = calculateMarketData(m);
 
                 if (card) {
@@ -745,16 +744,15 @@
                 let runelai = marketData.markets.find(x => x.category === "Runelai");
                 let total = marketData.markets.find(x => x.category === "Total");
 
-                if (row) {
-                    row.querySelector('.matrix-prob-f5').innerHTML = `<span class="badge-pick">${f5.prob}% (${f5.desc})</span>`;
-                    row.querySelector('.matrix-prob-rl').innerHTML = `<span class="badge-alt">${rl.prob}% (${rl.desc})</span>`;
-                    row.querySelector('.matrix-prob-h25').innerHTML = `<span class="badge-alt">${h25.prob}% (${h25.desc})</span>`;
-                    row.querySelector('.matrix-prob-h35').innerHTML = `<span class="badge-handicap">${h35.prob}% (${h35.desc})</span>`;
-                    row.querySelector('.matrix-prob-runelai').innerHTML = `<span class="badge-runlai">${runelai.prob}% (${runelai.desc})</span>`;
-                    row.querySelector('.matrix-prob-total').innerHTML = `<span class="badge-total">${total.prob}% (${total.desc})</span>`;
+                if (trendCard) {
+                    trendCard.querySelector('.trend-prob-f5').innerText = `${f5.prob}% | ${f5.desc}`;
+                    trendCard.querySelector('.trend-prob-rl').innerText = `${rl.prob}% | ${rl.desc}`;
+                    trendCard.querySelector('.trend-prob-h25').innerText = `${h25.prob}% | ${h25.desc}`;
+                    trendCard.querySelector('.trend-prob-h35').innerText = `${h35.prob}% | ${h35.desc}`;
+                    trendCard.querySelector('.trend-prob-runelai').innerText = `${runelai.prob}% | ${runelai.desc}`;
+                    trendCard.querySelector('.trend-prob-total').innerText = `${total.prob}% | ${total.desc}`;
                 }
 
-                // Selección óptima basada en el análisis de valor cuantitativo para este encuentro
                 let optimalPick = marketData.bestHcapOption;
                 let fullPlayDescription = `${m.away} @ ${m.home} → ${optimalPick.desc}`;
 
@@ -789,7 +787,6 @@
 
             document.getElementById('best-plays-cards-container').innerHTML = bestPlaysHTML;
 
-            // Rellenar banners superiores del generador de parlay con los mejores análisis individuales
             document.getElementById('best-f5-text').innerText = `${calculateMarketData(TODAY_MATCHES[0]).markets[0].desc} (${calculateMarketData(TODAY_MATCHES[0]).markets[0].prob}%)`;
             document.getElementById('best-runline-text').innerText = `${calculateMarketData(TODAY_MATCHES[1]).markets[1].desc} (${calculateMarketData(TODAY_MATCHES[1]).markets[1].prob}%)`;
             document.getElementById('best-handicap-text').innerText = `${calculateMarketData(TODAY_MATCHES[2]).markets[3].desc} (${calculateMarketData(TODAY_MATCHES[2]).markets[3].prob}%)`;
