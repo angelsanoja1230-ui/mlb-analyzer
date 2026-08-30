@@ -127,17 +127,17 @@
         }
 
         .team-logo {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.75rem;
-            color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.15);
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .team-logo-sm {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
+            flex-shrink: 0;
         }
 
         .team-name {
@@ -193,7 +193,7 @@
             padding: 1.2rem;
         }
 
-        /* Contenedor con Scroll para evitar desbordes */
+        /* Contenedor con Scroll horizontal fluido para evitar desbordes */
         .table-responsive-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -208,20 +208,20 @@
             border-collapse: collapse;
             text-align: left;
             font-size: 0.78rem;
-            min-width: 850px; /* Asegura distribución ordenada en pantallas pequeñas con scroll */
+            min-width: 900px;
         }
 
         .matrix-table th {
             background-color: #0f172a;
             color: #38bdf8;
-            padding: 10px 8px;
+            padding: 10px 10px;
             font-weight: 600;
             border-bottom: 2px solid #334155;
             white-space: nowrap;
         }
 
         .matrix-table td {
-            padding: 9px 8px;
+            padding: 9px 10px;
             border-bottom: 1px solid #334155;
             color: #cbd5e1;
             white-space: nowrap;
@@ -281,7 +281,7 @@
         .table-match-cell {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .team-mini-box {
@@ -291,20 +291,6 @@
             font-weight: 600;
             font-size: 0.8rem;
             color: #f8fafc;
-        }
-
-        .team-logo-sm {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.6rem;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.15);
-            flex-shrink: 0;
         }
 
         /* Padlet Iframe */
@@ -596,21 +582,47 @@
             { away: "Cincinnati Reds", home: "Chicago Cubs", time: "7:20 PM", stadium: "Wrigley Field", starter_away: "H. Greene", starter_home: "J. Steele", wind: "14", temp: "73" }
         ];
 
-        // Función utilitaria para generar iniciales y color distintivo de logo para cada equipo
-        function getTeamBadgeHTML(teamName, isSmall = false) {
-            let words = teamName.split(" ");
-            let initials = words.length > 1 ? words[words.length - 1].substring(0, 2).toUpperCase() : teamName.substring(0, 2).toUpperCase();
-            
-            let hash = 0;
-            for (let i = 0; i < teamName.length; i++) {
-                hash = teamName.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            let c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-            let colorCode = "#" + "00000".substring(0, 6 - c.length) + c;
+        // Mapeo oficial de abreviaturas para los logos institucionales de la MLB vía CDN oficial
+        const MLB_TEAM_CODES = {
+            "Miami Marlins": "mia",
+            "Washington Nationals": "wsh",
+            "Boston Red Sox": "bos",
+            "New York Yankees": "nyy",
+            "Colorado Rockies": "col",
+            "Atlanta Braves": "atl",
+            "Seattle Mariners": "sea",
+            "Toronto Blue Jays": "tor",
+            "Kansas City Royals": "kc",
+            "Cleveland Guardians": "cle",
+            "Los Angeles Dodgers": "lad",
+            "Detroit Tigers": "det",
+            "San Diego Padres": "sd",
+            "Tampa Bay Rays": "tb",
+            "Chicago White Sox": "chw",
+            "Minnesota Twins": "min",
+            "Texas Rangers": "tex",
+            "Milwaukee Brewers": "mil",
+            "Pittsburgh Pirates": "pit",
+            "St. Louis Cardinals": "stl",
+            "Houston Astros": "hou",
+            "New York Mets": "nym",
+            "Baltimore Orioles": "bal",
+            "Oakland Athletics": "oak",
+            "Philadelphia Phillies": "phi",
+            "Los Angeles Angels": "laa",
+            "Cincinnati Reds": "cin",
+            "Chicago Cubs": "chc",
+            "San Francisco Giants": "sf",
+            "Arizona Diamondbacks": "ari"
+        };
 
-            // Evitar colores muy claros asegurando tonalidades visibles
-            let classSize = isSmall ? "team-logo-sm" : "team-logo";
-            return `<div class="${classSize}" style="background-color: ${colorCode};" title="${teamName}">${initials}</div>`;
+        // Función para obtener el logo oficial transparente directamente desde la CDN de la MLB
+        function getTeamLogoHTML(teamName, isSmall = false) {
+            let code = MLB_TEAM_CODES[teamName] || "mlb";
+            let logoUrl = `https://www.mlbstatic.com/team-logos/${code}.svg`;
+            let className = isSmall ? "team-logo-sm" : "team-logo";
+            
+            return `<img src="${logoUrl}" alt="${teamName}" class="${className}" onerror="this.onerror=null; this.src='https://www.mlbstatic.com/team-logos/mlb.svg';" title="${teamName}" />`;
         }
 
         document.addEventListener("DOMContentLoaded", function() {
@@ -666,12 +678,12 @@
 
                     <div class="teams-container">
                         <div class="team">
-                            ${getTeamBadgeHTML(m.away)}
+                            ${getTeamLogoHTML(m.away)}
                             <div class="team-name">${m.away}</div>
                         </div>
                         <div class="vs">VS</div>
                         <div class="team">
-                            ${getTeamBadgeHTML(m.home)}
+                            ${getTeamLogoHTML(m.home)}
                             <div class="team-name">${m.home}</div>
                         </div>
                     </div>
@@ -698,11 +710,11 @@
                 <tr data-match-key="${matchKey}">
                     <td>
                         <div class="table-match-cell">
-                            <div class="team-mini-box">${getTeamBadgeHTML(m.away, true)}<span>${m.away}</span></div>
+                            <div class="team-mini-box">${getTeamLogoHTML(m.away, true)}<span>${m.away}</span></div>
                             <span style="color: #64748b; font-size: 0.75rem;">@</span>
-                            <div class="team-mini-box">${getTeamBadgeHTML(m.home, true)}<span>${m.home}</span></div>
+                            <div class="team-mini-box">${getTeamLogoHTML(m.home, true)}<span>${m.home}</span></div>
                         </div>
-                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px; padding-left: 32px;">${m.time}</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px; padding-left: 36px;">${m.time}</div>
                     </td>
                     <td><span class="matrix-prob-f5">-</span></td>
                     <td><span class="matrix-prob-rl">-</span></td>
@@ -862,12 +874,12 @@
                         </div>
                         <div class="teams-container" style="margin-bottom: 0.8rem;">
                             <div class="team">
-                                ${getTeamBadgeHTML(awayTeamName)}
+                                ${getTeamLogoHTML(awayTeamName)}
                                 <div class="team-name" style="font-size: 0.85rem;">${awayTeamName}</div>
                             </div>
                             <div class="vs" style="font-size: 0.8rem;">@</div>
                             <div class="team">
-                                ${getTeamBadgeHTML(homeTeamName)}
+                                ${getTeamLogoHTML(homeTeamName)}
                                 <div class="team-name" style="font-size: 0.85rem;">${homeTeamName}</div>
                             </div>
                         </div>
