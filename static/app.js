@@ -190,7 +190,6 @@ function registerTrendPick(away, home) {
     records.unshift(newRecord);
     saveAuditRecords(records);
     
-    // Forzar actualización inmediata si la tabla de auditoría está activa
     if(document.getElementById('history-tab').classList.contains('active')) {
         renderAuditHistory();
     }
@@ -243,33 +242,32 @@ function registerParlayToAudit(parlayName) {
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
     
-    // Clasificar inteligentemente los partidos según su hora programada vs la hora actual de simulación (Ej: 7:12 PM)
     const processedMatches = BASE_MATCHES.map((m, idx) => {
-        // Determinamos el estado basándonos en el horario del partido y su índice
-        // Los partidos más tempranos ya terminaron, los del medio están en juego, los de la noche no han empezado.
         let statusType = 'FINAL';
         let gameState = 'FINALIZADO';
         let awayScore = (idx * 3) % 8;
         let homeScore = (idx + 2) % 7;
         let situational = '🏁 Encuentro Finalizado';
         let pickStatus = '✔️ Apuesta cerrada y auditada';
-        let sortOrder = 3; // 1: En Vivo, 2: Por Comenzar, 3: Finalizado (para mandar al fondo)
+        let sortOrder = 3; // 3 al fondo para finalizados
 
-        // Simulación basada en los horarios de la lista base
-        if (m.time.includes('7:20 PM')) {
+        // Partido nocturno (Ej: 7:20 PM) configurado como próximo (sin iniciar)
+        if (m.time === "7:20 PM") {
             statusType = 'UPCOMING';
             gameState = 'PRÓXIMAMENTE';
             awayScore = '-';
             homeScore = '-';
             situational = '⏳ Juego programado (Sin iniciar)';
             pickStatus = '🔒 Esperando apertura de lanzadores';
-            sortOrder = 2;
-        } else if (m.time.includes('4:05') || m.time.includes('4:07')) {
+            sortOrder = 2; // 2 en el medio para próximos
+        } 
+        // Partidos de la tarde (4:05 PM y 4:07 PM) en pleno desarrollo en vivo
+        else if (m.time === "4:05 PM" || m.time === "4:07 PM") {
             statusType = 'LIVE';
             gameState = 'EN VIVO (Inning 7)';
             situational = '⚾ Outs: 1 | 🏃 Bases: 2da y 3ra';
             pickStatus = '⚠️ Siguiendo fluctuación de cuotas';
-            sortOrder = 1;
+            sortOrder = 1; // 1 arriba para en vivo
         }
 
         return {
@@ -284,7 +282,7 @@ function renderLiveControl() {
         };
     });
 
-    // Ordenar para que los finalizados bajen y los en juego/próximos queden arriba
+    // Ordenar correctamente: En vivo (1) arriba, Próximos (2) en medio, Finalizados (3) al fondo
     processedMatches.sort((a, b) => a.sortOrder - b.sortOrder);
 
     container.innerHTML = processedMatches.map(m => {
@@ -332,6 +330,7 @@ function renderLiveControl() {
         `;
     }).join('');
 }
+
 function renderAuditHistory() {
     const container = document.getElementById('history-list-container');
     const records = getSavedAuditRecords();
