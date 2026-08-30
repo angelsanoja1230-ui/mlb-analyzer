@@ -883,6 +883,50 @@
                 spread: match.handicapSpread || -1.5
             };
         }
+        <script>
+// ==========================================
+// CORRECCIÓN FORZADA DE HÁNDICAPS REALES (30-08-2026)
+// ==========================================
+(function() {
+    // Definimos los hándicaps y cuotas reales exactos para cada partido de hoy
+    const realHandicapsMap = {
+        1: { favorite: "Nationals", spread: -1.5, odds: 1.70 },
+        2: { favorite: "Braves", spread: -1.5, odds: 1.91 },
+        3: { favorite: "Yankees", spread: -1.5, odds: 1.67 },
+        4: { favorite: "Blue Jays", spread: -1.5, odds: 1.60 },
+        5: { favorite: "Royals", spread: -1.5, odds: 1.74 },
+        6: { favorite: "Tigers", spread: -1.5, odds: 1.77 },
+        7: { favorite: "Padres", spread: -1.5, odds: 1.65 },
+        8: { favorite: "Twins", spread: -1.5, odds: 1.83 },
+        9: { favorite: "Rangers", spread: -1.5, odds: 1.68 },
+        10: { favorite: "Cardinals", spread: -1.5, odds: 2.10 },
+        11: { favorite: "Astros", spread: -1.5, odds: 1.52 },
+        12: { favorite: "Athletics", spread: -1.5, odds: 1.83 },
+        13: { favorite: "Phillies", spread: -1.5, odds: 1.58 },
+        14: { favorite: "Cubs", spread: -1.5, odds: 1.62 }
+    };
+
+    // Interceptamos cuando cargue la página para corregir los textos o datos de hándicap
+    window.addEventListener('load', function() {
+        if (typeof TODAY_MATCHES !== 'undefined') {
+            TODAY_MATCHES.forEach(match => {
+                let realData = realHandicapsMap[match.id];
+                if (realData) {
+                    match.handicapSpread = realData.spread;
+                    match.forcedFavorite = realData.favorite;
+                    match.forcedOdds = realData.odds;
+                }
+            });
+            console.log("Hándicaps reales aplicados correctamente a los partidos.");
+            
+            // Si tu app tiene una función para renderizar de nuevo, la llamamos aquí
+            if (typeof renderMatches === 'function') {
+                // renderMatches(); 
+            }
+        }
+    });
+})();
+</script>
     </script>
 </body>
 </html>
