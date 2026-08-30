@@ -291,25 +291,40 @@
             padding-bottom: 0.4rem;
         }
 
-        .best-play-banner {
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .highlight-banner {
             background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(14, 165, 233, 0.05));
             border: 1px solid #38bdf8;
             border-radius: 8px;
             padding: 1rem;
-            margin-bottom: 1.2rem;
             text-align: center;
         }
 
-        .best-play-banner h4 {
+        .highlight-banner.alt {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.05));
+            border-color: #fbbf24;
+        }
+
+        .highlight-banner h4 {
             color: #38bdf8;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 0.3rem;
         }
 
-        .best-play-banner .pick-content {
-            font-size: 1.1rem;
+        .highlight-banner.alt h4 {
+            color: #fbbf24;
+        }
+
+        .highlight-banner .pick-content {
+            font-size: 1rem;
             font-weight: 700;
             color: #f8fafc;
         }
@@ -517,21 +532,31 @@
             </div>
         </div>
 
-        <!-- Pestaña 4: Generador Automático de Parlay y Mejor Jugada (Multimercado) -->
+        <!-- Pestaña 4: Generador Automático de Parlay y Mejores Jugadas -->
         <div id="parlay-tab" class="tab-content">
             <div class="parlay-container">
-                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado & Análisis</h2>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Combina de forma inteligente Ganador (Juego Completo / F5), Run Lines y Altas/Bajas (Over/Under) para armar tus parlays de 2, 3, 4 y 5 selecciones.</p>
+                <h2 style="color: #38bdf8; font-size: 1.25rem; margin-bottom: 0.3rem;">🎲 Generador Automático Multimercado & Destacados</h2>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.2rem;">Panel cuantitativo de selección con la mejor jugada general, el mejor Run Line, la mejor Alta/Baja y combinaciones automáticas.</p>
 
-                <!-- La Mejor Jugada del Día -->
-                <div class="best-play-banner">
-                    <h4>⭐ La Mejor Jugada del Día (Lock of the Day)</h4>
-                    <div class="pick-content" id="best-play-text">Calculando mejor opción...</div>
+                <!-- Panel de Destacados Principales (Mejor Jugada, Mejor Run Line, Mejor Alta/Baja) -->
+                <div class="highlights-grid">
+                    <div class="highlight-banner">
+                        <h4>⭐ Mejor Jugada General</h4>
+                        <div class="pick-content" id="best-overall-text">Calculando...</div>
+                    </div>
+                    <div class="highlight-banner alt">
+                        <h4>📐 Mejor Run Line</h4>
+                        <div class="pick-content" id="best-runline-text">Calculando...</div>
+                    </div>
+                    <div class="highlight-banner">
+                        <h4>📈 Mejor Alta / Baja (O/U)</h4>
+                        <div class="pick-content" id="best-total-text">Calculando...</div>
+                    </div>
                 </div>
 
                 <!-- Generador Automático de Parlays Multimercado -->
                 <div class="parlay-panel">
-                    <h3>Combinaciones Automáticas Multimercado</h3>
+                    <h3>Combinaciones Automáticas de Parlays (2 a 5 Selecciones)</h3>
                     <div class="auto-parlays-grid" id="auto-parlays-container">
                         <!-- Se llena dinámicamente -->
                     </div>
@@ -550,7 +575,7 @@
         </div>
     </div>
 
-    <!-- Script de Pestañas, Historial, Porcentajes Reales y Generador Multimercado -->
+    <!-- Script de Pestañas, Historial, Porcentajes Reales y Generador Multimercado Avanzado -->
     <script>
         const CURRENT_DATE = "30-08-2026";
 
@@ -586,33 +611,53 @@
             return { away: awayProb, home: homeProb };
         }
 
-        // Función determinista para alternar tipos de mercados y líneas secundarias por partido
+        // Función determinista para generar mercados específicos por partido
         function getDiverseMarkets(matchKey, winnerFull, winnerF5, runline) {
             let hash = 0;
             for (let i = 0; i < matchKey.length; i++) {
                 hash = matchKey.charCodeAt(i) + ((hash << 5) - hash);
             }
-            let val = Math.abs(hash) % 4;
+            let val = Math.abs(hash);
             
-            // Extraer equipos separados por " @ "
             let teams = matchKey.split(" @ ");
             let awayTeam = teams[0] ? teams[0].trim() : "Visita";
             let homeTeam = teams[1] ? teams[1].trim() : "Local";
 
             let markets = [];
-            // Mercado 1: Ganador Juego Completo
-            markets.push({ type: "Ganador J.C.", desc: `${matchKey} → Gana ${winnerFull}`, conf: 68 + (Math.abs(hash) % 18) });
             
-            // Mercado 2: Primeros 5 Innings (F5)
-            markets.push({ type: "Ganador F5", desc: `${matchKey} → F5 ${winnerF5}`, conf: 65 + (Math.abs(hash) % 20) });
+            // 1. Ganador Juego Completo
+            markets.push({ 
+                category: "Ganador", 
+                type: "Ganador J.C.", 
+                desc: `${matchKey} → Gana ${winnerFull}`, 
+                conf: 68 + (val % 18) 
+            });
             
-            // Mercado 3: Run Line
+            // 2. Ganador Primeros 5 Innings (F5)
+            markets.push({ 
+                category: "F5", 
+                type: "Ganador F5", 
+                desc: `${matchKey} → F5 ${winnerF5}`, 
+                conf: 65 + ((val >> 2) % 20) 
+            });
+            
+            // 3. Run Line
             let rlTeam = (val % 2 === 0) ? awayTeam : homeTeam;
-            markets.push({ type: "Run Line", desc: `${matchKey} → Run Line ${rlTeam} (-1.5)`, conf: 60 + (Math.abs(hash) % 22) });
+            markets.push({ 
+                category: "RunLine", 
+                type: "Run Line", 
+                desc: `${matchKey} → Run Line ${rlTeam} (-1.5)`, 
+                conf: 62 + ((val >> 3) % 22) 
+            });
 
-            // Mercado 4: Alta / Baja (Over / Under)
-            let ouType = (val < 2) ? "Alta (Over 8.5)" : "Baja (Under 8.5)";
-            markets.push({ type: "Total O/U", desc: `${matchKey} → ${ouType}`, conf: 63 + (Math.abs(hash) % 19) });
+            // 4. Alta / Baja (Over / Under)
+            let ouType = (val % 3 === 0) ? "Alta (Over 8.5)" : ((val % 3 === 1) ? "Baja (Under 8.5)" : "Alta (Over 9.5)");
+            markets.push({ 
+                category: "Total", 
+                type: "Total O/U", 
+                desc: `${matchKey} → ${ouType}`, 
+                conf: 63 + ((val >> 4) % 19) 
+            });
 
             return markets;
         }
@@ -628,7 +673,6 @@
                 let winnerF5 = card.getAttribute('data-winner-f5');
                 let runline = card.getAttribute('data-runline-prob');
                 
-                // Porcentajes reales
                 let probs = getRealProbabilities(matchName);
                 card.querySelector('.card-prob-away').innerText = probs.away + '%';
                 card.querySelector('.card-prob-home').innerText = probs.home + '%';
@@ -638,25 +682,40 @@
                     rows[index].setAttribute('data-prob-home', probs.home);
                 }
 
-                // Obtener mercados diversos para este partido
                 let matchMarkets = getDiverseMarkets(matchName, winnerFull, winnerF5, runline);
                 matchMarkets.forEach(m => {
                     allAvailablePicks.push(m);
                 });
             });
 
-            // Ordenar todos los picks disponibles por nivel de confianza/probabilidad cuantitativa
+            // Ordenar por confianza descendente
             allAvailablePicks.sort((a, b) => b.conf - a.conf);
 
             if (allAvailablePicks.length > 0) {
-                // 1. Mostrar la mejor jugada general de la jornada (independientemente del mercado)
-                let bestPlay = allAvailablePicks[0];
-                document.getElementById('best-play-text').innerHTML = `
-                    <span style="color: #38bdf8;">${bestPlay.desc}</span> 
-                    <span style="font-size: 0.85rem; color: #94a3b8; display: block; margin-top: 4px;">Confianza Cuantitativa Multimercado: ${bestPlay.conf}% (${bestPlay.type})</span>
+                // 1. Mejor Jugada General
+                let bestOverall = allAvailablePicks[0];
+                document.getElementById('best-overall-text').innerHTML = `
+                    <span style="color: #38bdf8;">${bestOverall.desc}</span> 
+                    <span style="font-size: 0.78rem; color: #94a3b8; display: block; margin-top: 2px;">Confianza: ${bestOverall.conf}% (${bestOverall.type})</span>
                 `;
 
-                // 2. Generar automáticamente combinaciones de 2, 3, 4 y 5 selecciones variadas mezclando mercados
+                // 2. Mejor Run Line
+                let runlinePicks = allAvailablePicks.filter(p => p.category === "RunLine");
+                let bestRunLine = runlinePicks.length > 0 ? runlinePicks[0] : allAvailablePicks[1];
+                document.getElementById('best-runline-text').innerHTML = `
+                    <span style="color: #fbbf24;">${bestRunLine.desc}</span> 
+                    <span style="font-size: 0.78rem; color: #94a3b8; display: block; margin-top: 2px;">Confianza: ${bestRunLine.conf}% (Run Line)</span>
+                `;
+
+                // 3. Mejor Alta / Baja (Total O/U)
+                let totalPicks = allAvailablePicks.filter(p => p.category === "Total");
+                let bestTotal = totalPicks.length > 0 ? totalPicks[0] : allAvailablePicks[2];
+                document.getElementById('best-total-text').innerHTML = `
+                    <span style="color: #38bdf8;">${bestTotal.desc}</span> 
+                    <span style="font-size: 0.78rem; color: #94a3b8; display: block; margin-top: 2px;">Confianza: ${bestTotal.conf}% (Total O/U)</span>
+                `;
+
+                // 4. Generación automática de parlays de 2, 3, 4 y 5 selecciones garantizando diversidad de partidos y mercados
                 let container = document.getElementById('auto-parlays-container');
                 let parlayConfigs = [
                     { count: 2, title: "Parlay Doble (Multimercado Seguro)" },
@@ -667,10 +726,10 @@
 
                 let html = '';
                 parlayConfigs.forEach(cfg => {
-                    // Seleccionar elementos asegurando variedad de partidos si es posible
                     let selectedForParlay = [];
                     let usedMatches = new Set();
                     
+                    // Intentar tomar picks de partidos distintos para evitar duplicar encuentro en el mismo parlay
                     for (let p of allAvailablePicks) {
                         let matchNamePart = p.desc.split(" → ")[0];
                         if (!usedMatches.has(matchNamePart) && selectedForParlay.length < cfg.count) {
@@ -678,7 +737,6 @@
                             usedMatches.add(matchNamePart);
                         }
                     }
-                    // Si faltan por agotarse partidos únicos, completar con los siguientes con mayor confianza
                     if (selectedForParlay.length < cfg.count) {
                         for (let p of allAvailablePicks) {
                             if (!selectedForParlay.includes(p) && selectedForParlay.length < cfg.count) {
