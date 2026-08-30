@@ -1,0 +1,128 @@
+{
+  "DAILY_ARCHIVE": {
+    "date": "30 de Agosto de 2026",
+    "notes": "Simulación Monte Carlo activa (50,000 iteraciones por encuentro integrando FIP, bullpen y fatiga).",
+    "top_picks": [
+      "Pittsburgh Pirates - Moneyline / F5",
+      "Philadelphia Phillies - F5 / No Extra Innings",
+      "Houston Astros - F5 / Run Line -1.5",
+      "Atlanta Braves - F5 / No Extra Innings"
+    ]
+  },
+  "team_logos": {
+    "Miami Marlins": "https://a.espncdn.com/i/teamlogos/mlb/500/mia.png",
+    "Washington Nationals": "https://a.espncdn.com/i/teamlogos/mlb/500/wsh.png",
+    "Boston Red Sox": "https://a.espncdn.com/i/teamlogos/mlb/500/bos.png",
+    "New York Yankees": "https://a.espncdn.com/i/teamlogos/mlb/500/nyy.png",
+    "Colorado Rockies": "https://a.espncdn.com/i/teamlogos/mlb/500/col.png",
+    "Atlanta Braves": "https://a.espncdn.com/i/teamlogos/mlb/500/atl.png",
+    "Seattle Mariners": "https://a.espncdn.com/i/teamlogos/mlb/500/sea.png",
+    "Toronto Blue Jays": "https://a.espncdn.com/i/teamlogos/mlb/500/tor.png",
+    "Kansas City Royals": "https://a.espncdn.com/i/teamlogos/mlb/500/kc.png",
+    "Cleveland Guardians": "https://a.espncdn.com/i/teamlogos/mlb/500/cle.png",
+    "Los Angeles Dodgers": "https://a.espncdn.com/i/teamlogos/mlb/500/lad.png",
+    "Detroit Tigers": "https://a.espncdn.com/i/teamlogos/mlb/500/det.png",
+    "San Diego Padres": "https://a.espncdn.com/i/teamlogos/mlb/500/sd.png",
+    "Tampa Bay Rays": "https://a.espncdn.com/i/teamlogos/mlb/500/tb.png",
+    "Texas Rangers": "https://a.espncdn.com/i/teamlogos/mlb/500/tex.png",
+    "Milwaukee Brewers": "https://a.espncdn.com/i/teamlogos/mlb/500/mil.png",
+    "Chicago White Sox": "https://a.espncdn.com/i/teamlogos/mlb/500/chw.png",
+    "Minnesota Twins": "https://a.espncdn.com/i/teamlogos/mlb/500/min.png",
+    "Pittsburgh Pirates": "https://a.espncdn.com/i/teamlogos/mlb/500/pit.png",
+    "St. Louis Cardinals": "https://a.espncdn.com/i/teamlogos/mlb/500/stl.png",
+    "Houston Astros": "https://a.espncdn.com/i/teamlogos/mlb/500/hou.png",
+    "New York Mets": "https://a.espncdn.com/i/teamlogos/mlb/500/nym.png",
+    "Baltimore Orioles": "https://a.espncdn.com/i/teamlogos/mlb/500/bal.png",
+    "Oakland Athletics": "https://a.espncdn.com/i/teamlogos/mlb/500/oak.png",
+    "Philadelphia Phillies": "https://a.espncdn.com/i/teamlogos/mlb/500/phi.png",
+    "Los Angeles Angels": "https://a.espncdn.com/i/teamlogos/mlb/500/laa.png",
+    "Cincinnati Reds": "https://a.espncdn.com/i/teamlogos/mlb/500/cin.png",
+    "Chicago Cubs": "https://a.espncdn.com/i/teamlogos/mlb/500/chc.png"
+  },
+  "matches": [
+    {
+      "away": "Miami Marlins", "home": "Washington Nationals",
+      "starter_away": "J. Junk (4.21 ERA / 4.05 FIP)", "starter_home": "A. Alvarez (3.72 ERA / 3.90 FIP)",
+      "over_under_prob": "Alta (Over 8.5) - 54%", "runline_away": "Marlins +1.5 (61%)", "runline_home": "Nationals -1.5 (39%)",
+      "value_bet": "F5: Washington Nationals | Bullpen local con descanso óptimo"
+    },
+    {
+      "away": "Boston Red Sox", "home": "New York Yankees",
+      "starter_away": "R. Suarez (3.35 ERA / 3.12 FIP)", "starter_home": "W. Warren (4.39 ERA / 4.80 FIP)",
+      "over_under_prob": "Alta (Over 9.5) - 58%", "runline_away": "Red Sox -1.5 (45%)", "runline_home": "Yankees +1.5 (55%)",
+      "value_bet": "Alta (Over 9.5) | FIP relevo Yankees > 4.50 (Fatigado)"
+    },
+    {
+      "away": "Colorado Rockies", "home": "Atlanta Braves",
+      "starter_away": "M. Adams (2.25 ERA / 2.80 FIP)", "starter_home": "T. Mahle (1.52 ERA / 1.70 FIP)",
+      "over_under_prob": "Baja (Under 8.5) - 52%", "runline_away": "Rockies +1.5 (48%)", "runline_home": "Braves -1.5 (52%)",
+      "value_bet": "F5: Atlanta Braves -0.5 | Ventaja wRC+ local vs diestros"
+    },
+    {
+      "away": "Seattle Mariners", "home": "Toronto Blue Jays",
+      "starter_away": "Logan Gilbert (3.36 ERA / 3.20 FIP)", "starter_home": "Max Scherzer (7.02 ERA / 6.50 FIP)",
+      "over_under_prob": "Alta (Over 8.0) - 55%", "runline_away": "Mariners +1.5 (56%)", "runline_home": "Blue Jays -1.5 (44%)",
+      "value_bet": "Moneyline Toronto | Alerta Platoon favorable en ofensiva"
+    },
+    {
+      "away": "Kansas City Royals", "home": "Cleveland Guardians",
+      "starter_away": "S. Lugo (4.61 ERA / 4.40 FIP)", "starter_home": "P. Messick (2.50 ERA / 2.35 FIP)",
+      "over_under_prob": "Baja (Under 7.5) - 57%", "runline_away": "Royals +1.5 (59%)", "runline_home": "Guardians -1.5 (41%)",
+      "value_bet": "Baja (Under 7.5) | Top Bullpen de la liga en Cleveland"
+    },
+    {
+      "away": "Los Angeles Dodgers", "home": "Detroit Tigers",
+      "starter_away": "Tyler Glasnow (3.02 ERA / 2.65 FIP)", "starter_home": "Framber Valdez (4.35 ERA / 4.10 FIP)",
+      "over_under_prob": "Baja (Under 8.0) - 53%", "runline_away": "Dodgers -1.5 (51%)", "runline_home": "Tigers +1.5 (49%)",
+      "value_bet": "F5: Los Angeles Dodgers | Élite K/9 abridor visitante"
+    },
+    {
+      "away": "San Diego Padres", "home": "Tampa Bay Rays",
+      "starter_away": "R. Ray (3.98 ERA / 3.80 FIP)", "starter_home": "D. Rasmussen (2.95 ERA / 3.10 FIP)",
+      "over_under_prob": "Baja (Under 7.5) - 56%", "runline_away": "Padres +1.5 (63%)", "runline_home": "Rays -1.5 (37%)",
+      "value_bet": "Baja (Under 7.5) | Duelo de abridores con bajo WHIP"
+    },
+    {
+      "away": "Texas Rangers", "home": "Milwaukee Brewers",
+      "starter_away": "K. Rocker (4.41 ERA / 4.55 FIP)", "starter_home": "D. May (4.38 ERA / 4.20 FIP)",
+      "over_under_prob": "Alta (Over 9.0) - 52%", "runline_away": "Rangers +1.5 (60%)", "runline_home": "Brewers -1.5 (40%)",
+      "value_bet": "Alta (Over 9.0) | FIP elevado en ambos abridores"
+    },
+    {
+      "away": "Chicago White Sox", "home": "Minnesota Twins",
+      "starter_away": "A. Kay (4.09 ERA / 4.15 FIP)", "starter_home": "Z. Matthews (4.86 ERA / 4.90 FIP)",
+      "over_under_prob": "Alta (Over 8.5) - 54%", "runline_away": "White Sox +1.5 (64%)", "runline_home": "Twins -1.5 (36%)",
+      "value_bet": "Live: Entrar con Minnesota si White Sox rompe el cero"
+    },
+    {
+      "away": "Pittsburgh Pirates", "home": "St. Louis Cardinals",
+      "starter_away": "B. Ashcraft (3.59 ERA / 3.40 FIP)", "starter_home": "M. Liberatore (5.44 ERA / 5.20 FIP)",
+      "over_under_prob": "Alta (Over 8.5) - 51%", "runline_away": "Pirates -1.5 (54%)", "runline_home": "Cardinals +1.5 (46%)",
+      "value_bet": "Moneyline Pittsburgh Pirates | Desventaja masiva de FIP en local"
+    },
+    {
+      "away": "Houston Astros", "home": "New York Mets",
+      "starter_away": "Zach Thornton (2.88 ERA / 2.95 FIP)", "starter_home": "E. Pecko (7.88 ERA / 7.20 FIP)",
+      "over_under_prob": "Alta (Over 8.5) - 55%", "runline_away": "Astros -1.5 (56%)", "runline_home": "Mets +1.5 (44%)",
+      "value_bet": "F5: Houston Astros | Brecha abridor inexperto"
+    },
+    {
+      "away": "Baltimore Orioles", "home": "Oakland Athletics",
+      "starter_away": "C. Bassitt (4.74 ERA / 4.50 FIP)", "starter_home": "J. Springs (6.08 ERA / 5.80 FIP)",
+      "over_under_prob": "Alta (Over 9.5) - 58%", "runline_away": "Orioles -1.5 (52%)", "runline_home": "Athletics +1.5 (48%)",
+      "value_bet": "Alta (Over 9.5) | wRC+ ofensivo superior en Baltimore"
+    },
+    {
+      "away": "Philadelphia Phillies", "home": "Los Angeles Angels",
+      "starter_away": "Z. Wheeler (3.40 ERA / 3.10 FIP)", "starter_home": "Y. Kikuchi (6.25 ERA / 5.90 FIP)",
+      "over_under_prob": "Baja (Over 8.5) - 54%", "runline_away": "Phillies -1.5 (58%)", "runline_home": "Angels +1.5 (42%)",
+      "value_bet": "F5: Philadelphia Phillies | Dominio absoluto de Wheeler (FIP < 3.20)"
+    },
+    {
+      "away": "Cincinnati Reds", "home": "Chicago Cubs",
+      "starter_away": "C. Burns (2.77 ERA / 2.60 FIP)", "starter_home": "S. Imanaga (3.78 ERA / 3.65 FIP)",
+      "over_under_prob": "Baja (Under 7.5) - 59%", "runline_away": "Reds -1.5 (46%)", "runline_home": "Cubs +1.5 (54%)",
+      "value_bet": "Baja (Under 7.5) | Duelo de ases con FIP de élite"
+    }
+  ]
+}
