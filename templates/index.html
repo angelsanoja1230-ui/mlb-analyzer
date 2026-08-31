@@ -34,13 +34,25 @@
                     <!-- Teams & Logos -->
                     <div class="flex justify-between items-center mb-6">
                         <div class="flex items-center gap-3 w-1/2">
-                            <img src="{{ team_logos.get(match.away, '') }}" alt="{{ match.away }}" class="w-10 h-10 object-contain">
+                            {% if team_logos.get(match.away) %}
+                            <img src="{{ team_logos.get(match.away) }}" alt="{{ match.away }}" class="w-10 h-10 object-contain">
+                            {% else %}
+                            <div class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-xs text-emerald-400">
+                                {{ match.away[:3].upper() }}
+                            </div>
+                            {% endif %}
                             <span class="font-bold text-lg truncate">{{ match.away }} <span class="text-xs text-slate-500">(Visitor)</span></span>
                         </div>
                         <span class="text-slate-500 font-bold px-2">VS</span>
                         <div class="flex items-center gap-3 w-1/2 justify-end text-right">
                             <span class="font-bold text-lg truncate"><span class="text-xs text-slate-500">(Home)</span> {{ match.home }}</span>
-                            <img src="{{ team_logos.get(match.home, '') }}" alt="{{ match.home }}" class="w-10 h-10 object-contain">
+                            {% if team_logos.get(match.home) %}
+                            <img src="{{ team_logos.get(match.home) }}" alt="{{ match.home }}" class="w-10 h-10 object-contain">
+                            {% else %}
+                            <div class="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-xs text-blue-400">
+                                {{ match.home[:3].upper() }}
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
 
