@@ -1030,3 +1030,26 @@ if (originalRender) {
         setTimeout(forceThreeColumnLayout, 100);
     };
 }
+// Auditor de emergencia para forzar el contenedor principal y las tarjetas
+window.addEventListener('load', () => {
+    console.log("--- AUDITORÍA DE GRID MLB ORÁCULO ---");
+    
+    // 1. Ampliar el contenedor general de las pestañas para que tenga espacio real para 3 columnas
+    document.querySelectorAll('.tab-content, .container, main, body').forEach(parent => {
+        parent.style.setProperty('max-width', '100%', 'important');
+        parent.style.setProperty('width', '100%', 'important');
+    });
+
+    // 2. Forzar los grids
+    const grids = document.querySelectorAll('.matches-grid, #trends-list-container, #matches-cards-container');
+    console.log("Grids encontrados:", grids.length);
+
+    grids.forEach(grid => {
+        grid.style.cssText = "display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 20px !important; width: 100% !important; max-width: 100% !important;";
+        
+        // Forzar tarjetas hijas
+        Array.from(grid.children).forEach(card => {
+            card.style.cssText = "width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;";
+        });
+    });
+});
