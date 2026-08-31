@@ -2,75 +2,60 @@ import requests
 from datetime import datetime
 
 def fetch_mlb_today_games():
-    # Usamos la API pública de ESPN para el scoreboard de la MLB, que es mucho más estable y robusta
-    url = "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
+    today = datetime.now().strftime('%Y-%m-%d')
+    url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&hydrate=probablePitcher"
+    
+    # Cabeceras estilo navegador para evitar bloqueos
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json"
+    }
     
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, headers=headers, timeout=5)
         if response.status_code == 200:
             data = response.json()
             games = []
             
-            for event in data.get('events', []):
-                competition = event.get('competitions', [{}])[0]
-                
-                # Equipos (Local y Visitante)
-                competitors = competition.get('competitors', [])
-                away_team = "Visitor"
-                home_team = "Home"
-                starter_away = "Por anunciar"
-                starter_home = "Por anunciar"
-                
-                for comp in competitors:
-                    team_name = comp.get('team', {}).get('displayName', 'Equipo')
-                    is_home = comp.get('homeAway') == 'home'
+            for date_info in data.get('dates', []):
+                for idx, game in enumerate(date_info.get('games', []), start=1):
+                    teams = game.get('teams', {})
+                    away_team = teams.get('away', {}).get('team', {}).get('name', 'Visitante')
+                    home_team = teams.get('home', {}).get('team', {}).get('name', 'Local')
                     
-                    if is_home:
-                        home_team = team_name
-                    else:
-                        away_team = team_name
-                        
-                    # Extraer pitchers probables si vienen en la respuesta
-                    for probable in comp.get('probables', []):
-                        pitcher_name = probable.get('athlete', {}).get('fullName')
-                        if pitcher_name:
-                            if is_home:
-                                starter_home = pitcher_name
-                            else:
-                                starter_away = pitcher_name
-                
-                # Hora del partido
-                date_str = event.get('date', '')
-                time_str = "Por definir"
-                if date_str:
-                    dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-                    time_str = dt.strftime('%I:%M %p')
+                    starter_away = teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar')
+                    starter_home = teams.get('home', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar')
                     
-                # Estadio
-                venue = competition.get('venue', {}).get('fullName', 'Estadio MLB')
-                
-                games.append({
-                    'id': event.get('id', 1),
-                    'time': time_str,
-                    'stadium': venue,
-                    'away': away_team,
-                    'home': home_team,
-                    'starter_away': starter_away,
-                    'starter_home': starter_home,
-                    'prob_away': 50,
-                    'prob_home': 50,
-                    'f5_away': 50,
-                    'f5_home': 50,
-                    'over_under_prob': 'Over 8.5',
-                    'runline_away': '-1.5',
-                    'runline_home': '+1.5',
-                    'value_bet': 'Pendiente de análisis'
-                })
-            
-            if games:
-                return games
-                
+                    game_date_str = game.get('gameDate', '')
+                    time_str = "Por definir"
+                    if game_date_str:
+                        try:
+                            dt = datetime.fromisoformat(game_date_str.replace('Z', '+00:00'))
+                            time_str = dt.strftime('%I:%M %p')
+                        except:
+                            pass
+                            
+                    stadium = game.get('venue', {}).get('name', 'Estadio MLB')
+                    
+                    games.append({
+                        'id': game.get('gamePk', idx),
+                        'time': time_str,
+                        'stadium': stadium,
+                        'away': away_team,
+                        'home': home_team,
+                        'starter_away': starter_away,
+                        'starter_home': starter_home,
+                        'prob_away': 50,
+                        'prob_home': 50,
+                        'f5_away': 50,
+                        'f5_home': 50,
+                        'over_under_prob': 'Over 8.5',
+                        'runline_away': '-1.5',
+                        'runline_home': '+1.5',
+                        'value_bet': 'Pendiente de análisis'
+                    })
+            return games
     except Exception as e:
-        print(f"Error al conectar con la API alternativa: {e}")
+        print(f"Error de conexión: {e}")
         
     return []
