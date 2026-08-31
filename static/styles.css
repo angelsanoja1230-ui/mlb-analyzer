@@ -157,12 +157,26 @@ nav {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.matches-grid, .live-grid {
+/* Cuadrícula estricta de 3 columnas en vertical para partidos y tendencias */
+.matches-grid, .live-grid, #trends-list-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     margin-bottom: 2rem;
-} 
+    width: 100%;
+}
+
+@media (max-width: 1024px) {
+    .matches-grid, .live-grid, #trends-list-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .matches-grid, .live-grid, #trends-list-container {
+        grid-template-columns: 1fr;
+    }
+}
 
 .match-card, .live-card, .trend-card, .auto-parlay-card {
     background: var(--bg-surface);
@@ -393,7 +407,18 @@ select:focus, input[type="text"]:focus {
     border-radius: var(--radius-md);
     margin-bottom: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.03);
+    flex-direction: row !important;
+    gap: 1rem;
+}
+
+.live-scorebox > div,
+.live-team-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 0.5rem;
+    flex: 1;
+    text-align: center;
 }
 
 .live-situational-info {
@@ -629,22 +654,4 @@ select:focus, input[type="text"]:focus {
     border-radius: var(--radius-sm);
     border-left: 3px solid var(--accent);
     font-weight: 600;
-}
-/* Corrección para que los marcadores en vivo queden lado a lado */
-.live-scorebox {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row !important;
-    gap: 1rem;
-}
-
-.live-scorebox > div,
-.live-team-score {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    flex: 1;
-    text-align: center;
 }
