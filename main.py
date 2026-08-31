@@ -60,13 +60,13 @@ def advanced_simulate_game(game_data):
     f5_home_prob = 50
     if home_is_ace: f5_home_prob += 12
     if away_is_ace: f5_home_prob -= 12
-    f5_home_prob += ((game_id * 7) % 15) - 7 
+    f5_home_prob += ((int(game_id) * 7) % 15) - 7 
     f5_home_prob = max(30, min(70, f5_home_prob))
     f5_away_prob = 100 - f5_home_prob
     winner_f5 = home if f5_home_prob >= 50 else away
 
     full_home_prob = f5_home_prob + 2  
-    bullpen_variance = ((game_id * 13) % 20) - 10  
+    bullpen_variance = ((int(game_id) * 13) % 20) - 10  
     full_home_prob += bullpen_variance
     full_home_prob = max(32, min(68, full_home_prob))
     full_away_prob = 100 - full_home_prob
@@ -107,34 +107,39 @@ def advanced_simulate_game(game_data):
 def generate_parley_system(games):
     all_bets = []
     for g in games:
-        home = g['home']
-        away = g['away']
-        prob_home = g['prob_home']
-        prob_away = g['prob_away']
-        f5_home = g['f5_home']
-        f5_away = g['f5_away']
+        home = g.get('home', 'Local')
+        away = g.get('away', 'Visitante')
+        prob_home = g.get('prob_home', 50)
+        prob_away = g.get('prob_away', 50)
+        f5_home = g.get('f5_home', 50)
+        f5_away = g.get('f5_away', 50)
+        stadium = g.get('stadium', 'Estadio')
+        run_line = g.get('run_line', 'Protegido')
+        over_under = g.get('over_under', 'Alta (Over 8.5)')
         
         if prob_home >= 50:
-            all_bets.append({'game': f"{away} vs {home}", 'pick': f"Ganador J.C.: {home}", 'confidence': prob_home, 'stadium': g['stadium']})
+            all_bets.append({'game': f"{away} vs {home}", 'pick': f"Ganador J.C.: {home}", 'confidence': prob_home, 'stadium': stadium})
         else:
-            all_bets.append({'game': f"{away} vs {home}", 'pick': f"Ganador J.C.: {away}", 'confidence': prob_away, 'stadium': g['stadium']})
+            all_bets.append({'game': f"{away} vs {home}", 'pick': f"Ganador J.C.: {away}", 'confidence': prob_away, 'stadium': stadium})
             
         if f5_home >= 50:
-            all_bets.append({'game': f"{away} vs {home}", 'pick': f"1ra Mitad (F5): {home}", 'confidence': f5_home, 'stadium': g['stadium']})
+            all_bets.append({'game': f"{away} vs {home}", 'pick': f"1ra Mitad (F5): {home}", 'confidence': f5_home, 'stadium': stadium})
         else:
-            all_bets.append({'game': f"{away} vs {home}", 'pick': f"1ra Mitad (F5): {away}", 'confidence': f5_away, 'stadium': g['stadium']})
+            all_bets.append({'game': f"{away} vs {home}", 'pick': f"1ra Mitad (F5): {away}", 'confidence': f5_away, 'stadium': stadium})
 
-        all_bets.append({'game': f"{away} vs {home}", 'pick': f"Run Line: {g['run_line']}", 'confidence': round(random.uniform(60.0, 78.0), 1), 'stadium': g['stadium']})
+        all_bets.append({'game': f"{away} vs {home}", 'pick': f"Run Line: {run_line}", 'confidence': round(random.uniform(60.0, 78.0), 1), 'stadium': stadium})
 
+        ou_parts = over_under.split('(')
+        ou_val = ou_parts[-1] if len(ou_parts) > 1 else "Over 8.5)"
         ou_variations = [
-            f"Alta ({g['over_under'].split('(')[-1]}",
-            f"Baja ({g['over_under'].split('(')[-1]}",
+            f"Alta ({ou_val}",
+            f"Baja ({ou_val}",
             "Alta (Over 8.5)",
             "Baja (Under 8.5)",
             "Alta (Over 9.5)"
         ]
         chosen_ou = random.choice(ou_variations)
-        all_bets.append({'game': f"{away} vs {home}", 'pick': f"O/U: {chosen_ou}", 'confidence': round(random.uniform(62.0, 76.0), 1), 'stadium': g['stadium']})
+        all_bets.append({'game': f"{away} vs {home}", 'pick': f"O/U: {chosen_ou}", 'confidence': round(random.uniform(62.0, 76.0), 1), 'stadium': stadium})
 
     sorted_bets_for_lock = sorted(all_bets, key=lambda x: x['confidence'], reverse=True)
     jugada_del_dia = sorted_bets_for_lock[0] if sorted_bets_for_lock else None
@@ -179,14 +184,14 @@ def fetch_mlb_today_games():
     
     games = []
     try:
-        response = requests.get(url, headers=headers, timeout=3)
+        response = requests.get(url, headers=headers, timeout=4)
         if response.status_code == 200:
             data = response.json()
             for date_info in data.get('dates', []):
                 for idx, game in enumerate(date_info.get('games', []), start=1):
-                    teams = game.get('teams', {})
-                    away_team_obj = teams.get('away', {}).get('team', {})
-                    home_team_obj = teams.get('home', {}).get('team', {})
+                    teams = game.get('teams', {}) or {}
+                    away_team_obj = teams.get('away', {}).get('team', {}) or {}
+                    home_team_obj = teams.get('home', {}).get('team', {}) or {}
                     
                     away_team = away_team_obj.get('name', 'Visitante')
                     home_team = home_team_obj.get('name', 'Local')
@@ -207,25 +212,25 @@ def fetch_mlb_today_games():
                             
                     stadium = game.get('venue', {}).get('name', 'Estadio MLB')
                     
-                    # Datos en vivo extraídos de la API (Linescore & Status)
-                    status_obj = game.get('status', {})
+                    status_obj = game.get('status', {}) or {}
                     abstract_state = status_obj.get('abstractGameState', 'Preview')
                     detailed_state = status_obj.get('detailedState', 'Programado')
                     
-                    linescore = game.get('linescore', {})
+                    linescore = game.get('linescore', {}) or {}
                     current_inning = linescore.get('currentInning', 0)
-                    inning_state = linescore.get('inningState', '') # Top, Bottom, Middle, End
+                    inning_state = linescore.get('inningState', '') or ''
                     outs = linescore.get('outs', 0)
                     
-                    ls_teams = linescore.get('teams', {})
+                    ls_teams = linescore.get('teams', {}) or {}
                     away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
                     home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
                     
-                    offense = linescore.get('offense', {})
+                    offense = linescore.get('offense', {}) or {}
                     has_1b = offense.get('first') is not None
                     has_2b = offense.get('second') is not None
                     has_3b = offense.get('third') is not None
-                    batter_name = offense.get('batter', {}).get('fullName', 'N/D')
+                    batter_obj = offense.get('batter', {}) or {}
+                    batter_name = batter_obj.get('fullName', 'N/D')
                     
                     game_info = {
                         'id': game.get('gamePk', idx),
@@ -254,7 +259,7 @@ def fetch_mlb_today_games():
                     game_info.update(sim)
                     games.append(game_info)
     except Exception as e:
-        print(f"Aviso: Conexión con API externa omitida o fallida ({e}), usando respaldo.")
+        print(f"Aviso de API: {e}")
         
     if not games:
         games = [
