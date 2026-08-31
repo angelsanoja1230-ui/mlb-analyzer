@@ -3,9 +3,8 @@ import requests
 from datetime import datetime
 
 app = Flask(__name__)
+
 def fetch_mlb_today_games():
-    # Usamos una estructura robusta con respaldo automático por si la API 
-    # no devuelve juegos en este preciso horario (por ejemplo, días de descanso o madrugada).
     today = datetime.now().strftime('%Y-%m-%d')
     url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&hydrate=probablePitcher"
     
@@ -26,7 +25,6 @@ def fetch_mlb_today_games():
                     away_team = teams.get('away', {}).get('team', {}).get('name', 'Visitante')
                     home_team = teams.get('home', {}).get('team', {}).get('name', 'Local')
                     
-                    # Extracción segura de pitchers abridores
                     starter_away = teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar')
                     starter_home = teams.get('home', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar')
                     
@@ -65,7 +63,6 @@ def fetch_mlb_today_games():
     except Exception as e:
         print(f"Error en la consulta: {e}")
         
-    # Datos de respaldo o simulación activa por si la API oficial está en blanco hoy (ej. lunes sin partidos o madrugada)
     return [
         {
             'id': 101,
@@ -119,6 +116,7 @@ def fetch_mlb_today_games():
             'value_bet': 'Over 8.0'
         }
     ]
+
 @app.route('/')
 def index():
     games = fetch_mlb_today_games()
