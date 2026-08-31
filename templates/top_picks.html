@@ -1,0 +1,10 @@
+<section class="mb-12 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+    <h2 class="text-xl font-bold text-amber-400 mb-4 flex items-center gap-2">⭐ Top Picks del Día</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {% for pick in DAILY_ARCHIVE.get('top_picks', []) %}
+        <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4 text-center font-medium text-slate-200">
+            {{ pick }}
+        </div>
+        {% endfor %}
+    </div>
+</section>
