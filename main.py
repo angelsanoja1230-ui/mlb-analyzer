@@ -4,11 +4,33 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+def get_team_abbreviation(team_name):
+    """Mapea nombres de equipos de la MLB a códigos estándar para logotipos."""
+    mapping = {
+        'New York Yankees': 'nyy',
+        'Boston Red Sox': 'bos',
+        'Los Angeles Dodgers': 'lad',
+        'San Francisco Giants': 'sf',
+        'Arizona Diamondbacks': 'ari',
+        'San Diego Padres': 'sd',
+        'Houston Astros': 'hou',
+        'Atlanta Braves': 'atl',
+        'Chicago Cubs': 'chc',
+        'New York Mets': 'nym',
+        'Philadelphia Phillies': 'phi',
+        'Baltimore Orioles': 'bal',
+        'Toronto Blue Jays': 'tor',
+        'Tampa Bay Rays': 'tb',
+        'Minnesota Twins': 'min',
+        'Cleveland Guardians': 'cle',
+        'Seattle Mariners': 'sea',
+        'Texas Rangers': 'tex',
+        'St. Louis Cardinals': 'stl',
+        'Milwaukee Brewers': 'mil'
+    }
+    return mapping.get(team_name, 'mlb')
+
 def advanced_simulate_game(game_data):
-    """
-    Motor de simulación avanzada con lógica separada para F5 (Abridores) 
-    y Juego Completo (Bullpen y Localía), evitando resultados idénticos automáticos.
-    """
     home = game_data.get('home', 'Local')
     away = game_data.get('away', 'Visitante')
     starter_home = game_data.get('starter_home', 'Por anunciar')
@@ -16,31 +38,26 @@ def advanced_simulate_game(game_data):
     stadium = game_data.get('stadium', 'Estadio MLB')
     game_id = game_data.get('id', 100)
 
-    # Lista de lanzadores de élite
     aces = ['G. Cole', 'L. Webb', 'Z. Gallen', 'Y. Yamamoto', 'Corbin Burnes', 'Spencer Strider', 'S. Bieber', 'Z. Wheeler', 'P. Corbin']
     
     home_is_ace = any(ace.lower() in starter_home.lower() for ace in aces)
     away_is_ace = any(ace.lower() in starter_away.lower() for ace in aces)
 
-    # 1. Simulación F5 (Primeros 5 Innings) - Enfocada puramente en los Abridores
     f5_home_prob = 50
     if home_is_ace: f5_home_prob += 12
     if away_is_ace: f5_home_prob -= 12
-    # Variación controlada por ID para dar dinamismo único a cada juego
     f5_home_prob += ((game_id * 7) % 15) - 7 
     f5_home_prob = max(30, min(70, f5_home_prob))
     f5_away_prob = 100 - f5_home_prob
     winner_f5 = home if f5_home_prob >= 50 else away
 
-    # 2. Simulación Juego Completo - Añade factor Bullpen y Localía (diferente al F5)
-    full_home_prob = f5_home_prob + 2  # Leve ventaja histórica de localía
-    bullpen_variance = ((game_id * 13) % 20) - 10  # Factor diferencial de relevo y cierre
+    full_home_prob = f5_home_prob + 2  
+    bullpen_variance = ((game_id * 13) % 20) - 10  
     full_home_prob += bullpen_variance
     full_home_prob = max(32, min(68, full_home_prob))
     full_away_prob = 100 - full_home_prob
     winner_full = home if full_home_prob >= 50 else away
 
-    # 3. Lógica equilibrada para Altas y Bajas (O/U)
     stadium_lower = stadium.lower()
     if 'coors' in stadium_lower:
         over_under = "Alta (Over 10.5) - Factor Coors Field"
@@ -58,12 +75,15 @@ def advanced_simulate_game(game_data):
         ]
         over_under = options[game_id % len(options)]
 
-    # 4. Run Line dinámico
     margin = abs(full_home_prob - 50)
     if margin > 8:
         run_line = f"{winner_full} -1.5"
     else:
         run_line = f"{away if winner_full == home else home} +1.5 (Protegido)"
+
+    # URLs de logotipos oficiales vía CDN deportivo
+    away_code = get_team_abbreviation(away)
+    home_code = get_team_abbreviation(home)
 
     return {
         'prob_home': full_home_prob,
@@ -74,6 +94,8 @@ def advanced_simulate_game(game_data):
         'winner_f5': winner_f5,
         'over_under': over_under,
         'run_line': run_line,
+        'logo_away': f"https://a.espncdn.com/i/teamlogos/mlb/50/{away_code}.png",
+        'logo_home': f"https://a.espncdn.com/i/teamlogos/mlb/50/{home_code}.png",
         'value_index': f"{max(full_home_prob, full_away_prob)}% Confianza"
     }
 
@@ -130,7 +152,6 @@ def fetch_mlb_today_games():
     if games:
         return games
         
-    # Datos de respaldo con variedad analítica
     fallback_games = [
         {
             'id': 101,
