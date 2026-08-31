@@ -48,21 +48,6 @@ const MLB_TEAMS = {
     "Chicago Cubs": { code: "CHC", primary: "#0E3386", secondary: "#CC3433" }
 };
 
-function getSavedAuditRecords() {
-    const stored = localStorage.getItem('oraculo_mlb_audit');
-    if (stored) {
-        return JSON.parse(stored);
-    }
-    return [
-        { id: 101, date: "2026-08-29", match: "New York Yankees vs Boston Red Sox", selection: "Yankees ML (-1.5)", prob: "68.5%", result: "Yankees 6 - 3 Red Sox", status: "ACERTADO" },
-        { id: 102, date: "2026-08-29", match: "Los Angeles Dodgers vs Arizona Diamondbacks", selection: "Dodgers Over 8.5", prob: "71.2%", result: "Dodgers 4 - 2 Diamondbacks", status: "FALLADO" }
-    ];
-}
-
-function saveAuditRecords(records) {
-    localStorage.setItem('oraculo_mlb_audit', JSON.stringify(records));
-}
-
 function getTeamBadgeHTML(teamName, small = false) {
     let teamData = MLB_TEAMS[teamName] || { code: teamName ? teamName.substring(0, 3).toUpperCase() : "MLB", primary: "#1e293b", secondary: "#38bdf8" };
     let size = small ? '40px' : '52px';
@@ -83,24 +68,77 @@ function switchTab(tab) {
 
         if (t === tab) {
             el.classList.remove('hidden');
-            if (t === 'parley') {
-                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 transform hover:scale-105";
-            } else if (t === 'live') {
-                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:scale-105";
-            } else {
-                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:scale-105";
-            }
+            btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:scale-105";
         } else {
             el.classList.add('hidden');
-            if (t === 'parley') {
-                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-amber-400 hover:text-amber-300 border border-amber-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-amber-500/60 shadow-lg shadow-amber-500/10";
-            } else if (t === 'live') {
-                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-emerald-500/60 shadow-lg shadow-emerald-500/10";
-            } else {
-                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-slate-400 hover:text-slate-100 border border-slate-800/80 transition-all flex items-center gap-2 backdrop-blur-md hover:border-slate-700";
-            }
+            btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-slate-400 hover:text-slate-100 border border-slate-800/80 transition-all flex items-center gap-2 backdrop-blur-md hover:border-slate-700";
         }
     });
+}
+
+function renderMatches() {
+    const container = document.getElementById('games-container');
+    if (!container) return;
+
+    let html = '';
+    BASE_MATCHES.forEach(game => {
+        html += `
+        <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-xl hover:border-slate-700 transition-all flex flex-col justify-between gap-6">
+            <div class="flex justify-between items-center border-b border-slate-800/80 pb-4">
+                <div class="flex items-center gap-3">
+                    <span class="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">Valor: ${game.value_index}</span>
+                    <span class="text-xs text-slate-400">🕒 ${game.time}</span>
+                </div>
+                <span class="text-xs text-slate-400">🏟️ ${game.stadium}</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                <div class="flex items-center gap-4 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60">
+                    ${getTeamBadgeHTML(game.away)}
+                    <div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Visitante</span>
+                        <h3 class="text-base font-black text-white">${game.away}</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Pitcher: <span class="text-slate-200 font-medium">${game.starter_away}</span> (${game.pitcher_metrics_away})</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60">
+                    ${getTeamBadgeHTML(game.home)}
+                    <div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Local</span>
+                        <h3 class="text-base font-black text-white">${game.home}</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Pitcher: <span class="text-slate-200 font-medium">${game.starter_home}</span> (${game.pitcher_metrics_home})</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950/60 p-4 rounded-2xl border border-slate-800 text-xs text-center">
+                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                    <span class="text-slate-500 text-[10px] block mb-0.5">PROBABILIDAD</span>
+                    <strong class="text-cyan-400">${game.prob_away}%</strong> vs <strong class="text-emerald-400">${game.prob_home}%</strong>
+                </div>
+                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                    <span class="text-slate-500 text-[10px] block mb-0.5">CARRERAS PROY.</span>
+                    <strong class="text-slate-200">${game.projected_score_away} - ${game.projected_score_home}</strong>
+                </div>
+                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                    <span class="text-slate-500 text-[10px] block mb-0.5">GANADOR (FULL)</span>
+                    <strong class="text-emerald-400 truncate block">${game.winner_full}</strong>
+                </div>
+                <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                    <span class="text-slate-500 text-[10px] block mb-0.5">TOTAL (O/U)</span>
+                    <strong class="text-cyan-300 truncate block">${game.over_under}</strong>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick='openDeepDive(${JSON.stringify(game)})' class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2">
+                    📊 Ver Análisis Completo y Métricas
+                </button>
+            </div>
+        </div>`;
+    });
+    container.innerHTML = html;
 }
 
 function openDeepDive(gameJson) {
@@ -116,6 +154,7 @@ function openDeepDive(gameJson) {
                 <h2 class="text-xl font-black text-white mt-2">${gameJson.away} vs ${gameJson.home}</h2>
                 <p class="text-xs text-slate-400 mt-1">🕒 ${gameJson.time || 'Horario por confirmar'} | 🏟️ ${gameJson.stadium || 'Estadio Principal'}</p>
             </div>
+            <button onclick="closeDeepDive()" class="text-slate-400 hover:text-white text-lg font-bold p-2">✕</button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
@@ -258,5 +297,10 @@ window.addEventListener('click', function(event) {
     }
 });
 
-fetchLiveMatchesIndependent();
+// Inicializar al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    renderMatches();
+    fetchLiveMatchesIndependent();
+});
+
 setInterval(fetchLiveMatchesIndependent, 30000);
