@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oráculo MLB 2026</title>
+    <title>Oráculo MLB</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
-        <header class="mb-10 text-center border-b border-slate-800 pb-6">
+        <!-- Cabecera principal -->
+        <header class="mb-6 text-center border-b border-slate-800 pb-6">
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
                 🔮 Oráculo MLB
             </h1>
@@ -19,41 +20,84 @@
             </div>
         </header>
 
-        <main class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for game in matches %}
-                <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between gap-4">
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                                {{ game.time }}
-                            </span>
-                            <span class="text-xs text-slate-400 truncate max-w-[150px]">
-                                🏟️ {{ game.stadium }}
-                            </span>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-100 mt-2">
-                            {{ game.away }} <span class="text-slate-500 text-sm font-normal">vs</span> {{ game.home }}
-                        </h3>
-                        <p class="text-xs text-slate-400">
-                            Abridores: <strong class="text-slate-300">{{ game.starter_away }}</strong> vs <strong class="text-slate-300">{{ game.starter_home }}</strong>
-                        </p>
-                    </div>
+        <!-- Sistema de Pestañas -->
+        <nav class="flex justify-center gap-3 mb-8">
+            <button onclick="switchTab('games')" id="btn-games" class="px-5 py-2.5 rounded-xl font-semibold text-sm bg-emerald-500 text-slate-950 shadow-lg transition-all flex items-center gap-2">
+                ⚾ Partidos del Día
+            </button>
+            <button onclick="switchTab('analysis')" id="btn-analysis" class="px-5 py-2.5 rounded-xl font-semibold text-sm bg-slate-900 text-slate-400 hover:text-slate-100 border border-slate-800 transition-all flex items-center gap-2">
+                📊 Simulaciones y Métricas
+            </button>
+        </nav>
 
-                    <div class="border-t border-slate-800 pt-4 mt-2 flex justify-between items-center">
-                        <div>
-                            <span class="text-[10px] uppercase text-slate-400 font-medium block">Apuesta de Valor</span>
-                            <span class="text-sm font-bold text-emerald-400">{{ game.value_bet }}</span>
+        <main>
+            <!-- Pestaña 1: Partidos del Día (Activa por defecto) -->
+            <section id="tab-games" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for game in matches %}
+                    <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between gap-4">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                                    {{ game.time }}
+                                </span>
+                                <span class="text-xs text-slate-400 truncate max-w-[150px]">
+                                    🏟️ {{ game.stadium }}
+                                </span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-100 mt-2">
+                                {{ game.away }} <span class="text-slate-500 text-sm font-normal">vs</span> {{ game.home }}
+                            </h3>
+                            <p class="text-xs text-slate-400">
+                                Abridores: <strong class="text-slate-300">{{ game.starter_away }}</strong> vs <strong class="text-slate-300">{{ game.starter_home }}</strong>
+                            </p>
                         </div>
-                        <div class="text-right">
-                            <span class="text-[10px] uppercase text-slate-400 font-medium block">O/U</span>
-                            <span class="text-xs font-semibold text-slate-200">{{ game.over_under_prob }}</span>
+
+                        <div class="border-t border-slate-800 pt-4 mt-2 flex justify-between items-center">
+                            <div>
+                                <span class="text-[10px] uppercase text-slate-400 font-medium block">Apuesta de Valor</span>
+                                <span class="text-sm font-bold text-emerald-400">{{ game.value_bet }}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] uppercase text-slate-400 font-medium block">O/U</span>
+                                <span class="text-xs font-semibold text-slate-200">{{ game.over_under_prob }}</span>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
+            </section>
+
+            <!-- Pestaña 2: Simulaciones / Análisis (Oculta inicialmente) -->
+            <section id="tab-analysis" class="space-y-6 hidden">
+                <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-8 text-center max-w-xl mx-auto shadow-xl">
+                    <h3 class="text-xl font-bold text-slate-100 mb-2">📊 Panel de Simulación Avanzada</h3>
+                    <p class="text-sm text-slate-400">Aquí podrás configurar los parámetros de simulación y revisar las métricas detalladas de los lanzadores.</p>
+                </div>
+            </section>
         </main>
     </div>
+
+    <!-- Script sencillo para alternar las pestañas de manera fluida -->
+    <script>
+        function switchTab(tab) {
+            const tabGames = document.getElementById('tab-games');
+            const tabAnalysis = document.getElementById('tab-analysis');
+            const btnGames = document.getElementById('btn-games');
+            const btnAnalysis = document.getElementById('btn-analysis');
+
+            if (tab === 'games') {
+                tabGames.classList.remove('hidden');
+                tabAnalysis.classList.add('hidden');
+                btnGames.className = "px-5 py-2.5 rounded-xl font-semibold text-sm bg-emerald-500 text-slate-950 shadow-lg transition-all flex items-center gap-2";
+                btnAnalysis.className = "px-5 py-2.5 rounded-xl font-semibold text-sm bg-slate-900 text-slate-400 hover:text-slate-100 border border-slate-800 transition-all flex items-center gap-2";
+            } else {
+                tabGames.classList.add('hidden');
+                tabAnalysis.classList.remove('hidden');
+                btnAnalysis.className = "px-5 py-2.5 rounded-xl font-semibold text-sm bg-emerald-500 text-slate-950 shadow-lg transition-all flex items-center gap-2";
+                btnGames.className = "px-5 py-2.5 rounded-xl font-semibold text-sm bg-slate-900 text-slate-400 hover:text-slate-100 border border-slate-800 transition-all flex items-center gap-2";
+            }
+        }
+    </script>
 </body>
 </html>
