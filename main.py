@@ -74,20 +74,17 @@ def advanced_simulate_game(game_data):
 
     stadium_lower = stadium.lower()
     if 'coors' in stadium_lower:
-        over_under = "Alta (Over 10.5) - Factor Coors Field"
-    elif home_is_ace and away_is_ace:
-        over_under = "Baja (Under 7.5) - Duelo de Abridores Élites"
-    elif home_is_ace or away_is_ace:
-        over_under = "Baja (Under 8.0)" if game_id % 2 == 0 else "Alta (Over 8.5)"
+        over_under = "Alta (Over 10.5)"
     else:
         options = [
             "Alta (Over 8.5)", 
             "Baja (Under 8.5)", 
             "Alta (Over 9.0)", 
             "Baja (Under 8.0)",
-            "Alta (Over 8.0)"
+            "Alta (Over 7.5)",
+            "Baja (Under 9.5)"
         ]
-        over_under = options[game_id % len(options)]
+        over_under = random.choice(options)
 
     margin = abs(full_home_prob - 50)
     if margin > 8:
@@ -108,11 +105,6 @@ def advanced_simulate_game(game_data):
     }
 
 def generate_parley_system(games):
-    """
-    Generador ampliado que extrae múltiples tipos de apuestas por juego 
-    (Ganadores Moneyline, F5, Run Lines, Totales y Margenes de Victoria) 
-    para armar combinaciones diversas e inteligentes.
-    """
     all_bets = []
     for g in games:
         home = g['home']
@@ -122,96 +114,63 @@ def generate_parley_system(games):
         f5_home = g['f5_home']
         f5_away = g['f5_away']
         
-        # 1. Ganador del Juego Completo (Moneyline)
+        # 1. Ganadores Moneyline
         if prob_home >= 50:
-            all_bets.append({
-                'game': f"{away} vs {home}",
-                'pick': f"Ganador J.C.: {home}",
-                'confidence': prob_home,
-                'stadium': g['stadium']
-            })
+            all_bets.append({'game': f"{away} vs {home}", 'pick': f"Ganador J.C.: {home}", 'confidence': prob_home, 'stadium': g['stadium']})
         else:
-            all_bets.append({
-                'game': f"{away} vs {home}",
-                'pick': f"Ganador J.C.: {away}",
-                'confidence': prob_away,
-                'stadium': g['stadium']
-            })
+            all_bets.append({'game': f"{away} vs {home}", 'pick': f"Ganador J.C.: {away}", 'confidence': prob_away, 'stadium': g['stadium']})
             
-        # 2. Ganador en los Primeros 5 Innings (F5)
+        # 2. Ganadores F5
         if f5_home >= 50:
-            all_bets.append({
-                'game': f"{away} vs {home}",
-                'pick': f"1ra Mitad (F5): {home}",
-                'confidence': f5_home,
-                'stadium': g['stadium']
-            })
+            all_bets.append({'game': f"{away} vs {home}", 'pick': f"1ra Mitad (F5): {home}", 'confidence': f5_home, 'stadium': g['stadium']})
         else:
-            all_bets.append({
-                'game': f"{away} vs {home}",
-                'pick': f"1ra Mitad (F5): {away}",
-                'confidence': f5_away,
-                'stadium': g['stadium']
-            })
+            all_bets.append({'game': f"{away} vs {home}", 'pick': f"1ra Mitad (F5): {away}", 'confidence': f5_away, 'stadium': g['stadium']})
 
         # 3. Run Line
-        all_bets.append({
-            'game': f"{away} vs {home}",
-            'pick': f"Run Line: {g['run_line']}",
-            'confidence': round((prob_home + prob_away) / 2 + 4.5, 1),
-            'stadium': g['stadium']
-        })
+        all_bets.append({'game': f"{away} vs {home}", 'pick': f"Run Line: {g['run_line']}", 'confidence': round(random.uniform(60.0, 78.0), 1), 'stadium': g['stadium']})
 
-        # 4. Totales (Alta / Baja limpia)
-        ou_clean = g['over_under'].split('-')[0].strip()
-        all_bets.append({
-            'game': f"{away} vs {home}",
-            'pick': f"Línea O/U: {ou_clean}",
-            'confidence': 71.5 if "Alta" in ou_clean else 68.0,
-            'stadium': g['stadium']
-        })
+        # 4. Totales O/U aleatorios y variados
+        ou_variations = [
+            f"Alta ({g['over_under'].split('(')[-1]}",
+            f"Baja ({g['over_under'].split('(')[-1]}",
+            "Alta (Over 8.5)",
+            "Baja (Under 8.5)",
+            "Alta (Over 9.5)"
+        ]
+        chosen_ou = random.choice(ou_variations)
+        all_bets.append({'game': f"{away} vs {home}", 'pick': f"O/U: {chosen_ou}", 'confidence': round(random.uniform(62.0, 76.0), 1), 'stadium': g['stadium']})
 
-        # 5. Margen de Victoria o Apuesta Extra
-        margin = abs(prob_home - 50)
-        if margin > 7:
-            fav = home if prob_home > 50 else away
-            all_bets.append({
-                'game': f"{away} vs {home}",
-                'pick': f"Margen: {fav} Gana por 2+ Carreras",
-                'confidence': round(max(prob_home, prob_away) - 4, 1),
-                'stadium': g['stadium']
-            })
-
-    # Mezclar ligeramente y ordenar por confianza para tener variedad y precisión
-    all_bets.sort(key=lambda x: x['confidence'], reverse=True)
+    # Ordenar solo para la jugada del día
+    sorted_bets_for_lock = sorted(all_bets, key=lambda x: x['confidence'], reverse=True)
+    jugada_del_dia = sorted_bets_for_lock[0] if sorted_bets_for_lock else None
     
-    jugada_del_dia = all_bets[0] if all_bets else None
-    
-    # Filtrar para evitar repetir el mismo partido de forma consecutiva en las combinaciones si hay suficientes juegos
-    unique_game_bets = []
-    seen_games = set()
-    for b in all_bets:
-        if b['game'] not in seen_games:
-            seen_games.add(b['game'])
-            unique_game_bets.append(b)
-
+    # Generar parleys combinados y verdaderamente aleatorios en cada recarga
     parleys = {}
     legs_counts = [2, 3, 4, 5]
     for n in legs_counts:
-        source_pool = unique_game_bets if len(unique_game_bets) >= n else all_bets
-        if len(source_pool) >= n:
-            # Seleccionamos las mejores opciones variando los mercados
-            selected_legs = source_pool[:n]
-            combined_conf = round(sum([l['confidence'] for l in selected_legs]) / n, 1)
-            parleys[f"{n} Logros"] = {
-                'legs': selected_legs,
-                'combined_confidence': combined_conf
-            }
-        else:
-            parleys[f"{n} Logros"] = {
-                'legs': source_pool,
-                'combined_confidence': 50.0
-            }
+        pool = list(all_bets)
+        random.shuffle(pool)
+        
+        selected_legs = []
+        used_games = set()
+        
+        # Buscar opciones de juegos diferentes para armar el parley
+        for b in pool:
+            if b['game'] not in used_games and len(selected_legs) < n:
+                selected_legs.append(b)
+                used_games.add(b['game'])
+                
+        # Si faltan logros, rellenar sin restricción de juego
+        if len(selected_legs) < n:
+            for b in pool:
+                if b not in selected_legs and len(selected_legs) < n:
+                    selected_legs.append(b)
+                    
+        combined_conf = round(sum([l['confidence'] for l in selected_legs]) / len(selected_legs), 1) if selected_legs else 65.0
+        parleys[f"{n} Logros"] = {
+            'legs': selected_legs,
+            'combined_confidence': combined_conf
+        }
             
     return {
         'jugada_del_dia': jugada_del_dia,
@@ -235,13 +194,11 @@ def fetch_mlb_today_games():
             for date_info in data.get('dates', []):
                 for idx, game in enumerate(date_info.get('games', []), start=1):
                     teams = game.get('teams', {})
-                    
                     away_team_obj = teams.get('away', {}).get('team', {})
                     home_team_obj = teams.get('home', {}).get('team', {})
                     
                     away_team = away_team_obj.get('name', 'Visitante')
                     home_team = home_team_obj.get('name', 'Local')
-                    
                     away_id = away_team_obj.get('id', 1)
                     home_id = home_team_obj.get('id', 1)
                     
