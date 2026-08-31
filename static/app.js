@@ -396,3 +396,88 @@ window.onload = function() {
     // Renderiza únicamente la pestaña principal al iniciar para que la carga sea instantánea
     renderMatches();
 };
+// ==========================================
+// MÓDULO DE ANÁLISIS PROFUNDO (DEEP DIVE)
+// ==========================================
+
+function openDeepDive(gameJson) {
+    const modal = document.getElementById('deep-dive-modal');
+    const content = document.getElementById('modal-content');
+    
+    if (!modal || !content) return;
+
+    content.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+                <h3 class="text-lg font-bold text-cyan-400">${gameJson.away} vs ${gameJson.home}</h3>
+                <p class="text-xs text-slate-400">🕒 ${gameJson.time || 'Horario por confirmar'} | 🏟️ ${gameJson.stadium || 'Estadio Principal'}</p>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                ⚡ Valor: ${gameJson.value_index || 'N/A'}
+            </span>
+        </div>
+
+        <!-- Desglose de Probabilidades y F5 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 space-y-2">
+                <span class="font-bold text-cyan-400 block border-b border-slate-800 pb-1">Análisis Visitante (${gameJson.away})</span>
+                <div class="flex justify-between"><span>Probabilidad Victoria (Full):</span> <span class="font-bold text-white">${gameJson.prob_away}%</span></div>
+                <div class="flex justify-between"><span>Ganador F5 (Primeras 5):</span> <span class="font-bold text-cyan-400">${gameJson.f5_away}%</span></div>
+                <div class="flex justify-between"><span>Cobertura Run Line (-1.5):</span> <span class="font-bold text-slate-300">${gameJson.run_line_away}%</span></div>
+                <div class="flex justify-between"><span>Carreras Proyectadas:</span> <span class="font-bold text-slate-200">${gameJson.projected_score_away}</span></div>
+            </div>
+            <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 space-y-2">
+                <span class="font-bold text-emerald-400 block border-b border-slate-800 pb-1">Análisis Local (${gameJson.home})</span>
+                <div class="flex justify-between"><span>Probabilidad Victoria (Full):</span> <span class="font-bold text-white">${gameJson.prob_home}%</span></div>
+                <div class="flex justify-between"><span>Ganador F5 (Primeras 5):</span> <span class="font-bold text-cyan-400">${gameJson.f5_home}%</span></div>
+                <div class="flex justify-between"><span>Cobertura Run Line (-1.5):</span> <span class="font-bold text-slate-300">${gameJson.run_line_home}%</span></div>
+                <div class="flex justify-between"><span>Carreras Proyectadas:</span> <span class="font-bold text-slate-200">${gameJson.projected_score_home}</span></div>
+            </div>
+        </div>
+
+        <!-- Métricas Sabermétricas de las 50,000 Iteraciones -->
+        <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60 space-y-3 text-xs">
+            <span class="font-bold text-amber-400 block">Factores Sabermétricos de la Simulación de Monte Carlo</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-300">
+                <div>• Splits LHP/RHP: <b class="text-white">${gameJson.splits_advantage || 'N/A'}</b></div>
+                <div>• Descanso Bullpen: <b class="text-white">${gameJson.bullpen_advantage || 'N/A'}</b></div>
+                <div>• Impacto Climático: <b class="text-white">${gameJson.weather_impact || 'N/A'}</b></div>
+                <div>• Tendencia Árbitro: <b class="text-white">${gameJson.umpire_tendency || 'N/A'}</b></div>
+                <div>• Momentum (L10): <b class="text-white">${gameJson.momentum_status || 'N/A'}</b></div>
+                <div>• Prob. Entradas Extras: <b class="text-white">${gameJson.extra_innings_prob || '0'}%</b></div>
+            </div>
+        </div>
+
+        <!-- Carreras Totales y Criterio de Kelly / Edge -->
+        <div class="bg-gradient-to-r from-cyan-950/40 to-emerald-950/40 p-4 rounded-2xl border border-cyan-500/20 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+            <div>
+                <span class="text-slate-400 block font-medium">Línea de Carreras Totales (O/U):</span>
+                <span class="text-sm font-bold text-white">${gameJson.total_projected_runs || '0'} Carreras Proyectadas</span>
+            </div>
+            <div>
+                <span class="text-slate-400 block font-medium">Ventaja Matemática (+EV):</span>
+                <span class="text-sm font-bold text-emerald-400">${gameJson.edge_metrics || 'Neutro'}</span>
+            </div>
+            <div class="text-right">
+                <span class="text-slate-400 block font-medium">Apuesta Óptima (Kelly):</span>
+                <span class="text-sm font-bold text-cyan-300">${gameJson.kelly_criterion || 'N/A'}</span>
+            </div>
+        </div>
+    `;
+    modal.classList.remove('hidden');
+}
+
+function closeDeepDive() {
+    const modal = document.getElementById('deep-dive-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+// Cerrar modal al hacer clic en el fondo oscuro exterior
+window.addEventListener('click', function(event) {
+    const modal = document.getElementById('deep-dive-modal');
+    if (event.target === modal) {
+        closeDeepDive();
+    }
+});
