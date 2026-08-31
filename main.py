@@ -361,7 +361,7 @@ def index():
 
     parley_data = generate_parley_system(games)
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
-    return render_template('conjeturante.html', matches=games, parley_data=parley_data, current_time=current_time, all_teams=ALL_MLB_TEAMS)
+  return render_template('index.html', matches=games, parley_data=parley_data, current_time=current_time, all_teams=ALL_MLB_TEAMS)
 
 if __name__ == '__main__':
     app.run(debug=True)
