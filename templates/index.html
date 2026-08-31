@@ -62,33 +62,33 @@
 
             <!-- Grid de Partidos -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% if games %}
+                {% if games is defined and games %}
                     {% for game in games %}
                     <div onclick='openDeepDive({{ game | tojson | safe }})' class="bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/10 space-y-4 group">
                         <div class="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider">
-                            <span>{{ game.time }}</span>
-                            <span class="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition">Valor (Edge): {{ game.value_index }}</span>
+                            <span>{{ game.time | default('Hoy') }}</span>
+                            <span class="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition">Valor (Edge): {{ game.value_index | default('N/D') }}</span>
                         </div>
                         
                         <div class="space-y-3">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <img src="{{ game.logo_away }}" class="w-7 h-7 object-contain" alt="Away Logo">
-                                    <span class="text-base font-black">{{ game.away }}</span>
+                                    <img src="{{ game.logo_away | default('https://www.mlbstatic.com/team-logos/default.svg') }}" class="w-7 h-7 object-contain" alt="Away Logo">
+                                    <span class="text-base font-black">{{ game.away | default('Visitante') }}</span>
                                 </div>
-                                <span class="text-cyan-400 font-extrabold text-base">{{ game.prob_away }}%</span>
+                                <span class="text-cyan-400 font-extrabold text-base">{{ game.prob_away | default('50') }}%</span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <img src="{{ game.logo_home }}" class="w-7 h-7 object-contain" alt="Home Logo">
-                                    <span class="text-base font-black">{{ game.home }}</span>
+                                    <img src="{{ game.logo_home | default('https://www.mlbstatic.com/team-logos/default.svg') }}" class="w-7 h-7 object-contain" alt="Home Logo">
+                                    <span class="text-base font-black">{{ game.home | default('Local') }}</span>
                                 </div>
-                                <span class="text-slate-400 font-extrabold text-base">{{ game.prob_home }}%</span>
+                                <span class="text-slate-400 font-extrabold text-base">{{ game.prob_home | default('50') }}%</span>
                             </div>
                         </div>
 
                         <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                            <span>Carreras Proj: <strong class="text-slate-200">{{ game.projected_total }}</strong></span>
+                            <span>Carreras Proj: <strong class="text-slate-200">{{ game.projected_total | default('8.5') }}</strong></span>
                             <span class="text-cyan-400 font-semibold group-hover:translate-x-1 transition flex items-center gap-1">Ver Análisis Profundo &rarr;</span>
                         </div>
                     </div>
@@ -96,7 +96,7 @@
                 {% else %}
                 <div class="col-span-full py-20 text-center bg-slate-900/40 border border-slate-800 rounded-3xl space-y-3">
                     <p class="text-slate-300 text-base font-bold">No hay partidos cargados para simular hoy.</p>
-                    <p class="text-slate-500 text-xs">Ejecuta el script de scraping en tu backend o añade un partido manualmente desde la pestaña "Simulador Manual".</p>
+                    <p class="text-slate-500 text-xs">Asegúrate de que tu backend esté pasando la variable <code>games</code> correctamente desde Flask.</p>
                 </div>
                 {% endif %}
             </div>
@@ -117,26 +117,26 @@
             </div>
 
             <div id="live-games-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% if live_games %}
+                {% if live_games is defined and live_games %}
                     {% for live in live_games %}
                     <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg">
                         <div class="flex items-center justify-between text-xs font-bold">
-                            <span class="text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">{{ live.status }}</span>
-                            <span class="text-slate-400">Inning: <strong class="text-slate-200">{{ live.inning }}</strong></span>
+                            <span class="text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">{{ live.status | default('En Vivo') }}</span>
+                            <span class="text-slate-400">Inning: <strong class="text-slate-200">{{ live.inning | default('1er') }}</strong></span>
                         </div>
                         <div class="space-y-2.5">
                             <div class="flex justify-between items-center text-sm font-bold bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
-                                <span class="flex items-center gap-2"><img src="{{ live.logo_away }}" class="w-5 h-5 object-contain" alt="Away Logo">{{ live.away }}</span>
-                                <span class="text-lg font-black text-slate-100">{{ live.score_away }}</span>
+                                <span class="flex items-center gap-2"><img src="{{ live.logo_away | default('https://www.mlbstatic.com/team-logos/default.svg') }}" class="w-5 h-5 object-contain" alt="Away Logo">{{ live.away | default('Visitante') }}</span>
+                                <span class="text-lg font-black text-slate-100">{{ live.score_away | default('0') }}</span>
                             </div>
                             <div class="flex justify-between items-center text-sm font-bold bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
-                                <span class="flex items-center gap-2"><img src="{{ live.logo_home }}" class="w-5 h-5 object-contain" alt="Home Logo">{{ live.home }}</span>
-                                <span class="text-lg font-black text-slate-100">{{ live.score_home }}</span>
+                                <span class="flex items-center gap-2"><img src="{{ live.logo_home | default('https://www.mlbstatic.com/team-logos/default.svg') }}" class="w-5 h-5 object-contain" alt="Home Logo">{{ live.home | default('Local') }}</span>
+                                <span class="text-lg font-black text-slate-100">{{ live.score_home | default('0') }}</span>
                             </div>
                         </div>
                         <div class="pt-3 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400">
-                            <span>Conteo: <strong class="text-cyan-400">{{ live.count }}</strong></span>
-                            <span>Outs: <strong class="text-amber-400">{{ live.outs }}</strong></span>
+                            <span>Conteo: <strong class="text-cyan-400">{{ live.count | default('0-0') }}</strong></span>
+                            <span>Outs: <strong class="text-amber-400">{{ live.outs | default('0') }}</strong></span>
                         </div>
                     </div>
                     {% endfor %}
@@ -257,6 +257,11 @@
 
     <!-- JavaScript Application Logic -->
     <script>
+        // Asegurar que al cargar la página se muestre correctamente la pestaña inicial
+        document.addEventListener("DOMContentLoaded", function() {
+            switchTab('simulations');
+        });
+
         // Sistema de Pestañas
         function switchTab(tabId) {
             ['simulations', 'live', 'parley', 'custom'].forEach(id => {
@@ -283,27 +288,27 @@
                 <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
                     <div class="flex items-center gap-3">
                         <img src="${game.logo_away || 'https://www.mlbstatic.com/team-logos/default.svg'}" class="w-10 h-10 object-contain" alt="Away Logo">
-                        <span class="text-xl font-black">${game.away}</span>
+                        <span class="text-xl font-black">${game.away || 'Visitante'}</span>
                         <span class="text-slate-500 font-bold">@</span>
                         <img src="${game.logo_home || 'https://www.mlbstatic.com/team-logos/default.svg'}" class="w-10 h-10 object-contain" alt="Home Logo">
-                        <span class="text-xl font-black">${game.home}</span>
+                        <span class="text-xl font-black">${game.home || 'Local'}</span>
                     </div>
                     <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                        Índice de Valor: ${game.value_index}
+                        Índice de Valor: ${game.value_index || 'N/D'}
                     </span>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                     <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
                         <span class="text-cyan-400 font-bold uppercase tracking-wider block">Estadísticas Visitante</span>
-                        <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away}%</strong></div>
+                        <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away || '50'}%</strong></div>
                         <div class="flex justify-between"><span>Carreras Proyectadas:</span> <strong class="text-slate-200">${game.projected_score_away || '-'}</strong></div>
                         <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${game.pitcher_metrics_away || 'N/D'}</strong></div>
                         <div class="flex justify-between"><span>Bullpen:</span> <strong class="text-amber-400">${game.bullpen_advantage || 'Neutro'}</strong></div>
                     </div>
                     <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
                         <span class="text-emerald-400 font-bold uppercase tracking-wider block">Estadísticas Local</span>
-                        <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home}%</strong></div>
+                        <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home || '50'}%</strong></div>
                         <div class="flex justify-between"><span>Carreras Proyectadas:</span> <strong class="text-slate-200">${game.projected_score_home || '-'}</strong></div>
                         <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${game.pitcher_metrics_home || 'N/D'}</strong></div>
                         <div class="flex justify-between"><span>Factor Parque:</span> <strong class="text-cyan-300">${game.ballpark_factor || '1.00'}</strong></div>
@@ -315,7 +320,7 @@
                     <div class="grid grid-cols-3 gap-2 text-center text-xs">
                         <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                             <span class="text-slate-500 text-[10px] block mb-1">GANADOR FULL</span>
-                            <span class="font-bold text-emerald-400 text-sm">${game.winner_full || game.away}</span>
+                            <span class="font-bold text-emerald-400 text-sm">${game.winner_full || game.away || 'N/D'}</span>
                         </div>
                         <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                             <span class="text-slate-500 text-[10px] block mb-1">GANADOR 5I (F5)</span>
@@ -323,7 +328,7 @@
                         </div>
                         <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                             <span class="text-slate-500 text-[10px] block mb-1">ALTA / BAJA</span>
-                            <span class="font-bold text-slate-200 text-sm">${game.over_under || game.projected_total}</span>
+                            <span class="font-bold text-slate-200 text-sm">${game.over_under || game.projected_total || '8.5'}</span>
                         </div>
                     </div>
                 </div>
