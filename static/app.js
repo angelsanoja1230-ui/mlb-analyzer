@@ -299,6 +299,7 @@ window.addEventListener('click', function(event) {
 
 // Inicializar al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
+    switchTab('games'); // Fuerza a mostrar la pestaña de juegos al iniciar
     renderMatches();
     fetchLiveMatchesIndependent();
 });
