@@ -14,6 +14,23 @@ function saveAuditRecords(records) {
     } catch (e) {}
 }
 
+function saveCustomLines() {
+    let records = getSavedAuditRecords();
+    let newRecord = {
+        id: Date.now(),
+        date: CURRENT_DATE,
+        match: "Configuración de Líneas Diarias",
+        selection: "Hándicaps personalizados guardados",
+        prob: "100%",
+        result: "Guardado",
+        status: "ACTIVO"
+    };
+    records.unshift(newRecord);
+    saveAuditRecords(records);
+    renderAuditHistory();
+    alert("Líneas de hándicaps diarias guardadas y registradas en la auditoría con éxito.");
+}
+
 function renderAuditHistory() {
     const container = document.getElementById('history-list-container');
     if (!container) return;
