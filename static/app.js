@@ -1094,41 +1094,47 @@ function loadSimulationTabData() {
         card.className = 'match-card';
         card.style.cssText = 'background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;';
 
-        card.innerHTML = `
-            <div>
-                <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
-                    <span>Simulación Algorítmica</span>
-                    <span>${match.time}</span>
-                </div>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <div style="text-align: center; flex: 1;">
-                        <img src="${awayLogo}" style="width: 36px; height: 36px; object-fit: contain;">
-                        <div style="font-size: 0.8rem; font-weight: 700; color: #f8fafc; margin-top: 4px;">${match.away}</div>
-                    </div>
-                    <span style="font-weight: 800; color: #64748b; padding: 0 0.5rem;">VS</span>
-                    <div style="text-align: center; flex: 1;">
-                        <img src="${homeLogo}" style="width: 36px; height: 36px; object-fit: contain;">
-                        <div style="font-size: 0.8rem; font-weight: 700; color: #f8fafc; margin-top: 4px;">${match.home}</div>
-                    </div>
-                </div>
+      // Asegúrate de mapear o usar directamente las propiedades que vienen de simulator.py
+const f5Text = match.winner_f5_text || 'N/D';
+const mlText = match.winner_full_text || 'N/D';
+const runLineText = match.run_line_prob_text || 'N/D';
+const nrfiText = match.nrfi_yrfi_choice ? `${match.nrfi_yrfi_choice} (${match.nrfi_yrfi_prob})` : 'N/D';
+const extraText = match.extra_inning_prob || 'N/D';
 
-                <div style="background: rgba(15, 23, 42, 0.7); padding: 0.75rem; border-radius: 0.5rem; font-size: 0.78rem; color: #cbd5e1; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 6px;">
-                    <div>⚾ <strong>Ganador 5 Innings (F5):</strong> <span style="color: #38bdf8;">${f5Winner}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(${f5Confidence}%)</span></div>
-                    <div>🏆 <strong>Ganador Completo (ML):</strong> <span style="color: #34d399;">${gameWinner}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(${mlConfidence}%)</span></div>
-                    <div>📊 <strong>Total (Alta / Baja):</strong> <span style="color: #f43f5e;">${projectedLine}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(${ouConfidence}%)</span></div>
-                    <div>⚡ <strong>Run Line:</strong> <span style="color: #fbbf24;">${runLinePick}</span></div>
-                    ${match.customNotes ? `<div style="margin-top: 4px; border-top: 1px solid #334155; padding-top: 4px; color: #94a3b8;"><em>Nota:</em> ${match.customNotes}</div>` : ''}
-                </div>
+card.innerHTML = `
+    <div>
+        <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+            <span>Simulación Algorítmica</span>
+            <span>${match.time || ''}</span>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="text-align: center; flex: 1;">
+                <img src="${awayLogo}" style="width: 36px; height: 36px; object-fit: contain;">
+                <div style="font-size: 0.8rem; font-weight: 700; color: #f8fafc; margin-top: 4px;">${match.away}</div>
             </div>
+            <span style="font-weight: 800; color: #64748b; padding: 0 0.5rem;">VS</span>
+            <div style="text-align: center; flex: 1;">
+                <img src="${homeLogo}" style="width: 36px; height: 36px; object-fit: contain;">
+                <div style="font-size: 0.8rem; font-weight: 700; color: #f8fafc; margin-top: 4px;">${match.home}</div>
+            </div>
+        </div>
 
-            <button onclick="openMatchDetails(${index})" style="width: 100%; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-weight: 600; font-size: 0.8rem;">
-                ✏️ Editar Simulación y Datos
-            </button>
-        `;
-        container.appendChild(card);
-    });
-}
+        <div style="background: rgba(15, 23, 42, 0.7); padding: 0.75rem; border-radius: 0.5rem; font-size: 0.78rem; color: #cbd5e1; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 6px;">
+            <div>⚾ <strong>Ganador 5 Innings (F5):</strong> <span style="color: #38bdf8;">${f5Text}</span></div>
+            <div>🏆 <strong>Ganador Completo (ML):</strong> <span style="color: #34d399;">${mlText}</span></div>
+            <div>⚡ <strong>Run Line:</strong> <span style="color: #fbbf24;">${runLineText}</span></div>
+            <div>📈 <strong>1er Inning (NRFI/YRFI):</strong> <span style="color: #f43f5e;">${nrfiText}</span></div>
+            <div>🔄 <strong>Extra Innings:</strong> <span style="color: #a78bfa;">${extraText}</span></div>
+            ${match.customNotes ? `<div style="margin-top: 4px; border-top: 1px solid #334155; padding-top: 4px; color: #94a3b8;"><em>Nota:</em> ${match.customNotes}</div>` : ''}
+        </div>
+    </div>
+
+    <button onclick="openMatchDetails(${index})" style="width: 100%; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-weight: 600; font-size: 0.8rem;">
+        ✏️ Editar Simulación y Datos
+    </button>
+`;
+container.appendChild(card);
 // Cargar automáticamente los datos de simulación al iniciar la página
 window.addEventListener('DOMContentLoaded', () => {
     loadSimulationTabData();
