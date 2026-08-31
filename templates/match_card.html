@@ -1,0 +1,51 @@
+<div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+    <div>
+        <!-- Teams & Badges -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3 w-1/2">
+                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-xs text-emerald-400 shadow-inner">
+                    {{ match.away[:3].upper() }}
+                </div>
+                <span class="font-bold text-lg truncate">{{ match.away }} <span class="text-xs text-slate-500">(Visitor)</span></span>
+            </div>
+            <span class="text-slate-500 font-bold px-2">VS</span>
+            <div class="flex items-center gap-3 w-1/2 justify-end text-right">
+                <span class="font-bold text-lg truncate"><span class="text-xs text-slate-500">(Home)</span> {{ match.home }}</span>
+                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-xs text-blue-400 shadow-inner">
+                    {{ match.home[:3].upper() }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Starters & Metrics -->
+        <div class="bg-slate-950/60 rounded-xl p-4 mb-4 text-sm space-y-1 text-slate-300">
+            <p><strong class="text-slate-400">Visitor Starter:</strong> {{ match.starter_away }}</p>
+            <p><strong class="text-slate-400">Home Starter:</strong> {{ match.starter_home }}</p>
+        </div>
+
+        <!-- Monte Carlo Simulation Results -->
+        <div class="grid grid-cols-2 gap-4 mb-4 text-center">
+            <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-700/30">
+                <span class="text-xs text-slate-400 block mb-1">Ganador 9 Innings</span>
+                <span class="font-bold text-emerald-400">{{ match.away }}: {{ match.prob_away }}%</span> / 
+                <span class="font-bold text-blue-400">{{ match.home }}: {{ match.prob_home }}%</span>
+            </div>
+            <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-700/30">
+                <span class="text-xs text-slate-400 block mb-1">Primeros 5 Innings (F5)</span>
+                <span class="font-bold text-emerald-400">{{ match.f5_away }}%</span> / 
+                <span class="font-bold text-blue-400">{{ match.f5_home }}%</span>
+            </div>
+        </div>
+
+        <!-- Additional Lines -->
+        <div class="text-xs text-slate-400 space-y-1 mb-4">
+            <p><strong>Over/Under:</strong> {{ match.over_under_prob }}</p>
+            <p><strong>Runline:</strong> {{ match.runline_away }} | {{ match.runline_home }}</p>
+        </div>
+    </div>
+
+    <!-- Value Bet / AI Recommendation -->
+    <div class="bg-emerald-950/30 border border-emerald-900/50 rounded-xl p-3 text-emerald-300 text-sm font-semibold">
+        💡 <strong>Valor Detectado:</strong> {{ match.value_bet }}
+    </div>
+</div>
