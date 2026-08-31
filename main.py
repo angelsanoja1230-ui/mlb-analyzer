@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 import json
 import os
 from datetime import datetime
@@ -69,8 +69,8 @@ def save_daily_history(date_str, safest_pick, parlays):
 def extract_best_plays(simulated_matches):
     best_plays = []
     for match in simulated_matches:
-        prob_away = match.get('prob_away', 50)
-        prob_home = match.get('prob_home', 50)
+        prob_away = match.get('prob_away', 50.0)
+        prob_home = match.get('prob_home', 50.0)
         
         if prob_away >= prob_home:
             best_plays.append({
@@ -79,7 +79,7 @@ def extract_best_plays(simulated_matches):
                 "confidence": prob_away,
                 "confidence_str": f"{prob_away}% Probabilidad",
                 "type": "Moneyline Visitante",
-                "reason": match.get('value_bet', 'Alta ventaja proyectada por Monte Carlo.')
+                "reason": match.get('value_bet', 'Alta ventaja proyectada por simulación.')
             })
         else:
             best_plays.append({
@@ -88,29 +88,30 @@ def extract_best_plays(simulated_matches):
                 "confidence": prob_home,
                 "confidence_str": f"{prob_home}% Probabilidad",
                 "type": "Moneyline Local",
-                "reason": match.get('value_bet', 'Alta ventaja proyectada por Monte Carlo.')
+                "reason": match.get('value_bet', 'Alta ventaja proyectada por simulación.')
             })
             
-        f5_away = match.get('f5_away', 50)
-        f5_home = match.get('f5_home', 50)
-        if f5_away > f5_home:
-            best_plays.append({
-                "match": f"{match['away']} @ {match['home']}",
-                "pick": f"F5: {match['away']}",
-                "confidence": f5_away,
-                "confidence_str": f"{f5_away}% Probabilidad F5",
-                "type": "First 5 Innings",
-                "reason": f"Sólido rendimiento analítico del abridor visitante en F5."
-            })
+        # Extracción segura usando los campos calculados por simulator.py
+        f5_text = match.get('winner_f5_text', '')
+        if ':' in f5_text:
+            parts = f5_text.split(':')
+            f5_team = parts[0].strip()
+            try:
+                f5_conf = float(parts[1].replace('%', '').strip())
+            except:
+                f5_conf = max(prob_away, prob_home)
         else:
-            best_plays.append({
-                "match": f"{match['away']} @ {match['home']}",
-                "pick": f"F5: {match['home']}",
-                "confidence": f5_home,
-                "confidence_str": f"{f5_home}% Probabilidad F5",
-                "type": "First 5 Innings",
-                "reason": f"Sólido rendimiento analítico del abridor local en F5."
-            })
+            f5_team = match.get('home', '')
+            f5_conf = prob_home
+
+        best_plays.append({
+            "match": f"{match['away']} @ {match['home']}",
+            "pick": f"F5: {f5_team}",
+            "confidence": f5_conf,
+            "confidence_str": f"{f5_conf}% Probabilidad F5",
+            "type": "First 5 Innings",
+            "reason": "Sólido rendimiento analítico del abridor en F5."
+        })
             
     best_plays.sort(key=lambda x: x['confidence'], reverse=True)
     return best_plays
@@ -142,7 +143,7 @@ def index():
         safest_pick, parlays = generate_parlays_and_safe_pick(best_plays)
         
         daily_archive_data = data.get('DAILY_ARCHIVE', {})
-        date_str = daily_archive_data.get('date', datetime.now().strftime('%Y-%m-d'))
+        date_str = daily_archive_data.get('date', datetime.now().strftime('%Y-%m-%d'))
         
         full_history = save_daily_history(date_str, safest_pick, parlays)
         
