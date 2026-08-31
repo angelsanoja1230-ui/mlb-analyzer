@@ -458,7 +458,56 @@ function registerParlayToAudit(parlayName, odds) {
 }
 
 let liveScoreInterval = null;
+// Variable global para almacenar temporalmente los datos reales de la API
+let realApiEventsCache = [];
 
+// 1. Función asíncrona para consultar la API pública de ESPN en vivo
+async function fetchRealTimeLiveScores() {
+    try {
+        const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard');
+        const data = await response.json();
+        
+        // Guardamos los eventos reales obtenidos
+        realApiEventsCache = data.events || [];
+        
+        // Una vez obtenidos los datos, refrescamos automáticamente las tarjetas en pantalla
+        renderLiveControl();
+        
+        console.log("Datos de la MLB actualizados desde la API a las:", new Date().toLocaleTimeString());
+    } catch (error) {
+        console.error("Error al conectar con la API de ESPN:", error);
+    }
+}
+
+// 2. Función auxiliar para buscar el marcador real de un equipo dentro de los datos de la API
+function getApiScoreForMatch(awayTeamName, homeTeamName) {
+    if (!realApiEventsCache || realApiEventsCache.length === 0) return null;
+
+    for (let event of realApiEventsCache) {
+        const comp = event.competitions[0];
+        const competitors = comp.competitors;
+        
+        const awayData = competitors.find(c => c.homeAway === 'away');
+        const homeData = competitors.find(c => c.homeAway === 'home');
+        
+        if (!awayData || !homeData) continue;
+
+        const apiAwayName = awayData.team.displayName.toLowerCase();
+        const apiHomeName = homeData.team.displayName.toLowerCase();
+        
+        // Comparamos si coinciden los nombres de los equipos
+        if (apiAwayName.includes(awayTeamName.toLowerCase()) || apiHomeName.includes(homeTeamName.toLowerCase())) {
+            return {
+                gameState: event.status.type.state === 'in' ? 'EN VIVO' : (event.status.type.state === 'post' ? 'FINALIZADO' : 'PRÓXIMO'),
+                inningInfo: event.status.type.detail || 'Final',
+                awayScore: parseInt(awayData.score) || 0,
+                homeScore: parseInt(homeData.score) || 0,
+                isLive: event.status.type.state === 'in'
+            };
+        }
+    }
+    return null;
+}
 // Módulo principal del Centro de Control En Vivo corregido con estados reales
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
