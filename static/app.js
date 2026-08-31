@@ -175,7 +175,7 @@ function renderTrends() {
     `).join('');
 }
 
-// Módulo de la Jugada Maestra sincronizado con el contenedor correcto del HTML
+// Módulo de Análisis Cuantitativo Avanzado para mostrar todos los partidos de la jornada
 function renderJugadaMaestra() {
     // Apuntamos al ID exacto definido en el HTML: #master-pick-display-container
     const container = document.getElementById('master-pick-display-container');
@@ -186,77 +186,95 @@ function renderJugadaMaestra() {
     if (matchesSource.length === 0) {
         container.innerHTML = `
             <div style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 14px; padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.9rem;">
-                ⏳ Sincronizando cartelera de la MLB para calcular la Jugada Maestra...
+                ⏳ Sincronizando cartelera de la MLB para el análisis cuantitativo...
             </div>
         `;
         return;
     }
 
-    let bestPick = null;
-    let highestConfidence = 0;
-
-    matchesSource.forEach((m) => {
+    const processedMasterMatches = matchesSource.map((m, idx) => {
         const awayOdds = parseFloat(m.awayOdds) || 1.85;
         const homeOdds = parseFloat(m.homeOdds) || 1.95;
         
+        // Cálculo de probabilidades basado en cuotas (vig)
         const totalVig = (1 / awayOdds) + (1 / homeOdds);
         let awayProb = Math.round(((1 / awayOdds) / totalVig) * 100);
         let homeProb = 100 - awayProb;
 
         const isAwayFavored = awayProb >= homeProb;
-        const confidence = isAwayFavored ? awayProb : homeProb;
         const selectedTeam = isAwayFavored ? m.away : m.home;
         const rivalTeam = isAwayFavored ? m.home : m.away;
         const selectedOdds = isAwayFavored ? awayOdds : homeOdds;
+        const confidence = isAwayFavored ? awayProb : homeProb;
 
-        if (confidence > highestConfidence) {
-            highestConfidence = confidence;
-            bestPick = {
-                match: `${m.away} vs ${m.home}`,
-                time: m.time || 'Hoy',
-                stadium: m.stadium || 'Estadio MLB',
-                pickText: `Gana ${selectedTeam} (ML)`,
-                confidence: confidence,
-                odds: selectedOdds,
-                analysis: `Ventaja proyectada en rotación y bullpen para ${selectedTeam} frente a ${rivalTeam} (${confidence}% de probabilidad estimada).`
-            };
-        }
+        return {
+            ...m,
+            match: `${m.away} vs ${m.home}`,
+            time: m.time || 'Hoy',
+            stadium: m.stadium || 'Estadio MLB',
+            pickText: `Gana ${selectedTeam} (ML)`,
+            confidence: confidence,
+            odds: selectedOdds,
+            awayProb,
+            homeProb,
+            analysis: `Ventaja proyectada en rotación y bullpen para ${selectedTeam} frente a ${rivalTeam} (${confidence}% de probabilidad estimada).`
+        };
     });
-
-    if (!bestPick) return;
 
     container.innerHTML = `
         <style>
+            .master-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 1.25rem !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            @media (max-width: 1200px) {
+                .master-grid {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                }
+            }
+            @media (max-width: 768px) {
+                .master-grid {
+                    grid-template-columns: 1fr !important;
+                }
+            }
             .master-pick-card {
                 background: linear-gradient(135deg, #1e293b, #0f172a);
-                border: 2px solid #38bdf8;
+                border: 1px solid rgba(56, 189, 248, 0.3);
                 border-radius: 14px;
-                padding: 1.5rem;
-                box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25);
+                padding: 1.25rem;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.4);
                 color: #f8fafc;
-                margin-bottom: 1.5rem;
                 display: flex;
                 flex-direction: column;
+                justify-content: space-between;
                 gap: 1rem;
-                width: 100%;
-                box-sizing: border-box;
+                transition: transform 0.2s ease, border-color 0.2s ease;
+            }
+            .master-pick-card:hover {
+                border-color: rgba(56, 189, 248, 0.7);
+                transform: translateY(-2px);
             }
             .master-pick-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                padding-bottom: 0.75rem;
+                padding-bottom: 0.6rem;
+                font-size: 0.75rem;
+                color: #94a3b8;
             }
             .master-badge {
-                background: linear-gradient(90deg, #0284c7, #38bdf8);
-                color: #0f172a;
-                font-weight: 900;
-                font-size: 0.75rem;
+                background: rgba(56, 189, 248, 0.15);
+                color: #38bdf8;
+                font-weight: 800;
+                font-size: 0.68rem;
                 text-transform: uppercase;
-                padding: 0.25rem 0.75rem;
-                border-radius: 20px;
-                letter-spacing: 0.05em;
+                padding: 0.2rem 0.5rem;
+                border-radius: 6px;
+                border: 1px solid rgba(56, 189, 248, 0.3);
             }
             .master-body {
                 display: flex;
@@ -264,59 +282,75 @@ function renderJugadaMaestra() {
                 gap: 0.5rem;
             }
             .master-title {
-                font-size: 1.25rem;
+                font-size: 1.1rem;
                 font-weight: 800;
                 color: #ffffff;
             }
             .master-details {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-                gap: 1rem;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
                 margin-top: 0.5rem;
             }
             .master-stat-box {
                 background: rgba(0, 0, 0, 0.3);
-                padding: 0.75rem;
-                border-radius: 8px;
+                padding: 0.5rem;
+                border-radius: 6px;
                 border: 1px solid rgba(255, 255, 255, 0.05);
+                text-align: center;
             }
             .master-stat-label {
-                font-size: 0.7rem;
+                font-size: 0.65rem;
                 color: #94a3b8;
                 text-transform: uppercase;
+                margin-bottom: 0.1rem;
             }
             .master-stat-val {
-                font-size: 1.05rem;
+                font-size: 0.9rem;
                 font-weight: 700;
                 color: #38bdf8;
             }
         </style>
-        <div class="master-pick-card">
-            <div class="master-pick-header">
-                <span class="master-badge">⭐ Jugada Maestra del Día</span>
-                <span style="font-size: 0.8rem; color: #94a3b8;">${bestPick.time} &bull; ${bestPick.stadium}</span>
-            </div>
-            <div class="master-body">
-                <div class="master-title">${bestPick.match}</div>
-                <p style="font-size: 0.85rem; color: #cbd5e1; margin: 0;">${bestPick.analysis}</p>
-                <div class="master-details">
-                    <div class="master-stat-box">
-                        <div class="master-stat-label">Selección Principal</div>
-                        <div class="master-stat-val">${bestPick.pickText}</div>
-                    </div>
-                    <div class="master-stat-box">
-                        <div class="master-stat-label">Probabilidad de acierto</div>
-                        <div class="master-stat-val">${bestPick.confidence}%</div>
-                    </div>
-                    <div class="master-stat-box">
-                        <div class="master-stat-label">Cuota Estimada</div>
-                        <div class="master-stat-val">@${bestPick.odds.toFixed(2)}</div>
+        <div class="master-grid">
+            ${processedMasterMatches.map(m => `
+                <div class="master-pick-card">
+                    <div>
+                        <div class="master-pick-header">
+                            <span class="master-badge">Análisis Cuantitativo</span>
+                            <span>${m.time} &bull; ${m.stadium}</span>
+                        </div>
+                        <div class="master-body" style="margin-top: 0.75rem;">
+                            <div class="master-title">${m.match}</div>
+                            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.25rem;">
+                                Prob. Implícita: <span style="color: #f8fafc;">${m.away} (${m.awayProb}%)</span> vs <span style="color: #f8fafc;">${m.home} (${m.homeProb}%)</span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #cbd5e1; margin: 0; line-height: 1.4;">${m.analysis}</p>
+                            <div class="master-details">
+                                <div class="master-stat-box">
+                                    <div class="master-stat-label">Pick ML</div>
+                                    <div class="master-stat-val" style="font-size: 0.8rem;">${m.pickText.replace('Gana ', '')}</div>
+                                </div>
+                                <div class="master-stat-box">
+                                    <div class="master-stat-label">Confianza</div>
+                                    <div class="master-stat-val">${m.confidence}%</div>
+                                </div>
+                                <div class="master-stat-box">
+                                    <div class="master-stat-label">Cuota</div>
+                                    <div class="master-stat-val">@${m.odds.toFixed(2)}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            `).join('')}
         </div>
     `;
 }
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+    renderJugadaMaestra();
+});
 
 // Asegúrate de que esta función se ejecute al cambiar a la pestaña o al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
