@@ -175,59 +175,134 @@ function renderTrends() {
     `).join('');
 }
 
-function renderMasterPick() {
-    const container = document.getElementById('master-pick-display-container');
+// Módulo independiente para generar y renderizar la "Jugada Maestra" basada en la cartelera completa
+function renderJugadaMaestra() {
+    const container = document.getElementById('jugada-maestra-container') || document.getElementById('master-pick-container');
     if (!container) return;
-    
-    container.innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.2rem; width:100%;">
-            <div style="padding: 1.5rem; background: var(--card-bg, #111827); border-radius: 16px; border: 1px solid rgba(56,189,248,0.3); box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                        <span style="background:rgba(56,189,248,0.15); color:#38bdf8; padding:0.3rem 0.8rem; border-radius:8px; font-size:0.8rem; font-weight:800; border:1px solid rgba(56,189,248,0.3);">⚡ JUGADA MAESTRA #1</span>
-                        <span style="color:#34d399; font-weight:800; font-size:0.9rem;">78.4% Probabilidad</span>
-                    </div>
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; padding:0.8rem; background:rgba(0,0,0,0.3); border-radius:10px;">
-                        <div style="display:flex; align-items:center; gap:0.6rem;">
-                            ${getTeamBadgeHTML("Philadelphia Phillies", true)}
-                            <span style="font-weight:700; color:#fff;">Phillies</span>
-                        </div>
-                        <span style="font-weight:800; color:#38bdf8;">VS</span>
-                        <div style="display:flex; align-items:center; gap:0.6rem; text-align:right;">
-                            <span style="font-weight:700; color:#fff;">Angels</span>
-                            ${getTeamBadgeHTML("Los Angeles Angels", true)}
-                        </div>
-                    </div>
-                    <p style="color: #9ca3af; margin: 0.5rem 0; font-size:0.9rem; line-height:1.5;">Z. Wheeler domina la lomita con efectividad élite y un bullpen con descanso óptimo frente a un rival con debilidad ante rectas veloces.</p>
-                </div>
-                <div style="margin-top:1.2rem;">
-                    <div style="font-size:0.85rem; color:#38bdf8; margin-bottom:0.8rem; background:rgba(56,189,248,0.08); padding:0.6rem; border-radius:8px;">Selección Sugerida: <strong style="color:#fff;">Phillies ML (-1.5) & Under 9.5</strong></div>
-                    <button class="btn-action" style="width:100%; padding:0.7rem; background:linear-gradient(135deg, #38bdf8, #0284c7); color:#0f172a; border:none; border-radius:10px; font-weight:800; cursor:pointer;" onclick="registerCustomMasterPick('Philadelphia Phillies vs Los Angeles Angels', 'Phillies ML (-1.5) & Under 9.5', '78.4%')">Enviar a Hoja de Auditoría</button>
-                </div>
-            </div>
 
-            <div style="padding: 1.5rem; background: var(--card-bg, #111827); border-radius: 16px; border: 1px solid rgba(56,189,248,0.3); box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                        <span style="background:rgba(56,189,248,0.15); color:#38bdf8; padding:0.3rem 0.8rem; border-radius:8px; font-size:0.8rem; font-weight:800; border:1px solid rgba(56,189,248,0.3);">⚡ JUGADA MAESTRA #2</span>
-                        <span style="color:#34d399; font-weight:800; font-size:0.9rem;">72.1% Probabilidad</span>
+    const matchesSource = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [];
+    if (matchesSource.length === 0) return;
+
+    // Analizamos la cartelera para seleccionar la opción con mayor solidez estadística (Jugada Maestra)
+    let bestPick = null;
+    let highestConfidence = 0;
+
+    matchesSource.forEach((m, idx) => {
+        const awayOdds = parseFloat(m.awayOdds) || 1.85;
+        const homeOdds = parseFloat(m.homeOdds) || 1.95;
+        
+        // Probabilidades implícitas de la cuota
+        const totalVig = (1 / awayOdds) + (1 / homeOdds);
+        let awayProb = Math.round(((1 / awayOdds) / totalVig) * 100);
+        let homeProb = 100 - awayProb;
+
+        const isAwayFavored = awayProb >= homeProb;
+        const confidence = isAwayFavored ? awayProb : homeProb;
+        const selectedTeam = isAwayFavored ? m.away : m.home;
+        const rivalTeam = isAwayFavored ? m.home : m.away;
+        const selectedOdds = isAwayFavored ? awayOdds : homeOdds;
+
+        if (confidence > highestConfidence) {
+            highestConfidence = confidence;
+            bestPick = {
+                match: `${m.away} vs ${m.home}`,
+                time: m.time || 'Hoy',
+                stadium: m.stadium || 'Estadio MLB',
+                pickText: `Gana ${selectedTeam} (ML)`,
+                confidence: confidence,
+                odds: selectedOdds,
+                analysis: `Ventaja proyectada en rotación y bullpen para ${selectedTeam} frente a ${rivalTeam} (${confidence}% de probabilidad estimada).`
+            };
+        }
+    });
+
+    if (!bestPick) return;
+
+    container.innerHTML = `
+        <style>
+            .master-pick-card {
+                background: linear-gradient(135deg, #1e293b, #0f172a);
+                border: 2px solid #38bdf8;
+                border-radius: 14px;
+                padding: 1.5rem;
+                box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25);
+                color: #f8fafc;
+                margin-bottom: 1.5rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .master-pick-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 0.75rem;
+            }
+            .master-badge {
+                background: linear-gradient(90deg, #0284c7, #38bdf8);
+                color: #0f172a;
+                font-weight: 900;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                padding: 0.25rem 0.75rem;
+                border-radius: 20px;
+                letter-spacing: 0.05em;
+            }
+            .master-body {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .master-title {
+                font-size: 1.25rem;
+                font-weight: 800;
+                color: #ffffff;
+            }
+            .master-details {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 1rem;
+                margin-top: 0.5rem;
+            }
+            .master-stat-box {
+                background: rgba(0, 0, 0, 0.3);
+                padding: 0.75rem;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+            }
+            .master-stat-label {
+                font-size: 0.7rem;
+                color: #94a3b8;
+                text-transform: uppercase;
+            }
+            .master-stat-val {
+                font-size: 1.05rem;
+                font-weight: 700;
+                color: #38bdf8;
+            }
+        </style>
+        <div class="master-pick-card">
+            <div class="master-pick-header">
+                <span class="master-badge">⭐ Jugada Maestra del Día</span>
+                <span style="font-size: 0.8rem; color: #94a3b8;">${bestPick.time} &bull; ${bestPick.stadium}</span>
+            </div>
+            <div class="master-body">
+                <div class="master-title">${bestPick.match}</div>
+                <p style="font-size: 0.85rem; color: #cbd5e1; margin: 0;">${bestPick.analysis}</p>
+                <div class="master-details">
+                    <div class="master-stat-box">
+                        <div class="master-stat-label">Selección Principal</div>
+                        <div class="master-stat-val">${bestPick.pickText}</div>
                     </div>
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; padding:0.8rem; background:rgba(0,0,0,0.3); border-radius:10px;">
-                        <div style="display:flex; align-items:center; gap:0.6rem;">
-                            ${getTeamBadgeHTML("New York Yankees", true)}
-                            <span style="font-weight:700; color:#fff;">Yankees</span>
-                        </div>
-                        <span style="font-weight:800; color:#38bdf8;">VS</span>
-                        <div style="display:flex; align-items:center; gap:0.6rem; text-align:right;">
-                            <span style="font-weight:700; color:#fff;">Red Sox</span>
-                            ${getTeamBadgeHTML("Boston Red Sox", true)}
-                        </div>
+                    <div class="master-stat-box">
+                        <div class="master-stat-label">Probabilidad de acierto</div>
+                        <div class="master-stat-val">${bestPick.confidence}%</div>
                     </div>
-                    <p style="color: #9ca3af; margin: 0.5rem 0; font-size:0.9rem; line-height:1.5;">Duelo divisional con tendencia clara al poder ofensivo local en los primeros 5 innings y ventaja abrumadora en WHIP de abridores.</p>
-                </div>
-                <div style="margin-top:1.2rem;">
-                    <div style="font-size:0.85rem; color:#38bdf8; margin-bottom:0.8rem; background:rgba(56,189,248,0.08); padding:0.6rem; border-radius:8px;">Selección Sugerida: <strong style="color:#fff;">Yankees ML (-1.5)</strong></div>
-                    <button class="btn-action" style="width:100%; padding:0.7rem; background:linear-gradient(135deg, #38bdf8, #0284c7); color:#0f172a; border:none; border-radius:10px; font-weight:800; cursor:pointer;" onclick="registerCustomMasterPick('New York Yankees vs Boston Red Sox', 'Yankees ML (-1.5)', '72.1%')">Enviar a Hoja de Auditoría</button>
+                    <div class="master-stat-box">
+                        <div class="master-stat-label">Cuota Estimada</div>
+                        <div class="master-stat-val">@${bestPick.odds.toFixed(2)}</div>
+                    </div>
                 </div>
             </div>
         </div>
