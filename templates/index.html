@@ -10,15 +10,15 @@
     <div class="max-w-7xl mx-auto px-4 py-8">
         
         <!-- Header Modular -->
-        {% include 'partials/header.html' %}
+        {% include 'header.html' %}
 
         <!-- Top Picks Modulares -->
-        {% include 'partials/top_picks.html' %}
+        {% include 'top_picks.html' %}
 
         <!-- Matches Grid Modular -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
             {% for match in matches %}
-                {% include 'partials/match_card.html' %}
+                {% include 'match_card.html' %}
             {% endfor %}
         </section>
 
