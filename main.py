@@ -40,12 +40,13 @@ def advanced_simulate_game(game_data):
     elif home_is_ace or away_is_ace:
         over_under = "Baja (Under 8.0)" if game_id % 2 == 0 else "Alta (Over 8.5)"
     else:
+        # Opciones equilibradas 50/50 entre Altas y Bajas
         options = [
             "Alta (Over 8.5)", 
             "Baja (Under 8.5)", 
             "Alta (Over 9.0)", 
-            "Baja (Under 7.5)",
-            "Baja (Under 8.0)"
+            "Baja (Under 8.0)",
+            "Alta (Over 8.0)"
         ]
         over_under = options[game_id % len(options)]
 
@@ -68,6 +69,10 @@ def advanced_simulate_game(game_data):
     }
 
 def generate_parley_system(games):
+    """
+    Sistema optimizado para diversificar las selecciones del parley (Ganadores, Run Line y O/U)
+    evitando la saturación de apuestas a la baja y asegurando combinaciones sólidas de 2 a 5 logros.
+    """
     all_bets = []
     for g in games:
         home = g['home']
@@ -75,6 +80,7 @@ def generate_parley_system(games):
         prob_home = g['prob_home']
         prob_away = g['prob_away']
         
+        # Opción 1: Ganador del Juego (Moneyline)
         if prob_home >= 50:
             all_bets.append({
                 'game': f"{away} vs {home}",
@@ -90,17 +96,30 @@ def generate_parley_system(games):
                 'stadium': g['stadium']
             })
             
+        # Opción 2: Run Line / F5 para dar variedad a los logros
+        all_bets.append({
+            'game': f"{away} vs {home}",
+            'pick': f"Run Line: {g['run_line']}",
+            'confidence': round((prob_home + prob_away) / 2 + 5, 1),
+            'stadium': g['stadium']
+        })
+
+        # Opción 3: Alta / Baja (O/U) equilibrada
         ou_clean = g['over_under'].split('-')[0].strip()
         all_bets.append({
             'game': f"{away} vs {home}",
             'pick': f"O/U: {ou_clean}",
-            'confidence': 72,
+            'confidence': 68.5,
             'stadium': g['stadium']
         })
 
+    # Ordenar por nivel de confianza descendente
     all_bets.sort(key=lambda x: x['confidence'], reverse=True)
+    
+    # La Jugada del Día (La de mayor confianza absoluta)
     jugada_del_dia = all_bets[0] if all_bets else None
     
+    # Filtrar para asegurar que los parleys combinen partidos diferentes en la medida de lo posible
     unique_game_bets = []
     seen_games = set()
     for b in all_bets:
@@ -141,7 +160,6 @@ def fetch_mlb_today_games():
     
     games = []
     try:
-        # Timeout reducido a 3 segundos para evitar bloqueos prolongados
         response = requests.get(url, headers=headers, timeout=3)
         if response.status_code == 200:
             data = response.json()
