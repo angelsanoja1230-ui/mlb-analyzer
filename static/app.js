@@ -330,6 +330,9 @@ function registerParlayToAudit(parlayName, odds) {
     alert(`${parlayName} registrado correctamente en la Hoja de Auditoría.`);
 }
 
+// Variable global para almacenar la referencia al intervalo y evitar duplicarlos
+let liveScoreInterval = null;
+
 // Sincronización limpia con datos reales de la jornada de la MLB y diseño en 3 columnas
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
@@ -363,7 +366,6 @@ function renderLiveControl() {
             sortOrder = 1;
         } else {
             gameState = 'FINALIZADO';
-            // Asignación de marcadores reales de cierre de la jornada para los demás partidos
             awayScore = (idx * 2 + 1) % 6;
             homeScore = (idx * 3 + 2) % 7;
             inningInfo = 'Final / 9º Inn';
@@ -565,7 +567,7 @@ function renderLiveControl() {
                             <div class="prediction-row">
                                 <span>Ganador 5 Innings (F5):</span>
                                 <span class="prediction-value">${m.f5Pick}</span>
-                    </div>
+                            </div>
                             <div class="prediction-row">
                                 <span>Ganador de Juego (ML):</span>
                                 <span class="prediction-value">${m.mlPick}</span>
@@ -585,6 +587,23 @@ function renderLiveControl() {
         </div>
     `;
 }
+
+// Función para inicializar el renderizado y configurar la actualización automática cada 35 segundos
+function initLiveScorePolling() {
+    renderLiveControl(); // Carga inicial inmediata
+    
+    if (liveScoreInterval) clearInterval(liveScoreInterval);
+    
+    // Actualiza los marcadores en vivo cada 35 segundos (dentro del rango de 30-40s)
+    liveScoreInterval = setInterval(() => {
+        renderLiveControl();
+    }, 35000);
+}
+
+// Ejecutar al cargar la página o sección
+document.addEventListener('DOMContentLoaded', () => {
+    initLiveScorePolling();
+});
 function renderAuditHistory() {
     const container = document.getElementById('history-list-container');
     if (!container) return;
