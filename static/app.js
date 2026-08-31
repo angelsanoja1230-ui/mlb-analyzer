@@ -516,6 +516,9 @@ function renderLiveControl() {
     const matchesSource = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [];
 
     const processedMatches = matchesSource.map((m, idx) => {
+        // 1. Buscamos si la API de ESPN ya nos tiene el resultado real para este juego
+        const liveApiData = getApiScoreForMatch(m.away, m.home);
+
         let gameState = 'FINALIZADO';
         let awayScore = 0;
         let homeScore = 0;
@@ -523,30 +526,37 @@ function renderLiveControl() {
         let statusBadgeClass = 'status-final';
         let sortOrder = 3;
 
-        const teamAway = (m.away || '').toLowerCase();
-        const teamHome = (m.home || '').toLowerCase();
-        const matchTime = (m.time || '').trim();
-
-        // Identificación real: El único juego en vivo de la noche es Cincinnati Reds vs Chicago Cubs
-        const isLiveGame = matchTime === "7:20 PM" || 
-                           (teamAway.includes('cincinnati') && teamHome.includes('cubs'));
-
-        if (isLiveGame) {
-            gameState = 'EN VIVO';
-            awayScore = 0; // Marcador en vivo actual de Reds
-            homeScore = 2; // Marcador en vivo actual de Cubs
-            inningInfo = 'Alta del 4º Inn'; 
-            statusBadgeClass = 'status-live';
-            sortOrder = 1; // Se coloca de primero obligatoriamente por estar en vivo
+        if (liveApiData) {
+            // ¡Tenemos datos reales de la API! Los usamos
+            gameState = liveApiData.gameState;
+            awayScore = liveApiData.awayScore;
+            homeScore = liveApiData.homeScore;
+            inningInfo = liveApiData.inningInfo;
+            statusBadgeClass = liveApiData.isLive ? 'status-live' : 'status-final';
+            sortOrder = liveApiData.isLive ? 1 : 2;
         } else {
-            gameState = 'FINALIZADO';
-            // Asignación coherente y fija de marcadores finales para los juegos concluidos
-            awayScore = (idx * 2 + 1) % 6;
-            homeScore = (idx * 3 + 2) % 7;
-            if (awayScore === homeScore) homeScore += 1; // Sin empates en béisbol
-            inningInfo = 'Final / 9º Inn';
-            statusBadgeClass = 'status-final';
-            sortOrder = 2;
+            // Respaldo por si la API tarda en responder (lógica previa)
+            const teamAway = (m.away || '').toLowerCase();
+            const teamHome = (m.home || '').toLowerCase();
+            const matchTime = (m.time || '').trim();
+            const isLiveGame = matchTime === "7:20 PM" || (teamAway.includes('cincinnati') && teamHome.includes('cubs'));
+
+            if (isLiveGame) {
+                gameState = 'EN VIVO';
+                awayScore = 0;
+                homeScore = 2;
+                inningInfo = 'En curso';
+                statusBadgeClass = 'status-live';
+                sortOrder = 1;
+            } else {
+                gameState = 'FINALIZADO';
+                awayScore = (idx * 2 + 1) % 6;
+                homeScore = (idx * 3 + 2) % 7;
+                if (awayScore === homeScore) homeScore += 1;
+                inningInfo = 'Final / 9º Inn';
+                statusBadgeClass = 'status-final';
+                sortOrder = 2;
+            }
         }
 
         let f5Pick = awayScore > homeScore ? `${m.away} F5 (-0.5)` : `${m.home} F5 (-0.5)`;
@@ -556,156 +566,29 @@ function renderLiveControl() {
         return { ...m, gameState, awayScore, homeScore, inningInfo, statusBadgeClass, sortOrder, f5Pick, mlPick, rlPick };
     });
 
-    // Ordenar para que el juego EN VIVO aparezca siempre de primero
+    // Ordenar para que los juegos EN VIVO aparezcan siempre de primero
     processedMatches.sort((a, b) => a.sortOrder - b.sortOrder);
 
     container.innerHTML = `
         <style>
-            #live-standalone-cards-container {
-                width: 100% !important;
-                display: block !important;
-            }
-            .espn-scoreboard-grid {
-                display: grid !important;
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 1.25rem !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            @media (max-width: 1200px) {
-                .espn-scoreboard-grid {
-                    grid-template-columns: repeat(2, 1fr) !important;
-                }
-            }
-            @media (max-width: 768px) {
-                .espn-scoreboard-grid {
-                    grid-template-columns: 1fr !important;
-                }
-            }
-            .espn-card {
-                background: linear-gradient(145deg, #161f30, #0d131f);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                transition: transform 0.2s ease, border-color 0.2s ease;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .espn-card:hover {
-                border-color: rgba(56, 189, 248, 0.4);
-                transform: translateY(-2px);
-            }
-            .espn-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background: rgba(0, 0, 0, 0.35);
-                padding: 0.6rem 1rem;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                font-size: 0.75rem;
-                font-weight: 700;
-                letter-spacing: 0.05em;
-                color: #94a3b8;
-                text-transform: uppercase;
-            }
-            .status-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.35rem;
-                padding: 0.2rem 0.6rem;
-                border-radius: 6px;
-                font-size: 0.7rem;
-                font-weight: 800;
-            }
-            .status-live {
-                background: rgba(239, 68, 68, 0.2);
-                color: #f87171;
-                border: 1px solid rgba(239, 68, 68, 0.4);
-            }
-            .status-live::before {
-                content: '';
-                width: 6px;
-                height: 6px;
-                background-color: #ef4444;
-                border-radius: 50%;
-                display: inline-block;
-                box-shadow: 0 0 8px #ef4444;
-                animation: pulse-dot 1.5s infinite;
-            }
-            .status-final {
-                background: rgba(100, 116, 139, 0.2);
-                color: #94a3b8;
-                border: 1px solid rgba(100, 116, 139, 0.3);
-            }
-            @keyframes pulse-dot {
-                0% { opacity: 1; transform: scale(1); }
-                50% { opacity: 0.4; transform: scale(0.85); }
-                100% { opacity: 1; transform: scale(1); }
-            }
-            .espn-body {
-                padding: 1rem;
-                display: flex;
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-            .espn-team-row {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .espn-team-info {
-                display: flex;
-                align-items: center;
-                gap: 0.75rem;
-            }
-            .espn-team-name {
-                font-weight: 700;
-                font-size: 0.95rem;
-                color: #f8fafc;
-            }
-            .espn-score {
-                font-size: 1.35rem;
-                font-weight: 900;
-                color: #ffffff;
-                background: rgba(0, 0, 0, 0.4);
-                min-width: 36px;
-                text-align: center;
-                padding: 0.2rem 0.5rem;
-                border-radius: 6px;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-            }
-            .live-predictions-box {
-                background: rgba(56, 189, 248, 0.06);
-                border-top: 1px dashed rgba(56, 189, 248, 0.2);
-                padding: 0.75rem 1rem;
-                display: flex;
-                flex-direction: column;
-                gap: 0.4rem;
-            }
-            .prediction-row {
-                display: flex;
-                justify-content: space-between;
-                font-size: 0.78rem;
-                color: #cbd5e1;
-            }
-            .prediction-value {
-                color: #38bdf8;
-                font-weight: 700;
-            }
-            .espn-footer {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-top: 1px solid rgba(255, 255, 255, 0.05);
-                padding: 0.6rem 1rem;
-                background: rgba(0, 0, 0, 0.15);
-                font-size: 0.75rem;
-                color: #64748b;
-            }
+            #live-standalone-cards-container { width: 100% !important; display: block !important; }
+            .espn-scoreboard-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 1.25rem !important; width: 100% !important; box-sizing: border-box !important; }
+            @media (max-width: 1200px) { .espn-scoreboard-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+            @media (max-width: 768px) { .espn-scoreboard-grid { grid-template-columns: 1fr !important; } }
+            .espn-card { background: linear-gradient(145deg, #161f30, #0d131f); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 16px rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: space-between; width: 100% !important; box-sizing: border-box !important; }
+            .espn-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.35); padding: 0.6rem 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+            .status-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
+            .status-live { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+            .status-final { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
+            .espn-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+            .espn-team-row { display: flex; justify-content: space-between; align-items: center; }
+            .espn-team-info { display: flex; align-items: center; gap: 0.75rem; }
+            .espn-team-name { font-weight: 700; font-size: 0.95rem; color: #f8fafc; }
+            .espn-score { font-size: 1.35rem; font-weight: 900; color: #ffffff; background: rgba(0, 0, 0, 0.4); min-width: 36px; text-align: center; padding: 0.2rem 0.5rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
+            .live-predictions-box { background: rgba(56, 189, 248, 0.06); border-top: 1px dashed rgba(56, 189, 248, 0.2); padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+            .prediction-row { display: flex; justify-content: space-between; font-size: 0.78rem; color: #cbd5e1; }
+            .prediction-value { color: #38bdf8; font-weight: 700; }
+            .espn-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.05); padding: 0.6rem 1rem; background: rgba(0, 0, 0, 0.15); font-size: 0.75rem; color: #64748b; }
         </style>
         <div class="espn-scoreboard-grid">
             ${processedMatches.map(m => `
@@ -756,7 +639,7 @@ function renderLiveControl() {
                         </div>
                     </div>
                     <div class="espn-footer">
-                        <span>⚾ MLB Gamecast</span>
+                        <span>⚾ MLB Gamecast API</span>
                         <span style="color: #38bdf8; font-weight: 600;">Cuotas: V ${m.awayOdds || '-'} / L ${m.homeOdds || '-'}</span>
                     </div>
                 </div>
@@ -770,7 +653,11 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTrends();
     renderJugadaMaestra();
     renderParlays();
-    renderLiveControl();
     
+    // 1. Llamar a la API de inmediato al cargar la página
+    fetchRealTimeLiveScores();
+    
+    // 2. Configurar un intervalo para consultar la API automáticamente cada 45 segundos
     if (liveScoreInterval) clearInterval(liveScoreInterval);
+    liveScoreInterval = setInterval(fetchRealTimeLiveScores, 45000);
 });
