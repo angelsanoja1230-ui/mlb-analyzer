@@ -1,6 +1,8 @@
+from flask import Flask
 import requests
 from datetime import datetime
 
+app = Flask(__name__)
 def fetch_mlb_today_games():
     # Usamos una estructura robusta con respaldo automático por si la API 
     # no devuelve juegos en este preciso horario (por ejemplo, días de descanso o madrugada).
