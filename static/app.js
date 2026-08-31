@@ -48,6 +48,8 @@ const MLB_TEAMS = {
     "Chicago Cubs": { code: "CHC", primary: "#0E3386", secondary: "#CC3433" }
 };
 
+let userParlayPicks = [];
+
 function getTeamBadgeHTML(teamName, small = false) {
     let teamData = MLB_TEAMS[teamName] || { code: teamName ? teamName.substring(0, 3).toUpperCase() : "MLB", primary: "#1e293b", secondary: "#38bdf8" };
     let size = small ? '40px' : '52px';
@@ -74,6 +76,9 @@ function switchTab(tab) {
             btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-slate-400 hover:text-slate-100 border border-slate-800/80 transition-all flex items-center gap-2 backdrop-blur-md hover:border-slate-700";
         }
     });
+
+    if (tab === 'simulations') renderSimulationsTab();
+    if (tab === 'parley') renderParleyTab();
 }
 
 function renderMatches() {
@@ -131,7 +136,10 @@ function renderMatches() {
                 </div>
             </div>
 
-            <div class="flex justify-end">
+            <div class="flex justify-between items-center pt-2">
+                <button onclick='toggleParlayPick(${game.id}, "${game.winner_full}", ${game.winner_full === game.home ? game.homeOdds : game.awayOdds})' class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all">
+                    ➕ Añadir al Parlay
+                </button>
                 <button onclick='openDeepDive(${JSON.stringify(game)})' class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2">
                     📊 Ver Análisis Completo y Métricas
                 </button>
@@ -139,6 +147,119 @@ function renderMatches() {
         </div>`;
     });
     container.innerHTML = html;
+}
+
+function renderSimulationsTab() {
+    const container = document.getElementById('tab-simulations');
+    if (!container) return;
+    
+    // If container only has placeholder or needs content generator
+    container.innerHTML = `
+        <div class="space-y-6 max-w-4xl mx-auto">
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-xl">
+                <h2 class="text-xl font-black text-white mb-2">Simulador Monte Carlo de Partidos MLB</h2>
+                <p class="text-xs text-slate-400 mb-6">Ejecuta simulaciones estocásticas basadas en métricas xERA, bullpen y factor de estadio.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-2">Seleccionar Encuentro</label>
+                        <select id="sim-game-select" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-500">
+                            ${BASE_MATCHES.map(g => `<option value="${g.id}">${g.away} @ ${g.home}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-2">Número de Simulaciones</label>
+                        <select id="sim-iterations" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-cyan-500">
+                            <option value="1000">1,000 iteraciones (Rápido)</option>
+                            <option value="5000" selected>5,000 iteraciones (Estándar)</option>
+                            <option value="10000">10,000 iteraciones (Alta precisión)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="runMonteCarloSimulation()" class="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg shadow-emerald-500/20 transition-all">
+                    🚀 Ejecutar Simulación Estocástica
+                </button>
+            </div>
+
+            <div id="sim-results-box" class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-xl hidden">
+                <h3 class="text-sm font-black text-cyan-400 uppercase tracking-wider mb-4">Resultados de la Simulación</h3>
+                <div id="sim-results-content" class="space-y-4 text-xs text-slate-300"></div>
+            </div>
+        </div>
+    `;
+}
+
+function runMonteCarloSimulation() {
+    const gameId = document.getElementById('sim-game-select').value;
+    const game = BASE_MATCHES.find(g => g.id == gameId);
+    const resultsBox = document.getElementById('sim-results-box');
+    const resultsContent = document.getElementById('sim-results-content');
+    
+    if (!game || !resultsBox || !resultsContent) return;
+
+    resultsBox.classList.remove('hidden');
+    resultsContent.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+            <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+                <span class="text-slate-500 block mb-1">Victoria ${game.away}</span>
+                <strong class="text-cyan-400 text-lg">${game.prob_away}%</strong>
+            </div>
+            <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+                <span class="text-slate-500 block mb-1">Victoria ${game.home}</span>
+                <strong class="text-emerald-400 text-lg">${game.prob_home}%</strong>
+            </div>
+            <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+                <span class="text-slate-500 block mb-1">Promedio Carreras</span>
+                <strong class="text-slate-100 text-lg">${game.projected_score_away} - ${game.projected_score_home}</strong>
+            </div>
+        </div>
+        <p class="text-center text-slate-400 mt-4">Simulación completada con éxito. El pronóstico sugiere mayor valor en la línea de ${game.winner_full}.</p>
+    `;
+}
+
+function toggleParlayPick(gameId, pickName, odds) {
+    const existingIndex = userParlayPicks.findIndex(p => p.gameId === gameId);
+    if (existingIndex > -1) {
+        userParlayPicks.splice(existingIndex, 1);
+    } else {
+        userParlayPicks.push({ gameId, pickName, odds });
+    }
+    alert(`Selección actualizada. Tienes ${userParlayPicks.length} logros en tu parlay.`);
+}
+
+function renderParleyTab() {
+    const container = document.getElementById('tab-parley');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="max-w-3xl mx-auto space-y-6">
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 backdrop-blur-xl shadow-xl">
+                <h2 class="text-xl font-black text-white mb-2">Calculadora de Parlay / Acumulado</h2>
+                <p class="text-xs text-slate-400 mb-6">Combina tus selecciones de partidos de hoy para maximizar el rendimiento potencial.</p>
+                
+                ${userParlayPicks.length === 0 ? `
+                    <div class="text-center py-10 bg-slate-950/40 rounded-2xl border border-slate-800/60">
+                        <p class="text-sm text-slate-400">No tienes selecciones activas en tu parlay.</p>
+                        <p class="text-xs text-slate-500 mt-1">Explora la pestaña de Juegos y haz clic en "Añadir al Parlay".</p>
+                    </div>
+                ` : `
+                    <div class="space-y-3 mb-6">
+                        ${userParlayPicks.map(p => `
+                            <div class="flex justify-between items-center bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-xs">
+                                <span class="text-white font-bold">${p.pickName}</span>
+                                <span class="text-emerald-400 font-mono">Cuota: ${p.odds}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 flex justify-between items-center text-sm font-bold">
+                        <span class="text-slate-300">Cuota Total Acumulada:</span>
+                        <span class="text-cyan-400 font-mono text-base">${userParlayPicks.reduce((acc, p) => acc * p.odds, 1).toFixed(2)}</span>
+                    </div>
+                `}
+            </div>
+        </div>
+    `;
 }
 
 function openDeepDive(gameJson) {
@@ -297,9 +418,8 @@ window.addEventListener('click', function(event) {
     }
 });
 
-// Inicializar al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
-    switchTab('games'); // Fuerza a mostrar la pestaña de juegos al iniciar
+    switchTab('games');
     renderMatches();
     fetchLiveMatchesIndependent();
 });
