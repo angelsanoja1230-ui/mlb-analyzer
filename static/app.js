@@ -54,7 +54,7 @@ function renderAuditHistory() {
 }
 
 function getTeamBadgeHTML(teamName) {
-    return `<div style="width:28px; height:28px; background:#1e293b; border: 1px solid rgba(56,189,248,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:bold; color:#38bdf8; flex-shrink:0;">${(teamName || 'MLB').substring(0, 2).toUpperCase()}</div>`;
+    return `<div style="width:30px; height:30px; background:linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(56,189,248,0.4); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:900; color:#38bdf8; flex-shrink:0; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">${(teamName || 'MLB').substring(0, 3).toUpperCase()}</div>`;
 }
 
 function renderMatches() {
@@ -69,32 +69,73 @@ function renderMatches() {
             const comp = event.competitions[0];
             const awayComp = comp.competitors.find(c => c.homeAway === 'away');
             const homeComp = comp.competitors.find(c => c.homeAway === 'home');
+            
+            // Extracción avanzada de abridores desde la API de ESPN si están disponibles
+            let awayStarterName = 'Por Anunciar (TBD)';
+            let awayStarterStats = 'ERA: -- | WHIP: -- | K/9: --';
+            let homeStarterName = 'Por Anunciar (TBD)';
+            let homeStarterStats = 'ERA: -- | WHIP: -- | K/9: --';
+
+            if (awayComp && awayComp.probables && awayComp.probables.length > 0) {
+                awayStarterName = awayComp.probables[0].athlete ? awayComp.probables[0].athlete.displayName : 'Abridor Visita';
+            }
+            if (homeComp && homeComp.probables && homeComp.probables.length > 0) {
+                homeStarterName = homeComp.probables[0].athlete ? homeComp.probables[0].athlete.displayName : 'Abridor Local';
+            }
+
             return {
                 away: awayComp ? awayComp.team.displayName : 'Visita',
                 home: homeComp ? homeComp.team.displayName : 'Local',
+                dateFormatted: event.date ? new Date(event.date).toLocaleDateString('es-ES', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : CURRENT_DATE,
                 time: event.status.type.detail || '7:00 PM',
-                stadium: comp.venue ? comp.venue.fullName : 'Estadio MLB',
-                starter_home: 'Local Starter',
-                starter_away: 'Visita Starter'
+                stadium: comp.venue ? comp.venue.fullName : 'Estadio Oficial MLB',
+                starter_home: homeStarterName,
+                starter_away: awayStarterName,
+                starter_home_stats: homeStarterStats,
+                starter_away_stats: awayStarterStats
             };
         });
     } else {
         matchesSource = [
-            { away: "Boston Red Sox", home: "New York Yankees", time: "7:05 PM", stadium: "Yankee Stadium", starter_home: "G. Cole", starter_away: "C. Sale" },
-            { away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "6:40 PM", stadium: "Comerica Park", starter_home: "T. Skubal", starter_away: "Y. Yamamoto" },
-            { away: "Colorado Rockies", home: "Atlanta Braves", time: "7:20 PM", stadium: "Truist Park", starter_home: "C. Sale", starter_away: "K. Freeland" }
+            { away: "Boston Red Sox", home: "New York Yankees", dateFormatted: CURRENT_DATE, time: "7:05 PM", stadium: "Yankee Stadium", starter_home: "G. Cole (RHP)", starter_away: "C. Sale (LHP)", starter_home_stats: "ERA: 3.12 | WHIP: 1.05 | K/9: 10.4", starter_away_stats: "ERA: 3.45 | WHIP: 1.12 | K/9: 11.1" },
+            { away: "Los Angeles Dodgers", home: "Detroit Tigers", dateFormatted: CURRENT_DATE, time: "6:40 PM", stadium: "Comerica Park", starter_home: "T. Skubal (LHP)", starter_away: "Y. Yamamoto (RHP)", starter_home_stats: "ERA: 2.39 | WHIP: 0.92 | K/9: 11.8", starter_away_stats: "ERA: 2.85 | WHIP: 1.01 | K/9: 9.9" },
+            { away: "Colorado Rockies", home: "Atlanta Braves", dateFormatted: CURRENT_DATE, time: "7:20 PM", stadium: "Truist Park", starter_home: "C. Sale (LHP)", starter_away: "K. Freeland (LHP)", starter_home_stats: "ERA: 2.78 | WHIP: 1.01 | K/9: 11.2", starter_away_stats: "ERA: 4.45 | WHIP: 1.38 | K/9: 7.2" }
         ];
     }
     
     container.innerHTML = matchesSource.map(m => `
         <div style="background: linear-gradient(145deg, #161f30, #0d131f); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 1.25rem; box-shadow: 0 6px 16px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 1rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.6rem;">
-                <span style="font-weight:800; color:#f8fafc; font-size:0.95rem;">${m.away} @ ${m.home}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.6rem; font-size:0.8rem; color:#94a3b8;">
+                <span>📅 <strong style="color:#38bdf8;">${m.dateFormatted || CURRENT_DATE}</strong></span>
                 <span style="font-size:0.75rem; color:#38bdf8; background:rgba(56,189,248,0.1); padding:0.2rem 0.5rem; border-radius:6px; font-weight:700;">${m.time || '7:00 PM'}</span>
             </div>
-            <div style="font-size:0.8rem; color:#94a3b8; display:flex; flex-direction:column; gap:0.3rem;">
+
+            <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                        ${getTeamBadgeHTML(m.away)}
+                        <span style="font-weight:800; color:#f8fafc; font-size:0.92rem;">${m.away}</span>
+                    </div>
+                    <span style="font-size:0.72rem; color:#94a3b8; background:rgba(255,255,255,0.04); padding:0.15rem 0.4rem; border-radius:4px;">Visita</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                        ${getTeamBadgeHTML(m.home)}
+                        <span style="font-weight:800; color:#f8fafc; font-size:0.92rem;">${m.home}</span>
+                    </div>
+                    <span style="font-size:0.72rem; color:#38bdf8; background:rgba(56,189,248,0.1); padding:0.15rem 0.4rem; border-radius:4px;">Local</span>
+                </div>
+            </div>
+
+            <div style="font-size:0.8rem; color:#94a3b8; display:flex; flex-direction:column; gap:0.4rem; background:rgba(0,0,0,0.3); padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.04);">
                 <div>Estadio: <strong style="color:#cbd5e1;">${m.stadium || 'Estadio MLB'}</strong></div>
-                <div>Abridores: <strong style="color:#34d399;">${m.starter_away || 'Visita'} vs ${m.starter_home || 'Local'}</strong></div>
+                <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:0.4rem; margin-top:0.2rem;">
+                    ⚾ <strong style="color:#38bdf8;">Lanzadores Abridores:</strong>
+                    <div style="margin-top:0.3rem; display:flex; flex-direction:column; gap:0.25rem; font-size:0.78rem;">
+                        <div>&bull; <strong>Visita:</strong> <span style="color:#f8fafc;">${m.starter_away || 'Por Anunciar'}</span><br><span style="color:#34d399; font-size:0.73rem;">${m.starter_away_stats || 'ERA: 3.85 | WHIP: 1.20 | K/9: 9.5'}</span></div>
+                        <div>&bull; <strong>Local:</strong> <span style="color:#f8fafc;">${m.starter_home || 'Por Anunciar'}</span><br><span style="color:#34d399; font-size:0.73rem;">${m.starter_home_stats || 'ERA: 3.50 | WHIP: 1.15 | K/9: 10.1'}</span></div>
+                    </div>
+                </div>
             </div>
         </div>
     `).join('');
@@ -698,7 +739,7 @@ async function fetchRealTimeLiveScores() {
         
         realApiEventsCache = data.events || [];
         renderLiveControl();
-        renderMatches(); // Carga todos los partidos del día completos desde la API
+        renderMatches();
         
         console.log("Datos de la MLB actualizados desde la API a las:", new Date().toLocaleTimeString());
     } catch (error) {
