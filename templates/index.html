@@ -3,25 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB Advanced Analytics & Monte Carlo Simulator</title>
+    <title>El Oráculo de la MLB 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
     <div class="max-w-7xl mx-auto px-4 py-8">
         
-        <!-- Header Modular -->
+        <!-- Header Modular (Título y Reloj en Vivo) -->
         {% include 'header.html' %}
 
-        <!-- Top Picks Modulares -->
-        {% include 'top_picks.html' %}
+        <!-- Barra de Pestañas de Navegación -->
+        <nav class="flex justify-center gap-3 mb-10 overflow-x-auto pb-2">
+            <button onclick="switchTab(event, 'matches-tab')" class="tab-btn px-6 py-3 rounded-xl font-bold text-sm transition-all bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20">
+                ⚾ Partidos del Día
+            </button>
+            <!-- Espacio reservado para las siguientes pestañas -->
+        </nav>
 
-        <!-- Matches Grid Modular (3 columnas en pantallas grandes) -->
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for match in matches %}
-                {% include 'match_card.html' %}
-            {% endfor %}
-        </section>
+        <!-- Contenido de la Pestaña 1: Partidos del Día -->
+        <div id="matches-tab" class="tab-content active space-y-8">
+            <!-- Top Picks Modulares -->
+            {% include 'top_picks.html' %}
+
+            <!-- Grid de Partidos (3 columnas) -->
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for match in matches %}
+                    {% include 'match_card.html' %}
+                {% endfor %}
+            </section>
+        </div>
 
     </div>
+
+    <script>
+        function switchTab(evt, tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-emerald-500', 'text-slate-950', 'shadow-lg', 'shadow-emerald-500/20');
+                el.classList.add('bg-slate-900', 'text-slate-400', 'border', 'border-slate-800');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.remove('bg-slate-900', 'text-slate-400', 'border', 'border-slate-800');
+            evt.currentTarget.classList.add('bg-emerald-500', 'text-slate-950', 'shadow-lg', 'shadow-emerald-500/20');
+        }
+
+        // Estilos iniciales para botones inactivos si se agregan más adelante
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.tab-btn:not(.bg-emerald-500)').forEach(btn => {
+                btn.classList.add('bg-slate-900', 'text-slate-400', 'border', 'border-slate-800');
+            });
+        });
+    </script>
 </body>
 </html>
