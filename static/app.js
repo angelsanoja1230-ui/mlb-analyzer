@@ -918,7 +918,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTrends();
     renderJugadaMaestra();
     renderParlays();
-    renderAuditHistory();
+    
     // 1. Llamar a la API de inmediato al cargar la página
     fetchRealTimeLiveScores();
     
