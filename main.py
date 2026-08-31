@@ -325,7 +325,7 @@ def fetch_mlb_today_games():
 
 @app.route('/api/live-matches')
 def api_live_matches():
-    games = fetch_mlb_today_games()
+    games = fetch_live_data()  # Reemplaza por la función que extrae el juego en vivo
     return {
         'success': True,
         'timestamp': datetime.now().strftime('%d/%m/%Y %I:%M:%S %p'),
