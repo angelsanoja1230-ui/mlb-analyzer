@@ -965,3 +965,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (liveScoreInterval) clearInterval(liveScoreInterval);
     liveScoreInterval = setInterval(fetchRealTimeLiveScores, 45000);
 });
+// Forzar 3 columnas por JavaScript para evitar que el script original las altere
+window.addEventListener('DOMContentLoaded', () => {
+    const containers = [
+        document.getElementById('trends-list-container'),
+        document.getElementById('matches-cards-container'),
+        document.getElementById('auto-parlays-container')
+    ];
+
+    containers.forEach(container => {
+        if (container) {
+            container.style.setProperty('display', 'grid', 'important');
+            container.style.setProperty('grid-template-columns', 'repeat(3, 1fr)', 'important');
+            container.style.setProperty('gap', '1.5rem', 'important');
+            container.style.setProperty('width', '100%', 'important');
+        }
+    });
+});
