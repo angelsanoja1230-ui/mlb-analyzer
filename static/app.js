@@ -60,13 +60,33 @@ function getTeamBadgeHTML(teamName) {
 function renderMatches() {
     const container = document.getElementById('matches-cards-container');
     if (!container) return;
-    const matchesSource = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [
-        { away: "Boston Red Sox", home: "New York Yankees", time: "7:05 PM", stadium: "Yankee Stadium", starter_home: "G. Cole", starter_away: "C. Sale" },
-        { away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "6:40 PM", stadium: "Comerica Park", starter_home: "T. Skubal", starter_away: "Y. Yamamoto" },
-        { away: "Colorado Rockies", home: "Atlanta Braves", time: "7:20 PM", stadium: "Truist Park", starter_home: "C. Sale", starter_away: "K. Freeland" }
-    ];
     
-    container.innerHTML = matchesSource.map((m, idx) => `
+    let matchesSource = [];
+    if (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES) && BASE_MATCHES.length > 0) {
+        matchesSource = BASE_MATCHES;
+    } else if (realApiEventsCache && realApiEventsCache.length > 0) {
+        matchesSource = realApiEventsCache.map(event => {
+            const comp = event.competitions[0];
+            const awayComp = comp.competitors.find(c => c.homeAway === 'away');
+            const homeComp = comp.competitors.find(c => c.homeAway === 'home');
+            return {
+                away: awayComp ? awayComp.team.displayName : 'Visita',
+                home: homeComp ? homeComp.team.displayName : 'Local',
+                time: event.status.type.detail || '7:00 PM',
+                stadium: comp.venue ? comp.venue.fullName : 'Estadio MLB',
+                starter_home: 'Local Starter',
+                starter_away: 'Visita Starter'
+            };
+        });
+    } else {
+        matchesSource = [
+            { away: "Boston Red Sox", home: "New York Yankees", time: "7:05 PM", stadium: "Yankee Stadium", starter_home: "G. Cole", starter_away: "C. Sale" },
+            { away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "6:40 PM", stadium: "Comerica Park", starter_home: "T. Skubal", starter_away: "Y. Yamamoto" },
+            { away: "Colorado Rockies", home: "Atlanta Braves", time: "7:20 PM", stadium: "Truist Park", starter_home: "C. Sale", starter_away: "K. Freeland" }
+        ];
+    }
+    
+    container.innerHTML = matchesSource.map(m => `
         <div style="background: linear-gradient(145deg, #161f30, #0d131f); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 1.25rem; box-shadow: 0 6px 16px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.6rem;">
                 <span style="font-weight:800; color:#f8fafc; font-size:0.95rem;">${m.away} @ ${m.home}</span>
@@ -678,6 +698,7 @@ async function fetchRealTimeLiveScores() {
         
         realApiEventsCache = data.events || [];
         renderLiveControl();
+        renderMatches(); // Carga todos los partidos del día completos desde la API
         
         console.log("Datos de la MLB actualizados desde la API a las:", new Date().toLocaleTimeString());
     } catch (error) {
