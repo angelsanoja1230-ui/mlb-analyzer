@@ -1053,72 +1053,82 @@ window.addEventListener('load', () => {
         });
     });
 });
-// Función para poblar la nueva pestaña de Simulación y Pronósticos
+// --- RENDERIZADO Y CÁLCULO DE PRONÓSTICOS DE SIMULACIÓN (Pestaña 2) ---
+
 function loadSimulationTabData() {
     const container = document.getElementById('simulacion-container');
-    if (!container) return;
+    if (!container || typeof BASE_MATCHES === 'undefined') return;
 
-    container.innerHTML = ''; // Limpiar contenido previo
-
-    // Asegurar el grid estricto de 3 columnas de forma dinámica
-    container.style.cssText = `
-        display: grid !important;
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 20px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    `;
-
-    if (typeof BASE_MATCHES === 'undefined') return;
+    container.innerHTML = '';
 
     BASE_MATCHES.forEach((match, index) => {
-        const card = document.createElement('div');
+        const awayLogo = typeof getTeamLogo === 'function' ? getTeamLogo(match.away) : '';
+        const homeLogo = typeof getTeamLogo === 'function' ? getTeamLogo(match.home) : '';
+
+        // 1. Motor de Extracción y Cálculo Algorítmico de Pronósticos
+        // Extraemos las ERA de los textos de los abridores (ej. "ERA: 2.85") para simulación cuantitativa
+        const awayEraMatch = match.starter_away_stats ? match.starter_away_stats.match(/ERA:\s*([0-9.]+)/) : null;
+        const homeEraMatch = match.starter_home_stats ? match.starter_home_stats.match(/ERA:\s*([0-9.]+)/) : null;
         
-        // Estilo integrado de tarjeta oscura acorde a la estética del Oráculo
-        card.style.cssText = `
-            width: 100% !important;
-            max-width: 100% !important;
-            min-width: 0 !important;
-            box-sizing: border-box !important;
-            background: #111827 !important;
-            border: 1px solid rgba(56, 189, 248, 0.2) !important;
-            border-radius: 1rem !important;
-            padding: 1.25rem !important;
-            display: flex !important;
-            flex-direction: column !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-            color: #f3f4f6 !important;
-        `;
+        const awayEra = awayEraMatch ? parseFloat(awayEraMatch[1]) : 3.80;
+        const homeEra = homeEraMatch ? parseFloat(homeEraMatch[1]) : 3.80;
+
+        // Lógica de 5 innings (F5): El abridor con menor ERA otorga ventaja en las primeras 5 entradas
+        const f5Winner = awayEra < homeEra ? match.away : match.home;
+        const f5Confidence = Math.min(88, Math.max(52, Math.round(55 + Math.abs(awayEra - homeEra) * 12)));
+
+        // Lógica de Ganador Completo (ML): Inclinación ligera al equipo local + diferencial de abridores
+        const homeAdvantage = 0.3; // Ajuste de localía en MLB
+        const gameWinner = (homeEra - awayEra < homeAdvantage) ? match.home : match.away;
+        const mlConfidence = Math.min(85, Math.max(50, Math.round(53 + Math.abs((homeEra + homeAdvantage) - awayEra) * 10)));
+
+        // Lógica de Alta/Baja (Over/Under): Promedio combinado de ERA de abridores proyecta línea estimada de carreras
+        const combinedEra = awayEra + homeEra;
+        const projectedLine = combinedEra < 6.8 ? "Baja (Under) 8.5" : "Alta (Over) 8.5";
+        const ouConfidence = Math.min(82, Math.max(51, Math.round(50 + Math.abs(combinedEra - 7.0) * 8)));
+
+        // Lógica de Run Line: Si el favorito tiene ventaja clara (>0.6 de ERA), cubre el -1.5
+        const runLinePick = Math.abs(awayEra - homeEra) > 0.6 ? `${gameWinner} -1.5` : `${gameWinner} +1.5 (Seguro)`;
+
+        const card = document.createElement('div');
+        card.className = 'match-card';
+        card.style.cssText = 'background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;';
 
         card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #9ca3af; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
-                <span>Simulación #${index + 1}</span>
-                <span>${match.time} • ${match.dateFormatted}</span>
-            </div>
-            
-            <div style="font-weight: 700; font-size: 1rem; margin-bottom: 0.75rem; text-align: center;">
-                <span style="color: #38bdf8;">${match.away}</span> 
-                <span style="color: #6b7280; margin: 0 0.25rem;">@</span> 
-                <span style="color: #34d399;">${match.home}</span>
+            <div>
+                <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                    <span>Simulación Algorítmica</span>
+                    <span>${match.time}</span>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="text-align: center; flex: 1;">
+                        <img src="${awayLogo}" style="width: 36px; height: 36px; object-fit: contain;">
+                        <div style="font-size: 0.8rem; font-weight: 700; color: #f8fafc; margin-top: 4px;">${match.away}</div>
+                    </div>
+                    <span style="font-weight: 800; color: #64748b; padding: 0 0.5rem;">VS</span>
+                    <div style="text-align: center; flex: 1;">
+                        <img src="${homeLogo}" style="width: 36px; height: 36px; object-fit: contain;">
+                        <div style="font-size: 0.8rem; font-weight: 700; color: #f8fafc; margin-top: 4px;">${match.home}</div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(15, 23, 42, 0.7); padding: 0.75rem; border-radius: 0.5rem; font-size: 0.78rem; color: #cbd5e1; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 6px;">
+                    <div>⚾ <strong>Ganador 5 Innings (F5):</strong> <span style="color: #38bdf8;">${f5Winner}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(${f5Confidence}%)</span></div>
+                    <div>🏆 <strong>Ganador Completo (ML):</strong> <span style="color: #34d399;">${gameWinner}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(${mlConfidence}%)</span></div>
+                    <div>📊 <strong>Total (Alta / Baja):</strong> <span style="color: #f43f5e;">${projectedLine}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(${ouConfidence}%)</span></div>
+                    <div>⚡ <strong>Run Line:</strong> <span style="color: #fbbf24;">${runLinePick}</span></div>
+                    ${match.customNotes ? `<div style="margin-top: 4px; border-top: 1px solid #334155; padding-top: 4px; color: #94a3b8;"><em>Nota:</em> ${match.customNotes}</div>` : ''}
+                </div>
             </div>
 
-            <div style="font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 0.75rem;">
-                <div style="margin-bottom: 0.25rem;">🏟️ <b>Estadio:</b> ${match.stadium}</div>
-                <div style="margin-bottom: 0.25rem;">👤 <b>Pitcher Vis:</b> ${match.starter_away}</div>
-                <div>👤 <b>Pitcher Loc:</b> ${match.starter_home}</div>
-            </div>
-
-            <div style="background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.3); padding: 0.75rem; border-radius: 0.5rem; margin-top: auto;">
-                <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; margin-bottom: 0.25rem;">🔮 Pronóstico Algorítmico</div>
-                <div style="font-size: 0.8rem; color: #e5e7eb;">Modelo de simulación activo para análisis de tendencias.</div>
-            </div>
+            <button onclick="openMatchDetails(${index})" style="width: 100%; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; font-weight: 600; font-size: 0.8rem;">
+                ✏️ Editar Simulación y Datos
+            </button>
         `;
-
         container.appendChild(card);
     });
 }
-
 // Cargar automáticamente los datos de simulación al iniciar la página
 window.addEventListener('DOMContentLoaded', () => {
     loadSimulationTabData();
