@@ -216,10 +216,13 @@ def fetch_mlb_today_games():
                     abstract_state = status_obj.get('abstractGameState', 'Preview')
                     detailed_state = status_obj.get('detailedState', 'Programado')
                     
+                    # Scoreboard en vivo (incluyendo bolas y strikes)
                     linescore = game.get('linescore', {}) or {}
                     current_inning = linescore.get('currentInning', 0)
                     inning_state = linescore.get('inningState', '') or ''
                     outs = linescore.get('outs', 0)
+                    balls = linescore.get('balls', 0)
+                    strikes = linescore.get('strikes', 0)
                     
                     ls_teams = linescore.get('teams', {}) or {}
                     away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
@@ -247,6 +250,8 @@ def fetch_mlb_today_games():
                         'current_inning': current_inning,
                         'inning_state': inning_state,
                         'outs': outs,
+                        'balls': balls,
+                        'strikes': strikes,
                         'away_runs': away_runs,
                         'home_runs': home_runs,
                         'has_1b': has_1b,
@@ -278,6 +283,8 @@ def fetch_mlb_today_games():
                 'current_inning': 0,
                 'inning_state': '',
                 'outs': 0,
+                'balls': 0,
+                'strikes': 0,
                 'away_runs': 0,
                 'home_runs': 0,
                 'has_1b': False,
@@ -300,6 +307,8 @@ def fetch_mlb_today_games():
                 'current_inning': 0,
                 'inning_state': '',
                 'outs': 0,
+                'balls': 0,
+                'strikes': 0,
                 'away_runs': 0,
                 'home_runs': 0,
                 'has_1b': False,
@@ -348,6 +357,8 @@ def index():
                 'current_inning': 0,
                 'inning_state': '',
                 'outs': 0,
+                'balls': 0,
+                'strikes': 0,
                 'away_runs': 0,
                 'home_runs': 0,
                 'has_1b': False,
