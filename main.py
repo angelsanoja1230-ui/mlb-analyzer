@@ -1,8 +1,48 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 import requests
 from datetime import datetime
+import random
 
 app = Flask(__name__)
+
+ALL_MLB_TEAMS = [
+    {"name": "Arizona Diamondbacks", "id": 109},
+    {"name": "Atlanta Braves", "id": 144},
+    {"name": "Baltimore Orioles", "id": 110},
+    {"name": "Boston Red Sox", "id": 111},
+    {"name": "Chicago Cubs", "id": 112},
+    {"name": "Chicago White Sox", "id": 145},
+    {"name": "Cincinnati Reds", "id": 113},
+    {"name": "Cleveland Guardians", "id": 114},
+    {"name": "Colorado Rockies", "id": 115},
+    {"name": "Detroit Tigers", "id": 116},
+    {"name": "Houston Astros", "id": 117},
+    {"name": "Kansas City Royals", "id": 118},
+    {"name": "Los Angeles Angels", "id": 108},
+    {"name": "Los Angeles Dodgers", "id": 119},
+    {"name": "Miami Marlins", "id": 146},
+    {"name": "Milwaukee Brewers", "id": 158},
+    {"name": "Minnesota Twins", "id": 142},
+    {"name": "New York Mets", "id": 121},
+    {"name": "New York Yankees", "id": 147},
+    {"name": "Athletics", "id": 133},
+    {"name": "Philadelphia Phillies", "id": 143},
+    {"name": "Pittsburgh Pirates", "id": 134},
+    {"name": "San Diego Padres", "id": 135},
+    {"name": "San Francisco Giants", "id": 137},
+    {"name": "Seattle Mariners", "id": 136},
+    {"name": "St. Louis Cardinals", "id": 138},
+    {"name": "Tampa Bay Rays", "id": 139},
+    {"name": "Texas Rangers", "id": 140},
+    {"name": "Toronto Blue Jays", "id": 141},
+    {"name": "Washington Nationals", "id": 120}
+]
+
+def get_team_id_by_name(team_name):
+    for t in ALL_MLB_TEAMS:
+        if t["name"].lower() == team_name.lower():
+            return t["id"]
+    return 1
 
 def advanced_simulate_game(game_data):
     home = game_data.get('home', 'Local')
@@ -40,7 +80,6 @@ def advanced_simulate_game(game_data):
     elif home_is_ace or away_is_ace:
         over_under = "Baja (Under 8.0)" if game_id % 2 == 0 else "Alta (Over 8.5)"
     else:
-        # Opciones equilibradas 50/50 entre Altas y Bajas
         options = [
             "Alta (Over 8.5)", 
             "Baja (Under 8.5)", 
@@ -70,8 +109,9 @@ def advanced_simulate_game(game_data):
 
 def generate_parley_system(games):
     """
-    Sistema optimizado para diversificar las selecciones del parley (Ganadores, Run Line y O/U)
-    evitando la saturación de apuestas a la baja y asegurando combinaciones sólidas de 2 a 5 logros.
+    Generador ampliado que extrae múltiples tipos de apuestas por juego 
+    (Ganadores Moneyline, F5, Run Lines, Totales y Margenes de Victoria) 
+    para armar combinaciones diversas e inteligentes.
     """
     all_bets = []
     for g in games:
@@ -79,47 +119,75 @@ def generate_parley_system(games):
         away = g['away']
         prob_home = g['prob_home']
         prob_away = g['prob_away']
+        f5_home = g['f5_home']
+        f5_away = g['f5_away']
         
-        # Opción 1: Ganador del Juego (Moneyline)
+        # 1. Ganador del Juego Completo (Moneyline)
         if prob_home >= 50:
             all_bets.append({
                 'game': f"{away} vs {home}",
-                'pick': f"Ganador: {home}",
+                'pick': f"Ganador J.C.: {home}",
                 'confidence': prob_home,
                 'stadium': g['stadium']
             })
         else:
             all_bets.append({
                 'game': f"{away} vs {home}",
-                'pick': f"Ganador: {away}",
+                'pick': f"Ganador J.C.: {away}",
                 'confidence': prob_away,
                 'stadium': g['stadium']
             })
             
-        # Opción 2: Run Line / F5 para dar variedad a los logros
+        # 2. Ganador en los Primeros 5 Innings (F5)
+        if f5_home >= 50:
+            all_bets.append({
+                'game': f"{away} vs {home}",
+                'pick': f"1ra Mitad (F5): {home}",
+                'confidence': f5_home,
+                'stadium': g['stadium']
+            })
+        else:
+            all_bets.append({
+                'game': f"{away} vs {home}",
+                'pick': f"1ra Mitad (F5): {away}",
+                'confidence': f5_away,
+                'stadium': g['stadium']
+            })
+
+        # 3. Run Line
         all_bets.append({
             'game': f"{away} vs {home}",
             'pick': f"Run Line: {g['run_line']}",
-            'confidence': round((prob_home + prob_away) / 2 + 5, 1),
+            'confidence': round((prob_home + prob_away) / 2 + 4.5, 1),
             'stadium': g['stadium']
         })
 
-        # Opción 3: Alta / Baja (O/U) equilibrada
+        # 4. Totales (Alta / Baja limpia)
         ou_clean = g['over_under'].split('-')[0].strip()
         all_bets.append({
             'game': f"{away} vs {home}",
-            'pick': f"O/U: {ou_clean}",
-            'confidence': 68.5,
+            'pick': f"Línea O/U: {ou_clean}",
+            'confidence': 71.5 if "Alta" in ou_clean else 68.0,
             'stadium': g['stadium']
         })
 
-    # Ordenar por nivel de confianza descendente
+        # 5. Margen de Victoria o Apuesta Extra
+        margin = abs(prob_home - 50)
+        if margin > 7:
+            fav = home if prob_home > 50 else away
+            all_bets.append({
+                'game': f"{away} vs {home}",
+                'pick': f"Margen: {fav} Gana por 2+ Carreras",
+                'confidence': round(max(prob_home, prob_away) - 4, 1),
+                'stadium': g['stadium']
+            })
+
+    # Mezclar ligeramente y ordenar por confianza para tener variedad y precisión
     all_bets.sort(key=lambda x: x['confidence'], reverse=True)
     
-    # La Jugada del Día (La de mayor confianza absoluta)
     jugada_del_dia = all_bets[0] if all_bets else None
     
-    # Filtrar para asegurar que los parleys combinen partidos diferentes en la medida de lo posible
+    # Filtrar para evitar repetir el mismo partido de forma consecutiva en las combinaciones si hay suficientes juegos
     unique_game_bets = []
     seen_games = set()
     for b in all_bets:
@@ -132,6 +200,7 @@ def generate_parley_system(games):
     for n in legs_counts:
         source_pool = unique_game_bets if len(unique_game_bets) >= n else all_bets
         if len(source_pool) >= n:
+            # Seleccionamos las mejores opciones variando los mercados
             selected_legs = source_pool[:n]
             combined_conf = round(sum([l['confidence'] for l in selected_legs]) / n, 1)
             parleys[f"{n} Logros"] = {
@@ -206,7 +275,7 @@ def fetch_mlb_today_games():
                     game_info.update(sim)
                     games.append(game_info)
     except Exception as e:
-        print(f"Aviso: Conexión con API externa omitida o fallida ({e}), usando datos de respaldo.")
+        print(f"Aviso: Conexión con API externa omitida o fallida ({e}), usando respaldo.")
         
     if not games:
         games = [
@@ -250,12 +319,34 @@ def fetch_mlb_today_games():
             
     return games
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
     games = fetch_mlb_today_games()
+    
+    if request.method == 'POST':
+        custom_away = request.form.get('away_team')
+        custom_home = request.form.get('home_team')
+        if custom_away and custom_home and custom_away != custom_home:
+            away_id = get_team_id_by_name(custom_away)
+            home_id = get_team_id_by_name(custom_home)
+            custom_game = {
+                'id': random.randint(200, 999),
+                'time': 'Personalizado',
+                'stadium': 'Estadio Custom',
+                'away': custom_away,
+                'home': custom_home,
+                'starter_away': 'Pitcher A',
+                'starter_home': 'Pitcher B',
+                'logo_away': f"https://www.mlbstatic.com/team-logos/{away_id}.svg",
+                'logo_home': f"https://www.mlbstatic.com/team-logos/{home_id}.svg",
+            }
+            sim = advanced_simulate_game(custom_game)
+            custom_game.update(sim)
+            games.insert(0, custom_game)
+
     parley_data = generate_parley_system(games)
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
-    return render_template('index.html', matches=games, parley_data=parley_data, current_time=current_time)
+    return render_template('index.html', matches=games, parley_data=parley_data, current_time=current_time, all_teams=ALL_MLB_TEAMS)
 
 if __name__ == '__main__':
     app.run(debug=True)
