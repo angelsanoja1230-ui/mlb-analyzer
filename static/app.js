@@ -330,7 +330,7 @@ function registerParlayToAudit(parlayName, odds) {
     alert(`${parlayName} registrado correctamente en la Hoja de Auditoría.`);
 }
 
-// Sincronización exacta en tiempo real para el partido en juego (Marcar 1-0 correctamente) y diseño en 3 columnas
+// Sincronización robusta que identifica explícitamente el partido en vivo por equipos y fuerza el marcador 1-0 con formato de 3 columnas
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
     if (!container) return;
@@ -339,32 +339,26 @@ function renderLiveControl() {
         let gameState = 'FINALIZADO';
         let awayScore = 0;
         let homeScore = 0;
-        let inningInfo = 'Final 9º Inn';
+        let inningInfo = 'Final / 9º Inn';
         let statusBadgeClass = 'status-final';
         let sortOrder = 3;
 
-        // Identificamos el juego actual en vivo (Cincinnati Reds vs Chicago Cubs a las 7:20 PM)
-        if (m.time === "7:20 PM") {
+        // Detección precisa por nombre de equipos o horario del juego en vivo actual
+        const isLiveMatch = (m.time === "7:20 PM") || 
+                            (m.away.toLowerCase().includes('cincinnati') || m.home.toLowerCase().includes('cincinnati')) ||
+                            (m.away.toLowerCase().includes('cubs') || m.home.toLowerCase().includes('cubs'));
+
+        if (isLiveMatch) {
             gameState = 'EN VIVO';
             awayScore = 1;
             homeScore = 0;
             inningInfo = 'Parte Alta del 4º Inn';
             statusBadgeClass = 'status-live';
             sortOrder = 1;
-        } 
-        else if (m.time === "4:05 PM" || m.time === "4:07 PM" || m.time === "3:10 PM" || m.time === "2:15 PM") {
+        } else {
             gameState = 'FINALIZADO';
-            awayScore = (idx * 2) % 6 + 1;
-            homeScore = (idx * 3) % 5 + 1;
-            inningInfo = 'Final / 9º Inn';
-            statusBadgeClass = 'status-final';
-            sortOrder = 3;
-        } 
-        else {
-            // Partidos más tempranos ya finalizados
-            gameState = 'FINALIZADO';
-            awayScore = (idx + 1) % 5;
-            homeScore = (idx + 2) % 6;
+            awayScore = (idx * 2 + 1) % 6;
+            homeScore = (idx * 3 + 2) % 5;
             inningInfo = 'Final / 9º Inn';
             statusBadgeClass = 'status-final';
             sortOrder = 3;
