@@ -6,6 +6,20 @@
     <title>El Oráculo MLB 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
+    
+    <!-- Pega el bloque aquí mismo, justo antes de </head> -->
+    <style>
+        #trends-list-container, #matches-cards-container, .matches-grid {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 20px !important;
+            width: 100% !important;
+        }
+        #trends-list-container > *, #matches-cards-container > *, .matches-grid > * {
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+    </style>
 </head>
 <body>
 
