@@ -175,23 +175,30 @@ function renderTrends() {
     `).join('');
 }
 
-// Módulo independiente para generar y renderizar la "Jugada Maestra" basada en la cartelera completa
+// Módulo de la Jugada Maestra sincronizado con el contenedor correcto del HTML
 function renderJugadaMaestra() {
-    const container = document.getElementById('jugada-maestra-container') || document.getElementById('master-pick-container');
+    // Apuntamos al ID exacto definido en el HTML: #master-pick-display-container
+    const container = document.getElementById('master-pick-display-container');
     if (!container) return;
 
     const matchesSource = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [];
-    if (matchesSource.length === 0) return;
+    
+    if (matchesSource.length === 0) {
+        container.innerHTML = `
+            <div style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px dashed rgba(56, 189, 248, 0.4); border-radius: 14px; padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.9rem;">
+                ⏳ Sincronizando cartelera de la MLB para calcular la Jugada Maestra...
+            </div>
+        `;
+        return;
+    }
 
-    // Analizamos la cartelera para seleccionar la opción con mayor solidez estadística (Jugada Maestra)
     let bestPick = null;
     let highestConfidence = 0;
 
-    matchesSource.forEach((m, idx) => {
+    matchesSource.forEach((m) => {
         const awayOdds = parseFloat(m.awayOdds) || 1.85;
         const homeOdds = parseFloat(m.homeOdds) || 1.95;
         
-        // Probabilidades implícitas de la cuota
         const totalVig = (1 / awayOdds) + (1 / homeOdds);
         let awayProb = Math.round(((1 / awayOdds) / totalVig) * 100);
         let homeProb = 100 - awayProb;
@@ -231,6 +238,8 @@ function renderJugadaMaestra() {
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
+                width: 100%;
+                box-sizing: border-box;
             }
             .master-pick-header {
                 display: flex;
@@ -308,6 +317,11 @@ function renderJugadaMaestra() {
         </div>
     `;
 }
+
+// Asegúrate de que esta función se ejecute al cambiar a la pestaña o al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    renderJugadaMaestra();
+});
 
 function renderParlays() {
     const container = document.getElementById('auto-parlays-container');
