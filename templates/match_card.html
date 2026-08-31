@@ -1,5 +1,4 @@
 <div class="bg-slate-900/90 border border-slate-800/80 hover:border-emerald-500/40 transition-all duration-300 rounded-2xl p-5 shadow-2xl flex flex-col justify-between relative overflow-hidden group">
-    <!-- Efecto de brillo sutil en hover -->
     <div class="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all pointer-events-none"></div>
 
     <div>
@@ -11,62 +10,41 @@
             <span class="text-slate-400 truncate max-w-[180px]">🏟️ {{ match.stadium }}</span>
         </div>
 
-        <!-- Tarjetas de Equipos (Estilo Marcador / Casa de Apuestas) -->
-        <div class="grid grid-cols-1 gap-2.5 mb-4">
+        <!-- Tarjetas de Equipos (Equipos y Pitchers) -->
+        <div class="grid grid-cols-1 gap-3">
             <!-- Visitante -->
-            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 shadow-inner">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800/60 shadow-inner">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/80 flex items-center justify-center font-black text-xs text-emerald-400 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/80 flex items-center justify-center font-black text-xs text-emerald-400 shadow-sm">
                         {{ match.away[:3].upper() }}
                     </div>
                     <div>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-wider font-bold block">Visitante (Away)</span>
                         <span class="font-bold text-sm block text-slate-100 tracking-tight">{{ match.away }}</span>
-                        <span class="text-[11px] text-slate-400">P: <strong class="text-slate-300">{{ match.starter_away }}</strong></span>
                     </div>
                 </div>
                 <div class="text-right">
-                    <span class="text-xs font-black text-emerald-400 block">{{ match.prob_away }}%</span>
-                    <span class="text-[10px] text-slate-500 uppercase tracking-wide">Win Prob</span>
+                    <span class="text-[10px] text-slate-500 uppercase tracking-wider block">Pitcher Abridor</span>
+                    <span class="text-xs font-semibold text-slate-300">{{ match.starter_away }}</span>
                 </div>
             </div>
 
             <!-- Local -->
-            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/60 shadow-inner">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950/50 border border-slate-800/60 shadow-inner">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/80 flex items-center justify-center font-black text-xs text-blue-400 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/80 flex items-center justify-center font-black text-xs text-blue-400 shadow-sm">
                         {{ match.home[:3].upper() }}
                     </div>
                     <div>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-wider font-bold block">Local (Home)</span>
                         <span class="font-bold text-sm block text-slate-100 tracking-tight">{{ match.home }}</span>
-                        <span class="text-[11px] text-slate-400">P: <strong class="text-slate-300">{{ match.starter_home }}</strong></span>
                     </div>
                 </div>
                 <div class="text-right">
-                    <span class="text-xs font-black text-blue-400 block">{{ match.prob_home }}%</span>
-                    <span class="text-[10px] text-slate-500 uppercase tracking-wide">Win Prob</span>
+                    <span class="text-[10px] text-slate-500 uppercase tracking-wider block">Pitcher Abridor</span>
+                    <span class="text-xs font-semibold text-slate-300">{{ match.starter_home }}</span>
                 </div>
             </div>
-        </div>
-
-        <!-- Métricas Analíticas Avanzadas (F5 y Líneas) -->
-        <div class="grid grid-cols-2 gap-2 mb-4 text-center">
-            <div class="bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/50">
-                <span class="text-[10px] uppercase tracking-wider text-slate-400 block mb-0.5 font-semibold">Primeros 5 Innings (F5)</span>
-                <span class="text-xs font-bold text-slate-200">{{ match.f5_away }}% / {{ match.f5_home }}%</span>
-            </div>
-            <div class="bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/50">
-                <span class="text-[10px] uppercase tracking-wider text-slate-400 block mb-0.5 font-semibold">Over / Under</span>
-                <span class="text-xs font-bold text-slate-200 truncate block">{{ match.over_under_prob }}</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Valor Detectado / Sugerencia de Apuesta -->
-    <div class="bg-gradient-to-r from-emerald-950/40 to-slate-900/80 border border-emerald-500/30 rounded-xl p-3 flex items-center gap-2.5 shadow-md">
-        <span class="text-emerald-400 text-base">💡</span>
-        <div class="text-xs leading-snug">
-            <span class="text-emerald-400 font-bold block uppercase tracking-wider text-[10px]">Valor Recomendado</span>
-            <span class="text-slate-200 font-semibold">{{ match.value_bet }}</span>
         </div>
     </div>
 </div>
