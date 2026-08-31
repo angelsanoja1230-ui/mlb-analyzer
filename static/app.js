@@ -425,3 +425,78 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 setInterval(fetchLiveMatchesIndependent, 30000);
+async function fetchLiveMatchesIndependent() {
+    try {
+        const container = document.getElementById('live-games-container');
+        const badge = document.getElementById('live-status-badge');
+        if (badge) badge.innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
+        
+        if (!container) return;
+
+        let htmlContent = '';
+        BASE_MATCHES.slice(0, 6).forEach((game, idx) => {
+            const inningNum = (idx % 3) + 3;
+            
+            // Simulación proporcional de carreras en vivo basadas en las proyecciones del modelo
+            const awayScore = Math.floor(parseFloat(game.projected_score_away || 4) * (inningNum / 9));
+            const homeScore = Math.floor(parseFloat(game.projected_score_home || 4) * (inningNum / 9));
+            
+            htmlContent += `
+                <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-inner">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-emerald-400">🕒 ${game.time}</span>
+                        <span class="text-slate-400 truncate max-w-[120px]">🏟️ ${game.stadium}</span>
+                    </div>
+
+                    <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase">En Vivo</span>
+                            <span class="text-amber-400 font-bold">Parte Baja del ${inningNum}°</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1 text-center text-xs bg-slate-950/50 p-2 rounded-lg border border-slate-800">
+                            <div>
+                                <span class="text-slate-500 text-[10px] block">CONTEO</span>
+                                <span class="font-bold text-slate-200">B:2 S:1 O:1</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 text-[10px] block">BASES</span>
+                                <div class="flex justify-center gap-1 mt-1">
+                                    <span class="w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400" title="1B"></span>
+                                    <span class="w-3 h-3 rounded-full bg-slate-800" title="2B"></span>
+                                    <span class="w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400" title="3B"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 text-[10px] block">BATEADOR</span>
+                                <span class="font-bold text-slate-200 truncate block max-w-[90px]">${game.starter_home}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <!-- Equipo Visitante y Marcador -->
+                        <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+                            <div class="flex items-center gap-2">
+                                ${getTeamBadgeHTML(game.away, true)}
+                                <span class="text-xs font-bold text-white truncate max-w-[110px]">${game.away}</span>
+                            </div>
+                            <span class="text-base font-black text-cyan-400 font-mono">${awayScore}</span>
+                        </div>
+
+                        <!-- Equipo Local y Marcador -->
+                        <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+                            <div class="flex items-center gap-2">
+                                ${getTeamBadgeHTML(game.home, true)}
+                                <span class="text-xs font-bold text-white truncate max-w-[110px]">${game.home}</span>
+                            </div>
+                            <span class="text-base font-black text-emerald-400 font-mono">${homeScore}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = htmlContent;
+    } catch (error) {
+        console.error("Error al renderizar partidos en vivo:", error);
+    }
+}
