@@ -402,3 +402,14 @@
     </script>
 </body>
 </html>
+<!-- Modal de Análisis Profundo (Deep Dive) -->
+<div id="deep-dive-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-11/12 max-w-2xl p-6 shadow-2xl relative space-y-6 text-slate-100 max-h-[90vh] overflow-y-auto">
+        <button onclick="closeDeepDive()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/60 p-2 rounded-full transition-colors">
+            ✕
+        </button>
+        <div id="modal-content" class="space-y-4">
+            <!-- Contenido inyectado dinámicamente por JavaScript -->
+        </div>
+    </div>
+</div>
