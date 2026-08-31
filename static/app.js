@@ -1123,3 +1123,125 @@ function loadSimulationTabData() {
 window.addEventListener('DOMContentLoaded', () => {
     loadSimulationTabData();
 });
+// Diccionario oficial de logos de la MLB por nombre completo
+const MLB_LOGOS = {
+    "San Francisco Giants": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/137.svg",
+    "Atlanta Braves": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/144.svg",
+    "New York Mets": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/121.svg",
+    "Tampa Bay Rays": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/139.svg",
+    "San Diego Padres": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/135.svg",
+    "Cincinnati Reds": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/113.svg",
+    "Seattle Mariners": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/136.svg",
+    "Boston Red Sox": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/111.svg",
+    "Miami Marlins": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/146.svg",
+    "Washington Nationals": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/120.svg",
+    "Detroit Tigers": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/116.svg",
+    "Minnesota Twins": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/142.svg",
+    "Milwaukee Brewers": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/158.svg",
+    "Chicago Cubs": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/112.svg",
+    "Oakland Athletics": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/133.svg",
+    "Texas Rangers": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/140.svg",
+    "Chicago White Sox": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/145.svg",
+    "Houston Astros": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/117.svg",
+    "Baltimore Orioles": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/110.svg",
+    "Colorado Rockies": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/115.svg",
+    "New York Yankees": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/147.svg",
+    "Los Angeles Angels": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/108.svg",
+    "Philadelphia Phillies": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/143.svg",
+    "Arizona Diamondbacks": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/109.svg",
+    "Los Angeles Dodgers": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/119.svg",
+    "St. Louis Cardinals": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/138.svg",
+    "Toronto Blue Jays": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/141.svg",
+    "Kansas City Royals": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/118.svg",
+    "Pittsburgh Pirates": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/134.svg",
+    "Cleveland Guardians": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/114.svg"
+};
+
+// Función auxiliar para obtener el logo de manera segura
+function getTeamLogo(teamName) {
+    return MLB_LOGOS[teamName] || "https://www.mlbstatic.com/team-logos/team-cap-on-dark/mlb.svg";
+}
+
+// Función principal para poblar la pestaña de Simulación y Pronósticos con logos y 3 columnas
+function loadSimulationTabData() {
+    const container = document.getElementById('simulacion-container');
+    if (!container) return;
+
+    container.innerHTML = ''; // Limpiar contenido previo
+
+    // Forzar grid estricto de 3 columnas
+    container.style.cssText = `
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 20px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    `;
+
+    if (typeof BASE_MATCHES === 'undefined') return;
+
+    BASE_MATCHES.forEach((match, index) => {
+        const card = document.createElement('div');
+        
+        card.style.cssText = `
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+            background: #111827 !important;
+            border: 1px solid rgba(56, 189, 248, 0.2) !important;
+            border-radius: 1rem !important;
+            padding: 1.25rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            color: #f3f4f6 !important;
+        `;
+
+        const awayLogo = getTeamLogo(match.away);
+        const homeLogo = getTeamLogo(match.home);
+
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #9ca3af; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                <span>Simulación #${index + 1}</span>
+                <span>${match.time} • ${match.dateFormatted}</span>
+            </div>
+            
+            <!-- Bloque de Equipos con Logos Oficiales -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 0.75rem;">
+                <!-- Visitante -->
+                <div style="display: flex; flex-direction: column; align-items: center; width: 42%;">
+                    <img src="${awayLogo}" alt="${match.away}" style="width: 36px; height: 36px; object-fit: contain; margin-bottom: 0.25rem;" onerror="this.style.display='none'">
+                    <span style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; text-align: center; line-height: 1.1;">${match.away}</span>
+                </div>
+                
+                <span style="font-weight: 800; color: #6b7280; font-size: 0.9rem;">@</span>
+                
+                <!-- Local -->
+                <div style="display: flex; flex-direction: column; align-items: center; width: 42%;">
+                    <img src="${homeLogo}" alt="${match.home}" style="width: 36px; height: 36px; object-fit: contain; margin-bottom: 0.25rem;" onerror="this.style.display='none'">
+                    <span style="font-size: 0.75rem; font-weight: 700; color: #34d399; text-align: center; line-height: 1.1;">${match.home}</span>
+                </div>
+            </div>
+
+            <div style="font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 0.75rem;">
+                <div style="margin-bottom: 0.25rem;">🏟️ <b>Estadio:</b> ${match.stadium}</div>
+                <div style="margin-bottom: 0.25rem;">👤 <b>Pitcher Vis:</b> ${match.starter_away}</div>
+                <div>👤 <b>Pitcher Loc:</b> ${match.starter_home}</div>
+            </div>
+
+            <div style="background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.3); padding: 0.75rem; border-radius: 0.5rem; margin-top: auto;">
+                <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; margin-bottom: 0.25rem;">🔮 Pronóstico Algorítmico</div>
+                <div style="font-size: 0.8rem; color: #e5e7eb;">Modelo de simulación activo y listo para arrojar tendencias.</div>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+// Ejecutar al cargar la página
+window.addEventListener('DOMContentLoaded', () => {
+    loadSimulationTabData();
+});
