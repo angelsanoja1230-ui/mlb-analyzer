@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oráculo MLB - Análisis Predictivo y Simulación</title>
+    <title>Oráculo MLB - Análisis Predictivo y Simulación Estocástica</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -31,118 +31,146 @@
                 <span class="text-2xl font-black bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">⚾ Oráculo MLB</span>
             </div>
             <nav class="hidden md:flex space-x-6 text-sm font-semibold">
-                <a href="#" class="text-cyan-400 hover:text-cyan-300 transition">Simulaciones</a>
-                <a href="#" class="text-slate-400 hover:text-slate-200 transition">Partidos en Vivo</a>
-                <a href="#" class="text-slate-400 hover:text-slate-200 transition">Generador Parley</a>
-                <a href="#" class="text-slate-400 hover:text-slate-200 transition">Historial</a>
+                <button onclick="switchTab('simulations')" id="nav-simulations" class="text-cyan-400 hover:text-cyan-300 transition pb-1 border-b-2 border-cyan-400">Simulaciones</button>
+                <button onclick="switchTab('live')" id="nav-live" class="text-slate-400 hover:text-slate-200 transition pb-1 border-b-2 border-transparent">Partidos en Vivo</button>
+                <button onclick="switchTab('parley')" id="nav-parley" class="text-slate-400 hover:text-slate-200 transition pb-1 border-b-2 border-transparent">Generador Parley</button>
             </nav>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
-        
-        <!-- Section Title -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-3xl font-black tracking-tight">Simulaciones Estocásticas</h1>
-                <p class="text-slate-400 text-sm mt-1">Análisis predictivo avanzado basado en iteraciones y métricas sabermétricas.</p>
-            </div>
             <div class="flex items-center gap-3">
-                <button onclick="location.reload();" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-2">
-                    🔄 Actualizar Datos
+                <button onclick="location.reload();" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+                    🔄 Sincronizar
                 </button>
             </div>
         </div>
+    </header>
 
-        <!-- Simulation Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Sample Game Card 1 -->
-            <div onclick='openDeepDive({
-                away: "Yankees",
-                home: "Red Sox",
-                logo_away: "https://www.mlbstatic.com/team-logos/147.svg",
-                logo_home: "https://www.mlbstatic.com/team-logos/111.svg",
-                value_index: "8.4",
-                prob_away: "54.2",
-                prob_home: "45.8",
-                projected_score_away: "5.4",
-                projected_score_home: "4.2",
-                pitcher_metrics_away: "3.20 / 1.12",
-                pitcher_metrics_home: "3.85 / 1.25",
-                bullpen_advantage: "+12.4% (Visitante)",
-                ballpark_factor: "Neutro (1.02)",
-                winner_full: "Yankees (54.2%)",
-                winner_f5: "Yankees (58.0%)",
-                over_under: "Alta 9.5 (61%)"
-            })' class="bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 space-y-4 group">
-                <div class="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider">
-                    <span>Hoy, 7:05 PM</span>
-                    <span class="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition">Valor: 8.4</span>
-                </div>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg font-black">NYY (Visitor)</span>
-                        </div>
-                        <span class="text-cyan-400 font-extrabold text-lg">54.2%</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg font-black">BOS (Home)</span>
-                        </div>
-                        <span class="text-slate-400 font-extrabold text-lg">45.8%</span>
-                    </div>
-                </div>
-                <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                    <span>Carreras Proj: <strong class="text-slate-200">9.6</strong></span>
-                    <span class="text-cyan-400 font-semibold group-hover:translate-x-1 transition flex items-center gap-1">Ver Análisis &rarr;</span>
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+        
+        <!-- TAB 1: SIMULACIONES -->
+        <section id="tab-simulations" class="space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight">Simulaciones Estocásticas (Monte Carlo)</h1>
+                    <p class="text-slate-400 text-sm mt-1">Evaluación sabermétrica avanzada, abridores y ventajas de bullpen actualizadas.</p>
                 </div>
             </div>
 
-            <!-- Sample Game Card 2 -->
-            <div onclick='openDeepDive({
-                away: "Dodgers",
-                home: "Giants",
-                logo_away: "https://www.mlbstatic.com/team-logos/119.svg",
-                logo_home: "https://www.mlbstatic.com/team-logos/137.svg",
-                value_index: "9.1",
-                prob_away: "61.5",
-                prob_home: "38.5",
-                projected_score_away: "6.1",
-                projected_score_home: "3.5",
-                pitcher_metrics_away: "2.80 / 1.05",
-                pitcher_metrics_home: "4.10 / 1.30",
-                bullpen_advantage: "+18.1% (Visitante)",
-                ballpark_factor: "Favorable a Lanzadores (0.94)",
-                winner_full: "Dodgers (61.5%)",
-                winner_f5: "Dodgers (65.0%)",
-                over_under: "Baja 8.5 (55%)"
-            })' class="bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 space-y-4 group">
-                <div class="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider">
-                    <span>Hoy, 9:45 PM</span>
-                    <span class="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition">Valor: 9.1</span>
-                </div>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg font-black">LAD (Visitor)</span>
-                        </div>
-                        <span class="text-emerald-400 font-extrabold text-lg">61.5%</span>
+            <!-- Grid Dinámico de Partidos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for game in games %}
+                <div onclick='openDeepDive({{ game | tojson | safe }})' class="bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 space-y-4 group">
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider">
+                        <span>{{ game.time }}</span>
+                        <span class="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition">Valor: {{ game.value_index }}</span>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg font-black">SFG (Home)</span>
+                    
+                    <div class="space-y-3">
+                        <!-- Visitante -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <img src="{{ game.logo_away }}" class="w-7 h-7 object-contain" alt="Away Logo">
+                                <span class="text-base font-black">{{ game.away }}</span>
+                            </div>
+                            <span class="text-cyan-400 font-extrabold text-base">{{ game.prob_away }}%</span>
                         </div>
-                        <span class="text-slate-400 font-extrabold text-lg">38.5%</span>
+                        <!-- Local -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <img src="{{ game.logo_home }}" class="w-7 h-7 object-contain" alt="Home Logo">
+                                <span class="text-base font-black">{{ game.home }}</span>
+                            </div>
+                            <span class="text-slate-400 font-extrabold text-base">{{ game.prob_home }}%</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                        <span>Carreras Proj: <strong class="text-slate-200">{{ game.projected_total }}</strong></span>
+                        <span class="text-cyan-400 font-semibold group-hover:translate-x-1 transition flex items-center gap-1">Ver Análisis &rarr;</span>
                     </div>
                 </div>
-                <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                    <span>Carreras Proj: <strong class="text-slate-200">9.6</strong></span>
-                    <span class="text-cyan-400 font-semibold group-hover:translate-x-1 transition flex items-center gap-1">Ver Análisis &rarr;</span>
+                {% else %}
+                <div class="col-span-full py-16 text-center bg-slate-900/40 border border-slate-800 rounded-3xl">
+                    <p class="text-slate-400 text-sm font-medium">No hay simulaciones disponibles en este momento. Ejecuta el scraper o actualiza los datos.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- TAB 2: PARTIDOS EN VIVO -->
+        <section id="tab-live" class="space-y-8 hidden">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight">Monitoreo en Vivo</h1>
+                    <p class="text-slate-400 text-sm mt-1">Seguimiento de marcadores, conteo de bolas, strikes, outs y entradas en tiempo real.</p>
+                </div>
+                <span class="flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Auto-refresh activo (30s)
+                </span>
+            </div>
+
+            <div id="live-games-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Se inyecta dinámicamente o vía template backend -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4">
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-bold">
+                        <span class="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">EN VIVO • 4to Inning</span>
+                        <span>Bases: 1ra y 2da</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-sm font-bold">
+                            <span>Astros (H)</span>
+                            <span class="text-lg">3</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm font-bold">
+                            <span>Rangers (A)</span>
+                            <span class="text-lg">2</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800 flex justify-between text-xs text-slate-400">
+                        <span>Conteo: <strong class="text-slate-200">2B - 1S - 2O</strong></span>
+                        <span> pitcher actual activo</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <!-- TAB 3: GENERADOR DE PARLEY -->
+        <section id="tab-parley" class="space-y-8 hidden">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight">Generador de Parley Inteligente</h1>
+                <p class="text-slate-400 text-sm mt-1">Combina las mejores apuestas con mayor valor esperado estadístico (Edge).</p>
+            </div>
+            
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Cantidad de Picks</label>
+                        <select id="parley-legs" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
+                            <option value="2">Doble (2 Logros)</option>
+                            <option value="3" selected>Triple (3 Logros)</option>
+                            <option value="4">Cuádruple (4 Logros)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Riesgo / Estrategia</label>
+                        <select id="parley-strategy" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
+                            <option value="value">Mayor Edge (Valor Matemático)</option>
+                            <option value="safe">Favoritos Sólidos</option>
+                            <option value="balanced">Equilibrado</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="generateParley()" class="w-full bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-black text-sm py-2.5 rounded-xl transition shadow-lg shadow-cyan-500/20">
+                            ⚡ Generar Combinación
+                        </button>
+                    </div>
+                </div>
+
+                <div id="parley-results" class="border-t border-slate-800 pt-6 space-y-4">
+                    <p class="text-xs text-slate-500 text-center py-4">Selecciona los parámetros y haz clic en generar para armar tu parley.</p>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Footer -->
@@ -157,13 +185,29 @@
                 ✕
             </button>
             <div id="modal-content" class="space-y-6">
-                <!-- Dynamic Content injected by JS -->
+                <!-- Contenido dinámico inyectado por JS -->
             </div>
         </div>
     </div>
 
     <!-- JavaScript Application Logic -->
     <script>
+        // Sistema de Pestañas
+        function switchTab(tabId) {
+            ['simulations', 'live', 'parley'].forEach(id => {
+                const section = document.getElementById(`tab-${id}`);
+                const navBtn = document.getElementById(`nav-${id}`);
+                if (id === tabId) {
+                    section.classList.remove('hidden');
+                    navBtn.className = "text-cyan-400 hover:text-cyan-300 transition pb-1 border-b-2 border-cyan-400 font-semibold";
+                } else {
+                    section.classList.add('hidden');
+                    navBtn.className = "text-slate-400 hover:text-slate-200 transition pb-1 border-b-2 border-transparent font-semibold";
+                }
+            });
+        }
+
+        // Modal Deep Dive
         function openDeepDive(game) {
             const modal = document.getElementById('deep-dive-modal');
             const content = document.getElementById('modal-content');
@@ -226,19 +270,41 @@
             modal.classList.add('hidden');
         }
 
-        // Cerrar modal haciendo clic fuera de la caja
+        // Eventos de cierre para el modal
         document.getElementById('deep-dive-modal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeDeepDive();
             }
         });
 
-        // Cerrar con la tecla Escape
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeDeepDive();
             }
         });
+
+        // Generador Parley Mock (interactúa con tu lógica)
+        function generateParley() {
+            const container = document.getElementById('parley-results');
+            container.innerHTML = `
+                <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-2xl space-y-3 text-xs">
+                    <div class="flex justify-between items-center text-slate-400 font-bold">
+                        <span>Combinación Optimizada (Cuota Est. +420)</span>
+                        <span class="text-emerald-400">Edge Promedio: +7.2%</span>
+                    </div>
+                    <ul class="space-y-2 text-slate-300">
+                        <li class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800/80">
+                            <span>1. Dodgers (Moneyline) vs Giants</span>
+                            <strong class="text-cyan-400">61.5% Prob</strong>
+                        </li>
+                        <li class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800/80">
+                            <span>2. Yankees vs Red Sox (Alta 9.5)</span>
+                            <strong class="text-cyan-400">61.0% Prob</strong>
+                        </li>
+                    </ul>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
