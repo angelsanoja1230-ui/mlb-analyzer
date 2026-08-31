@@ -1,22 +1,10 @@
-from flask import Flask, render_template
-import json
-import os
 import requests
 from datetime import datetime
-from simulator import process_all_matches
-
-app = Flask(__name__)
-
-CACHE = {
-    'date': None,
-    'matches': [],
-    'team_logos': {},
-    'DAILY_ARCHIVE': {}
-}
 
 def fetch_mlb_today_games():
     today = datetime.now().strftime('%Y-%m-%d')
-    url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}"
+    # Añadimos hydrate=probablePitcher para que la API nos devuelva los abridores oficiales
+    url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&hydrate=probablePitcher"
     
     try:
         response = requests.get(url, timeout=5)
@@ -29,7 +17,10 @@ def fetch_mlb_today_games():
                     away_team = game['teams']['away']['team']['name']
                     home_team = game['teams']['home']['team']['name']
                     
-                    # Convertir hora UTC a formato legible (o conservar para ajustar en España/local)
+                    # Extraer pitchers abridores reales de la API oficial
+                    starter_away = game['teams']['away'].get('probablePitcher', {}).get('fullName', 'Por anunciar')
+                    starter_home = game['teams']['home'].get('probablePitcher', {}).get('fullName', 'Por anunciar')
+                    
                     game_date_str = game.get('gameDate', '')
                     time_str = "Por definir"
                     if game_date_str:
@@ -44,48 +35,19 @@ def fetch_mlb_today_games():
                         'stadium': stadium,
                         'away': away_team,
                         'home': home_team,
-                        'starter_away': "Por anunciar",
-                        'starter_home': "Por anunciar",
-                        'awayOdds': 1.90,
-                        'homeOdds': 1.90,
-                        'defaultHcap': '-1.5'
+                        'starter_away': starter_away,
+                        'starter_home': starter_home,
+                        'prob_away': 50,
+                        'prob_home': 50,
+                        'f5_away': 50,
+                        'f5_home': 50,
+                        'over_under_prob': 'Over 8.5',
+                        'runline_away': '-1.5',
+                        'runline_home': '+1.5',
+                        'value_bet': 'Pendiente de análisis'
                     })
             return games
     except Exception as e:
-        print(f"Error al conectar con la API de MLB: {e}")
+        print(f"Error al conectar con la API de la MLB: {e}")
         
     return []
-
-def get_cached_data():
-    today = datetime.now().strftime('%Y-%m-%d')
-    
-    # Si cambia el día o está vacío, actualizamos consultando la API de la MLB
-    if CACHE['date'] != today or not CACHE['matches']:
-        api_matches = fetch_mlb_today_games()
-        
-        # Fallback a data.json si la API falla o no hay partidos hoy
-        if not api_matches and os.path.exists('data.json'):
-            with open('data.json', 'r', encoding='utf-8') as f:
-                local_data = json.load(f)
-                api_matches = local_data.get('matches', [])
-                CACHE['team_logos'] = local_data.get('team_logos', {})
-                CACHE['DAILY_ARCHIVE'] = local_data.get('DAILY_ARCHIVE', {})
-        
-        CACHE['matches'] = process_all_matches(api_matches)
-        CACHE['date'] = today
-        
-    return CACHE['matches'], CACHE['team_logos'], CACHE['DAILY_ARCHIVE']
-
-@app.route('/')
-def index():
-    matches, team_logos, daily_archive = get_cached_data()
-    
-    return render_template(
-        'index.html', 
-        matches=matches, 
-        team_logos=team_logos, 
-        DAILY_ARCHIVE=daily_archive
-    )
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
