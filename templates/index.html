@@ -80,7 +80,7 @@
         <div id="matches-cards-container" class="matches-grid"></div>
     </div>
 
-    <!-- Pestaña Nueva de Simulación y Pronósticos (Sustituye a la anterior de tendencias) -->
+    <!-- Pestaña Nueva de Simulación y Pronósticos -->
     <div id="simulacion-tab" class="tab-content">
         <div class="section-header-flex">
             <h2>Simulación de Pronósticos y Tendencias</h2>
@@ -120,6 +120,46 @@
     </div>
 
     <script>
+        // Diccionario Global de Logos Oficiales de la MLB
+        const MLB_LOGOS = {
+            "San Francisco Giants": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/137.svg",
+            "Atlanta Braves": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/144.svg",
+            "New York Mets": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/121.svg",
+            "Tampa Bay Rays": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/139.svg",
+            "San Diego Padres": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/135.svg",
+            "Cincinnati Reds": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/113.svg",
+            "Seattle Mariners": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/136.svg",
+            "Boston Red Sox": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/111.svg",
+            "Miami Marlins": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/146.svg",
+            "Washington Nationals": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/120.svg",
+            "Detroit Tigers": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/116.svg",
+            "Minnesota Twins": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/142.svg",
+            "Milwaukee Brewers": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/158.svg",
+            "Chicago Cubs": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/112.svg",
+            "Oakland Athletics": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/133.svg",
+            "Texas Rangers": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/140.svg",
+            "Chicago White Sox": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/145.svg",
+            "Houston Astros": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/117.svg",
+            "Baltimore Orioles": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/110.svg",
+            "Colorado Rockies": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/115.svg",
+            "New York Yankees": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/147.svg",
+            "Los Angeles Angels": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/108.svg",
+            "Philadelphia Phillies": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/143.svg",
+            "Arizona Diamondbacks": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/109.svg",
+            "Los Angeles Dodgers": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/119.svg",
+            "St. Louis Cardinals": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/138.svg",
+            "Toronto Blue Jays": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/141.svg",
+            "Kansas City Royals": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/118.svg",
+            "Pittsburgh Pirates": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/134.svg",
+            "Cleveland Guardians": "https://www.mlbstatic.com/team-logos/team-cap-on-dark/114.svg"
+        };
+
+        // Función Global Auxiliar para Obtener Logos
+        function getTeamLogo(teamName) {
+            if (!teamName) return "https://www.mlbstatic.com/team-logos/team-cap-on-dark/mlb.svg";
+            return MLB_LOGOS[teamName.trim()] || "https://www.mlbstatic.com/team-logos/team-cap-on-dark/mlb.svg";
+        }
+
         // Los 12 encuentros oficiales de la jornada de hoy 31 de agosto de 2026
         const BASE_MATCHES = [
             {
