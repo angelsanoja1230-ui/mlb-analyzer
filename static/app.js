@@ -1,311 +1,3 @@
-const CURRENT_DATE = new Date().toISOString().split('T')[0];
-
-function getSavedAuditRecords() {
-    try {
-        return JSON.parse(localStorage.getItem('mlb_audit_records')) || [];
-    } catch (e) {
-        return [];
-    }
-}
-
-function saveAuditRecords(records) {
-    try {
-        localStorage.setItem('mlb_audit_records', JSON.stringify(records));
-    } catch (e) {}
-}
-
-function saveCustomLines() {
-    let records = getSavedAuditRecords();
-    let newRecord = {
-        id: Date.now(),
-        date: CURRENT_DATE,
-        match: "Configuración de Líneas Diarias",
-        selection: "Hándicaps personalizados guardados",
-        prob: "100%",
-        result: "Guardado",
-        status: "ACTIVO"
-    };
-    records.unshift(newRecord);
-    saveAuditRecords(records);
-    renderAuditHistory();
-    alert("Líneas de hándicaps diarias guardadas y registradas en la auditoría con éxito.");
-}
-
-function renderAuditHistory() {
-    const container = document.getElementById('history-list-container');
-    if (!container) return;
-    const records = getSavedAuditRecords();
-    container.innerHTML = `
-        <div style="background: linear-gradient(145deg, #161f30, #0d131f); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem; color: #f8fafc;">
-            <h3 style="margin-top:0; color:#38bdf8;">Registros en Auditoría (${records.length})</h3>
-            <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:1rem;">
-                ${records.length === 0 ? '<p style="color:#94a3b8; font-size:0.85rem;">No hay registros de auditoría guardados aún.</p>' : records.map(r => `
-                    <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.05); padding:0.75rem; border-radius:8px; display:flex; justify-content:space-between; align-items:center; font-size:0.82rem;">
-                        <div>
-                            <strong style="color:#f8fafc;">${r.match}</strong><br>
-                            <span style="color:#38bdf8;">${r.selection}</span> &bull; <span style="color:#94a3b8;">Prob: ${r.prob}</span>
-                        </div>
-                        <span style="background:rgba(52,211,153,0.15); color:#34d399; padding:0.2rem 0.5rem; border-radius:6px; font-weight:800; font-size:0.75rem;">${r.status}</span>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
-function getTeamBadgeHTML(teamName) {
-    return `<div style="width:28px; height:28px; background:#1e293b; border: 1px solid rgba(56,189,248,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:bold; color:#38bdf8; flex-shrink:0;">${(teamName || 'MLB').substring(0, 2).toUpperCase()}</div>`;
-}
-
-function renderMatches() {
-    const container = document.getElementById('matches-cards-container');
-    if (!container) return;
-    const matchesSource = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [
-        { away: "Boston Red Sox", home: "New York Yankees", time: "7:05 PM", stadium: "Yankee Stadium", starter_home: "G. Cole", starter_away: "C. Sale" },
-        { away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "6:40 PM", stadium: "Comerica Park", starter_home: "T. Skubal", starter_away: "Y. Yamamoto" },
-        { away: "Colorado Rockies", home: "Atlanta Braves", time: "7:20 PM", stadium: "Truist Park", starter_home: "C. Sale", starter_away: "K. Freeland" }
-    ];
-    
-    container.innerHTML = matchesSource.map((m, idx) => `
-        <div style="background: linear-gradient(145deg, #161f30, #0d131f); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 1.25rem; box-shadow: 0 6px 16px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 1rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.6rem;">
-                <span style="font-weight:800; color:#f8fafc; font-size:0.95rem;">${m.away} @ ${m.home}</span>
-                <span style="font-size:0.75rem; color:#38bdf8; background:rgba(56,189,248,0.1); padding:0.2rem 0.5rem; border-radius:6px; font-weight:700;">${m.time || '7:00 PM'}</span>
-            </div>
-            <div style="font-size:0.8rem; color:#94a3b8; display:flex; flex-direction:column; gap:0.3rem;">
-                <div>Estadio: <strong style="color:#cbd5e1;">${m.stadium || 'Estadio MLB'}</strong></div>
-                <div>Abridores: <strong style="color:#34d399;">${m.starter_away || 'Visita'} vs ${m.starter_home || 'Local'}</strong></div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function renderTrends() {
-    const container = document.getElementById('trends-list-container');
-    if (!container) return;
-
-    const matchesSource = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [
-        { away: "Boston Red Sox", home: "New York Yankees", starter_home: "G. Cole", starter_away: "C. Sale" },
-        { away: "Los Angeles Dodgers", home: "Detroit Tigers", starter_home: "T. Skubal", starter_away: "Y. Yamamoto" }
-    ];
-
-    container.innerHTML = `
-        <style>
-            .trends-grid {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 1.25rem !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            @media (max-width: 1024px) {
-                .trends-grid { grid-template-columns: 1fr !important; }
-            }
-            .trend-card {
-                background: linear-gradient(145deg, #161f30, #0d131f);
-                border: 1px solid rgba(56, 189, 248, 0.2);
-                border-radius: 12px;
-                padding: 1.25rem;
-                box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                gap: 1rem;
-                box-sizing: border-box !important;
-                width: 100% !important;
-            }
-            .trend-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-                padding-bottom: 0.6rem;
-            }
-            .trend-match-title {
-                color: #f8fafc;
-                font-weight: 800;
-                font-size: 0.98rem;
-            }
-            .trend-badge {
-                font-size: 0.78rem;
-                color: #34d399;
-                background: rgba(52, 211, 153, 0.1);
-                border: 1px solid rgba(52, 211, 153, 0.3);
-                padding: 0.2rem 0.5rem;
-                border-radius: 6px;
-                font-weight: 700;
-            }
-            .trend-stats-box {
-                background: rgba(0, 0, 0, 0.3);
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                border-radius: 8px;
-                padding: 0.8rem;
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            .trend-row-item {
-                display: flex;
-                justify-content: space-between;
-                font-size: 0.82rem;
-                color: #cbd5e1;
-            }
-            .trend-row-value {
-                color: #38bdf8;
-                font-weight: 700;
-            }
-            .btn-trend-action {
-                width: 100%;
-                padding: 0.7rem;
-                background: linear-gradient(135deg, #38bdf8, #0284c7);
-                color: #0f172a;
-                border: none;
-                border-radius: 8px;
-                font-weight: 800;
-                cursor: pointer;
-                font-size: 0.82rem;
-                box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
-                transition: opacity 0.2s;
-            }
-            .btn-trend-action:hover { opacity: 0.9; }
-        </style>
-
-        <div class="trends-grid">
-            ${matchesSource.map(m => `
-                <div class="trend-card">
-                    <div>
-                        <div class="trend-header">
-                            <span class="trend-match-title">${m.away} vs ${m.home}</span>
-                            <span class="trend-badge">Confianza: 64.5%</span>
-                        </div>
-                        <p style="color: #94a3b8; font-size: 0.78rem; margin: 0.6rem 0;">Análisis detallado de rachas, bullpen y enfrentamientos previos.</p>
-                        
-                        <div class="trend-stats-box">
-                            <div class="trend-row-item">
-                                <span>Racha últimos 10 juegos:</span>
-                                <span class="trend-row-value">7V - 3D (${m.home})</span>
-                            </div>
-                            <div class="trend-row-item">
-                                <span>Efectividad Abridores (ERA):</span>
-                                <span class="trend-row-value">${m.starter_home || '3.42'} vs ${m.starter_away || '4.15'}</span>
-                            </div>
-                            <div class="trend-row-item">
-                                <span>Tendencia de Línea:</span>
-                                <span class="trend-row-value">Over en 4 de los últimos 5</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn-trend-action" onclick="registerTrendPick('${m.away}', '${m.home}')">Registrar Tendencia en Auditoría</button>
-                </div>
-            `).join('')}
-        </div>
-    `;
-}
-
-function renderJugadaMaestra() {
-    const container = document.getElementById('master-pick-display-container');
-    if (!container) return;
-
-    const matchesSource = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [
-        { away: "Boston Red Sox", home: "New York Yankees", starter_home: "G. Cole", starter_away: "C. Sale" }
-    ];
-
-    container.innerHTML = `
-        <style>
-            .master-container {
-                display: flex;
-                flex-direction: column;
-                gap: 1.25rem;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-            .master-highlight-card {
-                background: linear-gradient(145deg, #1e1b4b, #0f172a);
-                border: 2px solid rgba(129, 140, 248, 0.4);
-                border-radius: 14px;
-                padding: 1.5rem;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-                display: flex;
-                flex-direction: column;
-                gap: 1.2rem;
-            }
-            .master-card-top {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                padding-bottom: 0.8rem;
-            }
-            .master-title-badge {
-                background: linear-gradient(135deg, #818cf8, #6366f1);
-                color: #ffffff;
-                padding: 0.3rem 0.8rem;
-                border-radius: 8px;
-                font-weight: 800;
-                font-size: 0.85rem;
-            }
-            .master-details-grid {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1rem;
-            }
-            @media (max-width: 768px) {
-                .master-details-grid { grid-template-columns: 1fr; }
-            }
-            .master-stat-box {
-                background: rgba(0, 0, 0, 0.35);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 10px;
-                padding: 1rem;
-                display: flex;
-                flex-direction: column;
-                gap: 0.4rem;
-            }
-            .master-btn-action {
-                background: linear-gradient(135deg, #34d399, #059669);
-                color: #0f172a;
-                border: none;
-                border-radius: 10px;
-                padding: 0.8rem 1.5rem;
-                font-weight: 900;
-                cursor: pointer;
-                font-size: 0.9rem;
-                box-shadow: 0 4px 14px rgba(52, 211, 153, 0.4);
-                transition: opacity 0.2s;
-                align-self: flex-start;
-            }
-            .master-btn-action:hover { opacity: 0.9; }
-        </style>
-
-        <div class="master-container">
-            <div style="background: rgba(129, 140, 248, 0.08); border: 1px solid rgba(129, 140, 248, 0.2); padding: 1rem 1.25rem; border-radius: 10px; color: #c7d2fe; font-size: 0.88rem;">
-                ⭐ El modelo de <b>Jugada Maestra</b> cruza métricas avanzadas de efectividad independiente del fildeo (FIP), wOBA de bateadores contra abridores derechos/zurdos y rendimiento del bullpen en los últimos 7 días.
-            </div>
-
-            <div class="master-details-grid">
-                ${matchesSource.map(m => `
-                    <div class="master-highlight-card">
-                        <div class="master-card-top">
-                            <span class="master-title-badge">⭐ Jugada Maestra Analítica</span>
-                            <span style="color: #34d399; font-weight: 800; font-size: 0.9rem;">Win Probability: 68.2%</span>
-                        </div>
-                        <div>
-                            <h3 style="color: #f8fafc; font-size: 1.1rem; margin-bottom: 0.4rem;">${m.away} @ ${m.home}</h3>
-                            <p style="color: #94a3b8; font-size: 0.82rem; margin: 0;">Selección Principal: <strong style="color: #38bdf8;">${m.home} (ML) & Over 8.5</strong></p>
-                        </div>
-                        <div class="master-stat-box">
-                            <div style="font-size: 0.78rem; color: #94a3b8;">Factores Clave del Modelo:</div>
-                            <div style="font-size: 0.8rem; color: #cbd5e1;">&bull; Ventaja de bullpen local del 14% en tramos finales.</div>
-                            <div style="font-size: 0.8rem; color: #cbd5e1;">&bull; Abridores (${m.starter_home || 'Local'} vs ${m.starter_away || 'Visita'}) con tendencia over.</div>
-                        </div>
-                        <button class="master-btn-action" onclick="registerCustomMasterPick('${m.away} vs ${m.home}', '${m.home} (ML) + Over 8.5', '68.2%')">Enviar a Hoja de Auditoría</button>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-}
-
 function renderParlays() {
     const container = document.getElementById('auto-parlays-container');
     if (!container) return;
@@ -685,17 +377,6 @@ async function fetchRealTimeLiveScores() {
     }
 }
 
-function fetchRealLiveMLBData() {
-    fetchRealTimeLiveScores();
-    alert("Datos en vivo actualizados desde la API de ESPN.");
-}
-
-function syncAuditWithLiveAPI() {
-    fetchRealTimeLiveScores();
-    renderAuditHistory();
-    alert("Hoja de auditoría sincronizada con los resultados actuales.");
-}
-
 function getApiScoreForMatch(awayTeamName, homeTeamName) {
     if (!realApiEventsCache || realApiEventsCache.length === 0) return null;
 
@@ -728,10 +409,7 @@ function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
     if (!container) return;
     
-    const matchesSource = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [
-        { away: "Boston Red Sox", home: "New York Yankees", time: "7:05 PM", stadium: "Yankee Stadium", starter_home: "G. Cole", starter_away: "C. Sale" },
-        { away: "Los Angeles Dodgers", home: "Detroit Tigers", time: "6:40 PM", stadium: "Comerica Park", starter_home: "T. Skubal", starter_away: "Y. Yamamoto" }
-    ];
+    const matchesSource = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [];
 
     const processedMatches = matchesSource.map((m, idx) => {
         const liveApiData = getApiScoreForMatch(m.away, m.home);
@@ -817,7 +495,7 @@ function renderLiveControl() {
                         <div class="espn-body">
                             <div class="espn-team-row">
                                 <div class="espn-team-info">
-                                    ${getTeamBadgeHTML(m.away)}
+                                    ${typeof getTeamBadgeHTML === 'function' ? getTeamBadgeHTML(m.away, true) : ''}
                                     <div>
                                         <div class="espn-team-name">${m.away}</div>
                                         <div style="font-size: 0.7rem; color: #64748b;">(Visita) &bull; ${m.starter_away || 'Abridor'}</div>
@@ -827,7 +505,7 @@ function renderLiveControl() {
                             </div>
                             <div class="espn-team-row">
                                 <div class="espn-team-info">
-                                    ${getTeamBadgeHTML(m.home)}
+                                    ${typeof getTeamBadgeHTML === 'function' ? getTeamBadgeHTML(m.home, true) : ''}
                                     <div>
                                         <div class="espn-team-name">${m.home}</div>
                                         <div style="font-size: 0.7rem; color: #64748b;">(Local) &bull; ${m.starter_home || 'Abridor'}</div>
@@ -862,27 +540,11 @@ function renderLiveControl() {
     `;
 }
 
-function switchTab(evt, tabId) {
-    const contents = document.querySelectorAll('.tab-content');
-    contents.forEach(c => c.classList.remove('active'));
-    
-    const buttons = document.querySelectorAll('.tab-btn');
-    buttons.forEach(b => b.classList.remove('active'));
-    
-    const targetTab = document.getElementById(tabId);
-    if (targetTab) targetTab.classList.add('active');
-    
-    if (evt && evt.currentTarget) {
-        evt.currentTarget.classList.add('active');
-    }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     renderMatches();
     renderTrends();
     renderJugadaMaestra();
     renderParlays();
-    renderAuditHistory();
     
     fetchRealTimeLiveScores();
     
