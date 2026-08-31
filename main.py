@@ -119,3 +119,10 @@ def fetch_mlb_today_games():
             'value_bet': 'Over 8.0'
         }
     ]
+@app.route('/')
+def index():
+    games = fetch_mlb_today_games()
+    return render_template('index.html', matches=games)
+
+if __name__ == '__main__':
+    app.run(debug=True)
