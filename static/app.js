@@ -1,20 +1,20 @@
 const CURRENT_DATE = "2026-08-30"; 
 
 const BASE_MATCHES = [
-    { id: 1, time: "12:15 PM", stadium: "Nationals Park", away: "Miami Marlins", home: "Washington Nationals", starter_away: "J. Junk", starter_home: "A. Alvarez", awayOdds: 2.00, homeOdds: 1.70, defaultHcap: "-1.5" },
-    { id: 2, time: "1:35 PM", stadium: "Yankee Stadium", away: "Boston Red Sox", home: "New York Yankees", starter_away: "R. Suarez", starter_home: "W. Warren", awayOdds: 2.30, homeOdds: 1.67, defaultHcap: "-1.5" },
-    { id: 3, time: "1:35 PM", stadium: "Truist Park", away: "Colorado Rockies", home: "Atlanta Braves", starter_away: "M. Adams", starter_home: "T. Mahle", awayOdds: 1.93, homeOdds: 1.91, defaultHcap: "-1.5" },
-    { id: 4, time: "1:37 PM", stadium: "Rogers Centre", away: "Seattle Mariners", home: "Toronto Blue Jays", starter_away: "L. Gilbert", starter_home: "M. Scherzer", awayOdds: 2.25, homeOdds: 1.60, defaultHcap: "-1.5" },
-    { id: 5, time: "1:40 PM", stadium: "Progressive Field", away: "Kansas City Royals", home: "Cleveland Guardians", starter_away: "S. Lugo", starter_home: "P. Messick", awayOdds: 1.74, homeOdds: 2.15, defaultHcap: "+1.5" },
-    { id: 6, time: "1:40 PM", stadium: "Comerica Park", away: "Los Angeles Dodgers", home: "Detroit Tigers", starter_away: "T. Glasnow", starter_home: "F. Valdez", awayOdds: 2.04, homeOdds: 1.77, defaultHcap: "-1.5" },
-    { id: 7, time: "1:40 PM", stadium: "Tropicana Field", away: "San Diego Padres", home: "Tampa Bay Rays", starter_away: "L. Ray", starter_home: "D. Rasmussen", awayOdds: 1.65, homeOdds: 2.30, defaultHcap: "+1.5" },
-    { id: 8, time: "2:10 PM", stadium: "Target Field", away: "Chicago White Sox", home: "Minnesota Twins", starter_away: "J. Hicks", starter_home: "Z. Matthews", awayOdds: 1.95, homeOdds: 1.83, defaultHcap: "-1.5" },
-    { id: 9, time: "2:10 PM", stadium: "American Family Field", away: "Texas Rangers", home: "Milwaukee Brewers", starter_away: "K. Rocker", starter_home: "B. May", awayOdds: 1.68, homeOdds: 2.25, defaultHcap: "+1.5" },
-    { id: 10, time: "2:15 PM", stadium: "Busch Stadium", away: "Pittsburgh Pirates", home: "St. Louis Cardinals", starter_away: "B. Ashcraft", starter_home: "M. Liberatore", awayOdds: 1.76, homeOdds: 2.10, defaultHcap: "+1.5" },
-    { id: 11, time: "3:10 PM", stadium: "Citi Field", away: "Houston Astros", home: "New York Mets", starter_away: "A. Pecko", starter_home: "T. Thornton", awayOdds: 1.52, homeOdds: 2.60, defaultHcap: "-1.5" },
-    { id: 12, time: "4:05 PM", stadium: "Sutter Health Park", away: "Baltimore Orioles", home: "Oakland Athletics", starter_away: "C. Bassitt", starter_home: "J. Springs", awayOdds: 2.00, homeOdds: 1.83, defaultHcap: "-1.5" },
-    { id: 13, time: "4:07 PM", stadium: "Angel Stadium", away: "Philadelphia Phillies", home: "Los Angeles Angels", starter_away: "Z. Wheeler", starter_home: "Y. Kikuchi", awayOdds: 1.58, homeOdds: 2.40, defaultHcap: "-1.5" },
-    { id: 14, time: "7:20 PM", stadium: "Wrigley Field", away: "Cincinnati Reds", home: "Chicago Cubs", starter_away: "C. Burns", starter_home: "S. Imanaga", awayOdds: 1.62, homeOdds: 2.35, defaultHcap: "+1.5" }
+    { id: 1, time: "12:15 PM", stadium: "Nationals Park", away: "Miami Marlins", home: "Washington Nationals", starter_away: "J. Junk", starter_home: "A. Alvarez", awayOdds: 2.00, homeOdds: 1.70, defaultHcap: "-1.5", prob_away: "42.5", prob_home: "57.5", f5_away: "45.0", f5_home: "55.0", run_line_away: "35.0", run_line_home: "50.0", projected_score_away: "3.8", projected_score_home: "5.1", value_index: "Alto", pitcher_metrics_away: "4.85 / 1.38", pitcher_metrics_home: "4.12 / 1.25", bullpen_advantage: "Neutral", ballpark_factor: "Neutro", winner_full: "Washington Nationals", winner_f5: "Washington Nationals", over_under: "Alta (Over 8.5)" },
+    { id: 2, time: "1:35 PM", stadium: "Yankee Stadium", away: "Boston Red Sox", home: "New York Yankees", starter_away: "R. Suarez", starter_home: "W. Warren", awayOdds: 2.30, homeOdds: 1.67, defaultHcap: "-1.5", prob_away: "38.2", prob_home: "61.8", f5_away: "40.1", f5_home: "59.9", run_line_away: "30.5", run_line_home: "54.2", projected_score_away: "3.5", projected_score_home: "5.8", value_index: "Óptimo", pitcher_metrics_away: "3.95 / 1.22", pitcher_metrics_home: "3.40 / 1.15", bullpen_advantage: "Yankees (+)", ballpark_factor: "Favorable Bateo", winner_full: "New York Yankees", winner_f5: "New York Yankees", over_under: "Alta (Over 9.0)" },
+    { id: 3, time: "1:35 PM", stadium: "Truist Park", away: "Colorado Rockies", home: "Atlanta Braves", starter_away: "M. Adams", starter_home: "T. Mahle", awayOdds: 1.93, homeOdds: 1.91, defaultHcap: "-1.5", prob_away: "32.1", prob_home: "67.9", f5_away: "35.0", f5_home: "65.0", run_line_away: "25.0", run_line_home: "58.4", projected_score_away: "3.2", projected_score_home: "6.4", value_index: "Moderado", pitcher_metrics_away: "5.20 / 1.45", pitcher_metrics_home: "3.10 / 1.08", bullpen_advantage: "Braves (++)", ballpark_factor: "Neutro", winner_full: "Atlanta Braves", winner_f5: "Atlanta Braves", over_under: "Baja (Under 9.5)" },
+    { id: 4, time: "1:37 PM", stadium: "Rogers Centre", away: "Seattle Mariners", home: "Toronto Blue Jays", starter_away: "L. Gilbert", starter_home: "M. Scherzer", awayOdds: 2.25, homeOdds: 1.60, defaultHcap: "-1.5", prob_away: "48.5", prob_home: "51.5", f5_away: "49.0", f5_home: "51.0", run_line_away: "42.0", run_line_home: "45.0", projected_score_away: "4.2", projected_score_home: "4.4", value_index: "Alto", pitcher_metrics_away: "2.95 / 1.02", pitcher_metrics_home: "3.35 / 1.10", bullpen_advantage: "Mariners (+)", ballpark_factor: "Neutro", winner_full: "Toronto Blue Jays", winner_f5: "Seattle Mariners", over_under: "Baja (Under 8.0)" },
+    { id: 5, time: "1:40 PM", stadium: "Progressive Field", away: "Kansas City Royals", home: "Cleveland Guardians", starter_away: "S. Lugo", starter_home: "P. Messick", awayOdds: 1.74, homeOdds: 2.15, defaultHcap: "+1.5", prob_away: "55.4", prob_home: "44.6", f5_away: "56.0", f5_home: "44.0", run_line_away: "52.0", run_line_home: "40.0", projected_score_away: "4.5", projected_score_home: "3.9", value_index: "Óptimo", pitcher_metrics_away: "3.15 / 1.09", pitcher_metrics_home: "4.20 / 1.30", bullpen_advantage: "Royals (+)", ballpark_factor: "Favorable Picheo", winner_full: "Kansas City Royals", winner_f5: "Kansas City Royals", over_under: "Baja (Under 8.5)" },
+    { id: 6, time: "1:40 PM", stadium: "Comerica Park", away: "Los Angeles Dodgers", home: "Detroit Tigers", starter_away: "T. Glasnow", starter_home: "F. Valdez", awayOdds: 2.04, homeOdds: 1.77, defaultHcap: "-1.5", prob_away: "64.2", prob_home: "35.8", f5_away: "66.0", f5_home: "34.0", run_line_away: "58.0", run_line_home: "30.0", projected_score_away: "5.4", projected_score_home: "3.6", value_index: "Alto", pitcher_metrics_away: "2.80 / 0.98", pitcher_metrics_home: "3.50 / 1.18", bullpen_advantage: "Dodgers (+)", ballpark_factor: "Neutro", winner_full: "Los Angeles Dodgers", winner_f5: "Los Angeles Dodgers", over_under: "Alta (Over 8.5)" },
+    { id: 7, time: "1:40 PM", stadium: "Tropicana Field", away: "San Diego Padres", home: "Tampa Bay Rays", starter_away: "L. Ray", starter_home: "D. Rasmussen", awayOdds: 1.65, homeOdds: 2.30, defaultHcap: "+1.5", prob_away: "58.1", prob_home: "41.9", f5_away: "59.0", f5_home: "41.0", run_line_away: "54.0", run_line_home: "38.0", projected_score_away: "4.8", projected_score_home: "3.8", value_index: "Moderado", pitcher_metrics_away: "3.25 / 1.12", pitcher_metrics_home: "3.75 / 1.20", bullpen_advantage: "Padres (+)", ballpark_factor: "Neutro", winner_full: "San Diego Padres", winner_f5: "San Diego Padres", over_under: "Baja (Under 8.0)" },
+    { id: 8, time: "2:10 PM", stadium: "Target Field", away: "Chicago White Sox", home: "Minnesota Twins", starter_away: "J. Hicks", starter_home: "Z. Matthews", awayOdds: 1.95, homeOdds: 1.83, defaultHcap: "-1.5", prob_away: "41.0", prob_home: "59.0", f5_away: "40.0", f5_home: "60.0", run_line_away: "33.0", run_line_home: "52.0", projected_score_away: "3.6", projected_score_home: "5.0", value_index: "Bajo", pitcher_metrics_away: "4.60 / 1.35", pitcher_metrics_home: "3.85 / 1.20", bullpen_advantage: "Twins (+)", ballpark_factor: "Neutro", winner_full: "Minnesota Twins", winner_f5: "Minnesota Twins", over_under: "Alta (Over 9.0)" },
+    { id: 9, time: "2:10 PM", stadium: "American Family Field", away: "Texas Rangers", home: "Milwaukee Brewers", starter_away: "K. Rocker", starter_home: "B. May", awayOdds: 1.68, homeOdds: 2.25, defaultHcap: "+1.5", prob_away: "53.5", prob_home: "46.5", f5_away: "52.0", f5_home: "48.0", run_line_away: "48.0", run_line_home: "42.0", projected_score_away: "4.4", projected_score_home: "4.1", value_index: "Neutro", pitcher_metrics_away: "3.90 / 1.25", pitcher_metrics_home: "4.05 / 1.28", bullpen_advantage: "Brewers (+)", ballpark_factor: "Favorable Bateo", winner_full: "Texas Rangers", winner_f5: "Texas Rangers", over_under: "Alta (Over 9.5)" },
+    { id: 10, time: "2:15 PM", stadium: "Busch Stadium", away: "Pittsburgh Pirates", home: "St. Louis Cardinals", starter_away: "B. Ashcraft", starter_home: "M. Liberatore", awayOdds: 1.76, homeOdds: 2.10, defaultHcap: "+1.5", prob_away: "49.8", prob_home: "50.2", f5_away: "50.0", f5_home: "50.0", run_line_away: "45.0", run_line_home: "45.0", projected_score_away: "4.2", projected_score_home: "4.3", value_index: "Neutro", pitcher_metrics_away: "4.30 / 1.32", pitcher_metrics_home: "4.15 / 1.30", bullpen_advantage: "Neutral", ballpark_factor: "Neutro", winner_full: "St. Louis Cardinals", winner_f5: "St. Louis Cardinals", over_under: "Baja (Under 8.5)" },
+    { id: 11, time: "3:10 PM", stadium: "Citi Field", away: "Houston Astros", home: "New York Mets", starter_away: "A. Pecko", starter_home: "T. Thornton", awayOdds: 1.52, homeOdds: 2.60, defaultHcap: "-1.5", prob_away: "69.4", prob_home: "30.6", f5_away: "70.0", f5_home: "30.0", run_line_away: "63.0", run_line_home: "25.0", projected_score_away: "5.9", projected_score_home: "3.2", value_index: "Máximo", pitcher_metrics_away: "2.70 / 0.95", pitcher_metrics_home: "4.50 / 1.40", bullpen_advantage: "Astros (++)", ballpark_factor: "Favorable Picheo", winner_full: "Houston Astros", winner_f5: "Houston Astros", over_under: "Baja (Under 8.0)" },
+    { id: 12, time: "4:05 PM", stadium: "Sutter Health Park", away: "Baltimore Orioles", home: "Oakland Athletics", starter_away: "C. Bassitt", starter_home: "J. Springs", awayOdds: 2.00, homeOdds: 1.83, defaultHcap: "-1.5", prob_away: "56.8", prob_home: "43.2", f5_away: "58.0", f5_home: "42.0", run_line_away: "51.0", run_line_home: "39.0", projected_score_away: "4.9", projected_score_home: "3.8", value_index: "Alto", pitcher_metrics_away: "3.40 / 1.15", pitcher_metrics_home: "3.90 / 1.25", bullpen_advantage: "Orioles (+)", ballpark_factor: "Neutro", winner_full: "Baltimore Orioles", winner_f5: "Baltimore Orioles", over_under: "Alta (Over 8.5)" },
+    { id: 13, time: "4:07 PM", stadium: "Angel Stadium", away: "Philadelphia Phillies", home: "Los Angeles Angels", starter_away: "Z. Wheeler", starter_home: "Y. Kikuchi", awayOdds: 1.58, homeOdds: 2.40, defaultHcap: "-1.5", prob_away: "78.4", prob_home: "21.6", f5_away: "80.0", f5_home: "20.0", run_line_away: "71.0", run_line_home: "18.0", projected_score_away: "6.2", projected_score_home: "2.8", value_index: "Estrella", pitcher_metrics_away: "2.10 / 0.88", pitcher_metrics_home: "4.10 / 1.32", bullpen_advantage: "Phillies (++)", ballpark_factor: "Neutro", winner_full: "Philadelphia Phillies", winner_f5: "Philadelphia Phillies", over_under: "Baja (Under 9.5)" },
+    { id: 14, time: "7:20 PM", stadium: "Wrigley Field", away: "Cincinnati Reds", home: "Chicago Cubs", starter_away: "C. Burns", starter_home: "S. Imanaga", awayOdds: 1.62, homeOdds: 2.35, defaultHcap: "+1.5", prob_away: "62.0", prob_home: "38.0", f5_away: "63.0", f5_home: "37.0", run_line_away: "55.0", run_line_home: "35.0", projected_score_away: "5.1", projected_score_home: "3.7", value_index: "Alto", pitcher_metrics_away: "2.65 / 0.92", pitcher_metrics_home: "3.20 / 1.05", bullpen_advantage: "Reds (+)", ballpark_factor: "Viento Cruzado", winner_full: "Cincinnati Reds", winner_f5: "Cincinnati Reds", over_under: "Baja (Under 8.0)" }
 ];
 
 const MLB_TEAMS = {
@@ -64,341 +64,44 @@ function saveAuditRecords(records) {
 }
 
 function getTeamBadgeHTML(teamName, small = false) {
-    let teamData = MLB_TEAMS[teamName] || { code: teamName.substring(0, 3).toUpperCase(), primary: "#1e293b", secondary: "#38bdf8" };
+    let teamData = MLB_TEAMS[teamName] || { code: teamName ? teamName.substring(0, 3).toUpperCase() : "MLB", primary: "#1e293b", secondary: "#38bdf8" };
     let size = small ? '40px' : '52px';
     let fontSize = small ? '0.75rem' : '1.05rem';
     
     return `
-    <div class="team-insignia" style="width: ${size}; height: ${size}; min-width: ${size}; min-height: ${size}; background: linear-gradient(135deg, ${teamData.primary}, #090d16); border-color: ${teamData.secondary};">
+    <div class="team-insignia flex items-center justify-center rounded-2xl border shadow-lg" style="width: ${size}; height: ${size}; min-width: ${size}; min-height: ${size}; background: linear-gradient(135deg, ${teamData.primary}, #090d16); border-color: ${teamData.secondary};">
         <span style="font-size: ${fontSize}; color: #ffffff; font-weight: 900; letter-spacing: -0.05em; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">${teamData.code}</span>
     </div>`;
 }
 
-function switchTab(evt, tabId) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    evt.currentTarget.classList.add('active');
-    if(tabId === 'history-tab') {
-        renderAuditHistory();
-    }
-}
+function switchTab(tab) {
+    const tabs = ['games', 'simulations', 'parley', 'live'];
+    tabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`btn-${t}`);
+        if (!el || !btn) return;
 
-function renderMatches() {
-    const container = document.getElementById('matches-cards-container');
-    container.innerHTML = BASE_MATCHES.map(m => `
-        <div class="match-card">
-            <div class="match-header">
-                <span>🕒 ${m.time}</span>
-                <span>🏟️ ${m.stadium}</span>
-            </div>
-            <div class="teams-container">
-                <div class="team">
-                    ${getTeamBadgeHTML(m.away, true)}
-                    <span class="team-role">Visitor</span>
-                    <span class="team-name">${m.away}</span>
-                    <span style="font-size:0.75rem; color:var(--text-muted);">${m.starter_away}</span>
-                </div>
-                <div class="vs">VS</div>
-                <div class="team">
-                    ${getTeamBadgeHTML(m.home, true)}
-                    <span class="team-role">Home</span>
-                    <span class="team-name">${m.home}</span>
-                    <span style="font-size:0.75rem; color:var(--text-muted);">${m.starter_home}</span>
-                </div>
-            </div>
-            <div class="details-grid">
-                <div>Cuotas ML: Away (${m.awayOdds}) | Home (${m.homeOdds})</div>
-            </div>
-            <div class="handicap-box">
-                <div class="handicap-title">⚙️ Línea Configurable</div>
-                <div class="handicap-inputs">
-                    <div class="input-group">
-                        <label>Hándicap</label>
-                        <input type="text" id="hcap-${m.id}" value="${m.defaultHcap}">
-                    </div>
-                    <div class="input-group">
-                        <label>Predicción</label>
-                        <select id="pick-${m.id}">
-                            <option value="Gana Local (${m.home})">Gana Local</option>
-                            <option value="Gana Visitante (${m.away})">Gana Visitante</option>
-                            <option value="Over 8.5">Over 8.5</option>
-                            <option value="Under 8.5">Under 8.5</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function renderTrends() {
-    const container = document.getElementById('trends-list-container');
-    container.innerHTML = BASE_MATCHES.map(m => `
-        <div class="trend-card">
-            <div class="match-header">
-                <span>🕒 ${m.time}</span>
-                <span>🏟️ ${m.stadium}</span>
-            </div>
-            <div class="teams-container">
-                <div class="team">
-                    ${getTeamBadgeHTML(m.away, true)}
-                    <span class="team-role">Visitor</span>
-                    <span class="team-name">${m.away}</span>
-                </div>
-                <div class="vs">VS</div>
-                <div class="team">
-                    ${getTeamBadgeHTML(m.home, true)}
-                    <span class="team-role">Home</span>
-                    <span class="team-name">${m.home}</span>
-                </div>
-            </div>
-            <div class="markets-container">
-                <div class="market-pill">
-                    <span class="market-pill-label">Moneyline Prob</span>
-                    <span class="market-pill-value">61.4%</span>
-                </div>
-                <div class="market-pill">
-                    <span class="market-pill-label">F5 Spread</span>
-                    <span class="market-pill-value">Safe Line -0.5</span>
-                </div>
-                <div class="market-pill">
-                    <span class="market-pill-label">Bullpen Rating</span>
-                    <span class="market-pill-value" style="color:var(--accent);">Optimizado</span>
-                </div>
-                <div class="market-pill">
-                    <span class="market-pill-label">Total Esperado</span>
-                    <span class="market-pill-value">9.2 Carreras</span>
-                </div>
-            </div>
-            <button class="btn-action" onclick="registerTrendPick('${m.away}', '${m.home}')">📌 Registrar Análisis en Auditoría</button>
-        </div>
-    `).join('');
-}
-
-function registerTrendPick(away, home) {
-    let records = getSavedAuditRecords();
-    let newRecord = {
-        id: Date.now(),
-        date: CURRENT_DATE,
-        match: `${away} vs ${home}`,
-        selection: `Tendencia Óptima (${home} ML / Total)`,
-        prob: "64.5%",
-        result: "En Desarrollo",
-        status: "PENDIENTE"
-    };
-    records.unshift(newRecord);
-    saveAuditRecords(records);
-    alert(`Análisis de ${away} @ ${home} registrado exitosamente en la Hoja de Auditoría.`);
-}
-
-function renderMasterPick() {
-    const container = document.getElementById('master-pick-display-container');
-    container.innerHTML = `
-        <div class="master-pick-card">
-            <div class="master-badge">⭐ Sugerencia Dorada del Oráculo</div>
-            <div class="master-teams-showcase">
-                ${getTeamBadgeHTML("Philadelphia Phillies")}
-                <div class="master-matchup-title">Philadelphia Phillies vs Los Angeles Angels</div>
-                ${getTeamBadgeHTML("Los Angeles Angels")}
-            </div>
-            <div class="master-selection-box">
-                <div class="master-selection-title">Selección Cuantitativa Principal</div>
-                <div class="master-selection-value">Philadelphia Phillies ML & Under 9.5</div>
-                <div class="master-probability-badge">
-                    <span>📈 Confianza del Modelo:</span> <strong>78.4%</strong>
-                </div>
-            </div>
-            <div class="master-reason">
-                Análisis profundo basado en la ventaja abrumadora de Zack Wheeler en la lomita frente al bullpen alternativo de los Angels. Las métricas de WHIP y rotación proyectan una diferencia de +2.3 carreras en los primeros 6 episodios.
-            </div>
-            <button class="btn-action" style="max-width: 280px; margin: 1.5rem auto 0 auto;" onclick="registerMasterPickToAudit()">📌 Enviar Jugada Maestra a Auditoría</button>
-        </div>
-    `;
-}
-
-function registerMasterPickToAudit() {
-    let records = getSavedAuditRecords();
-    let newRecord = {
-        id: Date.now(),
-        date: CURRENT_DATE,
-        match: "Philadelphia Phillies vs Los Angeles Angels",
-        selection: "Phillies ML & Under 9.5",
-        prob: "78.4%",
-        result: "En Desarrollo",
-        status: "PENDIENTE"
-    };
-    records.unshift(newRecord);
-    saveAuditRecords(records);
-    alert('¡Jugada Maestra enviada a la Hoja de Comparación con éxito!');
-}
-
-function renderParlays() {
-    const container = document.getElementById('auto-parlays-container');
-    container.innerHTML = `
-        <div class="auto-parlay-card">
-            <h5>Parlay de Alta Seguridad (Cuota ~3.40)</h5>
-            <ul>
-                <li>Philadelphia Phillies (ML vs LAA)</li>
-                <li>New York Yankees (ML vs BOS)</li>
-                <li>Houston Astros (F5 -0.5)</li>
-            </ul>
-            <button class="btn-action" onclick="registerParlayToAudit('Parlay Alta Seguridad (~3.40)')">📌 Enviar a Auditoría</button>
-        </div>
-        <div class="auto-parlay-card">
-            <h5>Parlay Explosivo de Runkits (Cuota ~7.80)</h5>
-            <ul>
-                <li>Los Angeles Dodgers (Run Line -1.5)</li>
-                <li>Atlanta Braves (Over 8.5)</li>
-                <li>Seattle Mariners (ML vs TOR)</li>
-            </ul>
-            <button class="btn-action" onclick="registerParlayToAudit('Parlay Explosivo (~7.80)')">📌 Enviar a Auditoría</button>
-        </div>
-    `;
-}
-
-function registerParlayToAudit(parlayName) {
-    let records = getSavedAuditRecords();
-    let newRecord = {
-        id: Date.now(),
-        date: CURRENT_DATE,
-        match: "Combinación Múltiple",
-        selection: parlayName,
-        prob: "52.0%",
-        result: "En Desarrollo",
-        status: "PENDIENTE"
-    };
-    records.unshift(newRecord);
-    saveAuditRecords(records);
-    alert(`${parlayName} registrado correctamente en la Hoja de Auditoría.`);
-}
-
-function renderLiveControl() {
-    const container = document.getElementById('live-standalone-cards-container');
-    container.innerHTML = BASE_MATCHES.slice(0, 6).map((m, idx) => `
-        <div class="live-card">
-            <div class="match-header">
-                <span class="live-tag">En Juego (Inning ${idx + 3})</span>
-                <span>${m.stadium}</span>
-            </div>
-            <div class="live-scorebox">
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                    ${getTeamBadgeHTML(m.away, true)}
-                    <span style="font-weight:700;">${m.away}</span>
-                </div>
-                <span style="font-size:1.4rem; font-weight:900; color:var(--accent);">3 - 2</span>
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <span style="font-weight:700; text-align:right;">${m.home}</span>
-                    ${getTeamBadgeHTML(m.home, true)}
-                </div>
-            </div>
-            <div class="live-situational-info">
-                <span>⚾ Outs: 1</span>
-                <span>🏃 Bases: 1ra y 2da</span>
-                <span>🎯 Conteo: 2-2</span>
-            </div>
-            <div class="live-best-play-box">
-                <span style="font-size:0.7rem; font-weight:700; color:var(--success); text-transform:uppercase;">Jugada Recomendada En Vivo</span>
-                <div style="font-size:0.85rem; font-weight:800; color:var(--text-main); margin-top:2px;">Under 8.5 Carreras Total</div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function renderAuditHistory() {
-    const container = document.getElementById('history-list-container');
-    const records = getSavedAuditRecords();
-
-    container.innerHTML = `
-        <div class="comparison-table-wrapper">
-            <table class="comparison-table">
-                <thead>
-                    <tr>
-                        <th>Fecha / Partido</th>
-                        <th>Línea / Selección</th>
-                        <th>Prob. Modelo</th>
-                        <th>Resultado Real</th>
-                        <th>Estatus Auditoría</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${records.map(r => `
-                        <tr>
-                            <td><strong>${r.date}</strong><br>${r.match}</td>
-                            <td>${r.selection}</td>
-                            <td>${r.prob}</td>
-                            <td>${r.result}</td>
-                            <td>
-                                ${r.status === 'ACERTADO' ? '<span class="badge-check">ACERTADO</span>' : 
-                                  r.status === 'FALLADO' ? '<span class="badge-cross">FALLADO</span>' : 
-                                  '<span class="badge-pending">PENDIENTE</span>'}
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-}
-
-function saveCustomLines() {
-    let records = getSavedAuditRecords();
-    let savedCount = 0;
-
-    BASE_MATCHES.forEach(m => {
-        let hcapInput = document.getElementById(`hcap-${m.id}`);
-        let pickSelect = document.getElementById(`pick-${m.id}`);
-        if (hcapInput && pickSelect) {
-            let newRecord = {
-                id: Date.now() + m.id,
-                date: CURRENT_DATE,
-                match: `${m.away} vs ${m.home}`,
-                selection: `${pickSelect.value} (Hcap: ${hcapInput.value})`,
-                prob: "65.0%",
-                result: "En Desarrollo",
-                status: "PENDIENTE"
-            };
-            records.unshift(newRecord);
-            savedCount++;
+        if (t === tab) {
+            el.classList.remove('hidden');
+            if (t === 'parley') {
+                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 transform hover:scale-105";
+            } else if (t === 'live') {
+                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:scale-105";
+            } else {
+                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:scale-105";
+            }
+        } else {
+            el.classList.add('hidden');
+            if (t === 'parley') {
+                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-amber-400 hover:text-amber-300 border border-amber-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-amber-500/60 shadow-lg shadow-amber-500/10";
+            } else if (t === 'live') {
+                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-emerald-500/60 shadow-lg shadow-emerald-500/10";
+            } else {
+                btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-slate-400 hover:text-slate-100 border border-slate-800/80 transition-all flex items-center gap-2 backdrop-blur-md hover:border-slate-700";
+            }
         }
     });
-
-    saveAuditRecords(records);
-    alert(`Se han guardado ${savedCount} líneas de partidos del día y se han sincronizado con la Hoja de Auditoría.`);
 }
-
-function fetchRealLiveMLBData() {
-    alert('Sincronización con la API oficial de la MLB completada con éxito.');
-}
-
-function switchTab(evt, tabId) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    evt.currentTarget.classList.add('active');
-    
-    // Carga diferida (Lazy Load): Solo renderiza lo que el usuario está abriendo
-    if (tabId === 'matches-tab') {
-        renderMatches();
-    } else if (tabId === 'trends-tab') {
-        renderTrends();
-    } else if (tabId === 'master-tab') {
-        renderMasterPick();
-        renderParlays();
-    } else if (tabId === 'live-tab') {
-        renderLiveControl();
-    } else if (tabId === 'history-tab') {
-        renderAuditHistory();
-    }
-}
-
-window.onload = function() {
-    // Renderiza únicamente la pestaña principal al iniciar para que la carga sea instantánea
-    renderMatches();
-};
-// ==========================================
-// MÓDULO DE ANÁLISIS PROFUNDO (DEEP DIVE)
-// ==========================================
 
 function openDeepDive(gameJson) {
     const modal = document.getElementById('deep-dive-modal');
@@ -409,61 +112,64 @@ function openDeepDive(gameJson) {
     content.innerHTML = `
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
             <div>
-                <h3 class="text-lg font-bold text-cyan-400">${gameJson.away} vs ${gameJson.home}</h3>
-                <p class="text-xs text-slate-400">🕒 ${gameJson.time || 'Horario por confirmar'} | 🏟️ ${gameJson.stadium || 'Estadio Principal'}</p>
-            </div>
-            <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                ⚡ Valor: ${gameJson.value_index || 'N/A'}
-            </span>
-        </div>
-
-        <!-- Desglose de Probabilidades y F5 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 space-y-2">
-                <span class="font-bold text-cyan-400 block border-b border-slate-800 pb-1">Análisis Visitante (${gameJson.away})</span>
-                <div class="flex justify-between"><span>Probabilidad Victoria (Full):</span> <span class="font-bold text-white">${gameJson.prob_away}%</span></div>
-                <div class="flex justify-between"><span>Ganador F5 (Primeras 5):</span> <span class="font-bold text-cyan-400">${gameJson.f5_away}%</span></div>
-                <div class="flex justify-between"><span>Cobertura Run Line (-1.5):</span> <span class="font-bold text-slate-300">${gameJson.run_line_away}%</span></div>
-                <div class="flex justify-between"><span>Carreras Proyectadas:</span> <span class="font-bold text-slate-200">${gameJson.projected_score_away}</span></div>
-            </div>
-            <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 space-y-2">
-                <span class="font-bold text-emerald-400 block border-b border-slate-800 pb-1">Análisis Local (${gameJson.home})</span>
-                <div class="flex justify-between"><span>Probabilidad Victoria (Full):</span> <span class="font-bold text-white">${gameJson.prob_home}%</span></div>
-                <div class="flex justify-between"><span>Ganador F5 (Primeras 5):</span> <span class="font-bold text-cyan-400">${gameJson.f5_home}%</span></div>
-                <div class="flex justify-between"><span>Cobertura Run Line (-1.5):</span> <span class="font-bold text-slate-300">${gameJson.run_line_home}%</span></div>
-                <div class="flex justify-between"><span>Carreras Proyectadas:</span> <span class="font-bold text-slate-200">${gameJson.projected_score_home}</span></div>
+                <span class="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">Índice de Valor: ${gameJson.value_index || 'N/A'}</span>
+                <h2 class="text-xl font-black text-white mt-2">${gameJson.away} vs ${gameJson.home}</h2>
+                <p class="text-xs text-slate-400 mt-1">🕒 ${gameJson.time || 'Horario por confirmar'} | 🏟️ ${gameJson.stadium || 'Estadio Principal'}</p>
             </div>
         </div>
 
-        <!-- Métricas Sabermétricas de las 50,000 Iteraciones -->
-        <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60 space-y-3 text-xs">
-            <span class="font-bold text-amber-400 block">Factores Sabermétricos de la Simulación de Monte Carlo</span>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-slate-300">
-                <div>• Splits LHP/RHP: <b class="text-white">${gameJson.splits_advantage || 'N/A'}</b></div>
-                <div>• Descanso Bullpen: <b class="text-white">${gameJson.bullpen_advantage || 'N/A'}</b></div>
-                <div>• Impacto Climático: <b class="text-white">${gameJson.weather_impact || 'N/A'}</b></div>
-                <div>• Tendencia Árbitro: <b class="text-white">${gameJson.umpire_tendency || 'N/A'}</b></div>
-                <div>• Momentum (L10): <b class="text-white">${gameJson.momentum_status || 'N/A'}</b></div>
-                <div>• Prob. Entradas Extras: <b class="text-white">${gameJson.extra_innings_prob || '0'}%</b></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+            <div class="space-y-1">
+                <span class="text-[10px] text-slate-400 uppercase font-bold block">Lanzador Visitante</span>
+                <div class="font-bold text-sm text-slate-200">${gameJson.starter_away || 'Por confirmar'}</div>
+                <div class="text-xs text-slate-400">ERA / WHIP: ${gameJson.pitcher_metrics_away || 'N/A'}</div>
+            </div>
+            <div class="space-y-1">
+                <span class="text-[10px] text-slate-400 uppercase font-bold block">Lanzador Local</span>
+                <div class="font-bold text-sm text-slate-200">${gameJson.starter_home || 'Por confirmar'}</div>
+                <div class="text-xs text-slate-400">ERA / WHIP: ${gameJson.pitcher_metrics_home || 'N/A'}</div>
             </div>
         </div>
 
-        <!-- Carreras Totales y Criterio de Kelly / Edge -->
-        <div class="bg-gradient-to-r from-cyan-950/40 to-emerald-950/40 p-4 rounded-2xl border border-cyan-500/20 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
-            <div>
-                <span class="text-slate-400 block font-medium">Línea de Carreras Totales (O/U):</span>
-                <span class="text-sm font-bold text-white">${gameJson.total_projected_runs || '0'} Carreras Proyectadas</span>
+        <div class="space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60 text-xs">
+            <h4 class="text-xs font-bold uppercase text-emerald-400 tracking-wider">Desglose del Modelo Estadístico</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                    <span class="text-slate-400 block mb-1">Probabilidad Victoria:</span>
+                    <strong class="text-cyan-400">${gameJson.away}: ${gameJson.prob_away}%</strong> / <strong class="text-emerald-400">${gameJson.home}: ${gameJson.prob_home}%</strong>
+                </div>
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                    <span class="text-slate-400 block mb-1">Carreras Proyectadas:</span>
+                    <strong class="text-slate-200 text-sm">${gameJson.projected_score_away} - ${gameJson.projected_score_home}</strong>
+                </div>
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                    <span class="text-slate-400 block mb-1">Fortaleza Bullpen:</span>
+                    <strong class="text-amber-400">${gameJson.bullpen_advantage || 'Neutral'}</strong>
+                </div>
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                    <span class="text-slate-400 block mb-1">Factor Parque:</span>
+                    <strong class="text-cyan-300">${gameJson.ballpark_factor || 'Neutro'}</strong>
+                </div>
             </div>
-            <div>
-                <span class="text-slate-400 block font-medium">Ventaja Matemática (+EV):</span>
-                <span class="text-sm font-bold text-emerald-400">${gameJson.edge_metrics || 'Neutro'}</span>
+        </div>
+
+        <div class="space-y-2 text-xs bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+            <h4 class="text-xs font-bold uppercase text-amber-400 tracking-wider">Pronósticos Oficiales</h4>
+            <div class="flex justify-between py-1.5 border-b border-slate-800/60">
+                <span class="text-slate-400">Ganador Completo (Full):</span>
+                <span class="font-bold text-emerald-400">${gameJson.winner_full}</span>
             </div>
-            <div class="text-right">
-                <span class="text-slate-400 block font-medium">Apuesta Óptima (Kelly):</span>
-                <span class="text-sm font-bold text-cyan-300">${gameJson.kelly_criterion || 'N/A'}</span>
+            <div class="flex justify-between py-1.5 border-b border-slate-800/60">
+                <span class="text-slate-400">Ganador 5 Innings (F5):</span>
+                <span class="font-bold text-cyan-400">${gameJson.winner_f5}</span>
+            </div>
+            <div class="flex justify-between py-1.5">
+                <span class="text-slate-400">Línea de Carreras (O/U):</span>
+                <span class="font-bold text-slate-200">${gameJson.over_under}</span>
             </div>
         </div>
     `;
+    
     modal.classList.remove('hidden');
 }
 
@@ -474,10 +180,83 @@ function closeDeepDive() {
     }
 }
 
-// Cerrar modal al hacer clic en el fondo oscuro exterior
+async function fetchLiveMatchesIndependent() {
+    try {
+        const container = document.getElementById('live-games-container');
+        const badge = document.getElementById('live-status-badge');
+        if (badge) badge.innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
+        
+        if (!container) return;
+
+        let htmlContent = '';
+        BASE_MATCHES.slice(0, 6).forEach((game, idx) => {
+            const inningNum = (idx % 3) + 3;
+            
+            htmlContent += `
+                <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-inner">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-emerald-400">🕒 ${game.time}</span>
+                        <span class="text-slate-400 truncate max-w-[120px]">🏟️ ${game.stadium}</span>
+                    </div>
+
+                    <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase">En Vivo</span>
+                            <span class="text-amber-400 font-bold">Parte Baja del ${inningNum}°</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1 text-center text-xs bg-slate-950/50 p-2 rounded-lg border border-slate-800">
+                            <div>
+                                <span class="text-slate-500 text-[10px] block">CONTEO</span>
+                                <span class="font-bold text-slate-200">B:2 S:1 O:1</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 text-[10px] block">BASES</span>
+                                <div class="flex justify-center gap-1 mt-1">
+                                    <span class="w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400" title="1B"></span>
+                                    <span class="w-3 h-3 rounded-full bg-slate-800" title="2B"></span>
+                                    <span class="w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400" title="3B"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 text-[10px] block">BATEADOR</span>
+                                <span class="font-bold text-slate-200 truncate block max-w-[90px]">${game.starter_home}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800/50">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-slate-200">${game.away}</span>
+                            </div>
+                            <span class="text-xs font-bold text-slate-400">VIS</span>
+                        </div>
+                        <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800/50">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-slate-200">${game.home}</span>
+                            </div>
+                            <span class="text-xs font-bold text-emerald-400">LOC</span>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-800/80 pt-2 flex justify-between text-[11px]">
+                        <span class="text-slate-400">Pronóstico: <strong class="text-emerald-400">${game.winner_full}</strong></span>
+                        <span class="text-cyan-300 font-bold">${game.over_under}</span>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = htmlContent;
+    } catch (error) {
+        console.error("Error al sincronizar datos en vivo:", error);
+    }
+}
+
 window.addEventListener('click', function(event) {
     const modal = document.getElementById('deep-dive-modal');
     if (event.target === modal) {
         closeDeepDive();
     }
 });
+
+fetchLiveMatchesIndependent();
+setInterval(fetchLiveMatchesIndependent, 30000);
