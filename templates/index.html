@@ -62,43 +62,43 @@
 
             <!-- Grid de Partidos -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for game in games %}
-                <div onclick='openDeepDive({{ game | tojson | safe }})' class="bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/10 space-y-4 group">
-                    <div class="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider">
-                        <span>{{ game.time }}</span>
-                        <span class="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition">Valor (Edge): {{ game.value_index }}</span>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <!-- Visitante -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <img src="{{ game.logo_away }}" class="w-7 h-7 object-contain" alt="Away Logo">
-                                <span class="text-base font-black">{{ game.away }}</span>
-                            </div>
-                            <span class="text-cyan-400 font-extrabold text-base">{{ game.prob_away }}%</span>
+                {% if games %}
+                    {% for game in games %}
+                    <div onclick='openDeepDive({{ game | tojson | safe }})' class="bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/10 space-y-4 group">
+                        <div class="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider">
+                            <span>{{ game.time }}</span>
+                            <span class="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition">Valor (Edge): {{ game.value_index }}</span>
                         </div>
-                        <!-- Local -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <img src="{{ game.logo_home }}" class="w-7 h-7 object-contain" alt="Home Logo">
-                                <span class="text-base font-black">{{ game.home }}</span>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ game.logo_away }}" class="w-7 h-7 object-contain" alt="Away Logo">
+                                    <span class="text-base font-black">{{ game.away }}</span>
+                                </div>
+                                <span class="text-cyan-400 font-extrabold text-base">{{ game.prob_away }}%</span>
                             </div>
-                            <span class="text-slate-400 font-extrabold text-base">{{ game.prob_home }}%</span>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ game.logo_home }}" class="w-7 h-7 object-contain" alt="Home Logo">
+                                    <span class="text-base font-black">{{ game.home }}</span>
+                                </div>
+                                <span class="text-slate-400 font-extrabold text-base">{{ game.prob_home }}%</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                        <span>Carreras Proj: <strong class="text-slate-200">{{ game.projected_total }}</strong></span>
-                        <span class="text-cyan-400 font-semibold group-hover:translate-x-1 transition flex items-center gap-1">Ver Análisis Profundo &rarr;</span>
+                        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                            <span>Carreras Proj: <strong class="text-slate-200">{{ game.projected_total }}</strong></span>
+                            <span class="text-cyan-400 font-semibold group-hover:translate-x-1 transition flex items-center gap-1">Ver Análisis Profundo &rarr;</span>
+                        </div>
                     </div>
-                </div>
+                    {% endfor %}
                 {% else %}
                 <div class="col-span-full py-20 text-center bg-slate-900/40 border border-slate-800 rounded-3xl space-y-3">
                     <p class="text-slate-300 text-base font-bold">No hay partidos cargados para simular hoy.</p>
-                    <p class="text-slate-500 text-xs">Ejecuta el script de scraping o añade un partido manualmente desde la pestaña "Simulador Manual".</p>
+                    <p class="text-slate-500 text-xs">Ejecuta el script de scraping en tu backend o añade un partido manualmente desde la pestaña "Simulador Manual".</p>
                 </div>
-                {% endfor %}
+                {% endif %}
             </div>
         </section>
 
@@ -126,11 +126,11 @@
                         </div>
                         <div class="space-y-2.5">
                             <div class="flex justify-between items-center text-sm font-bold bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
-                                <span class="flex items-center gap-2"><img src="{{ live.logo_away }}" class="w-5 h-5 object-contain">{{ live.away }}</span>
+                                <span class="flex items-center gap-2"><img src="{{ live.logo_away }}" class="w-5 h-5 object-contain" alt="Away Logo">{{ live.away }}</span>
                                 <span class="text-lg font-black text-slate-100">{{ live.score_away }}</span>
                             </div>
                             <div class="flex justify-between items-center text-sm font-bold bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
-                                <span class="flex items-center gap-2"><img src="{{ live.logo_home }}" class="w-5 h-5 object-contain">{{ live.home }}</span>
+                                <span class="flex items-center gap-2"><img src="{{ live.logo_home }}" class="w-5 h-5 object-contain" alt="Home Logo">{{ live.home }}</span>
                                 <span class="text-lg font-black text-slate-100">{{ live.score_home }}</span>
                             </div>
                         </div>
@@ -262,12 +262,14 @@
             ['simulations', 'live', 'parley', 'custom'].forEach(id => {
                 const section = document.getElementById(`tab-${id}`);
                 const navBtn = document.getElementById(`nav-${id}`);
-                if (id === tabId) {
-                    section.classList.remove('hidden');
-                    navBtn.className = "text-cyan-400 hover:text-cyan-300 transition pb-1 border-b-2 border-cyan-400 font-semibold";
-                } else {
-                    section.classList.add('hidden');
-                    navBtn.className = "text-slate-400 hover:text-slate-200 transition pb-1 border-b-2 border-transparent font-semibold";
+                if (section && navBtn) {
+                    if (id === tabId) {
+                        section.classList.remove('hidden');
+                        navBtn.className = "text-cyan-400 hover:text-cyan-300 transition pb-1 border-b-2 border-cyan-400 font-semibold";
+                    } else {
+                        section.classList.add('hidden');
+                        navBtn.className = "text-slate-400 hover:text-slate-200 transition pb-1 border-b-2 border-transparent font-semibold";
+                    }
                 }
             });
         }
@@ -332,10 +334,9 @@
 
         function closeDeepDive() {
             const modal = document.getElementById('deep-dive-modal');
-            modal.classList.add('hidden');
+            if (modal) modal.classList.add('hidden');
         }
 
-        // Cierre de modal con clic fuera o tecla Escape
         document.getElementById('deep-dive-modal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeDeepDive();
@@ -348,7 +349,6 @@
             }
         });
 
-        // Generador Parley
         function generateParley() {
             const legs = document.getElementById('parley-legs').value;
             const strategy = document.getElementById('parley-strategy').value;
@@ -378,7 +378,6 @@
             `;
         }
 
-        // Simulador Manual
         function submitCustomSimulation(event) {
             event.preventDefault();
             const away = document.getElementById('custom-away').value;
