@@ -1094,13 +1094,6 @@ function loadSimulationTabData() {
         card.className = 'match-card';
         card.style.cssText = 'background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;';
 
-      // Asegúrate de mapear o usar directamente las propiedades que vienen de simulator.py
-const f5Text = match.winner_f5_text || 'N/D';
-const mlText = match.winner_full_text || 'N/D';
-const runLineText = match.run_line_prob_text || 'N/D';
-const nrfiText = match.nrfi_yrfi_choice ? `${match.nrfi_yrfi_choice} (${match.nrfi_yrfi_prob})` : 'N/D';
-const extraText = match.extra_inning_prob || 'N/D';
-
 card.innerHTML = `
     <div>
         <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
@@ -1121,10 +1114,10 @@ card.innerHTML = `
         </div>
 
         <div style="background: rgba(15, 23, 42, 0.7); padding: 0.75rem; border-radius: 0.5rem; font-size: 0.78rem; color: #cbd5e1; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 6px;">
-            <div>⚾ <strong>Ganador 5 Innings (F5):</strong> <span style="color: #38bdf8;">${typeof f5Winner !== 'undefined' ? f5Winner : (match.winner_f5_text || 'N/D')}</span></div>
-            <div>🏆 <strong>Ganador Completo (ML):</strong> <span style="color: #34d399;">${typeof gameWinner !== 'undefined' ? gameWinner : (match.winner_full_text || 'N/D')}</span></div>
-            <div>📊 <strong>Total (Alta / Baja):</strong> <span style="color: #f43f5e;">${typeof projectedLine !== 'undefined' ? projectedLine : 'N/D'}</span></div>
-            <div>⚡ <strong>Run Line:</strong> <span style="color: #fbbf24;">${typeof runLinePick !== 'undefined' ? runLinePick : (match.run_line_prob_text || 'N/D')}</span></div>
+            <div>⚾ <strong>Ganador 5 Innings (F5):</strong> <span style="color: #38bdf8;">${typeof f5Winner !== 'undefined' ? f5Winner : 'N/D'}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(${typeof f5Confidence !== 'undefined' ? f5Confidence : 0}%)</span></div>
+            <div>🏆 <strong>Ganador Completo (ML):</strong> <span style="color: #34d399;">${typeof gameWinner !== 'undefined' ? gameWinner : 'N/D'}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(${typeof mlConfidence !== 'undefined' ? mlConfidence : 0}%)</span></div>
+            <div>📊 <strong>Total (Alta / Baja):</strong> <span style="color: #f43f5e;">${typeof projectedLine !== 'undefined' ? projectedLine : 'N/D'}</span> <span style="font-size: 0.7rem; color: #94a3b8;">(${typeof ouConfidence !== 'undefined' ? ouConfidence : 0}%)</span></div>
+            <div>⚡ <strong>Run Line:</strong> <span style="color: #fbbf24;">${typeof runLinePick !== 'undefined' ? runLinePick : 'N/D'}</span></div>
             <div>📈 <strong>1er Inning (NRFI/YRFI):</strong> <span style="color: #f43f5e;">${match.nrfi_yrfi_choice || 'N/D'} (${match.nrfi_yrfi_prob || ''})</span></div>
             ${match.customNotes ? `<div style="margin-top: 4px; border-top: 1px solid #334155; padding-top: 4px; color: #94a3b8;"><em>Nota:</em> ${match.customNotes}</div>` : ''}
         </div>
