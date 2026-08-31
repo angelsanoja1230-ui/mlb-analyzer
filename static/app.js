@@ -1,4 +1,4 @@
-const CURRENT_DATE = "2026-08-30";
+const CURRENT_DATE = "2026-08-30"; 
 
 const BASE_MATCHES = [
     { id: 1, time: "12:15 PM", stadium: "Nationals Park", away: "Miami Marlins", home: "Washington Nationals", starter_away: "J. Junk", starter_home: "A. Alvarez", awayOdds: 2.00, homeOdds: 1.70, defaultHcap: "-1.5" },
