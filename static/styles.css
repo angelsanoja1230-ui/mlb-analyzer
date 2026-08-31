@@ -157,22 +157,22 @@ nav {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Cuadrícula estricta de 3 columnas en vertical para partidos y tendencias */
+/* Forzamos exactamente 3 columnas fijas en pantallas grandes */
 .matches-grid, .live-grid, #trends-list-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 1.25rem;
     margin-bottom: 2rem;
     width: 100%;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
     .matches-grid, .live-grid, #trends-list-container {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 700px) {
     .matches-grid, .live-grid, #trends-list-container {
         grid-template-columns: 1fr;
     }
@@ -182,7 +182,7 @@ nav {
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
-    padding: 1.5rem;
+    padding: 1.25rem;
     transition: var(--transition);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -197,21 +197,21 @@ nav {
 .match-header {
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--text-muted);
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     border-bottom: 1px solid var(--border-subtle);
-    padding-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
 }
 
 .teams-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     background: var(--bg-card);
-    padding: 1rem;
+    padding: 0.85rem;
     border-radius: var(--radius-md);
     border: 1px solid rgba(255, 255, 255, 0.03);
 }
@@ -222,63 +222,63 @@ nav {
     align-items: center;
     flex: 1;
     text-align: center;
-    gap: 0.5rem;
+    gap: 0.35rem;
 }
 
 .team-name {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--text-main);
     line-height: 1.2;
 }
 
 .team-role {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
 .vs {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 800;
     color: var(--text-muted);
-    padding: 0 0.75rem;
+    padding: 0 0.5rem;
     letter-spacing: 0.1em;
 }
 
 .details-grid {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
     background: var(--bg-card);
-    padding: 0.85rem;
+    padding: 0.75rem;
     border-radius: var(--radius-sm);
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.3rem;
     border: 1px solid rgba(255, 255, 255, 0.02);
 }
 
 .handicap-box {
     border-top: 1px dashed var(--border-subtle);
-    padding-top: 1rem;
+    padding-top: 0.85rem;
     margin-top: auto;
 }
 
 .handicap-title {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: var(--accent);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
 }
 
 .handicap-inputs {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .input-group {
@@ -287,10 +287,10 @@ nav {
 
 .input-group label {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 600;
     color: var(--text-muted);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.25rem;
     text-transform: uppercase;
 }
 
@@ -299,9 +299,9 @@ select, input[type="text"] {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     color: var(--text-main);
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.6rem;
     border-radius: var(--radius-sm);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
     outline: none;
     transition: var(--transition);
@@ -320,13 +320,13 @@ select:focus, input[type="text"]:focus {
     background: var(--accent);
     color: var(--bg-base);
     border: none;
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 0.85rem;
     border-radius: var(--radius-sm);
     font-weight: 700;
     cursor: pointer;
     text-align: center;
-    margin-top: 1rem;
-    font-size: 0.85rem;
+    margin-top: 0.85rem;
+    font-size: 0.8rem;
     transition: var(--transition);
     box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
 }
@@ -340,23 +340,23 @@ select:focus, input[type="text"]:focus {
 .markets-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-    margin-top: 1rem;
+    gap: 0.4rem;
+    margin-top: 0.85rem;
 }
 
 .market-pill {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
-    padding: 0.6rem 0.75rem;
+    padding: 0.5rem 0.6rem;
     border-radius: var(--radius-sm);
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.1rem;
 }
 
 .market-pill-label {
     color: var(--text-muted);
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -365,28 +365,28 @@ select:focus, input[type="text"]:focus {
 .market-pill-value {
     font-weight: 700;
     color: var(--success);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 .live-tag {
     background: var(--danger-bg);
     color: var(--danger);
     border: 1px solid rgba(248, 113, 113, 0.3);
-    padding: 0.25rem 0.6rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.3rem;
 }
 
 .live-tag::before {
     content: '';
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     background-color: var(--danger);
     border-radius: 50%;
     animation: pulse 1.5s infinite;
@@ -403,12 +403,12 @@ select:focus, input[type="text"]:focus {
     justify-content: space-between;
     align-items: center;
     background: var(--bg-card);
-    padding: 1rem;
+    padding: 0.85rem;
     border-radius: var(--radius-md);
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
     border: 1px solid rgba(255, 255, 255, 0.03);
     flex-direction: row !important;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .live-scorebox > div,
@@ -416,7 +416,7 @@ select:focus, input[type="text"]:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     flex: 1;
     text-align: center;
 }
@@ -426,18 +426,18 @@ select:focus, input[type="text"]:focus {
     justify-content: space-around;
     background: var(--accent-glow);
     border: 1px solid rgba(56, 189, 248, 0.2);
-    padding: 0.75rem;
+    padding: 0.6rem;
     border-radius: var(--radius-sm);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
     color: var(--accent);
 }
 
 .live-best-play-box {
     background: var(--success-bg);
     border: 1px solid rgba(52, 211, 153, 0.25);
-    padding: 0.85rem;
+    padding: 0.75rem;
     border-radius: var(--radius-sm);
 }
 
@@ -447,7 +447,7 @@ select:focus, input[type="text"]:focus {
     border-image: linear-gradient(135deg, #f59e0b, #ef4444, #38bdf8) 1;
     border-radius: var(--radius-lg);
     text-align: center;
-    padding: 2.5rem 2rem;
+    padding: 2rem 1.5rem;
     max-width: 720px;
     margin: 0 auto;
     box-shadow: 0 20px 40px -10px rgba(239, 68, 68, 0.25), 0 0 25px rgba(245, 158, 11, 0.15) inset;
@@ -458,12 +458,12 @@ select:focus, input[type="text"]:focus {
 .master-badge {
     background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
     color: #ffffff;
-    padding: 0.4rem 1.25rem;
+    padding: 0.35rem 1rem;
     border-radius: 30px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 900;
     display: inline-block;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
@@ -473,12 +473,12 @@ select:focus, input[type="text"]:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
 }
 
 .master-matchup-title {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: #ffffff;
 }
@@ -486,49 +486,49 @@ select:focus, input[type="text"]:focus {
 .master-selection-box {
     background: rgba(17, 24, 39, 0.85);
     backdrop-filter: blur(10px);
-    padding: 1.5rem;
+    padding: 1.25rem;
     border-radius: var(--radius-md);
     border: 1px solid rgba(245, 158, 11, 0.3);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     text-align: center;
 }
 
 .master-selection-title {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     text-transform: uppercase;
     font-weight: 800;
     letter-spacing: 0.1em;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
 }
 
 .master-selection-value {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 900;
     background: linear-gradient(135deg, #34d399 0%, #38bdf8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin: 0.5rem 0;
+    margin: 0.4rem 0;
 }
 
 .master-probability-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     background: linear-gradient(135deg, rgba(52, 211, 153, 0.2), rgba(56, 189, 248, 0.2));
     border: 1px solid rgba(52, 211, 153, 0.4);
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.85rem;
     border-radius: 20px;
     color: #34d399;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 900;
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
 }
 
 .master-reason {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--text-muted);
-    line-height: 1.5;
+    line-height: 1.4;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -559,8 +559,8 @@ select:focus, input[type="text"]:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.4rem;
     border-bottom: 1px solid var(--border-subtle);
 }
 
@@ -576,7 +576,7 @@ select:focus, input[type="text"]:focus {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 
 .comparison-table th {
@@ -584,14 +584,14 @@ select:focus, input[type="text"]:focus {
     color: var(--text-muted);
     font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.7rem;
-    padding: 1rem;
+    font-size: 0.65rem;
+    padding: 0.85rem;
     letter-spacing: 0.05em;
     border-bottom: 1px solid var(--border-subtle);
 }
 
 .comparison-table td {
-    padding: 1rem;
+    padding: 0.85rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     color: var(--text-main);
 }
@@ -604,7 +604,7 @@ select:focus, input[type="text"]:focus {
     background: var(--success-bg);
     color: var(--success);
     border: 1px solid rgba(52, 211, 153, 0.3);
-    padding: 0.25rem 0.6rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 6px;
     font-weight: 800;
     display: inline-block;
@@ -614,7 +614,7 @@ select:focus, input[type="text"]:focus {
     background: var(--danger-bg);
     color: var(--danger);
     border: 1px solid rgba(248, 113, 113, 0.3);
-    padding: 0.25rem 0.6rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 6px;
     font-weight: 800;
     display: inline-block;
@@ -624,33 +624,33 @@ select:focus, input[type="text"]:focus {
     background: rgba(251, 191, 36, 0.1);
     color: var(--warning);
     border: 1px solid rgba(251, 191, 36, 0.25);
-    padding: 0.25rem 0.6rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 6px;
     font-weight: 700;
     display: inline-block;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
 }
 
 .auto-parlay-card h5 {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--accent);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
 }
 
 .auto-parlay-card ul {
     list-style-type: none;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
+    gap: 0.35rem;
+    margin-bottom: 0.85rem;
 }
 
 .auto-parlay-card li {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--text-main);
     background: var(--bg-card);
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.6rem;
     border-radius: var(--radius-sm);
     border-left: 3px solid var(--accent);
     font-weight: 600;
