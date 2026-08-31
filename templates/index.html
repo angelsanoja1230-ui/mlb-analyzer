@@ -3,415 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oráculo MLB</title>
+    <title>Oráculo MLB - Análisis Predictivo y Simulación</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            950: '#020617',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.15),rgba(255,255,255,0))]">
-    <div class="max-w-7xl mx-auto">
-        <header class="mb-8 text-center border-b border-slate-800/80 pb-6">
-            <h1 class="text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
-                🔮 Oráculo MLB
-            </h1>
-            <p class="text-sm font-medium text-slate-400 mt-2">Simulación de encuentros, análisis de valor y Generador de Parleys</p>
-            <div class="mt-4 inline-flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-5 py-2 rounded-2xl shadow-xl backdrop-blur-md">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-xs text-slate-400 uppercase tracking-wider">Actualizado:</span>
-                <span class="text-sm font-bold text-emerald-400">{{ current_time }}</span>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-black bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">⚾ Oráculo MLB</span>
             </div>
-        </header>
+            <nav class="hidden md:flex space-x-6 text-sm font-semibold">
+                <a href="#" class="text-cyan-400 hover:text-cyan-300 transition">Simulaciones</a>
+                <a href="#" class="text-slate-400 hover:text-slate-200 transition">Partidos en Vivo</a>
+                <a href="#" class="text-slate-400 hover:text-slate-200 transition">Generador Parley</a>
+                <a href="#" class="text-slate-400 hover:text-slate-200 transition">Historial</a>
+            </nav>
+        </div>
+    </header>
 
-        <nav class="flex flex-wrap justify-center gap-3 mb-10">
-            <button onclick="switchTab('games')" id="btn-games" class="px-5 py-3 rounded-2xl font-bold text-sm bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:scale-105">
-                ⚾ Partidos del Día
-            </button>
-            <button onclick="switchTab('simulations')" id="btn-simulations" class="px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-slate-400 hover:text-slate-100 border border-slate-800/80 transition-all flex items-center gap-2 backdrop-blur-md hover:border-slate-700">
-                📊 Simulaciones Avanzadas
-            </button>
-            <button onclick="switchTab('parley')" id="btn-parley" class="px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-amber-400 hover:text-amber-300 border border-amber-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-amber-500/60 shadow-lg shadow-amber-500/10">
-                🎯 Generador de Parley
-            </button>
-            <button onclick="switchTab('live')" id="btn-live" class="px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-emerald-500/60 shadow-lg shadow-emerald-500/10">
-                🔴 Partidos en Vivo
-            </button>
-        </nav>
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+        
+        <!-- Section Title -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tight">Simulaciones Estocásticas</h1>
+                <p class="text-slate-400 text-sm mt-1">Análisis predictivo avanzado basado en iteraciones y métricas sabermétricas.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="location.reload();" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-2">
+                    🔄 Actualizar Datos
+                </button>
+            </div>
+        </div>
 
-        <main>
-            <!-- Pestaña 1: Partidos del Día -->
-            <section id="tab-games" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for game in matches %}
-                    <div class="bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-6 shadow-2xl flex flex-col justify-between gap-5 hover:border-emerald-500/40 transition-all group">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-800/90 text-emerald-400 border border-slate-700/60">
-                                    🕒 {{ game.time }}
-                                </span>
-                                <span class="text-xs font-medium text-slate-400 truncate max-w-[160px] bg-slate-950/40 px-2.5 py-1 rounded-lg border border-slate-800/50">
-                                    🏟️ {{ game.stadium }}
-                                </span>
-                            </div>
-
-                            <div class="space-y-3 py-2">
-                                <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-2xl border border-slate-800/50">
-                                    <div class="flex items-center gap-3">
-                                        <img src="{{ game.logo_away }}" alt="{{ game.away }}" class="w-10 h-10 object-contain drop-shadow-md">
-                                        <span class="font-bold text-slate-100 text-sm">{{ game.away }}</span>
-                                    </div>
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-800/60 text-slate-400">VIS</span>
-                                </div>
-                                <div class="flex items-center justify-between bg-slate-950/40 p-3 rounded-2xl border border-slate-800/50">
-                                    <div class="flex items-center gap-3">
-                                        <img src="{{ game.logo_home }}" alt="{{ game.home }}" class="w-10 h-10 object-contain drop-shadow-md">
-                                        <span class="font-bold text-slate-100 text-sm">{{ game.home }}</span>
-                                    </div>
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">LOC</span>
-                                </div>
-                            </div>
-
-                            <p class="text-xs text-slate-400 px-1">
-                                Abridores: <span class="text-slate-200 font-semibold">{{ game.starter_away }}</span> vs <span class="text-slate-200 font-semibold">{{ game.starter_home }}</span>
-                            </p>
-                        </div>
-
-                        <div class="border-t border-slate-800/80 pt-4 flex justify-between items-center bg-slate-950/30 -mx-6 -mb-6 p-5 rounded-b-3xl">
-                            <div>
-                                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Ganador Modelado</span>
-                                <span class="text-sm font-extrabold text-emerald-400">{{ game.winner_full }}</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Proyección O/U</span>
-                                <span class="text-xs font-bold text-cyan-300">{{ game.over_under }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
+        <!-- Simulation Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Sample Game Card 1 -->
+            <div onclick='openDeepDive({
+                away: "Yankees",
+                home: "Red Sox",
+                logo_away: "https://www.mlbstatic.com/team-logos/147.svg",
+                logo_home: "https://www.mlbstatic.com/team-logos/111.svg",
+                value_index: "8.4",
+                prob_away: "54.2",
+                prob_home: "45.8",
+                projected_score_away: "5.4",
+                projected_score_home: "4.2",
+                pitcher_metrics_away: "3.20 / 1.12",
+                pitcher_metrics_home: "3.85 / 1.25",
+                bullpen_advantage: "+12.4% (Visitante)",
+                ballpark_factor: "Neutro (1.02)",
+                winner_full: "Yankees (54.2%)",
+                winner_f5: "Yankees (58.0%)",
+                over_under: "Alta 9.5 (61%)"
+            })' class="bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 space-y-4 group">
+                <div class="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider">
+                    <span>Hoy, 7:05 PM</span>
+                    <span class="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition">Valor: 8.4</span>
                 </div>
-            </section>
-
-          <!-- Pestaña 2: Simulaciones Avanzadas -->
-            <section id="tab-simulations" class="space-y-6 hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for game in matches %}
-                    <div onclick='openDeepDive({{ game | tojson }})' class="bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-6 shadow-2xl flex flex-col justify-between gap-5 hover:border-cyan-500/40 transition-all cursor-pointer">
-                        <div>
-                            <!-- Cabecera e Índice de Valor -->
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                                    ⚡ Valor: {{ game.value_index }}
-                                </span>
-                                <span class="text-xs font-semibold text-slate-400">🕒 {{ game.time }}</span>
-                            </div>
-
-                            <!-- Equipos -->
-                            <div class="grid grid-cols-2 gap-2 mb-4">
-                                <div class="bg-slate-950/50 p-2.5 rounded-2xl border border-slate-800/60 flex items-center gap-2">
-                                    <img src="{{ game.logo_away }}" class="w-7 h-7 object-contain">
-                                    <span class="text-xs font-bold text-slate-200 truncate">{{ game.away }}</span>
-                                </div>
-                                <div class="bg-slate-950/50 p-2.5 rounded-2xl border border-slate-800/60 flex items-center gap-2">
-                                    <img src="{{ game.logo_home }}" class="w-7 h-7 object-contain">
-                                    <span class="text-xs font-bold text-slate-200 truncate">{{ game.home }}</span>
-                                </div>
-                            </div>
-
-                            <!-- Barra de Probabilidad y Carreras Esperadas -->
-                            <div class="mb-4 bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 space-y-2">
-                                <div class="flex justify-between text-xs font-bold">
-                                    <span class="text-cyan-400">{{ game.away }} ({{ game.prob_away }}%)</span>
-                                    <span class="text-emerald-400">{{ game.prob_home }}% ({{ game.home }})</span>
-                                </div>
-                                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden flex shadow-inner">
-                                    <div class="bg-gradient-to-r from-cyan-600 to-cyan-400 h-full" style="width: {{ game.prob_away }}%;"></div>
-                                    <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full" style="width: {{ game.prob_home }}%;"></div>
-                                </div>
-                                <div class="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800/60">
-                                    <span class="text-slate-400">Carreras Proyectadas:</span>
-                                    <span class="font-bold text-slate-200">{{ game.projected_score_away }} - {{ game.projected_score_home }}</span>
-                                </div>
-                            </div>
-
-                            <!-- Métricas Avanzadas (Abridores y Bullpen) -->
-                            <div class="space-y-2 mb-4 text-[11px] bg-slate-950/40 p-3 rounded-2xl border border-slate-800/60">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-slate-400">ERA / WHIP (Abridores):</span>
-                                    <span class="font-semibold text-slate-200" title="Visitante vs Local">{{ game.pitcher_metrics_away }} vs {{ game.pitcher_metrics_home }}</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-slate-400">Fortaleza Bullpen:</span>
-                                    <span class="font-semibold text-amber-400">{{ game.bullpen_advantage }}</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-slate-400">Factor Parque (Estadio):</span>
-                                    <span class="font-semibold text-cyan-300">{{ game.ballpark_factor }}</span>
-                                </div>
-                            </div>
-
-                            <!-- Pronósticos del Modelo -->
-                            <div class="space-y-2 text-xs">
-                                <div class="flex justify-between items-center bg-slate-950/50 px-3.5 py-2 rounded-xl border border-slate-800/60">
-                                    <span class="text-slate-400 font-medium">Ganador (Full):</span>
-                                    <span class="font-bold text-emerald-400">{{ game.winner_full }}</span>
-                                </div>
-                                <div class="flex justify-between items-center bg-slate-950/50 px-3.5 py-2 rounded-xl border border-slate-800/60">
-                                    <span class="text-slate-400 font-medium">Ganador 5 Innings (F5):</span>
-                                    <span class="font-bold text-cyan-400">{{ game.winner_f5 }}</span>
-                                </div>
-                                <div class="flex justify-between items-center bg-slate-950/50 px-3.5 py-2 rounded-xl border border-slate-800/60">
-                                    <span class="text-slate-400 font-medium">Alta / Baja (O/U):</span>
-                                    <span class="font-bold text-slate-200">{{ game.over_under }}</span>
-                                </div>
-                            </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg font-black">NYY (Visitor)</span>
                         </div>
-
-                        <div class="border-t border-slate-800/80 pt-3 text-center bg-slate-950/35 -mx-6 -mb-6 p-3 rounded-b-3xl">
-                            <span class="text-[10px] text-slate-400 font-medium">Simulación estocástica de 10,000 iteraciones</span>
-                        </div>
+                        <span class="text-cyan-400 font-extrabold text-lg">54.2%</span>
                     </div>
-                    {% endfor %}
-                </div>
-            </section>
-
-            <!-- Pestaña 3: Generador de Parley -->
-            <section id="tab-parley" class="space-y-8 hidden">
-                <!-- Creador de Partido Personalizado -->
-                <div class="bg-slate-900/90 border border-amber-500/40 rounded-3xl p-6 shadow-2xl">
-                    <h3 class="text-lg font-black text-amber-400 mb-4 flex items-center gap-2">
-                        ⚾ Añadir Enfrentamiento Personalizado al Sistema
-                    </h3>
-                    <form method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Equipo Visitante</label>
-                            <select name="away_team" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-amber-500">
-                                {% for team in all_teams %}
-                                <option value="{{ team.name }}">{{ team.name }}</option>
-                                {% endfor %}
-                            </select>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg font-black">BOS (Home)</span>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-1">Equipo Local</label>
-                            <select name="home_team" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-amber-500">
-                                {% for team in all_teams %}
-                                <option value="{{ team.name }}" {% if loop.index == 2 %}selected{% endif %}>{{ team.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div>
-                            <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-amber-500/20">
-                                Simular y Agregar al Parley
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Jugada del Día (Lock of the Day) -->
-                {% if parley_data.jugada_del_dia %}
-                <div class="bg-gradient-to-r from-amber-500/10 via-slate-900 to-amber-500/10 border border-amber-500/40 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 bg-amber-500 text-slate-950 font-black text-xs px-4 py-1.5 rounded-bl-2xl uppercase tracking-wider">
-                        ⭐ La Jugada Estrella del Día
-                    </div>
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <div class="space-y-2">
-                            <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block">Confianza Máxima Modelada</span>
-                            <h2 class="text-2xl md:text-3xl font-black text-slate-100">
-                                {{ parley_data.jugada_del_dia.pick }}
-                            </h2>
-                            <p class="text-sm text-slate-300">
-                                Encuentro: <strong class="text-white">{{ parley_data.jugada_del_dia.game }}</strong> | 🏟️ {{ parley_data.jugada_del_dia.stadium }}
-                            </p>
-                        </div>
-                        <div class="bg-slate-950/80 border border-amber-500/30 px-6 py-4 rounded-2xl text-center shadow-inner">
-                            <span class="text-[10px] uppercase text-slate-400 block font-bold">Índice Analítico</span>
-                            <span class="text-3xl font-black text-amber-400">{{ parley_data.jugada_del_dia.confidence }}%</span>
-                        </div>
+                        <span class="text-slate-400 font-extrabold text-lg">45.8%</span>
                     </div>
                 </div>
-                {% endif %}
-
-                <!-- Tarjetas de Parleys (2, 3, 4, 5 Logros) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {% for title, data in parley_data.parleys.items() %}
-                    <div class="bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-6 shadow-2xl flex flex-col justify-between gap-5 hover:border-amber-500/40 transition-all">
-                        <div>
-                            <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
-                                <h3 class="text-lg font-black text-amber-400">Parley de {{ title }}</h3>
-                                <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                                    ~{{ data.combined_confidence }}% Conf.
-                                </span>
-                            </div>
-
-                            <div class="space-y-3">
-                                {% for leg in data.legs %}
-                                <div class="bg-slate-950/50 p-3 rounded-2xl border border-slate-800/60 text-xs space-y-1">
-                                    <div class="font-bold text-slate-200">{{ leg.pick }}</div>
-                                    <div class="text-slate-400 text-[11px] truncate">{{ leg.game }}</div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="pt-2">
-                            <button onclick="alert('¡Parley de {{ title }} copiado con éxito!')" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-500/20">
-                                Copiar Combinación
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
+                <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                    <span>Carreras Proj: <strong class="text-slate-200">9.6</strong></span>
+                    <span class="text-cyan-400 font-semibold group-hover:translate-x-1 transition flex items-center gap-1">Ver Análisis &rarr;</span>
                 </div>
-            </section>
+            </div>
 
-            <!-- Pestaña 4: Partidos en Vivo (Auto-refresh 30s) -->
-            <section id="tab-live" class="space-y-6 hidden">
-                <div class="bg-slate-900/90 border border-emerald-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 border-b border-slate-800 pb-4">
-                        <div>
-                            <h3 class="text-xl font-black text-emerald-400 flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span> 
-                                Centro de Monitoreo en Vivo (Auto-refresh 30s)
-                            </h3>
-                            <p class="text-xs text-slate-400 mt-1">Actualización en tiempo real aislada del sistema principal.</p>
+            <!-- Sample Game Card 2 -->
+            <div onclick='openDeepDive({
+                away: "Dodgers",
+                home: "Giants",
+                logo_away: "https://www.mlbstatic.com/team-logos/119.svg",
+                logo_home: "https://www.mlbstatic.com/team-logos/137.svg",
+                value_index: "9.1",
+                prob_away: "61.5",
+                prob_home: "38.5",
+                projected_score_away: "6.1",
+                projected_score_home: "3.5",
+                pitcher_metrics_away: "2.80 / 1.05",
+                pitcher_metrics_home: "4.10 / 1.30",
+                bullpen_advantage: "+18.1% (Visitante)",
+                ballpark_factor: "Favorable a Lanzadores (0.94)",
+                winner_full: "Dodgers (61.5%)",
+                winner_f5: "Dodgers (65.0%)",
+                over_under: "Baja 8.5 (55%)"
+            })' class="bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 space-y-4 group">
+                <div class="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider">
+                    <span>Hoy, 9:45 PM</span>
+                    <span class="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition">Valor: 9.1</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg font-black">LAD (Visitor)</span>
                         </div>
-                        <div id="live-status-badge" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400">
-                            Sincronizando...
-                        </div>
+                        <span class="text-emerald-400 font-extrabold text-lg">61.5%</span>
                     </div>
-
-                    <div id="live-games-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="text-center py-12 text-slate-500 text-xs col-span-full">
-                            Cargando flujo en vivo...
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg font-black">SFG (Home)</span>
                         </div>
+                        <span class="text-slate-400 font-extrabold text-lg">38.5%</span>
                     </div>
                 </div>
-            </section>
-        </main>
-    </div>
+                <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                    <span>Carreras Proj: <strong class="text-slate-200">9.6</strong></span>
+                    <span class="text-cyan-400 font-semibold group-hover:translate-x-1 transition flex items-center gap-1">Ver Análisis &rarr;</span>
+                </div>
+            </div>
+        </div>
+    </main>
 
-    <!-- Modal de Análisis Profundo (Deep Dive) -->
-    <div id="deep-dive-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-11/12 max-w-2xl p-6 shadow-2xl relative space-y-6 text-slate-100 max-h-[90vh] overflow-y-auto">
-            <button onclick="closeDeepDive()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/60 p-2 rounded-full transition-colors">
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-900/30 py-6 mt-12 text-center text-xs text-slate-500">
+        <p>Oráculo MLB &copy; 2026 - Sistema de Análisis Predictivo y Simulación Estocástica.</p>
+    </footer>
+
+    <!-- Deep Dive Modal -->
+    <div id="deep-dive-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 relative shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeDeepDive()" class="absolute top-5 right-5 text-slate-400 hover:text-white bg-slate-800/80 p-2 rounded-full transition">
                 ✕
             </button>
-            <div id="modal-content" class="space-y-4">
-                <!-- Contenido inyectado dinámicamente por JavaScript -->
+            <div id="modal-content" class="space-y-6">
+                <!-- Dynamic Content injected by JS -->
             </div>
         </div>
     </div>
 
+    <!-- JavaScript Application Logic -->
     <script>
-        function switchTab(tab) {
-            const tabs = ['games', 'simulations', 'parley', 'live'];
-            tabs.forEach(t => {
-                const el = document.getElementById(`tab-${t}`);
-                const btn = document.getElementById(`btn-${t}`);
-                if (t === tab) {
-                    el.classList.remove('hidden');
-                    if(t === 'parley') {
-                        btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 transform hover:scale-105";
-                    } else if(t === 'live') {
-                        btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:scale-105";
-                    } else {
-                        btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:scale-105";
-                    }
-                } else {
-                    el.classList.add('hidden');
-                    if(t === 'parley') {
-                        btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-amber-400 hover:text-amber-300 border border-amber-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-amber-500/60 shadow-lg shadow-amber-500/10";
-                    } else if(t === 'live') {
-                        btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-emerald-500/60 shadow-lg shadow-emerald-500/10";
-                    } else {
-                        btn.className = "px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-slate-400 hover:text-slate-100 border border-slate-800/80 transition-all flex items-center gap-2 backdrop-blur-md hover:border-slate-700";
-                    }
-                }
-            });
-        }
-
-        async function fetchLiveMatchesIndependent() {
-            try {
-                const response = await fetch('/api/live-matches');
-                const data = await response.json();
+        function openDeepDive(game) {
+            const modal = document.getElementById('deep-dive-modal');
+            const content = document.getElementById('modal-content');
+            
+            content.innerHTML = `
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                    <div class="flex items-center gap-3">
+                        <img src="${game.logo_away}" class="w-10 h-10 object-contain" alt="Away Logo">
+                        <span class="text-xl font-black">${game.away}</span>
+                        <span class="text-slate-500 font-bold">@</span>
+                        <img src="${game.logo_home}" class="w-10 h-10 object-contain" alt="Home Logo">
+                        <span class="text-xl font-black">${game.home}</span>
+                    </div>
+                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                        Índice de Valor: ${game.value_index}
+                    </span>
+                </div>
                 
-                if (data.success) {
-                    const container = document.getElementById('live-games-container');
-                    const badge = document.getElementById('live-status-badge');
-                    if (badge) badge.innerText = `Última actualización: ${data.timestamp}`;
-                    
-                    let htmlContent = '';
-                    data.matches.forEach(game => {
-                        const isLive = game.abstract_state === 'Live';
-                        const inningText = game.inning_state === 'Top' ? 'Parte Alta' : 'Parte Baja';
-                        
-                        htmlContent += `
-                            <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-inner">
-                                <div class="flex justify-between items-center text-xs">
-                                    <span class="font-bold text-emerald-400">🕒 ${game.time}</span>
-                                    <span class="text-slate-400 truncate max-w-[120px]">🏟️ ${game.stadium}</span>
-                                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider block">Estadísticas Visitante</span>
+                        <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away}%</strong></div>
+                        <div class="flex justify-between"><span>Carreras Proyectadas:</span> <strong class="text-slate-200">${game.projected_score_away}</strong></div>
+                        <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${game.pitcher_metrics_away}</strong></div>
+                        <div class="flex justify-between"><span>Bullpen:</span> <strong class="text-amber-400">${game.bullpen_advantage}</strong></div>
+                    </div>
+                    <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider block">Estadísticas Local</span>
+                        <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home}%</strong></div>
+                        <div class="flex justify-between"><span>Carreras Proyectadas:</span> <strong class="text-slate-200">${game.projected_score_home}</strong></div>
+                        <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${game.pitcher_metrics_home}</strong></div>
+                        <div class="flex justify-between"><span>Factor Parque:</span> <strong class="text-cyan-300">${game.ballpark_factor}</strong></div>
+                    </div>
+                </div>
 
-                                ${isLive ? `
-                                <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3 space-y-2">
-                                    <div class="flex justify-between items-center text-xs">
-                                        <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase">${game.detailed_state || 'En Vivo'}</span>
-                                        <span class="text-amber-400 font-bold">${inningText} del ${game.current_inning}°</span>
-                                    </div>
-                                    <div class="grid grid-cols-3 gap-1 text-center text-xs bg-slate-950/50 p-2 rounded-lg border border-slate-800">
-                                        <div>
-                                            <span class="text-slate-500 text-[10px] block">CONTEO</span>
-                                            <span class="font-bold text-slate-200">B:${game.balls || 0} S:${game.strikes || 0} O:${game.outs || 0}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-slate-500 text-[10px] block">BASES</span>
-                                            <div class="flex justify-center gap-1 mt-1">
-                                                <span class="w-3 h-3 rounded-full ${game.has_1b ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800'}" title="1B"></span>
-                                                <span class="w-3 h-3 rounded-full ${game.has_2b ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800'}" title="2B"></span>
-                                                <span class="w-3 h-3 rounded-full ${game.has_3b ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800'}" title="3B"></span>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span class="text-slate-500 text-[10px] block">BATEADOR</span>
-                                            <span class="font-bold text-slate-200 truncate block max-w-[90px]" title="${game.batter_name || 'N/A'}">${game.batter_name || 'N/A'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : `
-                                <div class="text-center py-2 text-xs text-slate-400 bg-slate-900/40 rounded-xl border border-slate-800/40">
-                                    Estado: <span class="text-slate-200 font-semibold">${game.detailed_state || 'Programado'}</span>
-                                </div>
-                                `}
-
-                                <div class="space-y-2">
-                                    <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800/50">
-                                        <div class="flex items-center gap-2">
-                                            <img src="${game.logo_away}" class="w-6 h-6 object-contain">
-                                            <span class="text-xs font-bold text-slate-200">${game.away}</span>
-                                        </div>
-                                        <span class="text-xs font-bold text-slate-400">VIS</span>
-                                    </div>
-                                    <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800/50">
-                                        <div class="flex items-center gap-2">
-                                            <img src="${game.logo_home}" class="w-6 h-6 object-contain">
-                                            <span class="text-xs font-bold text-slate-200">${game.home}</span>
-                                        </div>
-                                        <span class="text-xs font-bold text-emerald-400">LOC</span>
-                                    </div>
-                                </div>
-                                <div class="border-t border-slate-800/80 pt-2 flex justify-between text-[11px]">
-                                    <span class="text-slate-400">Pronóstico: <strong class="text-emerald-400">${game.winner_full}</strong></span>
-                                    <span class="text-cyan-300 font-bold">${game.over_under ? game.over_under.split('-')[0] : ''}</span>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    container.innerHTML = htmlContent;
-                }
-            } catch (error) {
-                console.error("Error al sincronizar datos en vivo:", error);
-                const badge = document.getElementById('live-status-badge');
-                if (badge) badge.innerText = "Error de sincronización";
-            }
+                <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <span class="text-slate-400 font-bold uppercase tracking-wider block text-xs">Resumen del Modelo Estocástico (10,000 iteraciones)</span>
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-500 text-[10px] block">GANADOR FULL</span>
+                            <span class="font-bold text-emerald-400">${game.winner_full}</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-500 text-[10px] block">GANADOR 5I (F5)</span>
+                            <span class="font-bold text-cyan-400">${game.winner_f5}</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-500 text-[10px] block">ALTA / BAJA</span>
+                            <span class="font-bold text-slate-200">${game.over_under}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
         }
 
-        fetchLiveMatchesIndependent();
-        setInterval(fetchLiveMatchesIndependent, 30000);
+        function closeDeepDive() {
+            const modal = document.getElementById('deep-dive-modal');
+            modal.classList.add('hidden');
+        }
+
+        // Cerrar modal haciendo clic fuera de la caja
+        document.getElementById('deep-dive-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeepDive();
+            }
+        });
+
+        // Cerrar con la tecla Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDeepDive();
+            }
+        });
     </script>
 </body>
 </html>
