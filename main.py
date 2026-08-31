@@ -4,48 +4,6 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-def get_team_abbreviation(team_name):
-    """Mapea los 30 equipos de la MLB a códigos estándar para logotipos oficiales."""
-    mapping = {
-        'Arizona Diamondbacks': 'ari',
-        'Atlanta Braves': 'atl',
-        'Baltimore Orioles': 'bal',
-        'Boston Red Sox': 'bos',
-        'Chicago Cubs': 'chc',
-        'Chicago White Sox': 'chw',
-        'Cincinnati Reds': 'cin',
-        'Cleveland Guardians': 'cle',
-        'Colorado Rockies': 'col',
-        'Detroit Tigers': 'det',
-        'Houston Astros': 'hou',
-        'Kansas City Royals': 'kc',
-        'Los Angeles Angels': 'laa',
-        'Los Angeles Dodgers': 'lad',
-        'Miami Marlins': 'mia',
-        'Milwaukee Brewers': 'mil',
-        'Minnesota Twins': 'min',
-        'New York Mets': 'nym',
-        'New York Yankees': 'nyy',
-        'Athletics': 'oak',
-        'Philadelphia Phillies': 'phi',
-        'Pittsburgh Pirates': 'pit',
-        'San Diego Padres': 'sd',
-        'San Francisco Giants': 'sf',
-        'Seattle Mariners': 'sea',
-        'St. Louis Cardinals': 'stl',
-        'Tampa Bay Rays': 'tb',
-        'Texas Rangers': 'tex',
-        'Toronto Blue Jays': 'tor',
-        'Washington Nationals': 'wsh'
-    }
-    
-    # Búsqueda exacta o parcial por si el nombre de la API varía ligeramente
-    for name, code in mapping.items():
-        if name.lower() in team_name.lower():
-            return code
-            
-    return 'mlb'
-
 def advanced_simulate_game(game_data):
     home = game_data.get('home', 'Local')
     away = game_data.get('away', 'Visitante')
@@ -97,9 +55,6 @@ def advanced_simulate_game(game_data):
     else:
         run_line = f"{away if winner_full == home else home} +1.5 (Protegido)"
 
-    away_code = get_team_abbreviation(away)
-    home_code = get_team_abbreviation(home)
-
     return {
         'prob_home': full_home_prob,
         'prob_away': full_away_prob,
@@ -109,8 +64,6 @@ def advanced_simulate_game(game_data):
         'winner_f5': winner_f5,
         'over_under': over_under,
         'run_line': run_line,
-        'logo_away': f"https://a.espncdn.com/i/teamlogos/mlb/50/{away_code}.png",
-        'logo_home': f"https://a.espncdn.com/i/teamlogos/mlb/50/{home_code}.png",
         'value_index': f"{max(full_home_prob, full_away_prob)}% Confianza"
     }
 
@@ -131,8 +84,16 @@ def fetch_mlb_today_games():
             for date_info in data.get('dates', []):
                 for idx, game in enumerate(date_info.get('games', []), start=1):
                     teams = game.get('teams', {})
-                    away_team = teams.get('away', {}).get('team', {}).get('name', 'Visitante')
-                    home_team = teams.get('home', {}).get('team', {}).get('name', 'Local')
+                    
+                    away_team_obj = teams.get('away', {}).get('team', {})
+                    home_team_obj = teams.get('home', {}).get('team', {})
+                    
+                    away_team = away_team_obj.get('name', 'Visitante')
+                    home_team = home_team_obj.get('name', 'Local')
+                    
+                    # Obtener IDs oficiales directamente de la API para los logos exactos
+                    away_id = away_team_obj.get('id', 1)
+                    home_id = home_team_obj.get('id', 1)
                     
                     starter_away = teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar')
                     starter_home = teams.get('home', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar')
@@ -156,6 +117,8 @@ def fetch_mlb_today_games():
                         'home': home_team,
                         'starter_away': starter_away,
                         'starter_home': starter_home,
+                        'logo_away': f"https://www.mlbstatic.com/team-logos/{away_id}.svg",
+                        'logo_home': f"https://www.mlbstatic.com/team-logos/{home_id}.svg",
                     }
                     
                     sim = advanced_simulate_game(game_info)
@@ -167,6 +130,7 @@ def fetch_mlb_today_games():
     if games:
         return games
         
+    # Datos de respaldo con IDs oficiales de MLB
     fallback_games = [
         {
             'id': 101,
@@ -176,6 +140,8 @@ def fetch_mlb_today_games():
             'home': 'New York Yankees',
             'starter_away': 'T. Houck',
             'starter_home': 'G. Cole',
+            'logo_away': 'https://www.mlbstatic.com/team-logos/111.svg',
+            'logo_home': 'https://www.mlbstatic.com/team-logos/147.svg',
         },
         {
             'id': 102,
@@ -185,6 +151,8 @@ def fetch_mlb_today_games():
             'home': 'Los Angeles Dodgers',
             'starter_away': 'L. Webb',
             'starter_home': 'Y. Yamamoto',
+            'logo_away': 'https://www.mlbstatic.com/team-logos/137.svg',
+            'logo_home': 'https://www.mlbstatic.com/team-logos/119.svg',
         },
         {
             'id': 103,
@@ -194,6 +162,8 @@ def fetch_mlb_today_games():
             'home': 'San Diego Padres',
             'starter_away': 'Z. Gallen',
             'starter_home': 'D. Cease',
+            'logo_away': 'https://www.mlbstatic.com/team-logos/109.svg',
+            'logo_home': 'https://www.mlbstatic.com/team-logos/135.svg',
         }
     ]
     
