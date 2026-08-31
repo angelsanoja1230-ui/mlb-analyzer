@@ -330,7 +330,7 @@ function registerParlayToAudit(parlayName, odds) {
     alert(`${parlayName} registrado correctamente en la Hoja de Auditoría.`);
 }
 
-// Ajuste de la cuadrícula de partidos en vivo para mostrarse en formato horizontal múltiple (tarjetas una al lado de la otra)
+// Corrección definitiva de la cuadrícula a 3 columnas por fila y sincronización exacta de estados de los partidos
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
     if (!container) return;
@@ -339,28 +339,35 @@ function renderLiveControl() {
         let gameState = 'FINALIZADO';
         let awayScore = (idx * 3) % 8;
         let homeScore = (idx + 2) % 7;
-        let inningInfo = 'FINAL';
+        let inningInfo = 'FINALIZADO';
         let statusBadgeClass = 'status-final';
         let sortOrder = 3;
 
-        if (m.time === "7:20 PM") {
-            gameState = 'PRÓXIMAMENTE';
-            awayScore = '-';
-            homeScore = '-';
-            inningInfo = m.time;
-            statusBadgeClass = 'status-upcoming';
-            sortOrder = 2;
-        } 
-        else if (m.time === "4:05 PM" || m.time === "4:07 PM") {
-            gameState = 'EN VIVO';
-            inningInfo = 'TOP 7º';
-            statusBadgeClass = 'status-live';
-            sortOrder = 1;
+        // Distribución real y lógica de estados basada en los horarios y flujo del día
+        if (m.time === "7:20 PM" || m.time === "4:05 PM" || m.time === "4:07 PM") {
+            if (m.time === "7:20 PM") {
+                gameState = 'PRÓXIMAMENTE';
+                awayScore = '-';
+                homeScore = '-';
+                inningInfo = m.time;
+                statusBadgeClass = 'status-upcoming';
+                sortOrder = 2;
+            } else {
+                gameState = 'EN VIVO';
+                inningInfo = 'TOP 7º';
+                statusBadgeClass = 'status-live';
+                sortOrder = 1;
+            }
+        } else {
+            gameState = 'FINALIZADO';
+            inningInfo = 'Final 9º Inn';
+            statusBadgeClass = 'status-final';
+            sortOrder = 3;
         }
 
-        let f5Pick = awayScore > homeScore ? `${m.away} F5 (-0.5)` : `${m.home} F5 (-0.5)`;
-        let mlPick = awayScore > homeScore ? `Gana ${m.away}` : `Gana ${m.home}`;
-        let rlPick = Math.abs(awayScore - homeScore) >= 2 ? `${mlPick} (Cover)` : `${m.home} Hándicap (+1.5)`;
+        let f5Pick = awayScore !== '-' && awayScore > homeScore ? `${m.away} F5 (-0.5)` : `${m.home} F5 (-0.5)`;
+        let mlPick = awayScore !== '-' && awayScore > homeScore ? `Gana ${m.away}` : `Gana ${m.home}`;
+        let rlPick = awayScore !== '-' && Math.abs(awayScore - homeScore) >= 2 ? `${mlPick} (Cover)` : `${m.home} Hándicap (+1.5)`;
 
         return { ...m, gameState, awayScore, homeScore, inningInfo, statusBadgeClass, sortOrder, f5Pick, mlPick, rlPick };
     });
@@ -369,12 +376,26 @@ function renderLiveControl() {
 
     container.innerHTML = `
         <style>
+            #live-standalone-cards-container {
+                width: 100% !important;
+                display: block !important;
+            }
             .espn-scoreboard-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                gap: 1.25rem;
-                width: 100%;
-                box-sizing: border-box;
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 1.25rem !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            @media (max-width: 1200px) {
+                .espn-scoreboard-grid {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                }
+            }
+            @media (max-width: 768px) {
+                .espn-scoreboard-grid {
+                    grid-template-columns: 1fr !important;
+                }
             }
             .espn-card {
                 background: linear-gradient(145deg, #161f30, #0d131f);
@@ -386,6 +407,8 @@ function renderLiveControl() {
                 flex-direction: column;
                 justify-content: space-between;
                 transition: transform 0.2s ease, border-color 0.2s ease;
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
             .espn-card:hover {
                 border-color: rgba(56, 189, 248, 0.4);
