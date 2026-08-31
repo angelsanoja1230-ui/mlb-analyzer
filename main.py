@@ -120,7 +120,8 @@ def fetch_mlb_today_games():
 @app.route('/')
 def index():
     games = fetch_mlb_today_games()
-    return render_template('index.html', matches=games)
+    current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
+    return render_template('index.html', matches=games, current_time=current_time)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
