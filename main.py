@@ -5,30 +5,46 @@ from datetime import datetime
 app = Flask(__name__)
 
 def get_team_abbreviation(team_name):
-    """Mapea nombres de equipos de la MLB a códigos estándar para logotipos."""
+    """Mapea los 30 equipos de la MLB a códigos estándar para logotipos oficiales."""
     mapping = {
-        'New York Yankees': 'nyy',
-        'Boston Red Sox': 'bos',
-        'Los Angeles Dodgers': 'lad',
-        'San Francisco Giants': 'sf',
         'Arizona Diamondbacks': 'ari',
-        'San Diego Padres': 'sd',
-        'Houston Astros': 'hou',
         'Atlanta Braves': 'atl',
-        'Chicago Cubs': 'chc',
-        'New York Mets': 'nym',
-        'Philadelphia Phillies': 'phi',
         'Baltimore Orioles': 'bal',
-        'Toronto Blue Jays': 'tor',
-        'Tampa Bay Rays': 'tb',
-        'Minnesota Twins': 'min',
+        'Boston Red Sox': 'bos',
+        'Chicago Cubs': 'chc',
+        'Chicago White Sox': 'chw',
+        'Cincinnati Reds': 'cin',
         'Cleveland Guardians': 'cle',
+        'Colorado Rockies': 'col',
+        'Detroit Tigers': 'det',
+        'Houston Astros': 'hou',
+        'Kansas City Royals': 'kc',
+        'Los Angeles Angels': 'laa',
+        'Los Angeles Dodgers': 'lad',
+        'Miami Marlins': 'mia',
+        'Milwaukee Brewers': 'mil',
+        'Minnesota Twins': 'min',
+        'New York Mets': 'nym',
+        'New York Yankees': 'nyy',
+        'Athletics': 'oak',
+        'Philadelphia Phillies': 'phi',
+        'Pittsburgh Pirates': 'pit',
+        'San Diego Padres': 'sd',
+        'San Francisco Giants': 'sf',
         'Seattle Mariners': 'sea',
-        'Texas Rangers': 'tex',
         'St. Louis Cardinals': 'stl',
-        'Milwaukee Brewers': 'mil'
+        'Tampa Bay Rays': 'tb',
+        'Texas Rangers': 'tex',
+        'Toronto Blue Jays': 'tor',
+        'Washington Nationals': 'wsh'
     }
-    return mapping.get(team_name, 'mlb')
+    
+    # Búsqueda exacta o parcial por si el nombre de la API varía ligeramente
+    for name, code in mapping.items():
+        if name.lower() in team_name.lower():
+            return code
+            
+    return 'mlb'
 
 def advanced_simulate_game(game_data):
     home = game_data.get('home', 'Local')
@@ -81,7 +97,6 @@ def advanced_simulate_game(game_data):
     else:
         run_line = f"{away if winner_full == home else home} +1.5 (Protegido)"
 
-    # URLs de logotipos oficiales vía CDN deportivo
     away_code = get_team_abbreviation(away)
     home_code = get_team_abbreviation(home)
 
