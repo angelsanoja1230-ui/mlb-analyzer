@@ -1121,11 +1121,11 @@ card.innerHTML = `
         </div>
 
         <div style="background: rgba(15, 23, 42, 0.7); padding: 0.75rem; border-radius: 0.5rem; font-size: 0.78rem; color: #cbd5e1; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 6px;">
-            <div>⚾ <strong>Ganador 5 Innings (F5):</strong> <span style="color: #38bdf8;">${f5Text}</span></div>
-            <div>🏆 <strong>Ganador Completo (ML):</strong> <span style="color: #34d399;">${mlText}</span></div>
-            <div>⚡ <strong>Run Line:</strong> <span style="color: #fbbf24;">${runLineText}</span></div>
-            <div>📈 <strong>1er Inning (NRFI/YRFI):</strong> <span style="color: #f43f5e;">${nrfiText}</span></div>
-            <div>🔄 <strong>Extra Innings:</strong> <span style="color: #a78bfa;">${extraText}</span></div>
+            <div>⚾ <strong>Ganador 5 Innings (F5):</strong> <span style="color: #38bdf8;">${typeof f5Winner !== 'undefined' ? f5Winner : (match.winner_f5_text || 'N/D')}</span></div>
+            <div>🏆 <strong>Ganador Completo (ML):</strong> <span style="color: #34d399;">${typeof gameWinner !== 'undefined' ? gameWinner : (match.winner_full_text || 'N/D')}</span></div>
+            <div>📊 <strong>Total (Alta / Baja):</strong> <span style="color: #f43f5e;">${typeof projectedLine !== 'undefined' ? projectedLine : 'N/D'}</span></div>
+            <div>⚡ <strong>Run Line:</strong> <span style="color: #fbbf24;">${typeof runLinePick !== 'undefined' ? runLinePick : (match.run_line_prob_text || 'N/D')}</span></div>
+            <div>📈 <strong>1er Inning (NRFI/YRFI):</strong> <span style="color: #f43f5e;">${match.nrfi_yrfi_choice || 'N/D'} (${match.nrfi_yrfi_prob || ''})</span></div>
             ${match.customNotes ? `<div style="margin-top: 4px; border-top: 1px solid #334155; padding-top: 4px; color: #94a3b8;"><em>Nota:</em> ${match.customNotes}</div>` : ''}
         </div>
     </div>
