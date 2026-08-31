@@ -114,22 +114,18 @@ def generate_parley_system(games):
         f5_home = g['f5_home']
         f5_away = g['f5_away']
         
-        # 1. Ganadores Moneyline
         if prob_home >= 50:
             all_bets.append({'game': f"{away} vs {home}", 'pick': f"Ganador J.C.: {home}", 'confidence': prob_home, 'stadium': g['stadium']})
         else:
             all_bets.append({'game': f"{away} vs {home}", 'pick': f"Ganador J.C.: {away}", 'confidence': prob_away, 'stadium': g['stadium']})
             
-        # 2. Ganadores F5
         if f5_home >= 50:
             all_bets.append({'game': f"{away} vs {home}", 'pick': f"1ra Mitad (F5): {home}", 'confidence': f5_home, 'stadium': g['stadium']})
         else:
             all_bets.append({'game': f"{away} vs {home}", 'pick': f"1ra Mitad (F5): {away}", 'confidence': f5_away, 'stadium': g['stadium']})
 
-        # 3. Run Line
         all_bets.append({'game': f"{away} vs {home}", 'pick': f"Run Line: {g['run_line']}", 'confidence': round(random.uniform(60.0, 78.0), 1), 'stadium': g['stadium']})
 
-        # 4. Totales O/U aleatorios y variados
         ou_variations = [
             f"Alta ({g['over_under'].split('(')[-1]}",
             f"Baja ({g['over_under'].split('(')[-1]}",
@@ -140,11 +136,9 @@ def generate_parley_system(games):
         chosen_ou = random.choice(ou_variations)
         all_bets.append({'game': f"{away} vs {home}", 'pick': f"O/U: {chosen_ou}", 'confidence': round(random.uniform(62.0, 76.0), 1), 'stadium': g['stadium']})
 
-    # Ordenar solo para la jugada del día
     sorted_bets_for_lock = sorted(all_bets, key=lambda x: x['confidence'], reverse=True)
     jugada_del_dia = sorted_bets_for_lock[0] if sorted_bets_for_lock else None
     
-    # Generar parleys combinados y verdaderamente aleatorios en cada recarga
     parleys = {}
     legs_counts = [2, 3, 4, 5]
     for n in legs_counts:
@@ -153,14 +147,11 @@ def generate_parley_system(games):
         
         selected_legs = []
         used_games = set()
-        
-        # Buscar opciones de juegos diferentes para armar el parley
         for b in pool:
             if b['game'] not in used_games and len(selected_legs) < n:
                 selected_legs.append(b)
                 used_games.add(b['game'])
                 
-        # Si faltan logros, rellenar sin restricción de juego
         if len(selected_legs) < n:
             for b in pool:
                 if b not in selected_legs and len(selected_legs) < n:
@@ -179,7 +170,7 @@ def generate_parley_system(games):
 
 def fetch_mlb_today_games():
     today = datetime.now().strftime('%Y-%m-%d')
-    url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&hydrate=probablePitcher"
+    url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&hydrate=probablePitcher,linescore"
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -216,6 +207,26 @@ def fetch_mlb_today_games():
                             
                     stadium = game.get('venue', {}).get('name', 'Estadio MLB')
                     
+                    # Datos en vivo extraídos de la API (Linescore & Status)
+                    status_obj = game.get('status', {})
+                    abstract_state = status_obj.get('abstractGameState', 'Preview')
+                    detailed_state = status_obj.get('detailedState', 'Programado')
+                    
+                    linescore = game.get('linescore', {})
+                    current_inning = linescore.get('currentInning', 0)
+                    inning_state = linescore.get('inningState', '') # Top, Bottom, Middle, End
+                    outs = linescore.get('outs', 0)
+                    
+                    ls_teams = linescore.get('teams', {})
+                    away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
+                    home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
+                    
+                    offense = linescore.get('offense', {})
+                    has_1b = offense.get('first') is not None
+                    has_2b = offense.get('second') is not None
+                    has_3b = offense.get('third') is not None
+                    batter_name = offense.get('batter', {}).get('fullName', 'N/D')
+                    
                     game_info = {
                         'id': game.get('gamePk', idx),
                         'time': time_str,
@@ -226,6 +237,17 @@ def fetch_mlb_today_games():
                         'starter_home': starter_home,
                         'logo_away': f"https://www.mlbstatic.com/team-logos/{away_id}.svg",
                         'logo_home': f"https://www.mlbstatic.com/team-logos/{home_id}.svg",
+                        'abstract_state': abstract_state,
+                        'detailed_state': detailed_state,
+                        'current_inning': current_inning,
+                        'inning_state': inning_state,
+                        'outs': outs,
+                        'away_runs': away_runs,
+                        'home_runs': home_runs,
+                        'has_1b': has_1b,
+                        'has_2b': has_2b,
+                        'has_3b': has_3b,
+                        'batter_name': batter_name
                     }
                     
                     sim = advanced_simulate_game(game_info)
@@ -246,6 +268,17 @@ def fetch_mlb_today_games():
                 'starter_home': 'G. Cole',
                 'logo_away': 'https://www.mlbstatic.com/team-logos/111.svg',
                 'logo_home': 'https://www.mlbstatic.com/team-logos/147.svg',
+                'abstract_state': 'Preview',
+                'detailed_state': 'Scheduled',
+                'current_inning': 0,
+                'inning_state': '',
+                'outs': 0,
+                'away_runs': 0,
+                'home_runs': 0,
+                'has_1b': False,
+                'has_2b': False,
+                'has_3b': False,
+                'batter_name': 'N/D'
             },
             {
                 'id': 102,
@@ -257,17 +290,17 @@ def fetch_mlb_today_games():
                 'starter_home': 'Y. Yamamoto',
                 'logo_away': 'https://www.mlbstatic.com/team-logos/137.svg',
                 'logo_home': 'https://www.mlbstatic.com/team-logos/119.svg',
-            },
-            {
-                'id': 103,
-                'time': '09:40 PM',
-                'stadium': 'Petco Park',
-                'away': 'Arizona Diamondbacks',
-                'home': 'San Diego Padres',
-                'starter_away': 'Z. Gallen',
-                'starter_home': 'D. Cease',
-                'logo_away': 'https://www.mlbstatic.com/team-logos/109.svg',
-                'logo_home': 'https://www.mlbstatic.com/team-logos/135.svg',
+                'abstract_state': 'Preview',
+                'detailed_state': 'Scheduled',
+                'current_inning': 0,
+                'inning_state': '',
+                'outs': 0,
+                'away_runs': 0,
+                'home_runs': 0,
+                'has_1b': False,
+                'has_2b': False,
+                'has_3b': False,
+                'batter_name': 'N/D'
             }
         ]
         for g in games:
@@ -275,6 +308,7 @@ def fetch_mlb_today_games():
             g.update(sim)
             
     return games
+
 @app.route('/api/live-matches')
 def api_live_matches():
     games = fetch_mlb_today_games()
@@ -283,6 +317,7 @@ def api_live_matches():
         'timestamp': datetime.now().strftime('%d/%m/%Y %I:%M:%S %p'),
         'matches': games
     }
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     games = fetch_mlb_today_games()
@@ -303,6 +338,17 @@ def index():
                 'starter_home': 'Pitcher B',
                 'logo_away': f"https://www.mlbstatic.com/team-logos/{away_id}.svg",
                 'logo_home': f"https://www.mlbstatic.com/team-logos/{home_id}.svg",
+                'abstract_state': 'Preview',
+                'detailed_state': 'Personalizado',
+                'current_inning': 0,
+                'inning_state': '',
+                'outs': 0,
+                'away_runs': 0,
+                'home_runs': 0,
+                'has_1b': False,
+                'has_2b': False,
+                'has_3b': False,
+                'batter_name': 'N/D'
             }
             sim = advanced_simulate_game(custom_game)
             custom_game.update(sim)
@@ -310,7 +356,7 @@ def index():
 
     parley_data = generate_parley_system(games)
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
-    return render_template('index.html', matches=games, parley_data=parley_data, current_time=current_time, all_teams=ALL_MLB_TEAMS)
+    return render_template('conjeturante.html', matches=games, parley_data=parley_data, current_time=current_time, all_teams=ALL_MLB_TEAMS)
 
 if __name__ == '__main__':
     app.run(debug=True)
