@@ -1053,3 +1053,73 @@ window.addEventListener('load', () => {
         });
     });
 });
+// Función para poblar la nueva pestaña de Simulación y Pronósticos
+function loadSimulationTabData() {
+    const container = document.getElementById('simulacion-container');
+    if (!container) return;
+
+    container.innerHTML = ''; // Limpiar contenido previo
+
+    // Asegurar el grid estricto de 3 columnas de forma dinámica
+    container.style.cssText = `
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 20px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    `;
+
+    if (typeof BASE_MATCHES === 'undefined') return;
+
+    BASE_MATCHES.forEach((match, index) => {
+        const card = document.createElement('div');
+        
+        // Estilo integrado de tarjeta oscura acorde a la estética del Oráculo
+        card.style.cssText = `
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+            background: #111827 !important;
+            border: 1px solid rgba(56, 189, 248, 0.2) !important;
+            border-radius: 1rem !important;
+            padding: 1.25rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            color: #f3f4f6 !important;
+        `;
+
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #9ca3af; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                <span>Simulación #${index + 1}</span>
+                <span>${match.time} • ${match.dateFormatted}</span>
+            </div>
+            
+            <div style="font-weight: 700; font-size: 1rem; margin-bottom: 0.75rem; text-align: center;">
+                <span style="color: #38bdf8;">${match.away}</span> 
+                <span style="color: #6b7280; margin: 0 0.25rem;">@</span> 
+                <span style="color: #34d399;">${match.home}</span>
+            </div>
+
+            <div style="font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 0.75rem;">
+                <div style="margin-bottom: 0.25rem;">🏟️ <b>Estadio:</b> ${match.stadium}</div>
+                <div style="margin-bottom: 0.25rem;">👤 <b>Pitcher Vis:</b> ${match.starter_away}</div>
+                <div>👤 <b>Pitcher Loc:</b> ${match.starter_home}</div>
+            </div>
+
+            <div style="background: rgba(56, 189, 248, 0.05); border: 1px dashed rgba(56, 189, 248, 0.3); padding: 0.75rem; border-radius: 0.5rem; margin-top: auto;">
+                <div style="font-size: 0.75rem; color: #38bdf8; font-weight: 700; margin-bottom: 0.25rem;">🔮 Pronóstico Algorítmico</div>
+                <div style="font-size: 0.8rem; color: #e5e7eb;">Modelo de simulación activo para análisis de tendencias.</div>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+// Cargar automáticamente los datos de simulación al iniciar la página
+window.addEventListener('DOMContentLoaded', () => {
+    loadSimulationTabData();
+});
