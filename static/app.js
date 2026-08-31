@@ -366,46 +366,262 @@ function renderParlays() {
     if (!container) return;
     
     container.innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; width:100%;">
-            <div style="padding: 1.3rem; background: var(--card-bg, #111827); border-radius: 14px; border: 1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between;">
+        <style>
+            .parlays-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 1.25rem !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            @media (max-width: 900px) {
+                .parlays-grid {
+                    grid-template-columns: 1fr !important;
+                }
+            }
+            .parlay-card {
+                background: linear-gradient(145deg, #161f30, #0d131f);
+                border: 1px solid rgba(56, 189, 248, 0.2);
+                border-radius: 14px;
+                padding: 1.25rem;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                gap: 1rem;
+                transition: transform 0.2s ease, border-color 0.2s ease;
+            }
+            .parlay-card:hover {
+                border-color: rgba(56, 189, 248, 0.5);
+                transform: translateY(-2px);
+            }
+            .parlay-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding-bottom: 0.6rem;
+            }
+            .parlay-title {
+                color: #34d399;
+                margin: 0;
+                font-size: 1.05rem;
+                font-weight: 800;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .parlay-odds-badge {
+                font-size: 0.8rem;
+                color: #38bdf8;
+                background: rgba(56, 189, 248, 0.1);
+                border: 1px solid rgba(56, 189, 248, 0.3);
+                padding: 0.25rem 0.6rem;
+                border-radius: 6px;
+                font-weight: 700;
+            }
+            .parlay-legs-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.6rem;
+            }
+            .parlay-leg-item {
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 8px;
+                padding: 0.7rem 0.9rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .leg-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.15rem;
+            }
+            .leg-match {
+                font-size: 0.85rem;
+                font-weight: 700;
+                color: #f8fafc;
+            }
+            .leg-pick {
+                font-size: 0.75rem;
+                color: #38bdf8;
+                font-weight: 600;
+            }
+            .leg-cuota {
+                font-size: 0.85rem;
+                font-weight: 800;
+                color: #34d399;
+                background: rgba(52, 211, 153, 0.1);
+                padding: 0.2rem 0.5rem;
+                border-radius: 4px;
+            }
+            .btn-parlay-action {
+                width: 100%;
+                padding: 0.75rem;
+                background: linear-gradient(135deg, #38bdf8, #0284c7);
+                color: #0f172a;
+                border: none;
+                border-radius: 8px;
+                font-weight: 800;
+                cursor: pointer;
+                font-size: 0.88rem;
+                box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+                transition: opacity 0.2s;
+            }
+            .btn-parlay-action:hover {
+                opacity: 0.9;
+            }
+        </style>
+
+        <div class="parlays-grid">
+            <!-- Parlay 1: Trinca de Moneyline Elite -->
+            <div class="parlay-card">
                 <div>
-                    <h4 style="color:#34d399; margin-top:0; font-size:1.05rem; display:flex; align-items:center; gap:0.4rem;">🎯 Parlay Combinado Principal</h4>
-                    <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.8rem 0; line-height:1.4;">Yankees ML + Dodgers ML + Braves ML</p>
-                    <div style="font-size:0.8rem; color:#38bdf8; margin-bottom:1rem; background:rgba(56,189,248,0.1); padding:0.4rem 0.8rem; border-radius:6px; display:inline-block;">Cuota Estimada: <strong>+425</strong></div>
+                    <div class="parlay-header">
+                        <h4 class="parlay-title">🎯 Trinca Moneyline Elite</h4>
+                        <span class="parlay-odds-badge">Cuota Total: +425</span>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.8rem; margin: 0.7rem 0;">Combinación analizada de 3 selecciones directas con alta probabilidad de victoria.</p>
+                    
+                    <div class="parlay-legs-list">
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Boston Red Sox vs New York Yankees</span>
+                                <span class="leg-pick">Selección: Gana New York Yankees (ML)</span>
+                            </div>
+                            <span class="leg-cuota">@1.67</span>
+                        </div>
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Los Angeles Dodgers vs Detroit Tigers</span>
+                                <span class="leg-pick">Selección: Gana Los Angeles Dodgers (ML)</span>
+                            </div>
+                            <span class="leg-cuota">@2.04</span>
+                        </div>
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Colorado Rockies vs Atlanta Braves</span>
+                                <span class="leg-pick">Selección: Gana Atlanta Braves (ML)</span>
+                            </div>
+                            <span class="leg-cuota">@1.91</span>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn-action" style="padding:0.7rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Parlay Principal ML (Yankees + Dodgers + Braves)', '+425')">Registrar Parlay</button>
-            </div>
-            
-            <div style="padding: 1.3rem; background: var(--card-bg, #111827); border-radius: 14px; border: 1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <h4 style="color:#34d399; margin-top:0; font-size:1.05rem; display:flex; align-items:center; gap:0.4rem;">⚡ Parlay de Hándicaps</h4>
-                    <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.8rem 0; line-height:1.4;">Philadelphia Phillies -1.5 + Houston Astros -1.5</p>
-                    <div style="font-size:0.8rem; color:#38bdf8; margin-bottom:1rem; background:rgba(56,189,248,0.1); padding:0.4rem 0.8rem; border-radius:6px; display:inline-block;">Cuota Estimada: <strong>+310</strong></div>
-                </div>
-                <button class="btn-action" style="padding:0.7rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Parlay Hándicaps (Phillies + Astros)', '+310')">Registrar Parlay</button>
+                <button class="btn-parlay-action" onclick="registerParlayToAudit('Trinca Moneyline Elite (Yankees + Dodgers + Braves)', '+425')">Registrar Trinca en Auditoría</button>
             </div>
 
-            <div style="padding: 1.3rem; background: var(--card-bg, #111827); border-radius: 14px; border: 1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between;">
+            <!-- Parlay 2: Trinca de Hándicaps Analíticos -->
+            <div class="parlay-card">
                 <div>
-                    <h4 style="color:#34d399; margin-top:0; font-size:1.05rem; display:flex; align-items:center; gap:0.4rem;">📊 Parlay de Totales</h4>
-                    <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.8rem 0; line-height:1.4;">Marlins vs Nationals Under 8.5 + Red Sox vs Yankees Over 9.0</p>
-                    <div style="font-size:0.8rem; color:#38bdf8; margin-bottom:1rem; background:rgba(56,189,248,0.1); padding:0.4rem 0.8rem; border-radius:6px; display:inline-block;">Cuota Estimada: <strong>+265</strong></div>
+                    <div class="parlay-header">
+                        <h4 class="parlay-title" style="color: #38bdf8;">⚡ Trinca Hándicap -1.5</h4>
+                        <span class="parlay-odds-badge">Cuota Total: +540</span>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.8rem; margin: 0.7rem 0;">Apuesta combinada cubriendo la línea de carreras (-1.5) con clara superioridad en ofensiva.</p>
+                    
+                    <div class="parlay-legs-list">
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Philadelphia Phillies vs Los Angeles Angels</span>
+                                <span class="leg-pick">Selección: Philadelphia Phillies -1.5</span>
+                            </div>
+                            <span class="leg-cuota">@2.10</span>
+                        </div>
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Houston Astros vs New York Mets</span>
+                                <span class="leg-pick">Selección: Houston Astros -1.5</span>
+                            </div>
+                            <span class="leg-cuota">@2.05</span>
+                        </div>
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">San Diego Padres vs Tampa Bay Rays</span>
+                                <span class="leg-pick">Selección: San Diego Padres -1.5</span>
+                            </div>
+                            <span class="leg-cuota">@2.20</span>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn-action" style="padding:0.7rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Parlay Totales (Under/Over)', '+265')">Registrar Parlay</button>
+                <button class="btn-parlay-action" onclick="registerParlayToAudit('Trinca Hándicap -1.5 (Phillies + Astros + Padres)', '+540')">Registrar Trinca en Auditoría</button>
             </div>
 
-            <div style="padding: 1.3rem; background: var(--card-bg, #111827); border-radius: 14px; border: 1px solid var(--border-subtle, #374151); box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between;">
+            <!-- Parlay 3: Trinca de Totales (Over/Under) -->
+            <div class="parlay-card">
                 <div>
-                    <h4 style="color:#34d399; margin-top:0; font-size:1.05rem; display:flex; align-items:center; gap:0.4rem;">🔥 Mega Parlay de Cierres</h4>
-                    <p style="color: #9ca3af; font-size: 0.85rem; margin: 0.8rem 0; line-height:1.4;">Seattle Mariners + Cleveland Guardians + San Diego Padres</p>
-                    <div style="font-size:0.8rem; color:#38bdf8; margin-bottom:1rem; background:rgba(56,189,248,0.1); padding:0.4rem 0.8rem; border-radius:6px; display:inline-block;">Cuota Estimada: <strong>+680</strong></div>
+                    <div class="parlay-header">
+                        <h4 class="parlay-title" style="color: #fbbf24;">📊 Trinca de Totales (O/U)</h4>
+                        <span class="parlay-odds-badge" style="color: #fbbf24; background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3);">Cuota Total: +395</span>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.8rem; margin: 0.7rem 0;">Proyección basada en rendimiento de abridores y comportamiento de bullpen.</p>
+                    
+                    <div class="parlay-legs-list">
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Miami Marlins vs Washington Nationals</span>
+                                <span class="leg-pick">Selección: Under 8.5 Carreras</span>
+                            </div>
+                            <span class="leg-cuota">@1.85</span>
+                        </div>
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Boston Red Sox vs New York Yankees</span>
+                                <span class="leg-pick">Selección: Over 9.0 Carreras</span>
+                            </div>
+                            <span class="leg-cuota">@1.90</span>
+                        </div>
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Seattle Mariners vs Toronto Blue Jays</span>
+                                <span class="leg-pick">Selección: Under 8.0 Carreras</span>
+                            </div>
+                            <span class="leg-cuota">@1.88</span>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn-action" style="padding:0.7rem; background:#38bdf8; color:#0f172a; border:none; border-radius:8px; font-weight:800; cursor:pointer; width:100%;" onclick="registerParlayToAudit('Mega Parlay Cierres', '+680')">Registrar Parlay</button>
+                <button class="btn-parlay-action" onclick="registerParlayToAudit('Trinca de Totales (O/U 3 Selecciones)', '+395')">Registrar Trinca en Auditoría</button>
+            </div>
+
+            <!-- Parlay 4: Mega Trinca de Cierres -->
+            <div class="parlay-card">
+                <div>
+                    <div class="parlay-header">
+                        <h4 class="parlay-title" style="color: #f43f5e;">🔥 Mega Trinca de Cierres</h4>
+                        <span class="parlay-odds-badge" style="color: #f43f5e; background: rgba(244,63,94,0.1); border-color: rgba(244,63,94,0.3);">Cuota Total: +680</span>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.8rem; margin: 0.7rem 0;">Selecciones combinadas de alto valor orientadas al cierre de jornada.</p>
+                    
+                    <div class="parlay-legs-list">
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Kansas City Royals vs Cleveland Guardians</span>
+                                <span class="leg-pick">Selección: Gana Kansas City Royals (ML)</span>
+                            </div>
+                            <span class="leg-cuota">@1.74</span>
+                        </div>
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Texas Rangers vs Milwaukee Brewers</span>
+                                <span class="leg-pick">Selección: Gana Texas Rangers (ML)</span>
+                            </div>
+                            <span class="leg-cuota">@1.68</span>
+                        </div>
+                        <div class="parlay-leg-item">
+                            <div class="leg-info">
+                                <span class="leg-match">Cincinnati Reds vs Chicago Cubs</span>
+                                <span class="leg-pick">Selección: Gana Cincinnati Reds (ML)</span>
+                            </div>
+                            <span class="leg-cuota">@1.62</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-parlay-action" onclick="registerParlayToAudit('Mega Trinca de Cierres (Royals + Rangers + Reds)', '+680')">Registrar Trinca en Auditoría</button>
             </div>
         </div>
     `;
 }
-
 function registerTrendPick(away, home) {
     let records = getSavedAuditRecords();
     let newRecord = {
