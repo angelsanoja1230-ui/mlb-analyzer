@@ -68,10 +68,6 @@ def advanced_simulate_game(game_data):
     }
 
 def generate_parley_system(games):
-    """
-    Analiza todos los partidos del día para extraer la 'Jugada del Día' (Lock)
-    y estructurar parleys de 2, 3, 4 y 5 logros combinados de forma inteligente.
-    """
     all_bets = []
     for g in games:
         home = g['home']
@@ -79,7 +75,6 @@ def generate_parley_system(games):
         prob_home = g['prob_home']
         prob_away = g['prob_away']
         
-        # Opción Ganador del Juego
         if prob_home >= 50:
             all_bets.append({
                 'game': f"{away} vs {home}",
@@ -95,7 +90,6 @@ def generate_parley_system(games):
                 'stadium': g['stadium']
             })
             
-        # Opción Alta/Baja
         ou_clean = g['over_under'].split('-')[0].strip()
         all_bets.append({
             'game': f"{away} vs {home}",
@@ -104,13 +98,9 @@ def generate_parley_system(games):
             'stadium': g['stadium']
         })
 
-    # Ordenar por nivel de confianza descendente
     all_bets.sort(key=lambda x: x['confidence'], reverse=True)
-    
-    # La Jugada del Día (La de mayor confianza absoluta)
     jugada_del_dia = all_bets[0] if all_bets else None
     
-    # Filtrar juegos únicos para armar los parleys equilibrados
     unique_game_bets = []
     seen_games = set()
     for b in all_bets:
@@ -151,7 +141,8 @@ def fetch_mlb_today_games():
     
     games = []
     try:
-        response = requests.get(url, headers=headers, timeout=5)
+        # Timeout reducido a 3 segundos para evitar bloqueos prolongados
+        response = requests.get(url, headers=headers, timeout=3)
         if response.status_code == 200:
             data = response.json()
             for date_info in data.get('dates', []):
@@ -197,7 +188,7 @@ def fetch_mlb_today_games():
                     game_info.update(sim)
                     games.append(game_info)
     except Exception as e:
-        print(f"Error en la consulta: {e}")
+        print(f"Aviso: Conexión con API externa omitida o fallida ({e}), usando datos de respaldo.")
         
     if not games:
         games = [
