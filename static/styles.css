@@ -674,3 +674,14 @@ select:focus, input[type="text"]:focus {
     border-left: 3px solid var(--accent);
     font-weight: 600;
 }
+/* Forzar que los hijos directos de los contenedores de grid no rompan las 3 columnas */
+#trends-list-container > *, 
+#matches-cards-container > *, 
+#auto-parlays-container > *,
+.matches-grid > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
