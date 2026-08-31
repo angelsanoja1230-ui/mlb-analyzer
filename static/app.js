@@ -371,24 +371,28 @@ function fetchRealLiveMLBData() {
     alert('Sincronización con la API oficial de la MLB completada con éxito.');
 }
 
-function syncAuditWithLiveAPI() {
-    let records = getSavedAuditRecords();
-    records.forEach(r => {
-        if(r.status === 'PENDIENTE') {
-            r.result = "Finalizado (Simulado OK)";
-            r.status = "ACERTADO";
-        }
-    });
-    saveAuditRecords(records);
-    renderAuditHistory();
-    alert('Hoja de comparación y auditoría actualizada con los marcadores finales de la API.');
+function switchTab(evt, tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    evt.currentTarget.classList.add('active');
+    
+    // Carga diferida (Lazy Load): Solo renderiza lo que el usuario está abriendo
+    if (tabId === 'matches-tab') {
+        renderMatches();
+    } else if (tabId === 'trends-tab') {
+        renderTrends();
+    } else if (tabId === 'master-tab') {
+        renderMasterPick();
+        renderParlays();
+    } else if (tabId === 'live-tab') {
+        renderLiveControl();
+    } else if (tabId === 'history-tab') {
+        renderAuditHistory();
+    }
 }
 
 window.onload = function() {
+    // Renderiza únicamente la pestaña principal al iniciar para que la carga sea instantánea
     renderMatches();
-    renderTrends();
-    renderMasterPick();
-    renderParlays();
-    renderLiveControl();
-    renderAuditHistory();
 };
