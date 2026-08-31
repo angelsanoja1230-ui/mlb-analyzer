@@ -15,8 +15,8 @@
         <!-- Top Picks Modulares -->
         {% include 'top_picks.html' %}
 
-        <!-- Matches Grid Modular -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Matches Grid Modular (3 columnas en pantallas grandes) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for match in matches %}
                 {% include 'match_card.html' %}
             {% endfor %}
