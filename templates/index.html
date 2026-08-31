@@ -95,6 +95,44 @@
         <div id="history-list-container"></div>
     </div>
 
+    <script>
+        // Definición explícita de BASE_MATCHES para garantizar la carga inmediata de los partidos del día
+        const BASE_MATCHES = [
+            {
+                away: "Boston Red Sox",
+                home: "New York Yankees",
+                dateFormatted: "31 ago 2026",
+                time: "7:05 PM",
+                stadium: "Yankee Stadium",
+                starter_home: "G. Cole (RHP)",
+                starter_away: "C. Sale (LHP)",
+                starter_home_stats: "ERA: 3.12 | WHIP: 1.05 | K/9: 10.4",
+                starter_away_stats: "ERA: 3.45 | WHIP: 1.12 | K/9: 11.1"
+            },
+            {
+                away: "Los Angeles Dodgers",
+                home: "Detroit Tigers",
+                dateFormatted: "31 ago 2026",
+                time: "6:40 PM",
+                stadium: "Comerica Park",
+                starter_home: "T. Skubal (LHP)",
+                starter_away: "Y. Yamamoto (RHP)",
+                starter_home_stats: "ERA: 2.39 | WHIP: 0.92 | K/9: 11.8",
+                starter_away_stats: "ERA: 2.85 | WHIP: 1.01 | K/9: 9.9"
+            },
+            {
+                away: "Colorado Rockies",
+                home: "Atlanta Braves",
+                dateFormatted: "31 ago 2026",
+                time: "7:20 PM",
+                stadium: "Truist Park",
+                starter_home: "C. Sale (LHP)",
+                starter_away: "K. Freeland (LHP)",
+                starter_home_stats: "ERA: 2.78 | WHIP: 1.01 | K/9: 11.2",
+                starter_away_stats: "ERA: 4.45 | WHIP: 1.38 | K/9: 7.2"
+            }
+        ];
+    </script>
     <script src="/static/app.js"></script>
 </body>
 </html>
