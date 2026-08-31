@@ -9,7 +9,7 @@
     
     <!-- Bloque de anulación forzada a 3 columnas con máxima especificidad -->
     <style>
-        body div#trends-list-container.matches-grid, 
+        body div#simulacion-container.matches-grid, 
         body div#matches-cards-container.matches-grid, 
         body div#auto-parlays-container.matches-grid,
         body .matches-grid {
@@ -19,7 +19,7 @@
             width: 100% !important;
             max-width: 100% !important;
         }
-        body div#trends-list-container.matches-grid > *, 
+        body div#simulacion-container.matches-grid > *, 
         body div#matches-cards-container.matches-grid > *, 
         body div#auto-parlays-container.matches-grid > *,
         body .matches-grid > * {
@@ -65,7 +65,7 @@
 
     <nav>
         <button class="tab-btn active" onclick="switchTab(event, 'matches-tab')">⚾ Partidos del Día</button>
-        <button class="tab-btn" onclick="switchTab(event, 'trends-tab')">📈 Tendencias & Análisis</button>
+        <button class="tab-btn" onclick="switchTab(event, 'simulacion-tab')">📊 Simulación y Pronósticos</button>
         <button class="tab-btn" onclick="switchTab(event, 'master-tab')">⭐ Jugada Maestra</button>
         <button class="tab-btn" onclick="switchTab(event, 'parlays-tab')">🎯 Parlays Automáticos</button>
         <button class="tab-btn" onclick="switchTab(event, 'live-standalone-tab')">🔴 En Vivo & APIs</button>
@@ -80,12 +80,13 @@
         <div id="matches-cards-container" class="matches-grid"></div>
     </div>
 
-    <div id="trends-tab" class="tab-content">
+    <!-- Pestaña Nueva de Simulación y Pronósticos (Sustituye a la anterior de tendencias) -->
+    <div id="simulacion-tab" class="tab-content">
         <div class="section-header-flex">
-            <h2>Tendencias del Día y Mercados Múltiples</h2>
-            <span style="font-size: 0.8rem; color: var(--success); font-weight: 700;">✨ Sincronización en vivo activa</span>
+            <h2>Simulación de Pronósticos y Tendencias</h2>
+            <button class="btn-action" style="margin-top:0; width: auto; padding: 0.6rem 1.25rem;" onclick="loadSimulationTabData()">🔄 Recargar Simulación</button>
         </div>
-        <div id="trends-list-container" class="matches-grid" style="margin-top: 1rem;"></div>
+        <div id="simulacion-container" class="matches-grid" style="margin-top: 1rem;"></div>
     </div>
 
     <div id="master-tab" class="tab-content">
