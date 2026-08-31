@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for ,datetime
 import requests
 from datetime import datetime
 import random
-
+from flask import jsonify
 app = Flask(__name__)
 
 ALL_MLB_TEAMS = [
@@ -325,13 +325,20 @@ def fetch_mlb_today_games():
 
 @app.route('/api/live-matches')
 def api_live_matches():
-    games = fetch_live_data()  # Reemplaza por la función que extrae el juego en vivo
-    return {
-        'success': True,
-        'timestamp': datetime.now().strftime('%d/%m/%Y %I:%M:%S %p'),
-        'matches': games
-    }
-
+    try:
+        games = fetch_mlb_today_games()
+        return jsonify({
+            'success': True,
+            'timestamp': datetime.now().strftime('%d/%m/%Y %I:%M:%S %p'),
+            'matches': games if games else []
+        })
+    except Exception as e:
+        print(f"Error en /api/live-matches: {e}")
+        return jsonify({
+            'success': False,
+            'timestamp': datetime.now().strftime('%d/%m/%Y %I:%M:%S %p'),
+            'matches': []
+        }), 500
 @app.route('/', methods=['GET', 'POST'])
 def index():
     games = fetch_mlb_today_games()
