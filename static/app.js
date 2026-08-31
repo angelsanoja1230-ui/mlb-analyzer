@@ -982,3 +982,51 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+// Función definitiva de inyección por JavaScript para forzar 3 columnas reales
+function forceThreeColumnLayout() {
+    const selectors = [
+        '.matches-grid',
+        '#trends-list-container',
+        '#matches-cards-container',
+        '#auto-parlays-container'
+    ];
+
+    selectors.forEach(selector => {
+        document.querySelectorAll(selector).forEach(container => {
+            container.style.cssText = `
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 20px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            `;
+
+            // Forzar también a los hijos directos (las tarjetas) para que no se expandan
+            Array.from(container.children).forEach(child => {
+                child.style.cssText += `
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    min-width: 0 !important;
+                    box-sizing: border-box !important;
+                `;
+            });
+        });
+    });
+}
+
+// Ejecutar al cargar la página y también periódicamente por si app.js vuelve a renderizar
+window.addEventListener('DOMContentLoaded', () => {
+    forceThreeColumnLayout();
+    setTimeout(forceThreeColumnLayout, 300);
+    setTimeout(forceThreeColumnLayout, 1000);
+});
+
+// Si tu app tiene botones de cambio de pestañas o funciones de render, interceptamos las llamadas globales
+const originalRender = window.switchTab;
+if (originalRender) {
+    window.switchTab = function(...args) {
+        originalRender.apply(this, args);
+        setTimeout(forceThreeColumnLayout, 100);
+    };
+}
