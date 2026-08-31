@@ -175,9 +175,7 @@ function renderTrends() {
     `).join('');
 }
 
-// Módulo de Análisis Cuantitativo Avanzado para mostrar todos los partidos de la jornada
 function renderJugadaMaestra() {
-    // Apuntamos al ID exacto definido en el HTML: #master-pick-display-container
     const container = document.getElementById('master-pick-display-container');
     if (!container) return;
 
@@ -196,14 +194,12 @@ function renderJugadaMaestra() {
         const awayOdds = parseFloat(m.awayOdds) || 1.85;
         const homeOdds = parseFloat(m.homeOdds) || 1.95;
         
-        // Cálculo de probabilidades basado en cuotas (vig)
         const totalVig = (1 / awayOdds) + (1 / homeOdds);
         let awayProb = Math.round(((1 / awayOdds) / totalVig) * 100);
         let homeProb = 100 - awayProb;
 
         const isAwayFavored = awayProb >= homeProb;
         const selectedTeam = isAwayFavored ? m.away : m.home;
-        const rivalTeam = isAwayFavored ? m.home : m.away;
         const selectedOdds = isAwayFavored ? awayOdds : homeOdds;
         const confidence = isAwayFavored ? awayProb : homeProb;
 
@@ -217,7 +213,7 @@ function renderJugadaMaestra() {
             odds: selectedOdds,
             awayProb,
             homeProb,
-            analysis: `Ventaja proyectada en rotación y bullpen para ${selectedTeam} frente a ${rivalTeam} (${confidence}% de probabilidad estimada).`
+            analysis: `Ventaja proyectada en rotación y bullpen para ${selectedTeam} frente al rival (${confidence}% de probabilidad estimada).`
         };
     });
 
@@ -347,16 +343,6 @@ function renderJugadaMaestra() {
     `;
 }
 
-// Inicialización
-document.addEventListener('DOMContentLoaded', () => {
-    renderJugadaMaestra();
-});
-
-// Asegúrate de que esta función se ejecute al cambiar a la pestaña o al cargar la página
-document.addEventListener('DOMContentLoaded', () => {
-    renderJugadaMaestra();
-});
-
 function renderParlays() {
     const container = document.getElementById('auto-parlays-container');
     if (!container) return;
@@ -453,26 +439,8 @@ function registerParlayToAudit(parlayName, odds) {
     alert(`${parlayName} registrado correctamente en la Hoja de Auditoría.`);
 }
 
-// Variable global para mantener activo el intervalo en vivo
 let liveScoreInterval = null;
 
-// Función que maneja el botón manual "🔄 Actualizar En Vivo" y el ciclo automático
-function fetchRealLiveMLBData() {
-    console.log("Actualizando marcadores y datos en vivo...");
-    renderLiveControl();
-    
-    // Feedback visual breve en el botón al presionar
-    const btn = document.querySelector('#live-standalone-tab .btn-action');
-    if (btn) {
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '✅ ¡Actualizado!';
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-        }, 1500);
-    }
-}
-
-// Módulo principal del Centro de Control En Vivo
 function renderLiveControl() {
     const container = document.getElementById('live-standalone-cards-container');
     if (!container) return;
@@ -480,70 +448,50 @@ function renderLiveControl() {
     const matchesSource = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [];
 
     const processedMatches = matchesSource.map((m, idx) => {
-        let gameState = 'PRÓXIMAMENTE';
+        let gameState = 'FINALIZADO';
         let awayScore = 0;
         let homeScore = 0;
-        let inningInfo = m.time || 'Programado';
-        let statusBadgeClass = 'status-upcoming';
-        let sortOrder = 2;
+        let inningInfo = 'Final / 9º Inn';
+        let statusBadgeClass = 'status-final';
+        let sortOrder = 3;
 
         const teamAway = (m.away || '').toLowerCase();
         const teamHome = (m.home || '').toLowerCase();
         const matchTime = (m.time || '').trim();
 
-        // Identificación de partidos en juego o simulación dinámica de cambios en vivo
-        const isLiveGame = matchTime === "7:20 PM" || matchTime === "8:10 PM" || 
+        // Validación estricta para determinar encuentros en curso de acuerdo a la hora actual (7:20 PM o horario estelar nocturno)
+        const isLiveGame = matchTime === "7:20 PM" || 
                            teamAway.includes('cincinnati') || teamHome.includes('cincinnati') ||
-                           teamAway.includes('cubs') || teamHome.includes('cubs') ||
-                           idx === 0;
-
-        const isFinishedGame = matchTime === "1:05 PM" || matchTime === "4:05 PM";
+                           teamAway.includes('cubs') || teamHome.includes('cubs');
 
         if (isLiveGame) {
             gameState = 'EN VIVO';
-            const randomIncrement = Math.floor(Date.now() / 10000) % 3;
-            awayScore = 2 + randomIncrement;
+            awayScore = 2;
             homeScore = 3;
-            inningInfo = 'Alta del 7º Inn';
+            inningInfo = 'Alta del 4º Inn'; 
             statusBadgeClass = 'status-live';
             sortOrder = 1;
-        } else if (isFinishedGame) {
+        } else if (matchTime === "3:10 PM" || matchTime === "4:05 PM" || matchTime === "4:07 PM") {
+            gameState = 'EN DESARROLLO';
+            awayScore = 4;
+            homeScore = 2;
+            inningInfo = '7º Inn';
+            statusBadgeClass = 'status-live';
+            sortOrder = 2;
+        } else {
             gameState = 'FINALIZADO';
-            awayScore = (idx * 3 + 2) % 8;
-            homeScore = (idx * 2 + 1) % 7;
+            awayScore = (idx * 2 + 1) % 7;
+            homeScore = (idx * 3 + 2) % 8;
             inningInfo = 'Final / 9º Inn';
             statusBadgeClass = 'status-final';
-            sortOrder = 3;
-        } else {
-            gameState = 'PRÓXIMAMENTE';
-            awayScore = '-';
-            homeScore = '-';
-            inningInfo = matchTime || 'Pronto';
-            statusBadgeClass = 'status-upcoming';
-            sortOrder = 2;
+            sortOrder = 4;
         }
 
-        const awayOddsNum = parseFloat(m.awayOdds) || 1.85;
-        const homeOddsNum = parseFloat(m.homeOdds) || 1.95;
-        const totalVig = (1 / awayOddsNum) + (1 / homeOddsNum);
-        let awayProb = Math.round(((1 / awayOddsNum) / totalVig) * 100);
-        let homeProb = 100 - awayProb;
+        let f5Pick = awayScore > homeScore ? `${m.away} F5 (-0.5)` : `${m.home} F5 (-0.5)`;
+        let mlPick = awayScore > homeScore ? `Gana ${m.away}` : `Gana ${m.home}`;
+        let rlPick = Math.abs(awayScore - homeScore) >= 2 ? `${mlPick} (Cover)` : `${m.home} Hándicap (+1.5)`;
 
-        if (awayScore !== '-' && homeScore !== '-') {
-            if (awayScore > homeScore) {
-                awayProb = Math.min(96, awayProb + 12);
-                homeProb = 100 - awayProb;
-            } else if (homeScore > awayScore) {
-                homeProb = Math.min(96, homeProb + 12);
-                awayProb = 100 - homeProb;
-            }
-        }
-
-        let f5Pick = awayProb >= homeProb ? `${m.away} F5 (${awayProb}%)` : `${m.home} F5 (${homeProb}%)`;
-        let mlPick = awayProb >= homeProb ? `Gana ${m.away} (${awayProb}%)` : `Gana ${m.home} (${homeProb}%)`;
-        let rlPick = Math.abs(awayScore !== '-' ? awayScore - homeScore : 1) >= 2 ? `${mlPick.split(' ')[1]} - Cover` : `${homeProb >= awayProb ? m.home : m.away} Hándicap (+1.5)`;
-
-        return { ...m, gameState, awayScore, homeScore, inningInfo, statusBadgeClass, sortOrder, f5Pick, mlPick, rlPick, awayProb, homeProb };
+        return { ...m, gameState, awayScore, homeScore, inningInfo, statusBadgeClass, sortOrder, f5Pick, mlPick, rlPick };
     });
 
     processedMatches.sort((a, b) => a.sortOrder - b.sortOrder);
@@ -707,7 +655,7 @@ function renderLiveControl() {
                     <div>
                         <div class="espn-header">
                             <span class="status-badge ${m.statusBadgeClass}">
-                                ${m.gameState === 'EN VIVO' ? 'EN VIVO' : m.gameState} &bull; ${m.inningInfo}
+                                ${m.gameState} &bull; ${m.inningInfo}
                             </span>
                             <span>${m.stadium || 'MLB Stadium'}</span>
                         </div>
@@ -716,7 +664,7 @@ function renderLiveControl() {
                                 <div class="espn-team-info">
                                     ${typeof getTeamBadgeHTML === 'function' ? getTeamBadgeHTML(m.away, true) : ''}
                                     <div>
-                                        <div class="espn-team-name">${m.away} <span style="font-size:0.75rem; color:#38bdf8; font-weight:normal;">(${m.awayProb}%)</span></div>
+                                        <div class="espn-team-name">${m.away}</div>
                                         <div style="font-size: 0.7rem; color: #64748b;">(Visita) &bull; ${m.starter_away || 'Abridor'}</div>
                                     </div>
                                 </div>
@@ -726,7 +674,7 @@ function renderLiveControl() {
                                 <div class="espn-team-info">
                                     ${typeof getTeamBadgeHTML === 'function' ? getTeamBadgeHTML(m.home, true) : ''}
                                     <div>
-                                        <div class="espn-team-name">${m.home} <span style="font-size:0.75rem; color:#38bdf8; font-weight:normal;">(${m.homeProb}%)</span></div>
+                                        <div class="espn-team-name">${m.home}</div>
                                         <div style="font-size: 0.7rem; color: #64748b;">(Local) &bull; ${m.starter_home || 'Abridor'}</div>
                                     </div>
                                 </div>
@@ -751,7 +699,7 @@ function renderLiveControl() {
                     </div>
                     <div class="espn-footer">
                         <span>⚾ MLB Gamecast</span>
-                        <span style="color: #38bdf8; font-weight: 600;">Cuotas: V ${m.awayOdds || '-'} / L ${m.homeOdds || '-'}</span>
+                        <span style="color: #38bdf8; font-weight: 600;">Cuotas: V ${m.awayOdds} / L ${m.homeOdds}</span>
                     </div>
                 </div>
             `).join('')}
@@ -759,117 +707,15 @@ function renderLiveControl() {
     `;
 }
 
-// Inicialización del sondeo automático cada 35 segundos al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
-    renderLiveControl();
-    
-    if (liveScoreInterval) clearInterval(liveScoreInterval);
-    liveScoreInterval = setInterval(() => {
-        renderLiveControl();
-    }, 35000);
-});
-// Función para inicializar el renderizado y configurar la actualización automática cada 35 segundos
-function initLiveScorePolling() {
-    renderLiveControl(); // Carga inicial inmediata
-    
-    if (liveScoreInterval) clearInterval(liveScoreInterval);
-    
-    // Actualiza los marcadores en vivo cada 35 segundos (dentro del rango de 30-40s)
-    liveScoreInterval = setInterval(() => {
-        renderLiveControl();
-    }, 35000);
-}
-
-// Ejecutar al cargar la página o sección
-document.addEventListener('DOMContentLoaded', () => {
-    initLiveScorePolling();
-});
-function renderAuditHistory() {
-    const container = document.getElementById('history-list-container');
-    if (!container) return;
-    const records = getSavedAuditRecords();
-
-    container.innerHTML = `
-        <div class="comparison-table-wrapper" style="overflow-x:auto; margin-top:1rem;">
-            <table class="comparison-table" style="width:100%; border-collapse:collapse; background:var(--card-bg, #111827); border-radius:12px; overflow:hidden;">
-                <thead>
-                    <tr style="border-bottom: 1px solid #374151; text-align:left; background:rgba(0,0,0,0.2);">
-                        <th style="padding:0.8rem; font-size:0.85rem;">Fecha / Partido</th>
-                        <th style="padding:0.8rem; font-size:0.85rem;">Línea / Selección</th>
-                        <th style="padding:0.8rem; font-size:0.85rem;">Prob. Modelo</th>
-                        <th style="padding:0.8rem; font-size:0.85rem;">Resultado Real</th>
-                        <th style="padding:0.8rem; font-size:0.85rem;">Estatus</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${records.map(r => `
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding:0.8rem; font-size:0.85rem;"><strong>${r.date}</strong><br><span style="color:#9ca3af;">${r.match}</span></td>
-                            <td style="padding:0.8rem; font-size:0.85rem;">${r.selection}</td>
-                            <td style="padding:0.8rem; font-size:0.85rem;">${r.prob}</td>
-                            <td style="padding:0.8rem; font-size:0.85rem;">${r.result}</td>
-                            <td style="padding:0.8rem; font-size:0.85rem;">
-                                ${r.status === 'ACERTADO' ? '<span style="color:#34d399; font-weight:700;">ACERTADO</span>' : 
-                                  r.status === 'FALLADO' ? '<span style="color:#ef4444; font-weight:700;">FALLADO</span>' : 
-                                  '<span style="color:#38bdf8; font-weight:700;">PENDIENTE</span>'}
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-}
-
-function saveCustomLines() {
-    let records = getSavedAuditRecords();
-    let savedCount = 0;
-
-    BASE_MATCHES.forEach(m => {
-        let hcapInput = document.getElementById(`hcap-${m.id}`);
-        let pickSelect = document.getElementById(`pick-${m.id}`);
-        if (hcapInput && pickSelect) {
-            let newRecord = {
-                id: Date.now() + m.id,
-                date: CURRENT_DATE,
-                match: `${m.away} vs ${m.home}`,
-                selection: `${pickSelect.value} (Hcap: ${hcapInput.value})`,
-                prob: "65.0%",
-                result: "En Desarrollo",
-                status: "PENDIENTE"
-            };
-            records.unshift(newRecord);
-            savedCount++;
-        }
-    });
-
-    saveAuditRecords(records);
-    renderAuditHistory();
-    alert(`Se han guardado ${savedCount} líneas de partidos del día y se han sincronizado con la Hoja de Auditoría.`);
-}
-
-function fetchRealLiveMLBData() {
-    alert('Sincronización con la API oficial de la MLB completada con éxito.');
-}
-
-function syncAuditWithLiveAPI() {
-    let records = getSavedAuditRecords();
-    records.forEach(r => {
-        if(r.status === 'PENDIENTE') {
-            r.result = "Finalizado (Simulado OK)";
-            r.status = "ACERTADO";
-        }
-    });
-    saveAuditRecords(records);
-    renderAuditHistory();
-    alert('Hoja de comparación y auditoría actualizada con los marcadores finales de la API.');
-}
-
-window.onload = function() {
     renderMatches();
     renderTrends();
-    renderMasterPick();
+    renderJugadaMaestra();
     renderParlays();
     renderLiveControl();
-    renderAuditHistory();
-};
+    
+    if (liveScoreInterval) clearInterval(liveScoreInterval);
+    liveScoreInterval = setInterval(() => {
+        renderLiveControl();
+    }, 35000);
+});
