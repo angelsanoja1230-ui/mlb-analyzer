@@ -270,7 +270,7 @@ def fetch_mlb_today_games():
         games = [
             {
                 'id': 101,
-                'time': '07:05 PM',
+                'time': 'En Vivo',
                 'stadium': 'Yankee Stadium',
                 'away': 'Boston Red Sox',
                 'home': 'New York Yankees',
@@ -278,19 +278,21 @@ def fetch_mlb_today_games():
                 'starter_home': 'G. Cole',
                 'logo_away': 'https://www.mlbstatic.com/team-logos/111.svg',
                 'logo_home': 'https://www.mlbstatic.com/team-logos/147.svg',
-                'abstract_state': 'Preview',
-                'detailed_state': 'Scheduled',
-                'current_inning': 0,
-                'inning_state': '',
-                'outs': 0,
-                'balls': 0,
-                'strikes': 0,
-                'away_runs': 0,
-                'home_runs': 0,
-                'has_1b': False,
+                'abstract_state': 'Live',          # <-- Cambiado a Live
+                'detailed_state': 'En Juego',      # <-- Estado en vivo
+                'current_inning': 5,               # <-- Inning 5
+                'inning_state': 'Top',             # <-- Parte alta
+                'outs': 1,
+                'balls': 2,
+                'strikes': 1,
+                'away_runs': 4,                    # <-- Carreras de prueba
+                'home_runs': 3,                    # <-- Carreras de prueba
+                'away_score': 4,
+                'home_score': 3,
+                'has_1b': True,                    # <-- Pon una base ocupada para probar
                 'has_2b': False,
-                'has_3b': False,
-                'batter_name': 'N/D'
+                'has_3b': True,
+                'batter_name': 'Aaron Judge'
             },
             {
                 'id': 102,
