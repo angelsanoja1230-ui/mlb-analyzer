@@ -176,97 +176,108 @@ def generate_parley_system(games):
 def fetch_mlb_today_games():
     now_local = datetime.utcnow() - timedelta(hours=4)
     target_date = (now_local - timedelta(days=1) if now_local.hour < 7 else now_local).strftime('%Y-%m-%d')
-    url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={target_date}&hydrate=probablePitcher,linescore"
     
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "application/json"
-    }
-    games = []
-    try:
-        response = requests.get(url, headers=headers, timeout=4)
-        if response.status_code == 200:
-            data = response.json()
-            for date_info in data.get('dates', []):
-                for idx, game in enumerate(date_info.get('games', []), start=1):
-                    teams = game.get('teams', {}) or {}
-                    away_team_obj = teams.get('away', {}).get('team', {}) or {}
-                    home_team_obj = teams.get('home', {}).get('team', {}) or {}
-                    
-                    away_team = away_team_obj.get('name', 'Visitante')
-                    home_team = home_team_obj.get('name', 'Local')
-                    away_id = away_team_obj.get('id', 1)
-                    home_id = home_team_obj.get('id', 1)
-                    
-                    starter_away = teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar')
-                    starter_home = teams.get('home', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar')
-                    
-                    game_date_str = game.get('gameDate', '')
-                    time_str = "Por definir"
-                    if game_date_str:
-                        try:
-                            dt = datetime.fromisoformat(game_date_str.replace('Z', '+00:00'))
-                            time_str = dt.strftime('%I:%M %p')
-                        except:
-                            pass
-                            
-                    stadium = game.get('venue', {}).get('name', 'Estadio MLB')
-                    
-                    status_obj = game.get('status', {}) or {}
-                    abstract_state = status_obj.get('abstractGameState', 'Preview')
-                    detailed_state = status_obj.get('detailedState', 'Programado')
-                    
-                    # Scoreboard en vivo (incluyendo bolas y strikes)
-                    linescore = game.get('linescore', {}) or {}
-                    current_inning = linescore.get('currentInning', 0)
-                    inning_state = linescore.get('inningState', '') or ''
-                    outs = linescore.get('outs', 0)
-                    balls = linescore.get('balls', 0)
-                    strikes = linescore.get('strikes', 0)
-                    
-                    ls_teams = linescore.get('teams', {}) or {}
-                    away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
-                    home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
-                    
-                    offense = linescore.get('offense', {}) or {}
-                    has_1b = offense.get('first') is not None
-                    has_2b = offense.get('second') is not None
-                    has_3b = offense.get('third') is not None
-                    batter_obj = offense.get('batter', {}) or {}
-                    batter_name = batter_obj.get('fullName', 'N/D')
-                    
-                    game_info = {
-                        'id': game.get('gamePk', idx),
-                        'time': time_str,
-                        'stadium': stadium,
-                        'away': away_team,
-                        'home': home_team,
-                        'starter_away': starter_away,
-                        'starter_home': starter_home,
-                        'logo_away': f"https://www.mlbstatic.com/team-logos/{away_id}.svg",
-                        'logo_home': f"https://www.mlbstatic.com/team-logos/{home_id}.svg",
-                        'abstract_state': abstract_state,
-                        'detailed_state': detailed_state,
-                        'current_inning': current_inning,
-                        'inning_state': inning_state,
-                        'outs': outs,
-                        'balls': balls,
-                        'strikes': strikes,
-                        'away_runs': away_runs,
-                        'home_runs': home_runs,
-                        'away_score': away_runs,
-                        'home_score': home_runs,
-                        'has_1b': has_1b,
-                        'has_2b': has_2b,
-                        'has_3b': has_3b,
-                        'batter_name': batter_name
-                    }
-                    
-                    sim = advanced_simulate_game(game_info)
-                    game_info.update(sim)
-                    games.append(game_info)
-    except Exception as e:
-        print(f"Aviso de API: {e}")
+    def get_games_for_date(d_str):
+        url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={d_str}&hydrate=probablePitcher,linescore"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept": "application/json"
+        }
+        local_games = []
+        try:
+            response = requests.get(url, headers=headers, timeout=4)
+            if response.status_code == 200:
+                data = response.json()
+                for date_info in data.get('dates', []):
+                    for idx, game in enumerate(date_info.get('games', []), start=1):
+                        teams = game.get('teams', {}) or {}
+                        away_team_obj = teams.get('away', {}).get('team', {}) or {}
+                        home_team_obj = teams.get('home', {}).get('team', {}) or {}
+                        
+                        away_team = away_team_obj.get('name', 'Visitante')
+                        home_team = home_team_obj.get('name', 'Local')
+                        away_id = away_team_obj.get('id', 1)
+                        home_id = home_team_obj.get('id', 1)
+                        
+                        starter_away = teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar')
+                        starter_home = teams.get('home', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar')
+                        
+                        game_date_str = game.get('gameDate', '')
+                        time_str = "Por definir"
+                        if game_date_str:
+                            try:
+                                dt = datetime.fromisoformat(game_date_str.replace('Z', '+00:00'))
+                                time_str = dt.strftime('%I:%M %p')
+                            except:
+                                pass
+                                
+                        stadium = game.get('venue', {}).get('name', 'Estadio MLB')
+                        
+                        status_obj = game.get('status', {}) or {}
+                        abstract_state = status_obj.get('abstractGameState', 'Preview')
+                        detailed_state = status_obj.get('detailedState', 'Programado')
+                        
+                        # Scoreboard en vivo (incluyendo bolas y strikes)
+                        linescore = game.get('linescore', {}) or {}
+                        current_inning = linescore.get('currentInning', 0)
+                        inning_state = linescore.get('inningState', '') or ''
+                        outs = linescore.get('outs', 0)
+                        balls = linescore.get('balls', 0)
+                        strikes = linescore.get('strikes', 0)
+                        
+                        ls_teams = linescore.get('teams', {}) or {}
+                        away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
+                        home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
+                        
+                        offense = linescore.get('offense', {}) or {}
+                        has_1b = offense.get('first') is not None
+                        has_2b = offense.get('second') is not None
+                        has_3b = offense.get('third') is not None
+                        batter_obj = offense.get('batter', {}) or {}
+                        batter_name = batter_obj.get('fullName', 'N/D')
+                        
+                        game_info = {
+                            'id': game.get('gamePk', idx),
+                            'time': time_str,
+                            'stadium': stadium,
+                            'away': away_team,
+                            'home': home_team,
+                            'starter_away': starter_away,
+                            'starter_home': starter_home,
+                            'logo_away': f"https://www.mlbstatic.com/team-logos/{away_id}.svg",
+                            'logo_home': f"https://www.mlbstatic.com/team-logos/{home_id}.svg",
+                            'abstract_state': abstract_state,
+                            'detailed_state': detailed_state,
+                            'current_inning': current_inning,
+                            'inning_state': inning_state,
+                            'outs': outs,
+                            'balls': balls,
+                            'strikes': strikes,
+                            'away_runs': away_runs,
+                            'home_runs': home_runs,
+                            'away_score': away_runs,
+                            'home_score': home_runs,
+                            'has_1b': has_1b,
+                            'has_2b': has_2b,
+                            'has_3b': has_3b,
+                            'batter_name': batter_name
+                        }
+                        
+                        sim = advanced_simulate_game(game_info)
+                        game_info.update(sim)
+                        local_games.append(game_info)
+        except Exception as e:
+            print(f"Aviso de API: {e}")
+        return local_games
+
+    games = get_games_for_date(target_date)
+
+    # Detectar si todos los partidos del día ya terminaron y saltar automáticamente a los de hoy
+    today_str = now_local.strftime('%Y-%m-%d')
+    if games and all(g.get('abstract_state', '').lower() == 'final' for g in games) and target_date != today_str:
+        today_games = get_games_for_date(today_str)
+        if today_games:
+            games = today_games
         
     if not games:
         games = [
