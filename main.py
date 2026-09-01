@@ -324,6 +324,20 @@ def fetch_mlb_today_games():
             sim = advanced_simulate_game(g)
             g.update(sim)
             
+    # Función para definir la prioridad de los estados
+    def get_game_priority(game):
+        state = game.get('abstract_state', '').lower()
+        if state == 'live':
+            return 0  # Los en vivo van primero (arriba)
+        elif state == 'preview':
+            return 1  # Los programados van en medio
+        elif state == 'final':
+            return 2  # Los finalizados van al final (abajo)
+        return 3
+
+    # Ordenar la lista de juegos de forma estable manteniendo el orden original dentro de cada categoría
+    games = sorted(games, key=get_game_priority)
+    
     return games
 
 @app.route('/api/live-matches')
