@@ -174,8 +174,9 @@ def generate_parley_system(games):
     }
 
 def fetch_mlb_today_games():
-    today = (datetime.utcnow() - timedelta(hours=4)).strftime('%Y-%m-%d')
-    url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&hydrate=probablePitcher,linescore"
+    now_local = datetime.utcnow() - timedelta(hours=4)
+    target_date = (now_local - timedelta(days=1) if now_local.hour < 7 else now_local).strftime('%Y-%m-%d')
+    url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={target_date}&hydrate=probablePitcher,linescore"
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
