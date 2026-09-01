@@ -325,7 +325,7 @@
             });
         }
 
-     async function fetchLiveMatchesIndependent() {
+   async function fetchLiveMatchesIndependent() {
             try {
                 const response = await fetch('/api/live-matches');
                 const data = await response.json();
@@ -379,16 +379,17 @@
                                 `}
 
                                 <div class="space-y-2">
-                                    <!-- Visitante con marcador -->
-                                    <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800/50">
+                                    <!-- Visitante y su marcador -->
+                                    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
                                         <div class="flex items-center gap-2">
                                             <img src="${game.logo_away}" class="w-6 h-6 object-contain">
                                             <span class="text-xs font-bold text-slate-200">${game.away}</span>
                                         </div>
                                         <span class="text-base font-black text-cyan-400 font-mono">${game.away_score !== undefined ? game.away_score : '0'}</span>
                                     </div>
-                                    <!-- Local con marcador -->
-                                    <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800/50">
+                                    
+                                    <!-- Local y su marcador -->
+                                    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
                                         <div class="flex items-center gap-2">
                                             <img src="${game.logo_home}" class="w-6 h-6 object-contain">
                                             <span class="text-xs font-bold text-slate-200">${game.home}</span>
@@ -396,6 +397,7 @@
                                         <span class="text-base font-black text-emerald-400 font-mono">${game.home_score !== undefined ? game.home_score : '0'}</span>
                                     </div>
                                 </div>
+
                                 <div class="border-t border-slate-800/80 pt-2 flex justify-between text-[11px]">
                                     <span class="text-slate-400">Pronóstico: <strong class="text-emerald-400">${game.winner_full}</strong></span>
                                     <span class="text-cyan-300 font-bold">${game.over_under ? game.over_under.split('-')[0] : ''}</span>
