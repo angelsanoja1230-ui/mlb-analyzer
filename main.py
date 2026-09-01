@@ -174,14 +174,13 @@ def generate_parley_system(games):
     }
 
 def fetch_mlb_today_games():
- today = (datetime.utcnow() - timedelta(hours=4)).strftime('%Y-%m-%d')
+    today = (datetime.utcnow() - timedelta(hours=4)).strftime('%Y-%m-%d')
     url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&hydrate=probablePitcher,linescore"
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "application/json"
     }
-    
     games = []
     try:
         response = requests.get(url, headers=headers, timeout=4)
