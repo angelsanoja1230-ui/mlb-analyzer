@@ -325,7 +325,7 @@
             });
         }
 
-   async function fetchLiveMatchesIndependent() {
+ async function fetchLiveMatchesIndependent() {
             try {
                 const response = await fetch('/api/live-matches');
                 const data = await response.json();
@@ -337,8 +337,10 @@
                     
                     let htmlContent = '';
                     data.matches.forEach(game => {
-                        const isLive = game.abstract_state === 'Live';
-                        const inningText = game.inning_state === 'Top' ? 'Parte Alta' : 'Parte Baja';
+                        const inningText = game.inning_state === 'Top' ? 'Parte Alta' : (game.inning_state === 'Bottom' ? 'Parte Baja' : game.inning_state);
+                        
+                        const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs !== undefined ? game.away_runs : 0);
+                        const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs !== undefined ? game.home_runs : 0);
                         
                         htmlContent += `
                             <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-inner">
@@ -347,12 +349,13 @@
                                     <span class="text-slate-400 truncate max-w-[120px]">🏟️ ${game.stadium}</span>
                                 </div>
 
-                                ${isLive ? `
-                                <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3 space-y-2">
+                                <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 space-y-2">
                                     <div class="flex justify-between items-center text-xs">
-                                        <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase">${game.detailed_state || 'En Vivo'}</span>
-                                        <span class="text-amber-400 font-bold">${inningText} del ${game.current_inning}°</span>
+                                        <span class="px-2 py-0.5 rounded ${game.abstract_state === 'Live' ? 'bg-red-500/20 text-red-400' : 'bg-slate-800 text-slate-300'} font-bold uppercase">${game.detailed_state || 'Programado'}</span>
+                                        ${game.current_inning > 0 ? `<span class="text-amber-400 font-bold">${inningText} ${game.current_inning}°</span>` : ''}
                                     </div>
+                                    
+                                    ${game.current_inning > 0 ? `
                                     <div class="grid grid-cols-3 gap-1 text-center text-xs bg-slate-950/50 p-2 rounded-lg border border-slate-800">
                                         <div>
                                             <span class="text-slate-500 text-[10px] block">CONTEO</span>
@@ -371,30 +374,24 @@
                                             <span class="font-bold text-slate-200 truncate block max-w-[90px]" title="${game.batter_name || 'N/A'}">${game.batter_name || 'N/A'}</span>
                                         </div>
                                     </div>
+                                    ` : ''}
                                 </div>
-                                ` : `
-                                <div class="text-center py-2 text-xs text-slate-400 bg-slate-900/40 rounded-xl border border-slate-800/40">
-                                    Estado: <span class="text-slate-200 font-semibold">${game.detailed_state || 'Programado'}</span>
-                                </div>
-                                `}
 
                                 <div class="space-y-2">
-                                    <!-- Visitante y su marcador -->
                                     <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
                                         <div class="flex items-center gap-2">
                                             <img src="${game.logo_away}" class="w-6 h-6 object-contain">
                                             <span class="text-xs font-bold text-slate-200">${game.away}</span>
                                         </div>
-                                        <span class="text-base font-black text-cyan-400 font-mono">${game.away_score !== undefined ? game.away_score : '0'}</span>
+                                        <span class="text-base font-black text-cyan-400 font-mono">${awayScore}</span>
                                     </div>
                                     
-                                    <!-- Local y su marcador -->
                                     <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
                                         <div class="flex items-center gap-2">
                                             <img src="${game.logo_home}" class="w-6 h-6 object-contain">
                                             <span class="text-xs font-bold text-slate-200">${game.home}</span>
                                         </div>
-                                        <span class="text-base font-black text-emerald-400 font-mono">${game.home_score !== undefined ? game.home_score : '0'}</span>
+                                        <span class="text-base font-black text-emerald-400 font-mono">${homeScore}</span>
                                     </div>
                                 </div>
 
