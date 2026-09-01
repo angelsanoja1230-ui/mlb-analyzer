@@ -309,9 +309,11 @@ def fetch_mlb_today_games():
                 'outs': 0,
                 'balls': 0,
                 'strikes': 0,
-                'away_runs': 0,
-                'home_runs': 0,
-                'has_1b': False,
+                'away_runs': away_runs,
+                'home_runs': home_runs,
+                'away_score': away_runs,  # <-- Agrega esta línea
+                'home_score': home_runs,  # <-- Agrega esta línea
+                'has_1b': has_1b,
                 'has_2b': False,
                 'has_3b': False,
                 'batter_name': 'N/D'
@@ -368,6 +370,8 @@ def index():
                 'strikes': 0,
                 'away_runs': 0,
                 'home_runs': 0,
+                'away_score': 0,  # <-- Agrega esta línea
+                'home_score': 0,  # <-- Agrega esta línea
                 'has_1b': False,
                 'has_2b': False,
                 'has_3b': False,
