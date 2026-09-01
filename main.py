@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for 
 import requests
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 import random
 from flask import jsonify
 app = Flask(__name__)
@@ -175,7 +174,7 @@ def generate_parley_system(games):
     }
 
 def fetch_mlb_today_games():
-   today = datetime.now(ZoneInfo("America/Caracas")).strftime('%Y-%m-%d')
+ today = (datetime.utcnow() - timedelta(hours=4)).strftime('%Y-%m-%d')
     url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&hydrate=probablePitcher,linescore"
     
     headers = {
