@@ -254,6 +254,8 @@ def fetch_mlb_today_games():
                         'strikes': strikes,
                         'away_runs': away_runs,
                         'home_runs': home_runs,
+                        'away_score': away_runs,
+                        'home_score': home_runs,
                         'has_1b': has_1b,
                         'has_2b': has_2b,
                         'has_3b': has_3b,
@@ -278,18 +280,18 @@ def fetch_mlb_today_games():
                 'starter_home': 'G. Cole',
                 'logo_away': 'https://www.mlbstatic.com/team-logos/111.svg',
                 'logo_home': 'https://www.mlbstatic.com/team-logos/147.svg',
-                'abstract_state': 'Live',          # <-- Cambiado a Live
-                'detailed_state': 'En Juego',      # <-- Estado en vivo
-                'current_inning': 5,               # <-- Inning 5
-                'inning_state': 'Top',             # <-- Parte alta
+                'abstract_state': 'Live',
+                'detailed_state': 'En Juego',
+                'current_inning': 5,
+                'inning_state': 'Top',
                 'outs': 1,
                 'balls': 2,
                 'strikes': 1,
-                'away_runs': 4,                    # <-- Carreras de prueba
-                'home_runs': 3,                    # <-- Carreras de prueba
+                'away_runs': 4,
+                'home_runs': 3,
                 'away_score': 4,
                 'home_score': 3,
-                'has_1b': True,                    # <-- Pon una base ocupada para probar
+                'has_1b': True,
                 'has_2b': False,
                 'has_3b': True,
                 'batter_name': 'Aaron Judge'
@@ -311,11 +313,11 @@ def fetch_mlb_today_games():
                 'outs': 0,
                 'balls': 0,
                 'strikes': 0,
-                'away_runs': away_runs,
-                'home_runs': home_runs,
-                'away_score': away_runs,  # <-- Agrega esta línea
-                'home_score': home_runs,  # <-- Agrega esta línea
-                'has_1b': has_1b,
+                'away_runs': 0,
+                'home_runs': 0,
+                'away_score': 0,
+                'home_score': 0,
+                'has_1b': False,
                 'has_2b': False,
                 'has_3b': False,
                 'batter_name': 'N/D'
@@ -357,6 +359,7 @@ def api_live_matches():
             'timestamp': datetime.now().strftime('%d/%m/%Y %I:%M:%S %p'),
             'matches': []
         }), 500
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     games = fetch_mlb_today_games()
@@ -386,8 +389,8 @@ def index():
                 'strikes': 0,
                 'away_runs': 0,
                 'home_runs': 0,
-                'away_score': 0,  # <-- Agrega esta línea
-                'home_score': 0,  # <-- Agrega esta línea
+                'away_score': 0,
+                'home_score': 0,
                 'has_1b': False,
                 'has_2b': False,
                 'has_3b': False,
