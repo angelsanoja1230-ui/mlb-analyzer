@@ -7,6 +7,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-6">
+    {% set ns = namespace(wins=0, losses=0) %}
+    {% if semana_data %}
+        {% for dia, partidos in semana_data.items() %}
+            {% if partidos %}
+                {% for p in partidos %}
+                    {% if ('Se dio' in p.evaluation) or ('ganador' in p.evaluation) %}
+                        {% set ns.wins = ns.wins + 1 %}
+                    {% elif ('No se dio' in p.evaluation) or ('fallo' in p.evaluation) %}
+                        {% set ns.losses = ns.losses + 1 %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
     <div class="max-w-[105rem] mx-auto space-y-6">
         
         <!-- Header -->
@@ -17,8 +32,21 @@
                 </h1>
                 <p class="text-xs text-cyan-300 mt-1">Evaluación de efectividad de los pronósticos día por día (Lunes a Domingo).</p>
             </div>
-            <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 font-mono">
-                Actualizado: {{ current_time }}
+            
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Contador Global de Ganados / Perdidos -->
+                <div class="flex items-center gap-2 text-xs">
+                    <div class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-sm">
+                        <span>✅ Ganados:</span> <span class="font-mono text-sm">{{ ns.wins }}</span>
+                    </div>
+                    <div class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-sm">
+                        <span>❌ Perdidos:</span> <span class="font-mono text-sm">{{ ns.losses }}</span>
+                    </div>
+                </div>
+
+                <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 font-mono">
+                    Actualizado: {{ current_time }}
+                </div>
             </div>
         </div>
 
@@ -48,9 +76,9 @@
                             <div class="flex justify-between items-center border-t border-slate-800/80 pt-2 text-[0.65rem]">
                                 <span class="text-slate-400 font-mono">{{ p.score or 'Por empezar' }}</span>
                                 
-                                {% if 'ganador' in p.evaluation %}
+                                {% if 'ganador' in p.evaluation or 'Se dio' in p.evaluation %}
                                     <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ p.evaluation }}</span>
-                                {% elif 'fallo' in p.evaluation %}
+                                {% elif 'fallo' in p.evaluation or 'No se dio' in p.evaluation %}
                                     <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{{ p.evaluation }}</span>
                                 {% else %}
                                     <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">{{ p.evaluation }}</span>
