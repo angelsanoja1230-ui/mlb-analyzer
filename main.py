@@ -469,5 +469,15 @@ def index():
         total_evaluados=total_evaluados
     )
 
+@app.route('/api/live-matches')
+def api_live_matches():
+    games = fetch_mlb_today_games()
+    current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
+    return {
+        'success': True,
+        'matches': games,
+        'timestamp': current_time
+    }
+
 if __name__ == '__main__':
     app.run(debug=True)
