@@ -225,7 +225,6 @@ def fetch_mlb_today_games():
                         abstract_state = status_obj.get('abstractGameState', 'Preview')
                         detailed_state = status_obj.get('detailedState', 'Programado')
                         
-                        # Scoreboard en vivo (incluyendo bolas y strikes)
                         linescore = game.get('linescore', {}) or {}
                         current_inning = linescore.get('currentInning', 0)
                         inning_state = linescore.get('inningState', '') or ''
@@ -280,7 +279,6 @@ def fetch_mlb_today_games():
 
     games = get_games_for_date(target_date)
 
-    # Detectar si todos los partidos del día ya terminaron y saltar automáticamente a los de hoy
     today_str = now_local.strftime('%Y-%m-%d')
     if games and all(g.get('abstract_state', '').lower() == 'final' for g in games) and target_date != today_str:
         today_games = get_games_for_date(today_str)
@@ -346,20 +344,17 @@ def fetch_mlb_today_games():
             sim = advanced_simulate_game(g)
             g.update(sim)
             
-    # Función para definir la prioridad de los estados
     def get_game_priority(game):
         state = game.get('abstract_state', '').lower()
         if state == 'live':
-            return 0  # Los en vivo van primero (arriba)
+            return 0
         elif state == 'preview':
-            return 1  # Los programados van en medio
+            return 1
         elif state == 'final':
-            return 2  # Los finalizados van al final (abajo)
+            return 2
         return 3
 
-    # Ordenar la lista de juegos de forma estable manteniendo el orden original dentro de cada categoría
     games = sorted(games, key=get_game_priority)
-    
     return games
 
 @app.route('/api/live-matches')
@@ -379,49 +374,12 @@ def api_live_matches():
             'matches': []
         }), 500
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
     games = fetch_mlb_today_games()
-    
-    if request.method == 'POST':
-        custom_away = request.form.get('away_team')
-        custom_home = request.form.get('home_team')
-        if custom_away and custom_home and custom_away != custom_home:
-            away_id = get_team_id_by_name(custom_away)
-            home_id = get_team_id_by_name(custom_home)
-            custom_game = {
-                'id': random.randint(200, 999),
-                'time': 'Personalizado',
-                'stadium': 'Estadio Custom',
-                'away': custom_away,
-                'home': custom_home,
-                'starter_away': 'Pitcher A',
-                'starter_home': 'Pitcher B',
-                'logo_away': f"https://www.mlbstatic.com/team-logos/{away_id}.svg",
-                'logo_home': f"https://www.mlbstatic.com/team-logos/{home_id}.svg",
-                'abstract_state': 'Preview',
-                'detailed_state': 'Personalizado',
-                'current_inning': 0,
-                'inning_state': '',
-                'outs': 0,
-                'balls': 0,
-                'strikes': 0,
-                'away_runs': 0,
-                'home_runs': 0,
-                'away_score': 0,
-                'home_score': 0,
-                'has_1b': False,
-                'has_2b': False,
-                'has_3b': False,
-                'batter_name': 'N/D'
-            }
-            sim = advanced_simulate_game(custom_game)
-            custom_game.update(sim)
-            games.insert(0, custom_game)
-
     parley_data = generate_parley_system(games)
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
-    return render_template('index.html', matches=games, parley_data=parley_data, current_time=current_time, all_teams=ALL_MLB_TEAMS)
+    return render_template('index.html', matches=games, parley_data=parley_data, current_time=current_time)
 
 if __name__ == '__main__':
     app.run(debug=True)
