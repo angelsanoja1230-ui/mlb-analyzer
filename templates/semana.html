@@ -22,10 +22,10 @@
             </div>
         </div>
 
-        <!-- Contenedor de los días de la semana con items-start -->
+        <!-- Contenedor de los días de la semana -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 items-start">
             {% for dia, partidos in semana_data.items() %}
-            <!-- Columna del día con self-start -->
+            <!-- Columna del día con justify-start y self-start para evitar espacios y estiramientos -->
             <div class="flex flex-col justify-start items-stretch gap-3 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 self-start">
                 
                 <!-- Cabecera del Día -->
@@ -68,6 +68,10 @@
             </div>
             {% endfor %}
         </div>
+
+    </div>
+</body>
+</html>
 
     </div>
 </body>
