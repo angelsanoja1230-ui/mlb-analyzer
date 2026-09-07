@@ -7,60 +7,59 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-6">
-    <div class="max-w-[95rem] mx-auto space-y-6">
+    <div class="max-w-[100rem] mx-auto space-y-6">
         
-        <!-- Header -->
-        <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
+        <!-- Header con diseño renovado para verificar actualización -->
+        <div class="bg-gradient-to-r from-cyan-950/80 to-slate-900 border border-cyan-500/40 p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl font-black text-white flex items-center gap-2">
-                    <span>📅</span> Resultados y Pronósticos de la Semana
+                    <span>⚡</span> Panel de Resultados y Pronósticos
                 </h1>
-                <p class="text-xs text-slate-400 mt-1">Evaluación de efectividad de los pronósticos día por día (Lunes a Domingo).</p>
+                <p class="text-xs text-cyan-300 mt-1">Vista vertical optimizada por día — Alineación superior garantizada.</p>
             </div>
-            <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300">
-                Actualizado: {{ current_time }}
+            <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 font-mono">
+                {{ current_time }}
             </div>
         </div>
 
-        <!-- Contenedor Principal con Flexbox estricto alineado arriba -->
-        <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; gap: 16px; overflow-x: auto; width: 100%; padding-bottom: 20px;">
+        <!-- Contenedor CSS Grid estricto de 7 columnas alineadas arriba -->
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; align-items: start;">
             {% for dia, partidos in semana_data.items() %}
-            <!-- Tarjeta individual con altura independiente basada únicamente en su contenido y anclada arriba -->
-            <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; width: 280px; flex-shrink: 0;" class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 shadow-lg">
+            <!-- Tarjeta individual con altura independiente anclada estrictamente arriba -->
+            <div style="display: flex; flex-direction: column; align-self: start;" class="bg-slate-900/70 p-3 rounded-xl border border-slate-700/80 shadow-lg">
                 
                 <!-- Cabecera del Día -->
-                <div class="flex justify-between items-center pb-2 mb-3 border-b border-slate-800">
-                    <span class="font-black text-xs tracking-wider text-cyan-400">{{ dia | upper }}</span>
-                    <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400 font-mono">{{ partidos | length }} Juegos</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 10px;">
+                    <span style="font-weight: 900; font-size: 0.75rem; color: #22d3ee; text-transform: uppercase;">{{ dia }}</span>
+                    <span style="font-size: 0.65rem; background: #1e293b; color: #94a3b8; padding: 2px 6px; border-radius: 9999px; font-family: monospace;">{{ partidos | length }}</span>
                 </div>
 
-                <!-- Lista de partidos (Apilados estrictamente desde arriba hacia abajo) -->
-                <div style="display: flex; flex-direction: column; justify-content: flex-start; gap: 12px;">
+                <!-- Lista de partidos: apilados desde arriba hacia abajo, eliminando espacio sobrante solo por debajo -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
                     {% if partidos %}
                         {% for p in partidos %}
-                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800/90 hover:border-slate-700 transition-all shadow-md space-y-2">
-                            <div class="text-xs font-bold text-slate-200 leading-snug">
+                        <div style="background: rgba(15, 23, 42, 0.95); padding: 10px; border-radius: 8px; border: 1px solid #334155;" class="space-y-1.5">
+                            <div style="font-size: 0.7rem; font-weight: bold; color: #f1f5f9; line-height: 1.2;">
                                 {{ p.game }}
                             </div>
-                            <div class="text-[11px] text-slate-400">
-                                Pronóstico: <strong class="text-slate-200">{{ p.prediction }}</strong>
+                            <div style="font-size: 0.65rem; color: #94a3b8;">
+                                Pronóstico: <span style="color: #f1f5f9; font-weight: bold;">{{ p.prediction }}</span>
                             </div>
-                            <div class="flex items-center justify-between pt-1 border-t border-slate-800/60 text-[11px]">
-                                <span class="text-slate-400 font-mono">Marcador: <strong class="text-cyan-300">{{ p.score or 'Por empezar' }}</strong></span>
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(51, 65, 85, 0.5); padding-top: 4px; font-size: 0.65rem;">
+                                <span style="color: #94a3b8; font-family: monospace;">{{ p.score or 'Por empezar' }}</span>
                                 
-                                <!-- Badge de evaluación -->
                                 {% if 'Se dio' in p.evaluation %}
-                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ p.evaluation }}</span>
+                                    <span style="padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2);">{{ p.evaluation }}</span>
                                 {% elif 'No se dio' in p.evaluation %}
-                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{{ p.evaluation }}</span>
+                                    <span style="padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; background: rgba(244, 63, 94, 0.1); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.2);">{{ p.evaluation }}</span>
                                 {% else %}
-                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">{{ p.evaluation }}</span>
+                                    <span style="padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2);">{{ p.evaluation }}</span>
                                 {% endif %}
                             </div>
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="text-center py-8 text-slate-600 text-xs italic">
+                        <div style="text-align: center; padding: 20px 0; color: #475569; font-size: 0.7rem; font-style: italic;">
                             Sin juegos
                         </div>
                     {% endif %}
