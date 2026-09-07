@@ -278,62 +278,61 @@
                 </div>
             </section>
 
-            <!-- Pestaña 5: Semana y Resultados -->
-            <section id="tab-semana" class="space-y-6 hidden">
-                <div class="bg-slate-900/90 border border-teal-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl space-y-6">
-                    <div class="border-b border-slate-800 pb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <div>
-                            <h3 class="text-xl font-black text-teal-400 flex items-center gap-2">
-                                📅 Resultados y Pronósticos de la Semana
-                            </h3>
-                            <p class="text-xs text-slate-400 mt-1">Evaluación de efectividad de los pronósticos día por día (Lunes a Domingo).</p>
+         <!-- Pestaña 5: Semana y Resultados -->
+    <section id="tab-semana" class="space-y-6 hidden">
+        <div class="bg-slate-900/90 border border-teal-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl space-y-6">
+            <div class="border-b border-slate-800 pb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-xl font-black text-teal-400 flex items-center gap-2">
+                        📅 Resultados y Pronósticos de la Semana
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Evaluación de efectividad de los pronósticos día por día (Lunes a Domingo).</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start">
+                {% if semana_data %}
+                    {% for dia, partidos in semana_data.items() %}
+                    <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col self-start space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                            <span class="text-sm font-black text-teal-400 uppercase tracking-wider">{{ dia }}</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-900 text-slate-400">{{ partidos|length }} Juegos</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            {% if partidos %}
+                                {% for p in partidos %}
+                                <div class="bg-slate-900/90 border border-slate-800/80 rounded-xl p-3 space-y-2 text-xs">
+                                    <div class="font-bold text-slate-200 truncate">{{ p.game }}</div>
+                                    <div class="text-slate-400 text-[11px]">Pronóstico: <strong class="text-slate-200">{{ p.prediction }}</strong></div>
+                                    <div class="flex justify-between items-center pt-1 border-t border-slate-800/60 text-[11px]">
+                                        <span class="text-slate-400">Marcador: <strong class="text-slate-200">{{ p.score or 'N/A' }}</strong></span>
+                                        <span class="font-extrabold px-2 py-0.5 rounded-full text-[10px] 
+                                        {% if 'Se dio' in p.evaluation %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
+                                        {% elif 'No se dio' in p.evaluation %}bg-rose-500/20 text-rose-400 border border-rose-500/30
+                                        {% else %}bg-amber-500/20 text-amber-400 border border-amber-500/30{% endif %}">
+                                            {{ p.evaluation }}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-6 text-slate-500 text-xs">
+                                    Sin partidos registrados
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {% if semana_data %}
-                            {% for dia, partidos in semana_data.items() %}
-                            <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-4">
-                                <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
-                                    <span class="text-sm font-black text-teal-400 uppercase tracking-wider">{{ dia }}</span>
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-900 text-slate-400">{{ partidos|length }} Juegos</span>
-                                </div>
-
-                                <div class="space-y-3">
-                                    {% if partidos %}
-                                        {% for p in partidos %}
-                                        <div class="bg-slate-900/90 border border-slate-800/80 rounded-xl p-3 space-y-2 text-xs">
-                                            <div class="font-bold text-slate-200 truncate">{{ p.game }}</div>
-                                            <div class="text-slate-400 text-[11px]">Pronóstico: <strong class="text-slate-200">{{ p.prediction }}</strong></div>
-                                            <div class="flex justify-between items-center pt-1 border-t border-slate-800/60 text-[11px]">
-                                                <span class="text-slate-400">Marcador: <strong class="text-slate-200">{{ p.score or 'N/A' }}</strong></span>
-                                                <span class="font-extrabold px-2 py-0.5 rounded-full text-[10px] 
-                                                    {% if 'Se dio' in p.evaluation %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
-                                                    {% elif 'No se dio' in p.evaluation %}bg-rose-500/20 text-rose-400 border border-rose-500/30
-                                                    {% else %}bg-amber-500/20 text-amber-400 border border-amber-500/30{% endif %}">
-                                                    {{ p.evaluation }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    {% else %}
-                                        <div class="text-center py-6 text-slate-500 text-xs">
-                                            Sin partidos registrados
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="text-center py-12 text-slate-500 text-xs col-span-full">
-                                No se encontraron datos semanales activos. Asegúrate de retornar `semana_data` desde tu ruta de Flask.
-                            </div>
-                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-12 text-slate-500 text-xs col-span-full">
+                        No se encontraron datos semanales activos. Asegúrate de retornar `semana_data` desde tu ruta de Flask.
                     </div>
-                </div>
-            </section>
-        </main>
-    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    ```
 
     <!-- Modal de Análisis Profundo (Deep Dive) -->
     <div id="deep-dive-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
