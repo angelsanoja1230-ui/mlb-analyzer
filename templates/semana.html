@@ -9,63 +9,58 @@
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-6">
     <div class="max-w-[105rem] mx-auto space-y-6">
         
-        <!-- PRUEBA DE CAMBIO: Si no ves este aviso rojo, Flask NO está leyendo este archivo -->
-        <div class="bg-red-600 text-white font-bold p-3 rounded-xl text-center text-xs uppercase tracking-wider animate-pulse shadow-lg">
-            ⚠️ [VERIFICACIÓN DE CAMBIO ACTIVA] Si ves este cuadro rojo, el archivo se actualizó correctamente.
-        </div>
-
         <!-- Header -->
         <div class="bg-gradient-to-r from-cyan-950/80 to-slate-900 border border-cyan-500/40 p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl font-black text-white flex items-center gap-2">
                     <span>⚡</span> Panel de Resultados y Pronósticos
                 </h1>
-                <p class="text-xs text-cyan-300 mt-1">Vista semanal optimizada por día — Alineación superior garantizada.</p>
+                <p class="text-xs text-cyan-300 mt-1">Evaluación de efectividad de los pronósticos día por día (Lunes a Domingo).</p>
             </div>
             <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 font-mono">
                 Actualizado: {{ current_time }}
             </div>
         </div>
 
-        <!-- Contenedor Grid Responsivo con alineación superior estricta -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 items-start">
+        <!-- Contenedor Horizontal Desplazable (Elimina el estiramiento vertical del Grid) -->
+        <div class="flex flex-nowrap overflow-x-auto gap-4 items-start pb-6 pt-2">
             {% for dia, partidos in semana_data.items() %}
-            <!-- Tarjeta individual de cada día con altura independiente -->
-            <div class="flex flex-col self-start bg-slate-900/70 p-3 rounded-xl border border-slate-700/80 shadow-lg">
+            <!-- Tarjeta individual con ancho fijo y altura independiente basada exclusivamente en su contenido -->
+            <div class="w-80 shrink-0 bg-slate-900/90 p-4 rounded-2xl border border-slate-700/80 shadow-xl flex flex-col">
                 
                 <!-- Cabecera del Día -->
-                <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-2">
-                    <span class="font-black text-xs text-cyan-400 uppercase tracking-wide">{{ dia }}</span>
-                    <span class="text-[0.65rem] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-mono">{{ partidos | length }}</span>
+                <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-3">
+                    <span class="font-black text-xs text-cyan-400 uppercase tracking-wider">{{ dia }}</span>
+                    <span class="text-[0.65rem] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono font-bold">{{ partidos | length }} Juegos</span>
                 </div>
 
                 <!-- Lista de partidos -->
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-2.5">
                     {% if partidos %}
                         {% for p in partidos %}
-                        <div class="bg-slate-950/95 p-2.5 rounded-lg border border-slate-800/90 hover:border-slate-700 transition-all space-y-1.5 shadow-sm">
-                            <div class="text-[0.7rem] font-bold text-slate-100 leading-tight">
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-slate-700 transition-all space-y-2 shadow-sm">
+                            <div class="text-xs font-bold text-slate-100 leading-snug">
                                 {{ p.game }}
                             </div>
-                            <div class="text-[0.65rem] text-slate-400">
+                            <div class="text-[0.7rem] text-slate-400">
                                 Pronóstico: <span class="text-slate-100 font-bold">{{ p.prediction }}</span>
                             </div>
-                            <div class="flex justify-between items-center border-t border-slate-800/80 pt-1 text-[0.65rem]">
+                            <div class="flex justify-between items-center border-t border-slate-800/80 pt-2 text-[0.65rem]">
                                 <span class="text-slate-400 font-mono">{{ p.score or 'Por empezar' }}</span>
                                 
                                 {% if 'Se dio' in p.evaluation %}
-                                    <span class="px-1.5 py-0.5 rounded text-[0.6rem] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ p.evaluation }}</span>
+                                    <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ p.evaluation }}</span>
                                 {% elif 'No se dio' in p.evaluation %}
-                                    <span class="px-1.5 py-0.5 rounded text-[0.6rem] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{{ p.evaluation }}</span>
+                                    <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{{ p.evaluation }}</span>
                                 {% else %}
-                                    <span class="px-1.5 py-0.5 rounded text-[0.6rem] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">{{ p.evaluation }}</span>
+                                    <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">{{ p.evaluation }}</span>
                                 {% endif %}
                             </div>
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="text-center py-6 text-slate-600 text-[0.7rem] italic">
-                            Sin juegos
+                        <div class="text-center py-8 text-slate-500 text-xs italic">
+                            Sin juegos programados
                         </div>
                     {% endif %}
                 </div>
