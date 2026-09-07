@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-6">
-    <div class="max-w-7xl mx-auto space-y-6">
+    <div class="max-w-[95rem] mx-auto space-y-6">
         
         <!-- Header -->
         <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
@@ -22,11 +22,11 @@
             </div>
         </div>
 
-        <!-- Contenedor con grid-auto-rows: max-content para evitar que las tarjetas se estiren -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 items-start" style="grid-auto-rows: max-content;">
+        <!-- Contenedor en fila flexible (Flexbox) alineado arriba. Permite scroll horizontal si no caben en pantalla -->
+        <div class="flex flex-row items-start gap-4 overflow-x-auto pb-6 w-full">
             {% for dia, partidos in semana_data.items() %}
-            <!-- Tarjeta individual con altura natural basada netamente en sus partidos -->
-            <div class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 flex flex-col gap-3 self-start">
+            <!-- Columna independiente con ancho fijo y altura estrictamente natural basada en sus partidos -->
+            <div class="w-80 flex-shrink-0 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 flex flex-col gap-3 shadow-lg">
                 
                 <!-- Cabecera del Día -->
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800">
@@ -34,7 +34,7 @@
                     <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400 font-mono">{{ partidos | length }} Juegos</span>
                 </div>
 
-                <!-- Lista de partidos del día -->
+                <!-- Lista de partidos (se renderizan de arriba hacia abajo de forma natural) -->
                 <div class="flex flex-col gap-3">
                     {% if partidos %}
                         {% for p in partidos %}
@@ -60,7 +60,7 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="text-center py-6 text-slate-600 text-xs italic">
+                        <div class="text-center py-8 text-slate-600 text-xs italic">
                             Sin juegos
                         </div>
                     {% endif %}
