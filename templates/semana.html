@@ -2,8 +2,11 @@ from datetime import datetime, timedelta
 import requests
 import random
 import itertools
+import json
+import os
 
-# ... (tus configuraciones previas y funciones auxiliares se mantienen igual) ...
+# Archivo donde se guardarán los datos de la semana para que persistan
+DB_FILE = "semana_data.json"
 
 def evaluate_prediction(prediction_text, actual_winner):
     """Compara el pronóstico con el equipo ganador real"""
@@ -13,45 +16,69 @@ def evaluate_prediction(prediction_text, actual_winner):
         return "Se dio ✅"
     return "No se dio ❌"
 
+def cargar_datos_semana():
+    """Carga los datos de la semana desde el archivo JSON si existe"""
+    if os.path.exists(DB_FILE):
+        try:
+            with open(DB_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error cargando el archivo de la semana: {e}")
+    return None
+
+def guardar_datos_semana(data):
+    """Guarda los datos de la semana en el archivo JSON"""
+    try:
+        with open(DB_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        print(f"Error guardando el archivo de la semana: {e}")
+
 def get_weekly_results_data():
-    """Estructura de ejemplo para los días de la semana con sus partidos, pronósticos y resultados reales"""
-    dias_semana = {
-        "Lunes": [
-            {
-                "game": "Atlanta Braves vs Philadelphia Phillies",
-                "prediction": "Ganador J.C.: Atlanta Braves",
-                "actual_winner": "Atlanta Braves",
-                "score": "6 - 4",
-                "status": "Final"
-            },
-            {
-                "game": "New York Mets vs Washington Nationals",
-                "prediction": "Ganador J.C.: New York Mets",
-                "actual_winner": "Washington Nationals",
-                "score": "2 - 5",
-                "status": "Final"
-            }
-        ],
-        "Martes": [
-            {
-                "game": "Boston Red Sox vs New York Yankees",
-                "prediction": "Ganador J.C.: New York Yankees",
-                "actual_winner": "New York Yankees",
-                "score": "3 - 8",
-                "status": "Final"
-            }
-        ],
-        "Miércoles": [],
-        "Jueves": [],
-        "Viernes": [],
-        "Sábado": [],
-        "Domingo": []
-    }
+    """Obtiene los datos de la semana desde el archivo o inicializa la estructura si no existe"""
+    dias_semana = cargar_datos_semana()
+    
+    # Si el archivo no existe todavía, creamos la estructura base por primera vez
+    if not dias_semana:
+        dias_semana = {
+            "Lunes": [
+                {
+                    "game": "Atlanta Braves vs Philadelphia Phillies",
+                    "prediction": "Ganador J.C.: Atlanta Braves",
+                    "actual_winner": "Atlanta Braves",
+                    "score": "6 - 4",
+                    "status": "Final"
+                },
+                {
+                    "game": "New York Mets vs Washington Nationals",
+                    "prediction": "Ganador J.C.: New York Mets",
+                    "actual_winner": "Washington Nationals",
+                    "score": "2 - 5",
+                    "status": "Final"
+                }
+            ],
+            "Martes": [
+                {
+                    "game": "Boston Red Sox vs New York Yankees",
+                    "prediction": "Ganador J.C.: New York Yankees",
+                    "actual_winner": "New York Yankees",
+                    "score": "3 - 8",
+                    "status": "Final"
+                }
+            ],
+            "Miércoles": [],
+            "Jueves": [],
+            "Viernes": [],
+            "Sábado": [],
+            "Domingo": []
+        }
+        # Guardamos esta estructura inicial en el archivo JSON
+        guardar_datos_semana(dias_semana)
     
     # Procesar evaluación automática para cada juego registrado en la semana
     for dia, partidos in dias_semana.items():
         for p in partidos:
-            p['evaluation'] = evaluate_prediction(p['prediction'], p['actual_winner'])
+            p['evaluation'] = evaluate_prediction(p['prediction'], p.get('actual_winner'))
             
     return dias_semana
 
