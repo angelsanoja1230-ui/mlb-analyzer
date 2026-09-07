@@ -458,12 +458,32 @@ def index():
     parley_data = generate_parley_system(games)
     semana_data = fetch_mlb_week_games()
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
+    
+    # Cálculo directo de contadores para evitar fallos en Jinja2
+    total_wins = 0
+    total_losses = 0
+    total_evaluados = 0
+
+    if semana_data:
+        for dia, partidos in semana_data.items():
+            if partidos:
+                for p in partidos:
+                    total_evaluados += 1
+                    eval_text = str(p.get('evaluation', '')).lower()
+                    if 'se dio' in eval_text or 'ganador' in eval_text:
+                        total_wins += 1
+                    elif 'no se dio' in eval_text or 'fallo' in eval_text:
+                        total_losses += 1
+
     return render_template(
         'index.html', 
         matches=games, 
         parley_data=parley_data, 
         semana_data=semana_data, 
-        current_time=current_time
+        current_time=current_time,
+        total_wins=total_wins,
+        total_losses=total_losses,
+        total_evaluados=total_evaluados
     )
 
 if __name__ == '__main__':
