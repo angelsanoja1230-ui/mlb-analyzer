@@ -28,14 +28,14 @@
             <!-- Tarjeta del día con altura fija para mantener la simetría -->
             <div class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 flex flex-col h-[650px]">
                 
-                <!-- Cabecera del Día (Fija en la parte superior) -->
+                <!-- Cabecera del Día -->
                 <div class="flex justify-between items-center pb-3 mb-3 border-b border-slate-800 flex-shrink-0">
                     <span class="font-black text-xs tracking-wider text-cyan-400">{{ dia | upper }}</span>
                     <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400 font-mono">{{ partidos | length }} Juegos</span>
                 </div>
 
-                <!-- Lista de partidos con scroll interno ordenado desde arriba -->
-                <div class="flex flex-col gap-3 overflow-y-auto pr-1 flex-grow">
+                <!-- Lista de partidos con min-h-0 y justify-start para forzar el inicio desde arriba -->
+                <div class="flex flex-col justify-start gap-3 overflow-y-auto pr-1 flex-grow min-h-0">
                     {% if partidos %}
                         {% for p in partidos %}
                         <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800/90 hover:border-slate-700 transition-all shadow-md space-y-2 flex-shrink-0">
