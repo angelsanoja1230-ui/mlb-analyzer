@@ -104,7 +104,6 @@ def advanced_simulate_game(game_data):
         'value_index': f"{max(full_home_prob, full_away_prob)}% Confianza"
     }
 
-import itertools
 import random
 
 def generate_parley_system(games):
@@ -148,51 +147,34 @@ def generate_parley_system(games):
     jugada_del_dia = sorted_bets_for_lock[0] if sorted_bets_for_lock else None
     
     parleys = {}
+    legs_counts = [2, 3, 4, 5]
     
-    # Obtener los mejores pronósticos de juegos diferentes para armar las combinaciones de 2 equipos
-    unique_game_bets = []
-    seen_games = set()
-    for b in sorted_bets_for_lock:
-        if b['game'] not in seen_games:
-            unique_game_bets.append(b)
-            seen_games.add(b['game'])
-            
-    top_bets = unique_game_bets[:5]
-    combos_2 = list(itertools.combinations(top_bets, 2))[:5]
-    
-    two_logros_list = []
-    for combo in combos_2:
-        selected_legs = list(combo)
-        combined_conf = round(sum([l['confidence'] for l in selected_legs]) / len(selected_legs), 1)
-        two_logros_list.append({
-            'legs': selected_legs,
-            'combined_confidence': combined_conf
-        })
-        
-    parleys['2 Logros'] = two_logros_list if two_logros_list else []
-
-    legs_counts = [3, 4, 5]
     for n in legs_counts:
-        pool = list(all_bets)
-        random.shuffle(pool)
-        
         selected_legs = []
         used_games = set()
-        for b in pool:
+        
+        # Tomar los de mayor confianza de juegos distintos para asegurar las mejores selecciones
+        for b in sorted_bets_for_lock:
             if b['game'] not in used_games and len(selected_legs) < n:
                 selected_legs.append(b)
                 used_games.add(b['game'])
                 
         if len(selected_legs) < n:
-            for b in pool:
+            for b in sorted_bets_for_lock:
                 if b not in selected_legs and len(selected_legs) < n:
                     selected_legs.append(b)
-                
+                    
         combined_conf = round(sum([l['confidence'] for l in selected_legs]) / len(selected_legs), 1) if selected_legs else 65.0
+        
         parleys[f"{n} Logros"] = {
             'legs': selected_legs,
             'combined_confidence': combined_conf
         }
+        
+    return {
+        'jugada_del_dia': jugada_del_dia,
+        'parleys': parleys
+    }
         
     return {
         'jugada_del_dia': jugada_del_dia,
