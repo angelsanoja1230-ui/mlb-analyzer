@@ -25,8 +25,8 @@
         <!-- Contenedor de los días de la semana -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 items-start">
             {% for dia, partidos in semana_data.items() %}
-            <!-- Columna del día con justify-start y self-start para evitar espacios y estiramientos -->
-            <div class="flex flex-col justify-start items-stretch gap-3 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 self-start">
+            <!-- Columna del día con altura natural y alineada arriba -->
+            <div class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 space-y-3 self-start">
                 
                 <!-- Cabecera del Día -->
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800">
@@ -35,7 +35,7 @@
                 </div>
 
                 <!-- Lista de partidos del día -->
-                <div class="flex flex-col gap-3">
+                <div class="space-y-3">
                     {% if partidos %}
                         {% for p in partidos %}
                         <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800/90 hover:border-slate-700 transition-all shadow-md space-y-2">
@@ -68,10 +68,6 @@
             </div>
             {% endfor %}
         </div>
-
-    </div>
-</body>
-</html>
 
     </div>
 </body>
