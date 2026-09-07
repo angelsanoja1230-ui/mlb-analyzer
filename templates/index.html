@@ -20,7 +20,7 @@
             </div>
         </header>
 
-        <nav class="flex flex-wrap justify-center gap-3 mb-10">
+        <nav class="flex flex-wrap justify-center gap-3 mb-6">
             <button onclick="switchTab('games')" id="btn-games" class="px-5 py-3 rounded-2xl font-bold text-sm bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:scale-105">
                 ⚾ Partidos del Día
             </button>
@@ -37,6 +37,25 @@
                 📅 Semana & Resultados
             </button>
         </nav>
+
+        <!-- BARRA DE CONTADORES GENERALES -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 bg-slate-900/80 border border-slate-800 p-4 rounded-2xl shadow-lg backdrop-blur-md">
+            <!-- Ganados -->
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 flex items-center justify-between shadow-sm">
+                <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">✅ ACERTADOS</span>
+                <span class="text-xl font-black text-emerald-400 font-mono">{{ total_wins | default(0) }}</span>
+            </div>
+            <!-- Perdidos -->
+            <div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 flex items-center justify-between shadow-sm">
+                <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5">❌ FALLIDOS</span>
+                <span class="text-xl font-black text-rose-400 font-mono">{{ total_losses | default(0) }}</span>
+            </div>
+            <!-- Total Evaluados -->
+            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-3 flex items-center justify-between shadow-sm">
+                <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5">📊 TOTAL EVALUADOS</span>
+                <span class="text-xl font-black text-cyan-400 font-mono">{{ total_evaluados | default(0) }}</span>
+            </div>
+        </div>
 
         <main>
             <!-- Pestaña 1: Partidos del Día -->
