@@ -9,11 +9,12 @@
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-6">
 
     <!-- Cálculo seguro de Ganados y Perdidos con Jinja2 -->
-    {% set ns = namespace(wins=0, losses=0) %}
+    {% set ns = namespace(wins=0, losses=0, total=0) %}
     {% if semana_data %}
         {% for dia, partidos in semana_data.items() %}
             {% if partidos %}
                 {% for p in partidos %}
+                    {% set ns.total = ns.total + 1 %}
                     {% set eval_text = p.evaluation | default('') | string | lower %}
                     {% if 'se dio' in eval_text or 'ganador' in eval_text %}
                         {% set ns.wins = ns.wins + 1 %}
@@ -27,7 +28,7 @@
 
     <div class="max-w-[105rem] mx-auto space-y-6">
         
-        <!-- Header -->
+        <!-- Header Principal -->
         <div class="bg-gradient-to-r from-cyan-950/80 to-slate-900 border border-cyan-500/40 p-6 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl font-black text-white flex items-center gap-2">
@@ -36,24 +37,31 @@
                 <p class="text-xs text-cyan-300 mt-1">Evaluación de efectividad de los pronósticos día por día (Lunes a Domingo).</p>
             </div>
             
-            <div class="flex flex-wrap items-center gap-3">
-                <!-- Contador Global de Ganados / Perdidos -->
-                <div class="flex items-center gap-2 text-xs">
-                    <div class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-sm">
-                        <span>✅ Ganados:</span> <span class="font-mono text-sm">{{ ns.wins }}</span>
-                    </div>
-                    <div class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-sm">
-                        <span>❌ Perdidos:</span> <span class="font-mono text-sm">{{ ns.losses }}</span>
-                    </div>
-                </div>
-
-                <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 font-mono">
-                    Actualizado: {{ current_time }}
-                </div>
+            <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 font-mono">
+                Actualizado: {{ current_time }}
             </div>
         </div>
 
-        <!-- Contenedor Horizontal Desplazable -->
+        <!-- BARRA DE CONTADORES DESTACADA (Muy visible arriba) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-900/90 border border-slate-800 p-4 rounded-2xl shadow-lg">
+            <!-- Ganados -->
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">✅ PRONÓSTICOS ACERTADOS</span>
+                <span class="text-xl font-black text-emerald-400 font-mono">{{ ns.wins }}</span>
+            </div>
+            <!-- Perdidos -->
+            <div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 flex items-center justify-between">
+                <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5">❌ PRONÓSTICOS FALLIDOS</span>
+                <span class="text-xl font-black text-rose-400 font-mono">{{ ns.losses }}</span>
+            </div>
+            <!-- Total Evaluados -->
+            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-3 flex items-center justify-between">
+                <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5">📊 TOTAL JUEGOS EVALUADOS</span>
+                <span class="text-xl font-black text-cyan-400 font-mono">{{ ns.wins + ns.losses }} <span class="text-xs text-slate-500 font-normal">/ {{ ns.total }}</span></span>
+            </div>
+        </div>
+
+        <!-- Contenedor Horizontal Desplazable de los Días -->
         <div class="flex flex-nowrap overflow-x-auto gap-4 items-start pb-6 pt-2">
             {% for dia, partidos in semana_data.items() %}
             <div class="w-80 shrink-0 bg-slate-900/90 p-4 rounded-2xl border border-slate-700/80 shadow-xl flex flex-col">
