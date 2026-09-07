@@ -1,0 +1,62 @@
+from datetime import datetime, timedelta
+import requests
+import random
+import itertools
+
+# ... (tus configuraciones previas y funciones auxiliares se mantienen igual) ...
+
+def evaluate_prediction(prediction_text, actual_winner):
+    """Compara el pronóstico con el equipo ganador real"""
+    if not actual_winner:
+        return "Pendiente ⏳"
+    if actual_winner.lower() in prediction_text.lower():
+        return "Se dio ✅"
+    return "No se dio ❌"
+
+def get_weekly_results_data():
+    """Estructura de ejemplo para los días de la semana con sus partidos, pronósticos y resultados reales"""
+    dias_semana = {
+        "Lunes": [
+            {
+                "game": "Atlanta Braves vs Philadelphia Phillies",
+                "prediction": "Ganador J.C.: Atlanta Braves",
+                "actual_winner": "Atlanta Braves",
+                "score": "6 - 4",
+                "status": "Final"
+            },
+            {
+                "game": "New York Mets vs Washington Nationals",
+                "prediction": "Ganador J.C.: New York Mets",
+                "actual_winner": "Washington Nationals",
+                "score": "2 - 5",
+                "status": "Final"
+            }
+        ],
+        "Martes": [
+            {
+                "game": "Boston Red Sox vs New York Yankees",
+                "prediction": "Ganador J.C.: New York Yankees",
+                "actual_winner": "New York Yankees",
+                "score": "3 - 8",
+                "status": "Final"
+            }
+        ],
+        "Miércoles": [],
+        "Jueves": [],
+        "Viernes": [],
+        "Sábado": [],
+        "Domingo": []
+    }
+    
+    # Procesar evaluación automática para cada juego registrado en la semana
+    for dia, partidos in dias_semana.items():
+        for p in partidos:
+            p['evaluation'] = evaluate_prediction(p['prediction'], p['actual_winner'])
+            
+    return dias_semana
+
+@app.route('/semana')
+def weekly_results():
+    semana_data = get_weekly_results_data()
+    current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
+    return render_template('semana.html', semana_data=semana_data, current_time=current_time)
