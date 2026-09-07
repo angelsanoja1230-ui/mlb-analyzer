@@ -3,6 +3,7 @@ import requests
 from datetime import datetime, timedelta
 import random
 from flask import jsonify
+
 app = Flask(__name__)
 
 ALL_MLB_TEAMS = [
@@ -104,8 +105,6 @@ def advanced_simulate_game(game_data):
         'value_index': f"{max(full_home_prob, full_away_prob)}% Confianza"
     }
 
-import random
-
 def generate_parley_system(games):
     all_bets = []
     for g in games:
@@ -153,7 +152,6 @@ def generate_parley_system(games):
         selected_legs = []
         used_games = set()
         
-        # Tomar los de mayor confianza de juegos distintos para asegurar las mejores selecciones
         for b in sorted_bets_for_lock:
             if b['game'] not in used_games and len(selected_legs) < n:
                 selected_legs.append(b)
@@ -170,11 +168,6 @@ def generate_parley_system(games):
             'legs': selected_legs,
             'combined_confidence': combined_conf
         }
-        
-    return {
-        'jugada_del_dia': jugada_del_dia,
-        'parleys': parleys
-    }
         
     return {
         'jugada_del_dia': jugada_del_dia,
@@ -378,8 +371,27 @@ def api_live_matches():
 def index():
     games = fetch_mlb_today_games()
     parley_data = generate_parley_system(games)
+    
+    semana_data = {
+        "Lunes": [
+            {"game": "NYY vs BOS", "prediction": "NYY Gana", "score": "5 - 3", "evaluation": "Se dio"}
+        ],
+        "Martes": [],
+        "Miércoles": [],
+        "Jueves": [],
+        "Viernes": [],
+        "Sábado": [],
+        "Domingo": []
+    }
+    
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
-    return render_template('index.html', matches=games, parley_data=parley_data, current_time=current_time)
+    return render_template(
+        'index.html', 
+        matches=games, 
+        parley_data=parley_data, 
+        semana_data=semana_data, 
+        current_time=current_time
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
