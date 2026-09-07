@@ -7,14 +7,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-6">
+
+    <!-- Cálculo seguro de Ganados y Perdidos con Jinja2 -->
     {% set ns = namespace(wins=0, losses=0) %}
     {% if semana_data %}
         {% for dia, partidos in semana_data.items() %}
             {% if partidos %}
                 {% for p in partidos %}
-                    {% if ('Se dio' in p.evaluation) or ('ganador' in p.evaluation) %}
+                    {% set eval_text = p.evaluation | default('') | string | lower %}
+                    {% if 'se dio' in eval_text or 'ganador' in eval_text %}
                         {% set ns.wins = ns.wins + 1 %}
-                    {% elif ('No se dio' in p.evaluation) or ('fallo' in p.evaluation) %}
+                    {% elif 'no se dio' in eval_text or 'fallo' in eval_text %}
                         {% set ns.losses = ns.losses + 1 %}
                     {% endif %}
                 {% endfor %}
@@ -50,10 +53,9 @@
             </div>
         </div>
 
-        <!-- Contenedor Horizontal Desplazable (Elimina el estiramiento vertical del Grid) -->
+        <!-- Contenedor Horizontal Desplazable -->
         <div class="flex flex-nowrap overflow-x-auto gap-4 items-start pb-6 pt-2">
             {% for dia, partidos in semana_data.items() %}
-            <!-- Tarjeta individual con ancho fijo y altura independiente basada exclusivamente en su contenido -->
             <div class="w-80 shrink-0 bg-slate-900/90 p-4 rounded-2xl border border-slate-700/80 shadow-xl flex flex-col">
                 
                 <!-- Cabecera del Día -->
@@ -76,9 +78,10 @@
                             <div class="flex justify-between items-center border-t border-slate-800/80 pt-2 text-[0.65rem]">
                                 <span class="text-slate-400 font-mono">{{ p.score or 'Por empezar' }}</span>
                                 
-                                {% if 'ganador' in p.evaluation or 'Se dio' in p.evaluation %}
+                                {% set eval_p = p.evaluation | default('') | string | lower %}
+                                {% if 'ganador' in eval_p or 'se dio' in eval_p %}
                                     <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ p.evaluation }}</span>
-                                {% elif 'fallo' in p.evaluation or 'No se dio' in p.evaluation %}
+                                {% elif 'fallo' in eval_p or 'no se dio' in eval_p %}
                                     <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{{ p.evaluation }}</span>
                                 {% else %}
                                     <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">{{ p.evaluation }}</span>
