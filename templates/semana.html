@@ -22,11 +22,11 @@
             </div>
         </div>
 
-        <!-- Contenedor de los días de la semana con alineación forzada arriba -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 items-start">
+        <!-- Contenedor con CSS Columns para evitar que las columnas cortas se estiren por culpa de las más largas -->
+        <div class="columns-1 md:columns-2 lg:columns-4 xl:columns-7 gap-4">
             {% for dia, partidos in semana_data.items() %}
-            <!-- Columna con estilos en línea para garantizar que no se estire y comience arriba -->
-            <div class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 flex flex-col gap-3" style="align-self: flex-start; height: max-content;">
+            <!-- Tarjeta independiente para cada día -->
+            <div class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 space-y-3 mb-4 break-inside-avoid inline-block w-full">
                 
                 <!-- Cabecera del Día -->
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800">
@@ -35,7 +35,7 @@
                 </div>
 
                 <!-- Lista de partidos del día -->
-                <div class="flex flex-col gap-3">
+                <div class="space-y-3">
                     {% if partidos %}
                         {% for p in partidos %}
                         <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800/90 hover:border-slate-700 transition-all shadow-md space-y-2">
@@ -60,7 +60,7 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="text-center py-8 text-slate-600 text-xs italic">
+                        <div class="text-center py-6 text-slate-600 text-xs italic">
                             Sin juegos
                         </div>
                     {% endif %}
