@@ -350,6 +350,91 @@ def fetch_mlb_today_games():
     games = sorted(games, key=get_game_priority)
     return games
 
+def fetch_mlb_week_games():
+    now_local = datetime.utcnow() - timedelta(hours=4)
+    current_weekday = now_local.weekday()  # Lunes = 0, Domingo = 6
+    monday_date = now_local - timedelta(days=current_weekday)
+    
+    days_names = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+    semana_data = {}
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "application/json"
+    }
+    
+    for i, day_name in enumerate(days_names):
+        d_obj = monday_date + timedelta(days=i)
+        d_str = d_obj.strftime('%Y-%m-%d')
+        url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={d_str}&hydrate=probablePitcher,linescore"
+        
+        day_games_list = []
+        try:
+            response = requests.get(url, headers=headers, timeout=4)
+            if response.status_code == 200:
+                data = response.json()
+                for date_info in data.get('dates', []):
+                    for idx, game in enumerate(date_info.get('games', []), start=1):
+                        teams = game.get('teams', {}) or {}
+                        away_team_obj = teams.get('away', {}).get('team', {}) or {}
+                        home_team_obj = teams.get('home', {}).get('team', {}) or {}
+                        
+                        away_team = away_team_obj.get('name', 'Visitante')
+                        home_team = home_team_obj.get('name', 'Local')
+                        
+                        status_obj = game.get('status', {}) or {}
+                        abstract_state = status_obj.get('abstractGameState', 'Preview').lower()
+                        
+                        linescore = game.get('linescore', {}) or {}
+                        ls_teams = linescore.get('teams', {}) or {}
+                        away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
+                        home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
+                        
+                        game_info = {
+                            'id': game.get('gamePk', idx),
+                            'home': home_team,
+                            'away': away_team,
+                            'starter_home': teams.get('home', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar'),
+                            'starter_away': teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar'),
+                            'stadium': game.get('venue', {}).get('name', 'Estadio MLB')
+                        }
+                        
+                        sim = advanced_simulate_game(game_info)
+                        winner_full = sim.get('winner_full')
+                        
+                        prediction = f"Ganador: {winner_full}"
+                        score_str = f"{away_runs} - {home_runs}" if abstract_state != 'preview' else "Por empezar"
+                        
+                        if abstract_state == 'final':
+                            if away_runs > home_runs:
+                                actual_winner = away_team
+                            elif home_runs > away_runs:
+                                actual_winner = home_team
+                            else:
+                                actual_winner = None
+                            
+                            if winner_full == actual_winner:
+                                evaluation = "Se dio"
+                            else:
+                                evaluation = "No se dio"
+                        elif abstract_state == 'live':
+                            evaluation = "En juego..."
+                        else:
+                            evaluation = "Pendiente"
+                            
+                        day_games_list.append({
+                            "game": f"{away_team} vs {home_team}",
+                            "prediction": prediction,
+                            "score": score_str,
+                            "evaluation": evaluation
+                        })
+        except Exception as e:
+            print(f"Aviso API semana ({day_name}): {e}")
+            
+        semana_data[day_name] = day_games_list
+        
+    return semana_data
+
 @app.route('/api/live-matches')
 def api_live_matches():
     try:
@@ -371,19 +456,7 @@ def api_live_matches():
 def index():
     games = fetch_mlb_today_games()
     parley_data = generate_parley_system(games)
-    
-    semana_data = {
-        "Lunes": [
-            {"game": "NYY vs BOS", "prediction": "NYY Gana", "score": "5 - 3", "evaluation": "Se dio"}
-        ],
-        "Martes": [],
-        "Miércoles": [],
-        "Jueves": [],
-        "Viernes": [],
-        "Sábado": [],
-        "Domingo": []
-    }
-    
+    semana_data = fetch_mlb_week_games()
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
     return render_template(
         'index.html', 
