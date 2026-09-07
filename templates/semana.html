@@ -48,9 +48,9 @@
                             <div class="flex justify-between items-center border-t border-slate-800/80 pt-2 text-[0.65rem]">
                                 <span class="text-slate-400 font-mono">{{ p.score or 'Por empezar' }}</span>
                                 
-                                {% if 'Se dio' in p.evaluation %}
+                                {% if 'ganador' in p.evaluation %}
                                     <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ p.evaluation }}</span>
-                                {% elif 'No se dio' in p.evaluation %}
+                                {% elif 'fallo' in p.evaluation %}
                                     <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{{ p.evaluation }}</span>
                                 {% else %}
                                     <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">{{ p.evaluation }}</span>
