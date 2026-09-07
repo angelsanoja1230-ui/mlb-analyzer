@@ -22,23 +22,23 @@
             </div>
         </div>
 
-        <!-- Contenedor principal en fila horizontal para que cada columna tenga su propia altura natural desde arriba -->
-        <div class="flex flex-row gap-4 overflow-x-auto items-start pb-4">
+        <!-- Contenedor principal de columnas uniformes -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             {% for dia, partidos in semana_data.items() %}
-            <!-- Tarjeta de cada día con ancho fijo para mantener el formato de columnas -->
-            <div class="w-72 flex-shrink-0 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 flex flex-col gap-3">
+            <!-- Tarjeta del día con altura fija para mantener la simetría -->
+            <div class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 flex flex-col h-[650px]">
                 
-                <!-- Cabecera del Día -->
-                <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <!-- Cabecera del Día (Fija en la parte superior) -->
+                <div class="flex justify-between items-center pb-3 mb-3 border-b border-slate-800 flex-shrink-0">
                     <span class="font-black text-xs tracking-wider text-cyan-400">{{ dia | upper }}</span>
                     <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400 font-mono">{{ partidos | length }} Juegos</span>
                 </div>
 
-                <!-- Lista de partidos del día -->
-                <div class="flex flex-col gap-3">
+                <!-- Lista de partidos con scroll interno ordenado desde arriba -->
+                <div class="flex flex-col gap-3 overflow-y-auto pr-1 flex-grow">
                     {% if partidos %}
                         {% for p in partidos %}
-                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800/90 hover:border-slate-700 transition-all shadow-md space-y-2">
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800/90 hover:border-slate-700 transition-all shadow-md space-y-2 flex-shrink-0">
                             <div class="text-xs font-bold text-slate-200 leading-snug">
                                 {{ p.game }}
                             </div>
@@ -60,7 +60,7 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <div class="text-center py-6 text-slate-600 text-xs italic">
+                        <div class="text-center py-12 text-slate-600 text-xs italic">
                             Sin juegos
                         </div>
                     {% endif %}
