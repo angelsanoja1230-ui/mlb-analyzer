@@ -22,20 +22,20 @@
             </div>
         </div>
 
-        <!-- Contenedor con estilos en línea absolutos para evitar bloqueos de caché de Tailwind o Grid -->
-        <div style="display: flex; flex-direction: row; align-items: flex-start; gap: 1rem; overflow-x: auto; padding-bottom: 1.5rem; width: 100%;">
+        <!-- Contenedor Principal con Flexbox estricto alineado arriba -->
+        <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; gap: 16px; overflow-x: auto; width: 100%; padding-bottom: 20px;">
             {% for dia, partidos in semana_data.items() %}
-            <!-- Cada tarjeta tiene ancho fijo y se alinea estrictamente arriba con altura propia -->
-            <div style="width: 280px; flex-shrink: 0; align-self: flex-start;" class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 flex flex-col gap-3 shadow-lg">
+            <!-- Tarjeta individual con altura independiente basada únicamente en su contenido y anclada arriba -->
+            <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; width: 280px; flex-shrink: 0;" class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 shadow-lg">
                 
                 <!-- Cabecera del Día -->
-                <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <div class="flex justify-between items-center pb-2 mb-3 border-b border-slate-800">
                     <span class="font-black text-xs tracking-wider text-cyan-400">{{ dia | upper }}</span>
                     <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400 font-mono">{{ partidos | length }} Juegos</span>
                 </div>
 
-                <!-- Lista de partidos ordenada desde arriba -->
-                <div class="flex flex-col gap-3">
+                <!-- Lista de partidos (Apilados estrictamente desde arriba hacia abajo) -->
+                <div style="display: flex; flex-direction: column; justify-content: flex-start; gap: 12px;">
                     {% if partidos %}
                         {% for p in partidos %}
                         <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800/90 hover:border-slate-700 transition-all shadow-md space-y-2">
