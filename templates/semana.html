@@ -1,11 +1,7 @@
-from datetime import datetime, timedelta
-import requests
-import random
-import itertools
+from datetime import datetime
 import json
 import os
 
-# Archivo donde se guardarán los datos de la semana para que persistan
 DB_FILE = "semana_data.json"
 
 def evaluate_prediction(prediction_text, actual_winner):
@@ -17,28 +13,27 @@ def evaluate_prediction(prediction_text, actual_winner):
     return "No se dio ❌"
 
 def cargar_datos_semana():
-    """Carga los datos de la semana desde el archivo JSON si existe"""
+    """Carga los datos semanales desde el archivo JSON si existe"""
     if os.path.exists(DB_FILE):
         try:
             with open(DB_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except Exception as e:
-            print(f"Error cargando el archivo de la semana: {e}")
+        except Exception:
+            pass
     return None
 
 def guardar_datos_semana(data):
-    """Guarda los datos de la semana en el archivo JSON"""
+    """Guarda los datos semanales en el archivo JSON"""
     try:
         with open(DB_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
-    except Exception as e:
-        print(f"Error guardando el archivo de la semana: {e}")
+    except Exception:
+        pass
 
 def get_weekly_results_data():
-    """Obtiene los datos de la semana desde el archivo o inicializa la estructura si no existe"""
+    """Obtiene o inicializa los datos de la semana"""
     dias_semana = cargar_datos_semana()
     
-    # Si el archivo no existe todavía, creamos la estructura base por primera vez
     if not dias_semana:
         dias_semana = {
             "Lunes": [
@@ -72,13 +67,12 @@ def get_weekly_results_data():
             "Sábado": [],
             "Domingo": []
         }
-        # Guardamos esta estructura inicial en el archivo JSON
         guardar_datos_semana(dias_semana)
     
-    # Procesar evaluación automática para cada juego registrado en la semana
+    # Procesar evaluación automática
     for dia, partidos in dias_semana.items():
         for p in partidos:
-            p['evaluation'] = evaluate_prediction(p['prediction'], p.get('actual_winner'))
+            p['evaluation'] = evaluate_prediction(p.get('prediction', ''), p.get('actual_winner', ''))
             
     return dias_semana
 
