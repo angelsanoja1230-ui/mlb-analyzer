@@ -407,15 +407,23 @@ function openDeepDiveFromElement(element) {
         console.error("Error al parsear los datos del juego para el Deep Dive:", e);
     }
 }
-    function openDeepDive(game) {
+  function openDeepDive(game) {
     const modal = document.getElementById('deep-dive-modal');
     const content = document.getElementById('modal-content');
     if (!modal || !content) return;
     
+    // Capturamos las variables probando varias alternativas por si el backend cambia la clave
+    const bullpenText = game.bullpen_advantage || game.bullpen || 'N/A';
+    const ballparkText = game.ballpark_factor || game.ballpark || 'N/A';
+    const pitcherAwayText = game.starter_away || game.pitcher_away || game.away_pitcher || 'Abridor Visitante';
+    const pitcherHomeText = game.starter_home || game.pitcher_home || game.home_pitcher || 'Abridor Local';
+    const metricsAway = game.pitcher_metrics_away || '';
+    const metricsHome = game.pitcher_metrics_home || '';
+
     content.innerHTML = `
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
             <div>
-                <span class="text-xs font-bold text-cyan-400">🕒 ${game.time || 'N/A'} | 🏟️ ${game.stadium || 'Estadio N/A'}</span>
+                <span class="text-xs font-bold text-cyan-400">🕒 ${game.time || 'N/A'} | 🏟️ ${game.stadium || game.park || 'Estadio N/A'}</span>
                 <h3 class="text-xl font-black text-slate-100 mt-1">${game.away} vs ${game.home}</h3>
             </div>
             <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
@@ -431,9 +439,9 @@ function openDeepDiveFromElement(element) {
                     <span class="font-bold text-slate-200">${game.away}</span>
                 </div>
                 <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
-                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away}%</strong></div>
-                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_away}</strong></div>
-                    <div class="flex justify-between"><span>Métricas Abridor:</span> <strong class="text-slate-200">${game.pitcher_metrics_away || 'N/A'}</strong></div>
+                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away || 0}%</strong></div>
+                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_away || 0}</strong></div>
+                    <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${pitcherAwayText} ${metricsAway ? `(${metricsAway})` : ''}</strong></div>
                 </div>
             </div>
 
@@ -444,9 +452,9 @@ function openDeepDiveFromElement(element) {
                     <span class="font-bold text-slate-200">${game.home}</span>
                 </div>
                 <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
-                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home}%</strong></div>
-                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_home}</strong></div>
-                    <div class="flex justify-between"><span>Métricas Abridor:</span> <strong class="text-slate-200">${game.pitcher_metrics_home || 'N/A'}</strong></div>
+                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home || 0}%</strong></div>
+                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_home || 0}</strong></div>
+                    <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${pitcherHomeText} ${metricsHome ? `(${metricsHome})` : ''}</strong></div>
                 </div>
             </div>
         </div>
@@ -456,11 +464,11 @@ function openDeepDiveFromElement(element) {
             <div class="grid grid-cols-2 gap-3">
                 <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
                     <span class="text-slate-400">Fortaleza Bullpen:</span>
-                    <span class="font-bold text-amber-400">${game.bullpen_advantage || 'N/A'}</span>
+                    <span class="font-bold text-amber-400">${bullpenText}</span>
                 </div>
                 <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
                     <span class="text-slate-400">Factor Parque:</span>
-                    <span class="font-bold text-cyan-300">${game.ballpark_factor || 'N/A'}</span>
+                    <span class="font-bold text-cyan-300">${ballparkText}</span>
                 </div>
             </div>
             <div class="space-y-1 pt-2 border-t border-slate-800">
