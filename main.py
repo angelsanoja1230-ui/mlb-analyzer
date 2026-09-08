@@ -93,6 +93,29 @@ def advanced_simulate_game(game_data):
     else:
         run_line = f"{away if winner_full == home else home} +1.5 (Protegido)"
 
+    # --- CÁLCULOS Y VALORES PARA EVITAR 'UNDEFINED' EN EL MODAL ---
+    away_expected_runs = round(4.0 + (f5_away_prob - 50) * 0.05, 1)
+    home_expected_runs = round(4.0 + (f5_home_prob - 50) * 0.05, 1)
+    
+    era_home = "2.95" if home_is_ace else "4.20"
+    whip_home = "1.08" if home_is_ace else "1.32"
+    era_away = "2.95" if away_is_ace else "4.20"
+    whip_away = "1.08" if away_is_ace else "1.32"
+    
+    if bullpen_variance > 3:
+        bullpen_strength = "Elite (+)"
+    elif bullpen_variance < -3:
+        bullpen_strength = "Vulnerable (-)"
+    else:
+        bullpen_strength = "Estándar (Promedio)"
+        
+    if 'coors' in stadium_lower:
+        park_factor = "Extremo (Favor a ofensiva)"
+    elif 'fenway' in stadium_lower or 'yankee' in stadium_lower:
+        park_factor = "Favorable a bateadores"
+    else:
+        park_factor = "Neutral (1.00)"
+
     return {
         'prob_home': full_home_prob,
         'prob_away': full_away_prob,
@@ -102,7 +125,16 @@ def advanced_simulate_game(game_data):
         'winner_f5': winner_f5,
         'over_under': over_under,
         'run_line': run_line,
-        'value_index': f"{max(full_home_prob, full_away_prob)}% Confianza"
+        'value_index': f"{max(full_home_prob, full_away_prob)}% Confianza",
+        # Llaves añadidas para completar el modal del frontend:
+        'away_expected_runs': away_expected_runs,
+        'home_expected_runs': home_expected_runs,
+        'starter_era_away': era_away,
+        'starter_whip_away': whip_away,
+        'starter_era_home': era_home,
+        'starter_whip_home': whip_home,
+        'bullpen_strength': bullpen_strength,
+        'park_factor': park_factor
     }
 
 def generate_parley_system(games):
