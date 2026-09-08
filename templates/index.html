@@ -398,7 +398,15 @@
                 }
             });
         }
-
+function openDeepDiveFromElement(element) {
+    try {
+        const rawData = element.getAttribute('data-game');
+        const game = JSON.parse(rawData);
+        openDeepDive(game);
+    } catch (e) {
+        console.error("Error al parsear los datos del juego para el Deep Dive:", e);
+    }
+}
         function openDeepDive(game) {
             const modal = document.getElementById('deep-dive-modal');
             const content = document.getElementById('modal-content');
