@@ -631,9 +631,14 @@ window.addEventListener('click', (e) => {
     }
 });
 
+<script>
+    console.log("¿Existe BASE_MATCHES?", typeof BASE_MATCHES !== 'undefined', window.BASE_MATCHES);
+    console.log("¿Existe el contenedor?", document.getElementById('live-games-container'));
+</script>
+
 document.addEventListener('DOMContentLoaded', () => {
     fetchLiveMatchesIndependent();
-    setInterval(fetchLiveMatchesIndependent, 10000); // Actualización a 10 segundos
+    setInterval(fetchLiveMatchesIndependent, 10000);
 });
 </script>
 </body>
