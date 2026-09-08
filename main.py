@@ -533,7 +533,7 @@ def index():
     except NameError:
         semana_data = {}
         
-   current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
+ current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
     
     total_wins = 0
     total_losses = 0
