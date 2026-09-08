@@ -547,83 +547,102 @@
         }
     }
 
-    async function fetchLiveMatchesIndependent() {
-        const container = document.getElementById('live-games-container');
-        if (!container) return;
+  async function fetchLiveMatchesIndependent() {
+    const container = document.getElementById('live-games-container');
+    if (!container) return;
 
-        if (typeof BASE_MATCHES === 'undefined' || !Array.isArray(BASE_MATCHES) || BASE_MATCHES.length === 0) {
-            container.innerHTML = '<div class="col-span-full text-center text-slate-500 py-6 text-xs">Cargando partidos en vivo...</div>';
+    if (typeof BASE_MATCHES === 'undefined' || !Array.isArray(BASE_MATCHES) || BASE_MATCHES.length === 0) {
+        container.innerHTML = '<div class="col-span-full text-center text-slate-500 py-6 text-xs">Cargando partidos...</div>';
+        return;
+    }
+
+    const badge = document.getElementById('live-status-badge');
+    if (badge) badge.innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
+    
+    try {
+        // Filtramos únicamente los partidos que estén realmente en vivo
+        const liveGames = BASE_MATCHES.filter(game => {
+            const status = (game.status || game.state || '').toLowerCase();
+            return game.is_live === true || 
+                   status === 'live' || 
+                   status === 'en vivo' || 
+                   status === 'in progress' ||
+                   status === 'inprogress';
+        });
+
+        // Si no hay partidos en vivo, mostramos un mensaje informativo profesional
+        if (liveGames.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-full text-center py-12 bg-slate-950/40 border border-slate-800/60 rounded-2xl p-6 space-y-2">
+                    <span class="text-2xl">⏳</span>
+                    <h4 class="text-sm font-bold text-slate-300">No hay partidos en vivo en este momento</h4>
+                    <p class="text-xs text-slate-500">Los marcadores y estadísticas en tiempo real aparecerán aquí cuando inicien los encuentros programados.</p>
+                </div>
+            `;
             return;
         }
 
-        const badge = document.getElementById('live-status-badge');
-        if (badge) badge.innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
-        
-        try {
-            let htmlContent = '';
-            BASE_MATCHES.slice(0, 6).forEach((game, idx) => {
-                const inningNum = (idx % 3) + 3;
-                const isBottom = idx % 2 === 0;
-                const inningStateText = isBottom ? `Parte Baja del ${inningNum}°` : `Parte Alta del ${inningNum}°`;
-                
-                const awayScore = Math.floor(parseFloat(game.projected_score_away || game.away_expected_runs || 4) * (inningNum / 9));
-                const homeScore = Math.floor(parseFloat(game.projected_score_home || game.home_expected_runs || 4) * (inningNum / 9));
-                
-                htmlContent += `
-                    <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-inner">
+        let htmlContent = '';
+        liveGames.forEach((game) => {
+            const inningStateText = game.inning_state || game.inning || 'En curso';
+            const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs || 0);
+            const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs || 0);
+            
+            htmlContent += `
+                <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-inner">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-emerald-400">🕒 ${game.time || 'N/A'}</span>
+                        <span class="text-slate-400 truncate max-w-[120px]">🏟️ ${game.stadium || 'N/A'}</span>
+                    </div>
+
+                    <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3 space-y-2">
                         <div class="flex justify-between items-center text-xs">
-                            <span class="font-bold text-emerald-400">🕒 ${game.time || 'N/A'}</span>
-                            <span class="text-slate-400 truncate max-w-[120px]">🏟️ ${game.stadium || 'N/A'}</span>
+                            <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase">En Vivo</span>
+                            <span class="text-amber-400 font-bold">${inningStateText}</span>
                         </div>
-
-                        <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3 space-y-2">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase">En Vivo</span>
-                                <span class="text-amber-400 font-bold">${inningStateText}</span>
+                        <div class="grid grid-cols-3 gap-1 text-center text-xs bg-slate-950/50 p-2 rounded-lg border border-slate-800">
+                            <div>
+                                <span class="text-slate-500 text-[10px] block">CONTEO</span>
+                                <span class="font-bold text-slate-200">${game.count || 'B:0 S:0 O:0'}</span>
                             </div>
-                            <div class="grid grid-cols-3 gap-1 text-center text-xs bg-slate-950/50 p-2 rounded-lg border border-slate-800">
-                                <div>
-                                    <span class="text-slate-500 text-[10px] block">CONTEO</span>
-                                    <span class="font-bold text-slate-200">B:2 S:1 O:1</span>
-                                </div>
-                                <div>
-                                    <span class="text-slate-500 text-[10px] block">BASES</span>
-                                    <div class="flex justify-center gap-1 mt-1">
-                                        <span class="w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400" title="1B"></span>
-                                        <span class="w-3 h-3 rounded-full bg-slate-800" title="2B"></span>
-                                        <span class="w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400" title="3B"></span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <span class="text-slate-500 text-[10px] block">BATEADOR</span>
-                                    <span class="font-bold text-slate-200 truncate block max-w-[90px]">${game.starter_home || 'N/A'}</span>
+                            <div>
+                                <span class="text-slate-500 text-[10px] block">BASES</span>
+                                <div class="flex justify-center gap-1 mt-1">
+                                    <span class="w-3 h-3 rounded-full ${game.base_1b ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800'}" title="1B"></span>
+                                    <span class="w-3 h-3 rounded-full ${game.base_2b ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800'}" title="2B"></span>
+                                    <span class="w-3 h-3 rounded-full ${game.base_3b ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800'}" title="3B"></span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-white truncate max-w-[110px]">${game.away || 'Visitante'}</span>
-                                </div>
-                                <span class="text-base font-black text-cyan-400 font-mono">${awayScore}</span>
-                            </div>
-
-                            <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-white truncate max-w-[110px]">${game.home || 'Local'}</span>
-                                </div>
-                                <span class="text-base font-black text-emerald-400 font-mono">${homeScore}</span>
+                            <div>
+                                <span class="text-slate-500 text-[10px] block">BATEADOR</span>
+                                <span class="font-bold text-slate-200 truncate block max-w-[90px]">${game.current_batter || 'N/A'}</span>
                             </div>
                         </div>
                     </div>
-                `;
-            });
-            container.innerHTML = htmlContent;
-        } catch (error) {
-            console.error("Error al renderizar partidos en vivo:", error);
-        }
+
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-white truncate max-w-[110px]">${game.away || 'Visitante'}</span>
+                            </div>
+                            <span class="text-base font-black text-cyan-400 font-mono">${awayScore}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-white truncate max-w-[110px]">${game.home || 'Local'}</span>
+                            </div>
+                            <span class="text-base font-black text-emerald-400 font-mono">${homeScore}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = htmlContent;
+    } catch (error) {
+        console.error("Error al renderizar partidos en vivo:", error);
     }
+}
 
     window.addEventListener('click', (e) => {
         const modal = document.getElementById('deep-dive-modal');
