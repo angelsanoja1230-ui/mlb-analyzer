@@ -407,7 +407,7 @@ function openDeepDiveFromElement(element) {
         console.error("Error al parsear los datos del juego para el Deep Dive:", e);
     }
 }
-     function openDeepDive(game) {
+    function openDeepDive(game) {
     const modal = document.getElementById('deep-dive-modal');
     const content = document.getElementById('modal-content');
     if (!modal || !content) return;
@@ -416,10 +416,10 @@ function openDeepDiveFromElement(element) {
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
             <div>
                 <span class="text-xs font-bold text-cyan-400">🕒 ${game.time || 'N/A'} | 🏟️ ${game.stadium || 'Estadio N/A'}</span>
-                <h3 class="text-xl font-black text-slate-100 mt-1">${game.away || 'Visitante'} vs ${game.home || 'Local'}</h3>
+                <h3 class="text-xl font-black text-slate-100 mt-1">${game.away} vs ${game.home}</h3>
             </div>
             <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                Índice de Valor: ${game.value_index || '0'}
+                Índice de Valor: ${game.value_index || 'N/A'}
             </span>
         </div>
 
@@ -428,12 +428,12 @@ function openDeepDiveFromElement(element) {
                 <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN VISITANTE</span>
                 <div class="flex items-center gap-2">
                     <img src="${game.logo_away || ''}" class="w-8 h-8 object-contain">
-                    <span class="font-bold text-slate-200">${game.away || 'Visitante'}</span>
+                    <span class="font-bold text-slate-200">${game.away}</span>
                 </div>
                 <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
-                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away || 0}%</strong></div>
-                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_away || 0}</strong></div>
-                    <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${game.starter_away || 'N/A'} (${game.pitcher_metrics_away || 'N/A'})</strong></div>
+                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away}%</strong></div>
+                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_away}</strong></div>
+                    <div class="flex justify-between"><span>Métricas Abridor:</span> <strong class="text-slate-200">${game.pitcher_metrics_away || 'N/A'}</strong></div>
                 </div>
             </div>
 
@@ -441,12 +441,12 @@ function openDeepDiveFromElement(element) {
                 <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN LOCAL</span>
                 <div class="flex items-center gap-2">
                     <img src="${game.logo_home || ''}" class="w-8 h-8 object-contain">
-                    <span class="font-bold text-slate-200">${game.home || 'Local'}</span>
+                    <span class="font-bold text-slate-200">${game.home}</span>
                 </div>
                 <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
-                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home || 0}%</strong></div>
-                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_home || 0}</strong></div>
-                    <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${game.starter_home || 'N/A'} (${game.pitcher_metrics_home || 'N/A'})</strong></div>
+                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home}%</strong></div>
+                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_home}</strong></div>
+                    <div class="flex justify-between"><span>Métricas Abridor:</span> <strong class="text-slate-200">${game.pitcher_metrics_home || 'N/A'}</strong></div>
                 </div>
             </div>
         </div>
@@ -482,7 +482,6 @@ function openDeepDiveFromElement(element) {
     
     modal.classList.remove('hidden');
 }
-
         function closeDeepDive() {
             const modal = document.getElementById('deep-dive-modal');
             modal.classList.add('hidden');
