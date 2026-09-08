@@ -576,8 +576,9 @@ def index():
                     else:
                         if not p.get('evaluation') or p.get('evaluation') in ['', 'Pendiente']:
                             p['evaluation'] = "Pendiente"
+# ... (todo el código interno de tu función index) ...
 
-return render_template(
+    return render_template(
         'index.html', 
         matches=games, 
         parley_data=parley_data, 
@@ -588,7 +589,6 @@ return render_template(
         total_evaluados=total_evaluados,
         total_visitas=total_visitas
     )
-
 if __name__ == '__main__':
     app.run(debug=True)
  
