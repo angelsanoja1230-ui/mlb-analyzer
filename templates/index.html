@@ -412,8 +412,16 @@ function openDeepDive(game) {
     const content = document.getElementById('modal-content');
     if (!modal || !content) return;
     
-    const projAway = game.projected_score_away !== undefined ? game.projected_score_away : (game.proj_score_away || 'N/A');
-    const projHome = game.projected_score_home !== undefined ? game.projected_score_home : (game.proj_score_home || 'N/A');
+    // Múltiples alternativas para capturar las carreras esperadas desde cualquier nombre en Python
+    const projAway = game.projected_score_away !== undefined && game.projected_score_away !== null ? game.projected_score_away : 
+                    (game.proj_score_away !== undefined && game.proj_score_away !== null ? game.proj_score_away : 
+                    (game.score_away !== undefined && game.score_away !== null ? game.score_away : 
+                    (game.runs_away !== undefined ? game.runs_away : 'N/A')));
+
+    const projHome = game.projected_score_home !== undefined && game.projected_score_home !== null ? game.projected_score_home : 
+                    (game.proj_score_home !== undefined && game.proj_score_home !== null ? game.proj_score_home : 
+                    (game.score_home !== undefined && game.score_home !== null ? game.score_home : 
+                    (game.runs_home !== undefined ? game.runs_home : 'N/A')));
     
     const metricsAway = game.pitcher_metrics_away || game.away_pitcher_metrics || game.away_era || 'N/A';
     const metricsHome = game.pitcher_metrics_home || game.home_pitcher_metrics || game.home_era || 'N/A';
@@ -421,7 +429,6 @@ function openDeepDive(game) {
     const starterAway = game.starter_away || game.pitcher_away || game.away_pitcher || 'Abridor Visitante';
     const starterHome = game.starter_home || game.pitcher_home || game.home_pitcher || 'Abridor Local';
     
-    // Lógica mejorada para capturar la ventaja real del bullpen desde el backend
     let bullpenText = game.bullpen_advantage || game.bullpen_edge || game.bp_advantage || game.bullpen_favored;
     if (!bullpenText || bullpenText === 'Equilibrado' || bullpenText === 'Neutral') {
         if (game.prob_home && game.prob_away) {
