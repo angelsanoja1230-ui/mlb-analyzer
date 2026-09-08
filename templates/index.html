@@ -547,7 +547,7 @@
         }
     }
 
- async function fetchLiveMatchesIndependent() {
+async function fetchLiveMatchesIndependent() {
     const container = document.getElementById('live-games-container');
     if (!container) return;
 
@@ -571,6 +571,10 @@
             let middleContent = '';
             let scoreDisplay = '';
 
+            // Estructura segura para los logos con respaldo por si falla la URL
+            const logoAway = game.logo_away ? `<img src="${game.logo_away}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">` : '';
+            const logoHome = game.logo_home ? `<img src="${game.logo_home}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">` : '';
+
             if (isLive) {
                 // --- PARTIDO EN VIVO ---
                 const inningStateText = game.inning_state || game.inning || 'En curso';
@@ -592,11 +596,17 @@
                 `;
                 scoreDisplay = `
                     <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-                        <span class="text-xs font-bold text-white truncate max-w-[120px]">${game.away || 'Visitante'}</span>
+                        <div class="flex items-center gap-2 truncate">
+                            ${logoAway}
+                            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.away || 'Visitante'}</span>
+                        </div>
                         <span class="text-base font-black text-cyan-400 font-mono">${awayScore}</span>
                     </div>
                     <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-                        <span class="text-xs font-bold text-white truncate max-w-[120px]">${game.home || 'Local'}</span>
+                        <div class="flex items-center gap-2 truncate">
+                            ${logoHome}
+                            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.home || 'Local'}</span>
+                        </div>
                         <span class="text-base font-black text-emerald-400 font-mono">${homeScore}</span>
                     </div>
                 `;
@@ -614,11 +624,17 @@
                 `;
                 scoreDisplay = `
                     <div class="flex items-center justify-between bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/50 opacity-75">
-                        <span class="text-xs font-bold text-white truncate max-w-[120px]">${game.away || 'Visitante'}</span>
+                        <div class="flex items-center gap-2 truncate">
+                            ${logoAway}
+                            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.away || 'Visitante'}</span>
+                        </div>
                         <span class="text-base font-bold text-slate-300 font-mono">${awayScore}</span>
                     </div>
                     <div class="flex items-center justify-between bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/50 opacity-75">
-                        <span class="text-xs font-bold text-white truncate max-w-[120px]">${game.home || 'Local'}</span>
+                        <div class="flex items-center gap-2 truncate">
+                            ${logoHome}
+                            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.home || 'Local'}</span>
+                        </div>
                         <span class="text-base font-bold text-slate-300 font-mono">${homeScore}</span>
                     </div>
                 `;
@@ -634,12 +650,18 @@
                 `;
                 scoreDisplay = `
                     <div class="flex items-center justify-between bg-slate-900/30 p-2.5 rounded-xl border border-slate-800/40">
-                        <span class="text-xs font-bold text-slate-200 truncate max-w-[120px]">${game.away || 'Visitante'}</span>
-                        <span class="text-[11px] text-slate-500 italic">Esperando inicio</span>
+                        <div class="flex items-center gap-2 truncate">
+                            ${logoAway}
+                            <span class="text-xs font-bold text-slate-200 truncate max-w-[100px]">${game.away || 'Visitante'}</span>
+                        </div>
+                        <span class="text-[11px] text-slate-500 italic">Próximamente</span>
                     </div>
                     <div class="flex items-center justify-between bg-slate-900/30 p-2.5 rounded-xl border border-slate-800/40">
-                        <span class="text-xs font-bold text-slate-200 truncate max-w-[120px]">${game.home || 'Local'}</span>
-                        <span class="text-[11px] text-slate-500 italic">Esperando inicio</span>
+                        <div class="flex items-center gap-2 truncate">
+                            ${logoHome}
+                            <span class="text-xs font-bold text-slate-200 truncate max-w-[100px]">${game.home || 'Local'}</span>
+                        </div>
+                        <span class="text-[11px] text-slate-500 italic">Próximamente</span>
                     </div>
                 `;
             }
@@ -670,7 +692,6 @@
         console.error("Error al renderizar los partidos:", error);
     }
 }
-
     window.addEventListener('click', (e) => {
         const modal = document.getElementById('deep-dive-modal');
         if (e.target === modal) {
