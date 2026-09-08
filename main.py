@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for 
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import requests
+import re
 from datetime import datetime, timedelta
 import random
-from flask import jsonify
 
 app = Flask(__name__)
 
@@ -475,8 +475,6 @@ def index():
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
     
     # Cálculo directo de contadores para evitar fallos en Jinja2
- import re
-
 total_wins = 0
 total_losses = 0
 total_evaluados = 0
@@ -489,10 +487,9 @@ if semana_data:
                 prediction = str(p.get('prediction', '')).strip().lower()
                 game_str = str(p.get('game', '')).lower()
                 
-                # Verificamos si el partido ya tiene un marcador final válido (contiene un guion y no está pendiente)
+                # Verificamos si el partido ya tiene un marcador final válido
                 if score and '-' in score and 'por empezar' not in score.lower() and 'en vivo' not in score.lower():
                     try:
-                        # Separamos el marcador en dos partes (ej: "Equipo A 5 - 3 Equipo B")
                         partes_score = score.split('-')
                         if len(partes_score) == 2:
                             s1_match = re.findall(r'\d+', partes_score[0])
@@ -502,9 +499,7 @@ if semana_data:
                                 score1 = int(s1_match[-1])
                                 score2 = int(s2_match[-1])
                                 
-                                # Identificamos los equipos del enfrentamiento (ej: "Equipo A vs Equipo B")
                                 equipos = re.split(r'\bvs\b|\@', game_str, flags=re.IGNORECASE)
-                                
                                 ganador = ""
                                 if len(equipos) == 2:
                                     eq1 = equipos[0].strip().lower()
@@ -516,7 +511,6 @@ if semana_data:
                                     else:
                                         ganador = "empate"
                                 
-                                # Comparamos estrictamente el pronóstico con el ganador real
                                 total_evaluados += 1
                                 if prediction and ganador and (prediction in ganador or ganador in prediction):
                                     p['evaluation'] = "Se dio"
@@ -532,10 +526,8 @@ if semana_data:
                         print(f"Error procesando partido: {e}")
                         p['evaluation'] = "Pendiente"
                 else:
-                    # Si el juego no ha terminado, se deja pendiente y no se suma a aciertos/fallos
                     if not p.get('evaluation') or p.get('evaluation') in ['', 'Pendiente']:
                         p['evaluation'] = "Pendiente"
-
     return render_template(
         'index.html', 
         matches=games, 
