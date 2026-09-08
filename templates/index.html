@@ -494,7 +494,22 @@ function openDeepDiveFromElement(element) {
                 console.error('Error al copiar el parlay: ', err);
             });
         }
+// --- PEGA ESTA PARTE AQUÍ ARRIBA ---
+    const masterGamesList = {{ matches | tojson | safe }};
 
+    function openDeepDiveByIndex(index) {
+        try {
+            const game = masterGamesList[index];
+            if (game) {
+                openDeepDive(game);
+            } else {
+                console.error("No se encontró el juego en el índice:", index);
+            }
+        } catch (e) {
+            console.error("Error al abrir el Deep Dive por índice:", e);
+        }
+    }
+    // ----------------------------------
         async function fetchLiveMatchesIndependent() {
             try {
                 const response = await fetch('/api/live-matches');
