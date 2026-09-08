@@ -469,7 +469,7 @@ def fetch_mlb_week_games():
 
 # --- CONFIGURACIÓN DE MANTENIMIENTO PRIVADO ---
 # Cambia a True si quieres ocultar la página al público mientras editas  https://mlb-analyzer-1gku.onrender.com/?token=secreto123
-MODO_MANTENIMIENTO = false 
+MODO_MANTENIMIENTO = False 
 TOKEN_SECRETO = "secreto123"  # Puedes cambiar esta palabra clave por la que prefieras
 
 @app.before_request
