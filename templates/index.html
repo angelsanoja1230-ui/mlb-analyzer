@@ -547,32 +547,33 @@ function openDeepDive(game) {
             console.error("Error al abrir el Deep Dive por índice:", e);
         }
     }
-  async function fetchLiveMatchesIndependent() {
-    try {
-        const container = document.getElementById('live-games-container');
-        const badge = document.getElementById('live-status-badge');
-        if (badge) badge.innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
-        
-        if (!container) return;
+ async function fetchLiveMatchesIndependent() {
+    const container = document.getElementById('live-games-container');
+    if (!container) return;
 
+    if (typeof BASE_MATCHES === 'undefined' || !Array.isArray(BASE_MATCHES) || BASE_MATCHES.length === 0) {
+        container.innerHTML = '<div class="col-span-full text-center text-slate-500 py-6 text-xs">Cargando partidos...</div>';
+        return;
+    }
+
+    const badge = document.getElementById('live-status-badge');
+    if (badge) badge.innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
+    
+    try {
         let htmlContent = '';
         BASE_MATCHES.slice(0, 6).forEach((game, idx) => {
             const inningNum = (idx % 3) + 3;
-            
-            // Hacemos que la parte (Alta / Baja) sea estable según el índice del partido 
-            // para que no cambie erráticamente cada vez que se actualice la vista.
             const isBottom = idx % 2 === 0;
             const inningStateText = isBottom ? `Parte Baja del ${inningNum}°` : `Parte Alta del ${inningNum}°`;
             
-            // Simulación proporcional de carreras en vivo basadas en las proyecciones del modelo
             const awayScore = Math.floor(parseFloat(game.projected_score_away || game.away_expected_runs || 4) * (inningNum / 9));
             const homeScore = Math.floor(parseFloat(game.projected_score_home || game.home_expected_runs || 4) * (inningNum / 9));
             
             htmlContent += `
                 <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-inner">
                     <div class="flex justify-between items-center text-xs">
-                        <span class="font-bold text-emerald-400">🕒 ${game.time}</span>
-                        <span class="text-slate-400 truncate max-w-[120px]">🏟️ ${game.stadium}</span>
+                        <span class="font-bold text-emerald-400">🕒 ${game.time || 'N/A'}</span>
+                        <span class="text-slate-400 truncate max-w-[120px]">🏟️ ${game.stadium || 'N/A'}</span>
                     </div>
 
                     <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3 space-y-2">
@@ -595,7 +596,7 @@ function openDeepDive(game) {
                             </div>
                             <div>
                                 <span class="text-slate-500 text-[10px] block">BATEADOR</span>
-                                <span class="font-bold text-slate-200 truncate block max-w-[90px]">${game.starter_home}</span>
+                                <span class="font-bold text-slate-200 truncate block max-w-[90px]">${game.starter_home || 'N/A'}</span>
                             </div>
                         </div>
                     </div>
@@ -603,14 +604,14 @@ function openDeepDive(game) {
                     <div class="space-y-2">
                         <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
                             <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-white truncate max-w-[110px]">${game.away}</span>
+                                <span class="text-xs font-bold text-white truncate max-w-[110px]">${game.away || 'Visitante'}</span>
                             </div>
                             <span class="text-base font-black text-cyan-400 font-mono">${awayScore}</span>
                         </div>
 
                         <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
                             <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-white truncate max-w-[110px]">${game.home}</span>
+                                <span class="text-xs font-bold text-white truncate max-w-[110px]">${game.home || 'Local'}</span>
                             </div>
                             <span class="text-base font-black text-emerald-400 font-mono">${homeScore}</span>
                         </div>
@@ -624,15 +625,17 @@ function openDeepDive(game) {
     }
 }
 
-        window.addEventListener('click', (e) => {
-            const modal = document.getElementById('deep-dive-modal');
-            if (e.target === modal) {
-                closeDeepDive();
-            }
-        });
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('deep-dive-modal');
+    if (e.target === modal) {
+        closeDeepDive();
+    }
+});
 
-        fetchLiveMatchesIndependent();
-        setInterval(fetchLiveMatchesIndependent, 10000);
-    </script>
+document.addEventListener('DOMContentLoaded', () => {
+    fetchLiveMatchesIndependent();
+    setInterval(fetchLiveMatchesIndependent, 10000);
+});
+</script>
 </body>
 </html>
