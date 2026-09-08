@@ -413,23 +413,25 @@ function openDeepDive(game) {
     const content = document.getElementById('modal-content');
     if (!modal || !content) return;
     
-    // Diagnóstico: Obtenemos todas las llaves que tiene el objeto del partido
-    const availableKeys = Object.keys(game).join(', ');
-    console.log("Objeto game completo:", game);
+    const projAway = game.away_expected_runs ?? game.projected_score_away ?? game.away_runs ?? '3.8';
+    const projHome = game.home_expected_runs ?? game.projected_score_home ?? game.home_runs ?? '4.2';
     
-    const projAway = game.projected_score_away ?? game.away_expected_runs ?? game.expected_runs_away ?? game.away_runs ?? '3.8';
-    const projHome = game.projected_score_home ?? game.home_expected_runs ?? game.expected_runs_home ?? game.home_runs ?? '4.2';
+    const starterAway = game.starter_away || 'Abridor Visitante';
+    const starterHome = game.starter_home || 'Abridor Local';
     
-    const starterAway = game.starter_away || game.pitcher_away || game.away_starter || 'Abridor Visitante';
-    const starterHome = game.starter_home || game.pitcher_home || game.home_starter || 'Abridor Local';
-    
-    const metricsAway = game.pitcher_metrics_away || game.away_era || game.era_away || game.away_pitcher_era || game.era || 'N/A';
-    const metricsHome = game.pitcher_metrics_home || game.home_era || game.era_home || game.home_pitcher_era || game.era || 'N/A';
+    // Mapeo exacto basado en las llaves del diagnóstico
+    const metricsAway = game.starter_era_away && game.starter_whip_away 
+        ? `ERA: ${game.starter_era_away} / WHIP: ${game.starter_whip_away}` 
+        : (game.starter_era_away ? `ERA: ${game.starter_era_away}` : 'N/A');
+
+    const metricsHome = game.starter_era_home && game.starter_whip_home 
+        ? `ERA: ${game.starter_era_home} / WHIP: ${game.starter_whip_home}` 
+        : (game.starter_era_home ? `ERA: ${game.starter_era_home}` : 'N/A');
     
     const teamHome = game.home || 'Local';
     const teamAway = game.away || 'Visitante';
     
-    let bullpenText = game.bullpen_advantage || game.bullpen_strength || '';
+    let bullpenText = game.bullpen_strength || game.bullpen_advantage || '';
     if (!bullpenText || bullpenText === 'Equilibrado' || bullpenText === 'Neutral' || (!bullpenText.includes(teamHome) && !bullpenText.includes(teamAway))) {
         const probH = parseFloat(game.prob_home) || 50;
         const probA = parseFloat(game.prob_away) || 50;
@@ -443,7 +445,7 @@ function openDeepDive(game) {
         }
     }
 
-    const ballparkText = game.park_factor || game.ballpark_factor || 'Neutral';
+    const ballparkText = game.park_factor || 'Neutral';
     const valueIndexText = game.value_index !== undefined ? game.value_index : 'N/A';
 
     content.innerHTML = `
@@ -483,12 +485,6 @@ function openDeepDive(game) {
                     <div class="flex justify-between"><span>Abridor:</span> <strong class="text-slate-200">${starterHome} (${metricsHome})</strong></div>
                 </div>
             </div>
-        </div>
-
-        <!-- CAJA DE DIAGNÓSTICO: Muestra qué propiedades reales tiene el objeto -->
-        <div class="bg-red-950/40 p-3 rounded-xl border border-red-800/60 text-[10px] text-red-300 mb-3 font-mono">
-            <span class="font-bold block text-red-400 mb-1">🛠️ DIAGNÓSTICO DE LLAVES:</span>
-            <p class="break-all">${availableKeys}</p>
         </div>
 
         <div class="space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60 text-xs">
