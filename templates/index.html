@@ -407,80 +407,81 @@ function openDeepDiveFromElement(element) {
         console.error("Error al parsear los datos del juego para el Deep Dive:", e);
     }
 }
-        function openDeepDive(game) {
-            const modal = document.getElementById('deep-dive-modal');
-            const content = document.getElementById('modal-content');
-            
-            content.innerHTML = `
-                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                    <div>
-                        <span class="text-xs font-bold text-cyan-400">🕒 ${game.time} | 🏟️ ${game.stadium}</span>
-                        <h3 class="text-xl font-black text-slate-100 mt-1">${game.away} vs ${game.home}</h3>
-                    </div>
-                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                        Índice de Valor: ${game.value_index}
-                    </span>
-                </div>
+     function openDeepDive(game) {
+    const modal = document.getElementById('deep-dive-modal');
+    const content = document.getElementById('modal-content');
+    if (!modal || !content) return;
+    
+    content.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+                <span class="text-xs font-bold text-cyan-400">🕒 ${game.time || 'N/A'} | 🏟️ ${game.stadium || 'Estadio N/A'}</span>
+                <h3 class="text-xl font-black text-slate-100 mt-1">${game.away || 'Visitante'} vs ${game.home || 'Local'}</h3>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                Índice de Valor: ${game.value_index || '0'}
+            </span>
+        </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
-                    <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
-                        <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN VISITANTE</span>
-                        <div class="flex items-center gap-2">
-                            <img src="${game.logo_away}" class="w-8 h-8 object-contain">
-                            <span class="font-bold text-slate-200">${game.away}</span>
-                        </div>
-                        <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
-                            <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away}%</strong></div>
-                            <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_away}</strong></div>
-                            <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${game.starter_away} (${game.pitcher_metrics_away})</strong></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
-                        <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN LOCAL</span>
-                        <div class="flex items-center gap-2">
-                            <img src="${game.logo_home}" class="w-8 h-8 object-contain">
-                            <span class="font-bold text-slate-200">${game.home}</span>
-                        </div>
-                        <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
-                            <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home}%</strong></div>
-                            <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_home}</strong></div>
-                            <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${game.starter_home} (${game.pitcher_metrics_home})</strong></div>
-                        </div>
-                    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+            <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN VISITANTE</span>
+                <div class="flex items-center gap-2">
+                    <img src="${game.logo_away || ''}" class="w-8 h-8 object-contain">
+                    <span class="font-bold text-slate-200">${game.away || 'Visitante'}</span>
                 </div>
-
-                <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs">
-                    <div class="font-bold text-amber-400 uppercase tracking-wider text-[11px]">Métricas Avanzadas del Encuentro</div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
-                            <span class="text-slate-400">Fortaleza Bullpen:</span>
-                            <span class="font-bold text-amber-400">${game.bullpen_advantage}</span>
-                        </div>
-                        <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
-                            <span class="text-slate-400">Factor Parque:</span>
-                            <span class="font-bold text-cyan-300">${game.ballpark_factor}</span>
-                        </div>
-                    </div>
-                    <div class="space-y-1 pt-2 border-t border-slate-800">
-                        <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
-                            <span class="text-slate-400">Ganador Modelo (Full):</span>
-                            <span class="font-bold text-emerald-400">${game.winner_full}</span>
-                        </div>
-                        <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
-                            <span class="text-slate-400">Ganador 5 Innings (F5):</span>
-                            <span class="font-bold text-cyan-400">${game.winner_f5}</span>
-                        </div>
-                        <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
-                            <span class="text-slate-400">Alta / Baja Proyectada:</span>
-                            <span class="font-bold text-slate-200">${game.over_under}</span>
-                        </div>
-                    </div>
+                <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
+                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away || 0}%</strong></div>
+                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_away || 0}</strong></div>
+                    <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${game.starter_away || 'N/A'} (${game.pitcher_metrics_away || 'N/A'})</strong></div>
                 </div>
-            `;
-            
-            modal.classList.remove('hidden');
-        }
+            </div>
+
+            <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN LOCAL</span>
+                <div class="flex items-center gap-2">
+                    <img src="${game.logo_home || ''}" class="w-8 h-8 object-contain">
+                    <span class="font-bold text-slate-200">${game.home || 'Local'}</span>
+                </div>
+                <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
+                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home || 0}%</strong></div>
+                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_home || 0}</strong></div>
+                    <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${game.starter_home || 'N/A'} (${game.pitcher_metrics_home || 'N/A'})</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs">
+            <div class="font-bold text-amber-400 uppercase tracking-wider text-[11px]">Métricas Avanzadas del Encuentro</div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
+                    <span class="text-slate-400">Fortaleza Bullpen:</span>
+                    <span class="font-bold text-amber-400">${game.bullpen_advantage || 'N/A'}</span>
+                </div>
+                <div class="flex justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
+                    <span class="text-slate-400">Factor Parque:</span>
+                    <span class="font-bold text-cyan-300">${game.ballpark_factor || 'N/A'}</span>
+                </div>
+            </div>
+            <div class="space-y-1 pt-2 border-t border-slate-800">
+                <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
+                    <span class="text-slate-400">Ganador Modelo (Full):</span>
+                    <span class="font-bold text-emerald-400">${game.winner_full || 'N/A'}</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
+                    <span class="text-slate-400">Ganador 5 Innings (F5):</span>
+                    <span class="font-bold text-cyan-400">${game.winner_f5 || 'N/A'}</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-xl border border-slate-800/60">
+                    <span class="text-slate-400">Alta / Baja Proyectada:</span>
+                    <span class="font-bold text-slate-200">${game.over_under || 'N/A'}</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    modal.classList.remove('hidden');
+}
 
         function closeDeepDive() {
             const modal = document.getElementById('deep-dive-modal');
