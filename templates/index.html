@@ -459,7 +459,7 @@
         const valueIndexText = game.value_index !== undefined ? game.value_index : 'N/A';
 
         content.innerHTML = `
-         <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between">
     {% if game.abstract_state == 'Live' %}
         <span class="text-xs font-bold px-3 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-red-500"></span>
@@ -479,7 +479,6 @@
         🏟️ {{ game.stadium }}
     </span>
 </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
                 <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
                     <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN VISITANTE</span>
