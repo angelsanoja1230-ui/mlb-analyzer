@@ -416,12 +416,30 @@ function openDeepDive(game) {
     const projAway = game.projected_score_away ?? game.away_expected_runs ?? game.expected_runs_away ?? game.away_runs ?? '3.8';
     const projHome = game.projected_score_home ?? game.home_expected_runs ?? game.expected_runs_home ?? game.home_runs ?? '4.2';
     
-    // Ampliamos las opciones para capturar el ERA, WHIP o métricas del lanzador con cualquier nombre de llave
-    const metricsAway = game.pitcher_metrics_away || game.away_era || game.era_away || game.away_pitcher_era || game.pitcher_away_metrics || 'N/A';
-    const metricsHome = game.pitcher_metrics_home || game.home_era || game.era_home || game.home_pitcher_era || game.pitcher_home_metrics || 'N/A';
-    
     const starterAway = game.starter_away || game.pitcher_away || game.away_starter || 'Abridor Visitante';
     const starterHome = game.starter_home || game.pitcher_home || game.home_starter || 'Abridor Local';
+    
+    // Función auxiliar robusta para extraer métricas de pitchers sin importar cómo las guarde el objeto
+    const getPitcherInfo = (eraVal, whipVal, rawMetric) => {
+        if (rawMetric && rawMetric !== 'N/A') return rawMetric;
+        if (eraVal && whipVal) return `ERA: ${eraVal} / WHIP: ${whipVal}`;
+        if (eraVal) return `ERA: ${eraVal}`;
+        if (whipVal) return `WHIP: ${whipVal}`;
+        return 'N/A';
+    };
+
+    const metricsAway = getPitcherInfo(
+        game.away_era || game.era_away || game.pitcher_away_era || game.era,
+        game.away_whip || game.whip_away || game.pitcher_away_whip || game.whip,
+        game.pitcher_metrics_away
+    );
+
+    const metricsHome = getPitcherInfo(
+        game.home_era || game.era_home || game.pitcher_home_era || game.era,
+        game.home_whip || game.whip_home || game.pitcher_home_whip || game.whip,
+        game.pitcher_metrics_home
+    );
+    
     const teamHome = game.home || 'Local';
     const teamAway = game.away || 'Visitante';
     
