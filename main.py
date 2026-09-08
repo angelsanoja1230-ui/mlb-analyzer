@@ -467,6 +467,19 @@ def fetch_mlb_week_games():
         
     return semana_data
 
+# --- CONFIGURACIÓN DE MANTENIMIENTO PRIVADO ---
+# Cambia a True si quieres ocultar la página al público mientras editas
+MODO_MANTENIMIENTO = False 
+TOKEN_SECRETO = "secreto123"  # Puedes cambiar esta palabra clave por la que prefieras
+
+@app.before_request
+def verificar_mantenimiento():
+    if MODO_MANTENIMIENTO:
+        # Permite el acceso si usas el enlace con el token correcto, ej: tuweb.onrender.com/?token=secreto123
+        token = request.args.get('token')
+        if token != TOKEN_SECRETO:
+            return "🚧 Página en mantenimiento o actualización privada. Vuelve más tarde.", 503
+
 @app.route('/')
 def index():
     try:
