@@ -412,26 +412,13 @@ function openDeepDive(game) {
     const content = document.getElementById('modal-content');
     if (!modal || !content) return;
     
-    // Imprimimos el objeto completo en la consola del navegador (F12) por si necesitamos ver las llaves exactas de Python
-    console.log("Objeto del partido recibido en modal:", game);
+    // Imprimimos todo el objeto y sus llaves exactas en la consola (F12)
+    console.log("--- DATOS DEL PARTIDO ---");
+    console.log("Objeto completo:", game);
+    console.log("Claves disponibles:", Object.keys(game));
 
-    // Función inteligente para buscar las carreras esperadas en cualquier variante posible de Python
-    const getRuns = (item, type) => {
-        const keys = type === 'away' 
-            ? ['projected_score_away', 'proj_score_away', 'score_away', 'runs_away', 'away_score', 'away_runs', 'exp_runs_away', 'sim_runs_away', 'away_projected_runs']
-            : ['projected_score_home', 'proj_score_home', 'score_home', 'runs_home', 'home_score', 'home_runs', 'exp_runs_home', 'sim_runs_home', 'home_projected_runs'];
-        
-        for (let key of keys) {
-            if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
-                let val = item[key];
-                return typeof val === 'number' ? val.toFixed(1) : val;
-            }
-        }
-        return 'N/A';
-    };
-
-    const projAway = getRuns(game, 'away');
-    const projHome = getRuns(game, 'home');
+    const projAway = game.projected_score_away !== undefined ? game.projected_score_away : (game.proj_score_away || 'N/A');
+    const projHome = game.projected_score_home !== undefined ? game.projected_score_home : (game.proj_score_home || 'N/A');
     
     const metricsAway = game.pitcher_metrics_away || game.away_pitcher_metrics || game.away_era || 'N/A';
     const metricsHome = game.pitcher_metrics_home || game.home_pitcher_metrics || game.home_era || 'N/A';
