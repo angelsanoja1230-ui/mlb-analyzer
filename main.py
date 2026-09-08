@@ -319,6 +319,15 @@ def fetch_mlb_today_games():
                 'away': 'Boston Red Sox',
                 'home': 'New York Yankees',
                 'starter_away': 'T. Houck',
+                'starter_home':if not games:
+        games = [
+            {
+                'id': 101,
+                'time': 'En Vivo',
+                'stadium': 'Yankee Stadium',
+                'away': 'Boston Red Sox',
+                'home': 'New York Yankees',
+                'starter_away': 'T. Houck',
                 'starter_home': 'G. Cole',
                 'logo_away': 'https://www.mlbstatic.com/team-logos/111.svg',
                 'logo_home': 'https://www.mlbstatic.com/team-logos/147.svg',
@@ -365,6 +374,8 @@ def fetch_mlb_today_games():
                 'batter_name': 'N/D'
             }
         ]
+        
+        # Simular también los partidos de respaldo para que tengan 'winner_full' y 'over_under'
         for g in games:
             sim = advanced_simulate_game(g)
             g.update(sim)
