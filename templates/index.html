@@ -418,7 +418,7 @@
         }
     }
 
-    function openDeepDive(game) {
+   function openDeepDive(game) {
         if (!game) return;
         const modal = document.getElementById('deep-dive-modal');
         const content = document.getElementById('modal-content');
@@ -456,34 +456,42 @@
         }
 
         const ballparkText = game.park_factor || 'Neutral';
-        const valueIndexText = game.value_index !== undefined ? game.value_index : 'N/A';
+
+        // Lógica de estado pura de JavaScript para evitar el error de Jinja
+        const stateLower = (game.abstract_state || game.status || '').toLowerCase();
+        let stateBadgeHtml = '';
+        
+        if (stateLower === 'live' || stateLower === 'en vivo' || stateLower === 'in progress' || stateLower === 'inprogress') {
+            stateBadgeHtml = `
+                <span class="text-xs font-bold px-3 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                    EN VIVO · Inning ${game.current_inning || ''} (${game.inning_state || ''})
+                </span>`;
+        } else if (stateLower === 'final' || stateLower === 'finalizado' || stateLower === 'finalized') {
+            stateBadgeHtml = `
+                <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-800/90 text-slate-400 border border-slate-700/60">
+                    🏁 FINAL
+                </span>`;
+        } else {
+            stateBadgeHtml = `
+                <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-800/90 text-emerald-400 border border-slate-700/60">
+                    🕒 ${game.time || 'N/A'}
+                </span>`;
+        }
 
         content.innerHTML = `
-      <div class="flex items-center justify-between">
-    {% if game.abstract_state == 'Live' %}
-        <span class="text-xs font-bold px-3 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-red-500"></span>
-            EN VIVO · Inning {{ game.current_inning }} ({{ game.inning_state }})
-        </span>
-    {% elif game.abstract_state == 'Final' %}
-        <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-800/90 text-slate-400 border border-slate-700/60">
-            🏁 FINAL
-        </span>
-    {% else %}
-        <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-800/90 text-emerald-400 border border-slate-700/60">
-            🕒 {{ game.time }}
-        </span>
-    {% endif %}
-    
-    <span class="text-xs font-medium text-slate-400 truncate max-w-[160px] bg-slate-950/40 px-2.5 py-1 rounded-lg border border-slate-800/50">
-        🏟️ {{ game.stadium }}
-    </span>
-</div>
+            <div class="flex items-center justify-between">
+                ${stateBadgeHtml}
+                <span class="text-xs font-medium text-slate-400 truncate max-w-[160px] bg-slate-950/40 px-2.5 py-1 rounded-lg border border-slate-800/50">
+                    🏟️ ${game.stadium || 'N/A'}
+                </span>
+            </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
                 <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
                     <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN VISITANTE</span>
                     <div class="flex items-center gap-2">
-                        <img src="${game.logo_away || ''}" class="w-8 h-8 object-contain">
+                        <img src="${game.logo_away || ''}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
                         <span class="font-bold text-slate-200">${teamAway}</span>
                     </div>
                     <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
@@ -496,7 +504,7 @@
                 <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
                     <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN LOCAL</span>
                     <div class="flex items-center gap-2">
-                        <img src="${game.logo_home || ''}" class="w-8 h-8 object-contain">
+                        <img src="${game.logo_home || ''}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">
                         <span class="font-bold text-slate-200">${teamHome}</span>
                     </div>
                     <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
