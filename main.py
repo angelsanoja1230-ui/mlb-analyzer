@@ -469,12 +469,23 @@ def fetch_mlb_week_games():
 
 @app.route('/')
 def index():
-    games = fetch_mlb_today_games()
-    parley_data = generate_parley_system(games)
-    semana_data = fetch_mlb_week_games()
+    try:
+        games = fetch_mlb_today_games()
+    except NameError:
+        games = []
+        
+    try:
+        parley_data = generate_parley_system(games)
+    except NameError:
+        parley_data = {}
+        
+    try:
+        semana_data = fetch_mlb_week_games()
+    except NameError:
+        semana_data = {}
+        
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
     
-    # Cálculo directo de contadores para evitar fallos en Jinja2
     total_wins = 0
     total_losses = 0
     total_evaluados = 0
@@ -487,7 +498,6 @@ def index():
                     prediction = str(p.get('prediction', '')).strip().lower()
                     game_str = str(p.get('game', '')).lower()
                     
-                    # Verificamos si el partido ya tiene un marcador final válido
                     if score and '-' in score and 'por empezar' not in score.lower() and 'en vivo' not in score.lower():
                         try:
                             partes_score = score.split('-')
@@ -539,15 +549,6 @@ def index():
         total_losses=total_losses,
         total_evaluados=total_evaluados
     )
-@app.route('/api/live-matches')
-def api_live_matches():
-    games = fetch_mlb_today_games()
-    current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
-    return {
-        'success': True,
-        'matches': games,
-        'timestamp': current_time
-    }
 
 if __name__ == '__main__':
     app.run(debug=True)
