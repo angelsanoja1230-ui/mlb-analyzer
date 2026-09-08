@@ -590,7 +590,6 @@ async function fetchLiveMatchesIndependent() {
         let htmlContent = '';
 
         BASE_MATCHES.forEach((game) => {
-            // CORRECCIÓN: Se agrega game.abstract_state para detectar correctamente los estados enviados desde Flask
             const status = (game.status || game.state || game.abstract_state || '').toLowerCase();
             const isLive = game.is_live === true || status === 'live' || status === 'en vivo' || status === 'in progress' || status === 'inprogress';
             const isFinal = status === 'final' || status === 'finalizado' || status === 'finalized';
@@ -601,6 +600,9 @@ async function fetchLiveMatchesIndependent() {
 
             const logoAway = game.logo_away ? `<img src="${game.logo_away}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">` : '';
             const logoHome = game.logo_home ? `<img src="${game.logo_home}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">` : '';
+
+            // Obtener el pronóstico del juego (verifica diferentes nombres de propiedades posibles)
+            const predictionText = game.prediction || game.winner_full || game.winner || 'Por definir';
 
             if (isLive) {
                 // --- PARTIDO EN VIVO ---
@@ -709,6 +711,11 @@ async function fetchLiveMatchesIndependent() {
 
                     <div class="space-y-2">
                         ${scoreDisplay}
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800/60 text-[11px] text-slate-400 flex justify-between items-center">
+                        <span>Pronóstico:</span>
+                        <strong class="text-slate-200">${predictionText}</strong>
                     </div>
                 </div>
             `;
