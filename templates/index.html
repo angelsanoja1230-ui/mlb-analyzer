@@ -459,15 +459,26 @@
         const valueIndexText = game.value_index !== undefined ? game.value_index : 'N/A';
 
         content.innerHTML = `
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                <div>
-                    <span class="text-xs font-bold text-cyan-400">🕒 ${game.time || 'N/A'} | 🏟️ ${game.stadium || 'Estadio N/A'}</span>
-                    <h3 class="text-xl font-black text-slate-100 mt-1">${teamAway} vs ${teamHome}</h3>
-                </div>
-                <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                    Índice de Valor: ${valueIndexText}
-                </span>
-            </div>
+         <div class="flex items-center justify-between">
+    {% if game.abstract_state == 'Live' %}
+        <span class="text-xs font-bold px-3 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+            EN VIVO · Inning {{ game.current_inning }} ({{ game.inning_state }})
+        </span>
+    {% elif game.abstract_state == 'Final' %}
+        <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-800/90 text-slate-400 border border-slate-700/60">
+            🏁 FINAL
+        </span>
+    {% else %}
+        <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-800/90 text-emerald-400 border border-slate-700/60">
+            🕒 {{ game.time }}
+        </span>
+    {% endif %}
+    
+    <span class="text-xs font-medium text-slate-400 truncate max-w-[160px] bg-slate-950/40 px-2.5 py-1 rounded-lg border border-slate-800/50">
+        🏟️ {{ game.stadium }}
+    </span>
+</div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
                 <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
