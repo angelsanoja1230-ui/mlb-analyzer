@@ -416,12 +416,12 @@ function openDeepDive(game) {
     const projAway = game.projected_score_away ?? game.away_expected_runs ?? game.expected_runs_away ?? game.away_runs ?? '3.8';
     const projHome = game.projected_score_home ?? game.home_expected_runs ?? game.expected_runs_home ?? game.home_runs ?? '4.2';
     
-    const metricsAway = game.pitcher_metrics_away || game.away_era || 'N/A';
-    const metricsHome = game.pitcher_metrics_home || game.home_era || 'N/A';
+    // Ampliamos las opciones para capturar el ERA, WHIP o métricas del lanzador con cualquier nombre de llave
+    const metricsAway = game.pitcher_metrics_away || game.away_era || game.era_away || game.away_pitcher_era || game.pitcher_away_metrics || 'N/A';
+    const metricsHome = game.pitcher_metrics_home || game.home_era || game.era_home || game.home_pitcher_era || game.pitcher_home_metrics || 'N/A';
     
-    const starterAway = game.starter_away || game.pitcher_away || 'Abridor Visitante';
-    const starterHome = game.starter_home || game.pitcher_home || 'Abridor Local';
-    
+    const starterAway = game.starter_away || game.pitcher_away || game.away_starter || 'Abridor Visitante';
+    const starterHome = game.starter_home || game.pitcher_home || game.home_starter || 'Abridor Local';
     const teamHome = game.home || 'Local';
     const teamAway = game.away || 'Visitante';
     
