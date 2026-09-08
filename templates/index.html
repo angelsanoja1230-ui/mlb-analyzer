@@ -408,6 +408,7 @@ function openDeepDiveFromElement(element) {
     }
 }
 function openDeepDive(game) {
+    if (!game) return;
     const modal = document.getElementById('deep-dive-modal');
     const content = document.getElementById('modal-content');
     if (!modal || !content) return;
@@ -421,30 +422,31 @@ function openDeepDive(game) {
     const starterAway = game.starter_away || game.pitcher_away || 'Abridor Visitante';
     const starterHome = game.starter_home || game.pitcher_home || 'Abridor Local';
     
-  // Lógica inteligente para asegurar que siempre aparezca el equipo
-    let bullpenText = game.bullpen_advantage || game.bullpen_strength || '';
     const teamHome = game.home || 'Local';
     const teamAway = game.away || 'Visitante';
-
-    // Si el texto no menciona a ninguno de los dos equipos o es muy genérico
+    
+    let bullpenText = game.bullpen_advantage || game.bullpen_strength || '';
     if (!bullpenText || bullpenText === 'Equilibrado' || bullpenText === 'Neutral' || (!bullpenText.includes(teamHome) && !bullpenText.includes(teamAway))) {
         const probH = parseFloat(game.prob_home) || 50;
         const probA = parseFloat(game.prob_away) || 50;
         
         if (probH > probA) {
-            bullpenText = `Ventaja ${teamHome} (Bullpen Sólido)`;
+            bullpenText = `Ventaja ${teamHome} (Sólido)`;
         } else if (probA > probH) {
-            bullpenText = `Ventaja ${teamAway} (Bullpen Sólido)`;
+            bullpenText = `Ventaja ${teamAway} (Sólido)`;
         } else {
-            bullpenText = `Equilibrado (${teamHome} / ${teamAway})`;
+            bullpenText = `Equilibrado`;
         }
     }
+
+    const ballparkText = game.park_factor || game.ballpark_factor || 'Neutral';
+    const valueIndexText = game.value_index !== undefined ? game.value_index : 'N/A';
 
     content.innerHTML = `
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
             <div>
                 <span class="text-xs font-bold text-cyan-400">🕒 ${game.time || 'N/A'} | 🏟️ ${game.stadium || 'Estadio N/A'}</span>
-                <h3 class="text-xl font-black text-slate-100 mt-1">${game.away} vs ${game.home}</h3>
+                <h3 class="text-xl font-black text-slate-100 mt-1">${teamAway} vs ${teamHome}</h3>
             </div>
             <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                 Índice de Valor: ${valueIndexText}
@@ -456,7 +458,7 @@ function openDeepDive(game) {
                 <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN VISITANTE</span>
                 <div class="flex items-center gap-2">
                     <img src="${game.logo_away || ''}" class="w-8 h-8 object-contain">
-                    <span class="font-bold text-slate-200">${game.away}</span>
+                    <span class="font-bold text-slate-200">${teamAway}</span>
                 </div>
                 <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
                     <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away || 50}%</strong></div>
@@ -469,7 +471,7 @@ function openDeepDive(game) {
                 <span class="text-xs text-slate-400 block font-bold">PROYECCIÓN LOCAL</span>
                 <div class="flex items-center gap-2">
                     <img src="${game.logo_home || ''}" class="w-8 h-8 object-contain">
-                    <span class="font-bold text-slate-200">${game.home}</span>
+                    <span class="font-bold text-slate-200">${teamHome}</span>
                 </div>
                 <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
                     <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home || 50}%</strong></div>
