@@ -434,4 +434,4 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchLiveMatchesIndependent();
 });
 
-setInterval(fetchLiveMatchesIndependent, 30000);
+setInterval(fetchLiveMatchesIndependent, 1000);
