@@ -475,59 +475,60 @@ def index():
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
     
     # Cálculo directo de contadores para evitar fallos en Jinja2
-total_wins = 0
-total_losses = 0
-total_evaluados = 0
+    total_wins = 0
+    total_losses = 0
+    total_evaluados = 0
 
-if semana_data:
-    for dia, partidos in semana_data.items():
-        if partidos:
-            for p in partidos:
-                score = str(p.get('score', '')).strip()
-                prediction = str(p.get('prediction', '')).strip().lower()
-                game_str = str(p.get('game', '')).lower()
-                
-                # Verificamos si el partido ya tiene un marcador final válido
-                if score and '-' in score and 'por empezar' not in score.lower() and 'en vivo' not in score.lower():
-                    try:
-                        partes_score = score.split('-')
-                        if len(partes_score) == 2:
-                            s1_match = re.findall(r'\d+', partes_score[0])
-                            s2_match = re.findall(r'\d+', partes_score[1])
-                            
-                            if s1_match and s2_match:
-                                score1 = int(s1_match[-1])
-                                score2 = int(s2_match[-1])
+    if semana_data:
+        for dia, partidos in semana_data.items():
+            if partidos:
+                for p in partidos:
+                    score = str(p.get('score', '')).strip()
+                    prediction = str(p.get('prediction', '')).strip().lower()
+                    game_str = str(p.get('game', '')).lower()
+                    
+                    # Verificamos si el partido ya tiene un marcador final válido
+                    if score and '-' in score and 'por empezar' not in score.lower() and 'en vivo' not in score.lower():
+                        try:
+                            partes_score = score.split('-')
+                            if len(partes_score) == 2:
+                                s1_match = re.findall(r'\d+', partes_score[0])
+                                s2_match = re.findall(r'\d+', partes_score[1])
                                 
-                                equipos = re.split(r'\bvs\b|\@', game_str, flags=re.IGNORECASE)
-                                ganador = ""
-                                if len(equipos) == 2:
-                                    eq1 = equipos[0].strip().lower()
-                                    eq2 = equipos[1].strip().lower()
-                                    if score1 > score2:
-                                        ganador = eq1
-                                    elif score2 > score1:
-                                        ganador = eq2
+                                if s1_match and s2_match:
+                                    score1 = int(s1_match[-1])
+                                    score2 = int(s2_match[-1])
+                                    
+                                    equipos = re.split(r'\bvs\b|\@', game_str, flags=re.IGNORECASE)
+                                    ganador = ""
+                                    if len(equipos) == 2:
+                                        eq1 = equipos[0].strip().lower()
+                                        eq2 = equipos[1].strip().lower()
+                                        if score1 > score2:
+                                            ganador = eq1
+                                        elif score2 > score1:
+                                            ganador = eq2
+                                        else:
+                                            ganador = "empate"
+                                    
+                                    total_evaluados += 1
+                                    if prediction and ganador and (prediction in ganador or ganador in prediction):
+                                        p['evaluation'] = "Se dio"
+                                        total_wins += 1
                                     else:
-                                        ganador = "empate"
-                                
-                                total_evaluados += 1
-                                if prediction and ganador and (prediction in ganador or ganador in prediction):
-                                    p['evaluation'] = "Se dio"
-                                    total_wins += 1
+                                        p['evaluation'] = "No se dio"
+                                        total_losses += 1
                                 else:
-                                    p['evaluation'] = "No se dio"
-                                    total_losses += 1
+                                    p['evaluation'] = "Pendiente"
                             else:
                                 p['evaluation'] = "Pendiente"
-                        else:
+                        except Exception as e:
+                            print(f"Error procesando partido: {e}")
                             p['evaluation'] = "Pendiente"
-                    except Exception as e:
-                        print(f"Error procesando partido: {e}")
-                        p['evaluation'] = "Pendiente"
-                else:
-                    if not p.get('evaluation') or p.get('evaluation') in ['', 'Pendiente']:
-                        p['evaluation'] = "Pendiente"
+                    else:
+                        if not p.get('evaluation') or p.get('evaluation') in ['', 'Pendiente']:
+                            p['evaluation'] = "Pendiente"
+
     return render_template(
         'index.html', 
         matches=games, 
@@ -538,7 +539,6 @@ if semana_data:
         total_losses=total_losses,
         total_evaluados=total_evaluados
     )
-
 @app.route('/api/live-matches')
 def api_live_matches():
     games = fetch_mlb_today_games()
