@@ -407,18 +407,24 @@ function openDeepDiveFromElement(element) {
         console.error("Error al parsear los datos del juego para el Deep Dive:", e);
     }
 }
-  function openDeepDive(game) {
+function openDeepDive(game) {
     const modal = document.getElementById('deep-dive-modal');
     const content = document.getElementById('modal-content');
     if (!modal || !content) return;
     
-    // Capturamos las variables probando varias alternativas por si el backend cambia la clave
-    const bullpenText = game.bullpen_advantage || game.bullpen || 'N/A';
-    const ballparkText = game.ballpark_factor || game.ballpark || 'N/A';
-    const pitcherAwayText = game.starter_away || game.pitcher_away || game.away_pitcher || 'Abridor Visitante';
-    const pitcherHomeText = game.starter_home || game.pitcher_home || game.home_pitcher || 'Abridor Local';
-    const metricsAway = game.pitcher_metrics_away || '';
-    const metricsHome = game.pitcher_metrics_home || '';
+    // Fallbacks robustos para capturar cualquier variante de nombre de clave del backend
+    const projAway = game.projected_score_away !== undefined ? game.projected_score_away : (game.proj_score_away || 'N/A');
+    const projHome = game.projected_score_home !== undefined ? game.projected_score_home : (game.proj_score_home || 'N/A');
+    
+    const metricsAway = game.pitcher_metrics_away || game.away_pitcher_metrics || game.away_era || 'N/A';
+    const metricsHome = game.pitcher_metrics_home || game.home_pitcher_metrics || game.home_era || 'N/A';
+    
+    const starterAway = game.starter_away || game.pitcher_away || game.away_pitcher || 'Abridor Visitante';
+    const starterHome = game.starter_home || game.pitcher_home || game.home_pitcher || 'Abridor Local';
+    
+    const bullpenText = game.bullpen_advantage || game.bullpen || game.bp_adv || 'Equilibrado';
+    const ballparkText = game.ballpark_factor || game.ballpark || game.park_factor || 'Neutral';
+    const valueIndexText = game.value_index !== undefined ? game.value_index : 'N/A';
 
     content.innerHTML = `
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -427,7 +433,7 @@ function openDeepDiveFromElement(element) {
                 <h3 class="text-xl font-black text-slate-100 mt-1">${game.away} vs ${game.home}</h3>
             </div>
             <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                Índice de Valor: ${game.value_index || 'N/A'}
+                Índice de Valor: ${valueIndexText}
             </span>
         </div>
 
@@ -440,8 +446,8 @@ function openDeepDiveFromElement(element) {
                 </div>
                 <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
                     <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away || 0}%</strong></div>
-                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_away || 0}</strong></div>
-                    <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${pitcherAwayText} ${metricsAway ? `(${metricsAway})` : ''}</strong></div>
+                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${projAway}</strong></div>
+                    <div class="flex justify-between"><span>Abridor:</span> <strong class="text-slate-200">${starterAway} (${metricsAway})</strong></div>
                 </div>
             </div>
 
@@ -453,8 +459,8 @@ function openDeepDiveFromElement(element) {
                 </div>
                 <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
                     <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home || 0}%</strong></div>
-                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${game.projected_score_home || 0}</strong></div>
-                    <div class="flex justify-between"><span>Abridor (ERA/WHIP):</span> <strong class="text-slate-200">${pitcherHomeText} ${metricsHome ? `(${metricsHome})` : ''}</strong></div>
+                    <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${projHome}</strong></div>
+                    <div class="flex justify-between"><span>Abridor:</span> <strong class="text-slate-200">${starterHome} (${metricsHome})</strong></div>
                 </div>
             </div>
         </div>
