@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 import requests
 import re
 from datetime import datetime, timedelta
 import random
 import os  # <--- Agrégalo aquí
 app = Flask(__name__)
-
+app.secret_key = "oraculo_mlb_clave_secreta_super_segura" # Requerido para las sesiones
 ALL_MLB_TEAMS = [
     {"name": "Arizona Diamondbacks", "id": 109},
     {"name": "Atlanta Braves", "id": 144},
@@ -481,27 +481,32 @@ def verificar_mantenimiento():
             return "🚧 Página en mantenimiento o actualización privada. Vuelve más tarde.", 503
 VISITAS_FILE = "visitas.txt"
 
-def obtener_y_sumar_visita():
-    visitas = 0
+def obtener_visitas_actuales():
     if os.path.exists(VISITAS_FILE):
         try:
             with open(VISITAS_FILE, "r") as f:
-                visitas = int(f.read().strip())
+                return int(f.read().strip())
         except ValueError:
-            visitas = 0
-    
-    visitas += 1
-    
+            return 0
+    return 0
+
+def incrementar_visita():
+    visitas = obtener_visitas_actuales() + 1
     try:
         with open(VISITAS_FILE, "w") as f:
             f.write(str(visitas))
     except Exception as e:
         print(f"No se pudo guardar la visita: {e}")
-        
     return visitas
 @app.route('/')
 def index():
-    total_visitas = obtener_y_sumar_visita()
+    # Si el usuario NO ha visitado la página en esta sesión, sumamos uno y guardamos la marca
+    if not session.get('visitado'):
+        total_visitas = incrementar_visita()
+        session['visitado'] = True
+    else:
+        # Si ya visitó la página y solo está recargando (F5), solo leemos el número actual sin sumar
+        total_visitas = obtener_visitas_actuales()
     try:
         games = fetch_mlb_today_games()
     except NameError:
@@ -572,7 +577,7 @@ def index():
                         if not p.get('evaluation') or p.get('evaluation') in ['', 'Pendiente']:
                             p['evaluation'] = "Pendiente"
 
-    return render_template(
+   return render_template(
         'index.html', 
         matches=games, 
         parley_data=parley_data, 
