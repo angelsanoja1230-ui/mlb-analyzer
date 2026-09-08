@@ -580,7 +580,7 @@ def index():
         current_time=current_time,
         total_wins=total_wins,
         total_losses=total_losses,
-        total_evaluados=total_evaluados
+        total_evaluados=total_evaluados,
         total_visitas=total_visitas
     )
 
