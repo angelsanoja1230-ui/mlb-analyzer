@@ -577,7 +577,7 @@ def index():
                         if not p.get('evaluation') or p.get('evaluation') in ['', 'Pendiente']:
                             p['evaluation'] = "Pendiente"
 
-   return render_template(
+return render_template(
         'index.html', 
         matches=games, 
         parley_data=parley_data, 
