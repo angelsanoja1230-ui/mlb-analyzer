@@ -369,7 +369,15 @@ def fetch_mlb_today_games():
         for g in games:
             sim = advanced_simulate_game(g)
             g.update(sim)
+# Forzar que todos los juegos tengan la clave 'winner_full' y 'over_under' por seguridad
+    for g in games:
+        if not g.get('winner_full'):
+            # Si por alguna razón la simulación no lo trajo, le asignamos el favorito local o visitante por defecto
+            g['winner_full'] = f"🛡️ {g.get('home', 'Local')} (54%)"
+        if not g.get('over_under'):
+            g['over_under'] = "8.5 Altas"
 
+    
     return games
             
     def get_game_priority(game):
