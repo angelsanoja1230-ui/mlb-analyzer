@@ -268,6 +268,14 @@ function openDeepDive(gameJson) {
     
     if (!modal || !content) return;
 
+    // Resuelve las carreras proyectadas sin importar qué llave envíe Python
+    const awayRuns = gameJson.away_expected_runs !== undefined ? gameJson.away_expected_runs : gameJson.projected_score_away || '3.8';
+    const homeRuns = gameJson.home_expected_runs !== undefined ? gameJson.home_expected_runs : gameJson.projected_score_home || '4.2';
+
+    // Resuelve las métricas de lanzadores
+    const eraWhipAway = gameJson.starter_era_away ? `${gameJson.starter_era_away} / ${gameJson.starter_whip_away}` : (gameJson.pitcher_metrics_away || 'N/A');
+    const eraWhipHome = gameJson.starter_era_home ? `${gameJson.starter_era_home} / ${gameJson.starter_whip_home}` : (gameJson.pitcher_metrics_home || 'N/A');
+
     content.innerHTML = `
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
             <div>
@@ -282,12 +290,12 @@ function openDeepDive(gameJson) {
             <div class="space-y-1">
                 <span class="text-[10px] text-slate-400 uppercase font-bold block">Lanzador Visitante</span>
                 <div class="font-bold text-sm text-slate-200">${gameJson.starter_away || 'Por confirmar'}</div>
-                <div class="text-xs text-slate-400">ERA / WHIP: ${gameJson.pitcher_metrics_away || 'N/A'}</div>
+                <div class="text-xs text-slate-400">ERA / WHIP: ${eraWhipAway}</div>
             </div>
             <div class="space-y-1">
                 <span class="text-[10px] text-slate-400 uppercase font-bold block">Lanzador Local</span>
                 <div class="font-bold text-sm text-slate-200">${gameJson.starter_home || 'Por confirmar'}</div>
-                <div class="text-xs text-slate-400">ERA / WHIP: ${gameJson.pitcher_metrics_home || 'N/A'}</div>
+                <div class="text-xs text-slate-400">ERA / WHIP: ${eraWhipHome}</div>
             </div>
         </div>
 
@@ -296,19 +304,19 @@ function openDeepDive(gameJson) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                     <span class="text-slate-400 block mb-1">Probabilidad Victoria:</span>
-                    <strong class="text-cyan-400">${gameJson.away}: ${gameJson.prob_away}%</strong> / <strong class="text-emerald-400">${gameJson.home}: ${gameJson.prob_home}%</strong>
+                    <strong class="text-cyan-400">${gameJson.away}: ${gameJson.prob_away || 50}%</strong> / <strong class="text-emerald-400">${gameJson.home}: ${gameJson.prob_home || 50}%</strong>
                 </div>
                 <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                     <span class="text-slate-400 block mb-1">Carreras Proyectadas:</span>
-                    <strong class="text-slate-200 text-sm">${gameJson.projected_score_away} - ${gameJson.projected_score_home}</strong>
+                    <strong class="text-slate-200 text-sm">${awayRuns} - ${homeRuns}</strong>
                 </div>
                 <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                     <span class="text-slate-400 block mb-1">Fortaleza Bullpen:</span>
-                    <strong class="text-amber-400">${gameJson.bullpen_advantage || 'Neutral'}</strong>
+                    <strong class="text-amber-400">${gameJson.bullpen_strength || gameJson.bullpen_advantage || 'Neutral'}</strong>
                 </div>
                 <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
                     <span class="text-slate-400 block mb-1">Factor Parque:</span>
-                    <strong class="text-cyan-300">${gameJson.ballpark_factor || 'Neutro'}</strong>
+                    <strong class="text-cyan-300">${gameJson.park_factor || gameJson.ballpark_factor || 'Neutro'}</strong>
                 </div>
             </div>
         </div>
@@ -317,22 +325,21 @@ function openDeepDive(gameJson) {
             <h4 class="text-xs font-bold uppercase text-amber-400 tracking-wider">Pronósticos Oficiales</h4>
             <div class="flex justify-between py-1.5 border-b border-slate-800/60">
                 <span class="text-slate-400">Ganador Completo (Full):</span>
-                <span class="font-bold text-emerald-400">${gameJson.winner_full}</span>
+                <span class="font-bold text-emerald-400">${gameJson.winner_full || 'N/A'}</span>
             </div>
             <div class="flex justify-between py-1.5 border-b border-slate-800/60">
                 <span class="text-slate-400">Ganador 5 Innings (F5):</span>
-                <span class="font-bold text-cyan-400">${gameJson.winner_f5}</span>
+                <span class="font-bold text-cyan-400">${gameJson.winner_f5 || 'N/A'}</span>
             </div>
             <div class="flex justify-between py-1.5">
                 <span class="text-slate-400">Línea de Carreras (O/U):</span>
-                <span class="font-bold text-slate-200">${gameJson.over_under}</span>
+                <span class="font-bold text-slate-200">${gameJson.over_under || 'N/A'}</span>
             </div>
         </div>
     `;
     
     modal.classList.remove('hidden');
 }
-
 function closeDeepDive() {
     const modal = document.getElementById('deep-dive-modal');
     if (modal) {
