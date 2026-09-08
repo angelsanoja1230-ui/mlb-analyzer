@@ -3,7 +3,7 @@ import requests
 import re
 from datetime import datetime, timedelta
 import random
-
+import os  # <--- Agrégalo aquí
 app = Flask(__name__)
 
 ALL_MLB_TEAMS = [
@@ -479,9 +479,29 @@ def verificar_mantenimiento():
         token = request.args.get('token')
         if token != TOKEN_SECRETO:
             return "🚧 Página en mantenimiento o actualización privada. Vuelve más tarde.", 503
+VISITAS_FILE = "visitas.txt"
 
+def obtener_y_sumar_visita():
+    visitas = 0
+    if os.path.exists(VISITAS_FILE):
+        try:
+            with open(VISITAS_FILE, "r") as f:
+                visitas = int(f.read().strip())
+        except ValueError:
+            visitas = 0
+    
+    visitas += 1
+    
+    try:
+        with open(VISITAS_FILE, "w") as f:
+            f.write(str(visitas))
+    except Exception as e:
+        print(f"No se pudo guardar la visita: {e}")
+        
+    return visitas
 @app.route('/')
 def index():
+    total_visitas = obtener_y_sumar_visita()
     try:
         games = fetch_mlb_today_games()
     except NameError:
@@ -561,6 +581,7 @@ def index():
         total_wins=total_wins,
         total_losses=total_losses,
         total_evaluados=total_evaluados
+        total_visitas=total_visitas
     )
 
 if __name__ == '__main__':
