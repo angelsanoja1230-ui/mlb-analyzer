@@ -582,7 +582,8 @@ async function fetchLiveMatchesIndependent() {
         let htmlContent = '';
 
         BASE_MATCHES.forEach((game) => {
-            const status = (game.status || game.state || '').toLowerCase();
+            // CORRECCIÓN: Se agrega game.abstract_state para detectar correctamente los estados enviados desde Flask
+            const status = (game.status || game.state || game.abstract_state || '').toLowerCase();
             const isLive = game.is_live === true || status === 'live' || status === 'en vivo' || status === 'in progress' || status === 'inprogress';
             const isFinal = status === 'final' || status === 'finalizado' || status === 'finalized';
 
@@ -590,7 +591,6 @@ async function fetchLiveMatchesIndependent() {
             let middleContent = '';
             let scoreDisplay = '';
 
-            // Estructura segura para los logos con respaldo por si falla la URL
             const logoAway = game.logo_away ? `<img src="${game.logo_away}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">` : '';
             const logoHome = game.logo_home ? `<img src="${game.logo_home}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">` : '';
 
@@ -659,7 +659,7 @@ async function fetchLiveMatchesIndependent() {
                 `;
 
             } else {
-                // --- PARTIDO POR INICIAR (Esperando) ---
+                // --- PARTIDO POR INICIAR ---
                 statusBadge = `<span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold uppercase text-[10px]">⏳ Por Iniciar</span>`;
                 middleContent = `
                     <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800 text-center text-xs">
