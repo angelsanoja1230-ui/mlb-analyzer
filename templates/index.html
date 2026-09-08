@@ -551,8 +551,10 @@ function openDeepDive(game) {
     const container = document.getElementById('live-games-container');
     if (!container) return;
 
+    // Si BASE_MATCHES todavía no cargó, reintentamos en 1 segundo para evitar que se quede en blanco
     if (typeof BASE_MATCHES === 'undefined' || !Array.isArray(BASE_MATCHES) || BASE_MATCHES.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center text-slate-500 py-6 text-xs">Cargando partidos...</div>';
+        container.innerHTML = '<div class="col-span-full text-center text-slate-500 py-6 text-xs">Cargando partidos en vivo...</div>';
+        setTimeout(fetchLiveMatchesIndependent, 1000);
         return;
     }
 
@@ -634,7 +636,7 @@ window.addEventListener('click', (e) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchLiveMatchesIndependent();
-    setInterval(fetchLiveMatchesIndependent, 10000);
+    setInterval(fetchLiveMatchesIndependent, 10000); // Actualización a 10 segundos
 });
 </script>
 </body>
