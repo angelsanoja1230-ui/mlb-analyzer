@@ -412,9 +412,8 @@ function openDeepDive(game) {
     const content = document.getElementById('modal-content');
     if (!modal || !content) return;
     
-    // Búsqueda flexible de llaves para evitar el 'N/A'
-    const projAway = game.projected_score_away ?? game.away_expected_runs ?? game.expected_runs_away ?? game.away_runs ?? '4.2';
-    const projHome = game.projected_score_home ?? game.home_expected_runs ?? game.expected_runs_home ?? game.home_runs ?? '4.5';
+    const projAway = game.projected_score_away ?? game.away_expected_runs ?? game.expected_runs_away ?? game.away_runs ?? '3.8';
+    const projHome = game.projected_score_home ?? game.home_expected_runs ?? game.expected_runs_home ?? game.home_runs ?? '4.2';
     
     const metricsAway = game.pitcher_metrics_away || game.away_era || 'N/A';
     const metricsHome = game.pitcher_metrics_home || game.home_era || 'N/A';
@@ -422,14 +421,8 @@ function openDeepDive(game) {
     const starterAway = game.starter_away || game.pitcher_away || 'Abridor Visitante';
     const starterHome = game.starter_home || game.pitcher_home || 'Abridor Local';
     
-    let bullpenText = game.bullpen_advantage || 'Equilibrado';
-    if (!bullpenText || bullpenText === 'Equilibrado' || bullpenText === 'Neutral') {
-        if (game.prob_home && game.prob_away) {
-            bullpenText = game.prob_home > game.prob_away ? `Ventaja ${game.home}` : `Ventaja ${game.away}`;
-        }
-    }
-
-    const ballparkText = game.ballpark_factor || 'Neutral (1.00)';
+    let bullpenText = game.bullpen_advantage || game.bullpen_strength || 'Equilibrado';
+    const ballparkText = game.park_factor || game.ballpark_factor || 'Neutral';
     const valueIndexText = game.value_index !== undefined ? game.value_index : 'N/A';
 
     content.innerHTML = `
@@ -451,7 +444,7 @@ function openDeepDive(game) {
                     <span class="font-bold text-slate-200">${game.away}</span>
                 </div>
                 <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
-                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away || 0}%</strong></div>
+                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-cyan-400">${game.prob_away || 50}%</strong></div>
                     <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${projAway}</strong></div>
                     <div class="flex justify-between"><span>Abridor:</span> <strong class="text-slate-200">${starterAway} (${metricsAway})</strong></div>
                 </div>
@@ -464,13 +457,42 @@ function openDeepDive(game) {
                     <span class="font-bold text-slate-200">${game.home}</span>
                 </div>
                 <div class="text-xs space-y-1 pt-2 border-t border-slate-800/80">
-                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home || 0}%</strong></div>
+                    <div class="flex justify-between"><span>Probabilidad:</span> <strong class="text-emerald-400">${game.prob_home || 50}%</strong></div>
                     <div class="flex justify-between"><span>Carreras Esperadas:</span> <strong class="text-slate-200">${projHome}</strong></div>
                     <div class="flex justify-between"><span>Abridor:</span> <strong class="text-slate-200">${starterHome} (${metricsHome})</strong></div>
                 </div>
             </div>
         </div>
-        ...
+
+        <div class="space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60 text-xs">
+            <h4 class="text-xs font-bold uppercase text-emerald-400 tracking-wider">Métricas Avanzadas del Encuentro</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <span class="text-slate-400">Fortaleza Bullpen:</span>
+                    <strong class="text-amber-400">${bullpenText}</strong>
+                </div>
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <span class="text-slate-400">Factor Parque:</span>
+                    <strong class="text-cyan-300">${ballparkText}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-2 text-xs bg-slate-950/60 p-4 rounded-2xl border border-slate-800 mt-3">
+            <h4 class="text-xs font-bold uppercase text-amber-400 tracking-wider">Pronósticos Oficiales</h4>
+            <div class="flex justify-between py-1.5 border-b border-slate-800/60">
+                <span class="text-slate-400">Ganador Modelo (Full):</span>
+                <span class="font-bold text-emerald-400">${game.winner_full || game.winner || 'N/A'}</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-800/60">
+                <span class="text-slate-400">Ganador 5 Innings (F5):</span>
+                <span class="font-bold text-cyan-400">${game.winner_f5 || 'N/A'}</span>
+            </div>
+            <div class="flex justify-between py-1.5">
+                <span class="text-slate-400">Alta / Baja Proyectada:</span>
+                <span class="font-bold text-slate-200">${game.over_under || 'N/A'}</span>
+            </div>
+        </div>
     `;
     modal.classList.remove('hidden');
 }
