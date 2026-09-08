@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oráculo MLB</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/png">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(16,185,129,0.15),rgba(255,255,255,0))]">
     <div class="max-w-7xl mx-auto">
@@ -14,13 +14,21 @@
                 🔮 Oráculo MLB
             </h1>
             <p class="text-sm font-medium text-slate-400 mt-2">Simulación de encuentros, análisis de valor y Generador de Parleys</p>
-            <div class="mt-4 inline-flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-5 py-2 rounded-2xl shadow-xl backdrop-blur-md">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-xs text-slate-400 uppercase tracking-wider">Actualizado:</span>
-                <span class="text-sm font-bold text-emerald-400">{{ current_time }}</span>
+            
+            <!-- Contenedor para hora y visitas -->
+            <div class="mt-4 flex flex-wrap justify-center items-center gap-3">
+                <div class="inline-flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-5 py-2 rounded-2xl shadow-xl backdrop-blur-md">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-xs text-slate-400 uppercase tracking-wider">Actualizado:</span>
+                    <span class="text-sm font-bold text-emerald-400">{{ current_time }}</span>
+                </div>
+                
+                <div class="inline-flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-5 py-2 rounded-2xl shadow-xl backdrop-blur-md">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider">👁️ Visitas:</span>
+                    <span class="text-sm font-bold text-amber-400">{{ total_visitas }}</span>
+                </div>
             </div>
         </header>
-
         <nav class="flex flex-wrap justify-center gap-3 mb-6">
             <button onclick="switchTab('games')" id="btn-games" class="px-5 py-3 rounded-2xl font-bold text-sm bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:scale-105">
                 ⚾ Partidos del Día
