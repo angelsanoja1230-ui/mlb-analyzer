@@ -3,7 +3,7 @@ import requests
 import os
 import random
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
-
+ 
 app = Flask(__name__)
 app.secret_key = "oraculo_mlb_clave_secreta_super_segura"
 
