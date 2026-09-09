@@ -463,9 +463,11 @@ def fetch_mlb_week_games():
                             'home': home_team,
                             'away': away_team,
                             'starter_home': teams.get('home', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar'),
-                            'starter_away': teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar'),
-                            'stadium': game.get('venue', {}).get('name', 'Estadio MLB')
-                        }
+                           'starter_away': teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar'),
+                           'stadium': game.get('venue', {}).get('name', 'Estadio MLB'),
+                           'inning_state': inning_text,
+                           'count': count_text
+                               }
                         
                         sim = advanced_simulate_game(game_info)
                         winner_full = sim.get('winner_full')
