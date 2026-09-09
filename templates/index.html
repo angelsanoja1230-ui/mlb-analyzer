@@ -280,90 +280,83 @@
                 </div>
             </section>
 <!-- Script de actualización en vivo -->
-  <script>
-    function actualizarPartidosEnVivo() {
-        const container = document.getElementById('live-games-container');
-        if (!container) return;
+function actualizarPartidosEnVivo() {
+    const container = document.getElementById('live-games-container');
+    if (!container) return;
 
-        // Leemos directamente desde la variable de diccionarios local del backend
-        const games = typeof masterGamesList !== 'undefined' ? masterGamesList : [];
+    // Si usas una API o la lista maestra global
+    const games = Array.isArray(masterGamesList) ? masterGamesList : [];
+    
+    const badge = document.getElementById('live-status-badge');
+    if (badge) {
+        badge.innerText = `Actualizado: ${new Date().toLocaleTimeString()} (${games.length} partidos hoy)`;
+    }
 
-        const badge = document.getElementById('live-status-badge');
-        if (badge) {
-            badge.innerText = `Sincronizado: ${new Date().toLocaleTimeString()} (${games.length} partidos)`;
+    if (!games || games.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-12 text-slate-500 text-xs col-span-full bg-slate-900/40 rounded-2xl border border-slate-800/80 p-6">
+                No hay partidos programados para hoy.
+            </div>
+        `;
+        return;
+    }
+
+    let htmlContent = '';
+
+    games.forEach((game, index) => {
+        if (!game || typeof game !== 'object') return;
+
+        const awayTeam = game.away || game.away_team || 'Visitante';
+        const homeTeam = game.home || game.home_team || 'Local';
+        const awayRuns = game.away_runs !== undefined ? game.away_runs : (game.away_score || 0);
+        const homeRuns = game.home_runs !== undefined ? game.home_runs : (game.home_score || 0);
+        
+        // Detectar estado del juego (En vivo, Programado/Preview, o Final)
+        const abstractState = (game.abstract_state || '').toLowerCase();
+        const isLive = abstractState === 'live' || abstractState === 'en vivo';
+        const isFinal = abstractState === 'final';
+
+        // Si no ha empezado, mostramos la hora o "Programado". Si es en vivo, mostramos el inning.
+        let statusText = game.inning_state || game.detailed_state || 'Programado';
+        if (!isLive && !isFinal) {
+            statusText = `⏰ ${game.time || 'Próximamente'}`;
+        } else if (isFinal) {
+            statusText = '🏁 Finalizado';
         }
 
-        if (!Array.isArray(games) || games.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-12 text-slate-500 text-xs col-span-full">
-                    No hay partidos disponibles en los diccionarios actuales.
-                </div>
-            `;
-            return;
+        let countText = game.count || `B:0 S:0 O:0`;
+        if (!isLive && !isFinal) {
+            countText = game.winner_full ? `Pronóstico listo` : `Pendiente`;
         }
 
-        const placeholder = container.querySelector('.col-span-full');
-        if (placeholder) {
-            container.innerHTML = '';
-        }
+        let batterName = game.batter_name || 'Por anunciar';
 
-        const activeGameIds = new Set();
+        const has1b = Boolean(game.runner_on_1b || game.first || game.runner_1b);
+        const has2b = Boolean(game.runner_on_2b || game.second || game.runner_2b);
+        const has3b = Boolean(game.runner_on_3b || game.third || game.runner_3b);
 
-        games.forEach((game, index) => {
-            if (!game || typeof game !== 'object') return;
+        const base1Class = has1b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+        const base2Class = has2b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+        const base3Class = has3b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
 
-            const awayTeam = game.away || game.away_team || game.team_away || game.visitingTeam || 'Visitante';
-            const homeTeam = game.home || game.home_team || game.team_home || game.homeTeam || 'Local';
-            const awayRuns = game.away_runs !== undefined ? game.away_runs : (game.away_score !== undefined ? game.away_score : 0);
-            const homeRuns = game.home_runs !== undefined ? game.home_runs : (game.home_score !== undefined ? game.home_score : 0);
-            
-            const statusLower = (game.status || game.state || game.abstract_state || '').toLowerCase();
-            const isLive = game.is_live === true || statusLower.includes('live') || statusLower.includes('vivo') || statusLower.includes('progress');
-            const inningState = game.inning_state || game.status || game.inning || (isLive ? 'En juego' : (game.time || 'Programado'));
+        const rawId = game.id || game.game_pk || `${awayTeam}_${homeTeam}`;
+        const gameId = String(rawId).replace(/[^a-zA-Z0-9]/g, '_');
 
-            let countText = game.count;
-            if (!countText && (game.balls !== undefined || game.strikes !== undefined)) {
-                countText = `B:${game.balls || 0} S:${game.strikes || 0} O:${game.outs || 0}`;
-            }
-            countText = countText || 'B:0 S:0 O:0';
-
-            let batterName = 'N/D';
-            if (game.batter_name) {
-                batterName = game.batter_name;
-            } else if (game.batter) {
-                batterName = (typeof game.batter === 'object' ? game.batter.name : game.batter);
-            } else if (game.current_batter) {
-                batterName = game.current_batter;
-            } else if (game.hitter) {
-                batterName = game.hitter;
-            }
-
-            const has1b = Boolean(game.runner_on_1b || game.first || game.runner_1b || game.on_1b || game.base1 || (game.bases && (game.bases.first || game.bases.b1)));
-            const has2b = Boolean(game.runner_on_2b || game.second || game.runner_2b || game.on_2b || game.base2 || (game.bases && (game.bases.second || game.bases.b2)));
-            const has3b = Boolean(game.runner_on_3b || game.third || game.runner_3b || game.on_3b || game.base3 || (game.bases && (game.bases.third || game.bases.b3)));
-
-            const base1Class = has1b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-            const base2Class = has2b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-            const base3Class = has3b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-
-            const rawId = game.id || game.game_pk || `${awayTeam}_${homeTeam}`;
-            const gameId = String(rawId).replace(/[^a-zA-Z0-9]/g, '_');
-            activeGameIds.add(gameId);
-
-            const cardInnerHtml = `
+        htmlContent += `
+            <div id="live-card-${gameId}" onclick="if(typeof openDeepDiveByIndex==='function') openDeepDiveByIndex(${index})" class="bg-slate-950/90 border border-slate-800/80 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer transition-all space-y-3">
                 <div class="flex justify-between items-center mb-3 text-xs text-slate-400 border-b border-slate-800/60 pb-2">
-                    <span class="font-bold text-emerald-400 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        ${inningState}
+                    <span class="font-bold ${isLive ? 'text-emerald-400 flex items-center gap-1.5' : 'text-slate-300'}">
+                        ${isLive ? '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>' : ''}
+                        ${statusText}
                     </span>
-                    <span class="text-amber-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                    <span class="text-amber-400 font-mono text-[11px] bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
                         ${countText}
                     </span>
                 </div>
                 
                 <div class="flex justify-between items-center my-2">
                     <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                        <img src="${game.logo_away || game.away_logo || ''}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'" alt="">
+                        <img src="${game.logo_away || ''}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'">
                         <span class="text-sm font-bold text-white truncate">${awayTeam}</span>
                     </div>
                     <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80 flex-shrink-0">${awayRuns}</span>
@@ -371,7 +364,7 @@
                 
                 <div class="flex justify-between items-center mb-3">
                     <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                        <img src="${game.logo_home || game.home_logo || ''}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'" alt="">
+                        <img src="${game.logo_home || ''}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'">
                         <span class="text-sm font-bold text-white truncate">${homeTeam}</span>
                     </div>
                     <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80 flex-shrink-0">${homeRuns}</span>
@@ -379,7 +372,7 @@
                 
                 <div class="bg-slate-900/80 p-3 rounded-xl flex items-center justify-between border border-slate-800/60">
                     <div class="text-[11px] text-slate-400 font-medium truncate pr-2">
-                        Bateador: <span class="text-slate-200 font-semibold block mt-0.5 truncate">${batterName}</span>
+                        Pitcher / Info: <span class="text-slate-200 font-semibold block mt-0.5 truncate">${game.starter_home || batterName}</span>
                     </div>
                     <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
                         <div class="absolute top-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
@@ -387,38 +380,12 @@
                         <div class="absolute left-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
                     </div>
                 </div>
-            `;
-
-            let cardElement = document.getElementById(`live-card-${gameId}`);
-            if (!cardElement) {
-                cardElement = document.createElement('div');
-                cardElement.id = `live-card-${gameId}`;
-                cardElement.className = "bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer hover:border-emerald-500/50 transition-all";
-                cardElement.onclick = () => {
-                    if (typeof openDeepDiveByIndex === 'function') {
-                        openDeepDiveByIndex(index);
-                    }
-                };
-                cardElement.innerHTML = cardInnerHtml;
-                container.appendChild(cardElement);
-            } else {
-                cardElement.innerHTML = cardInnerHtml;
-            }
-        });
-
-        const existingCards = container.querySelectorAll('[id^="live-card-"]');
-        existingCards.forEach(card => {
-            const cardId = card.id.replace('live-card-', '');
-            if (!activeGameIds.has(cardId)) {
-                card.remove();
-            }
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        actualizarPartidosEnVivo();
+            </div>
+        `;
     });
-</script>
+
+    container.innerHTML = htmlContent;
+}
          <!-- Pestaña 5: Semana y Resultados -->
     <section id="tab-semana" class="space-y-6 hidden">
         <div class="bg-slate-900/90 border border-teal-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl space-y-6">
