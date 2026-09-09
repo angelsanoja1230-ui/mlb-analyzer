@@ -280,11 +280,11 @@
                 </div>
             </section>
 <!-- Script de actualización en vivo -->
+<script>
 function actualizarPartidosEnVivo() {
     const container = document.getElementById('live-games-container');
     if (!container) return;
 
-    // Si usas una API o la lista maestra global
     const games = Array.isArray(masterGamesList) ? masterGamesList : [];
     
     const badge = document.getElementById('live-status-badge');
@@ -311,12 +311,10 @@ function actualizarPartidosEnVivo() {
         const awayRuns = game.away_runs !== undefined ? game.away_runs : (game.away_score || 0);
         const homeRuns = game.home_runs !== undefined ? game.home_runs : (game.home_score || 0);
         
-        // Detectar estado del juego (En vivo, Programado/Preview, o Final)
         const abstractState = (game.abstract_state || '').toLowerCase();
         const isLive = abstractState === 'live' || abstractState === 'en vivo';
         const isFinal = abstractState === 'final';
 
-        // Si no ha empezado, mostramos la hora o "Programado". Si es en vivo, mostramos el inning.
         let statusText = game.inning_state || game.detailed_state || 'Programado';
         if (!isLive && !isFinal) {
             statusText = `⏰ ${game.time || 'Próximamente'}`;
@@ -324,9 +322,9 @@ function actualizarPartidosEnVivo() {
             statusText = '🏁 Finalizado';
         }
 
-        let countText = game.count || `B:0 S:0 O:0`;
+        let countText = game.count || 'B:0 S:0 O:0';
         if (!isLive && !isFinal) {
-            countText = game.winner_full ? `Pronóstico listo` : `Pendiente`;
+            countText = game.winner_full ? 'Pronóstico listo' : 'Pendiente';
         }
 
         let batterName = game.batter_name || 'Por anunciar';
@@ -386,6 +384,7 @@ function actualizarPartidosEnVivo() {
 
     container.innerHTML = htmlContent;
 }
+</script>
          <!-- Pestaña 5: Semana y Resultados -->
     <section id="tab-semana" class="space-y-6 hidden">
         <div class="bg-slate-900/90 border border-teal-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl space-y-6">
