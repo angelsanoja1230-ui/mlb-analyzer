@@ -66,18 +66,18 @@
                                 <div class="text-[0.7rem] text-slate-400">
                                     Pronóstico: <span class="text-slate-100 font-bold">{{ p.prediction }}</span>
                                 </div>
-                                <div class="flex justify-between items-center border-t border-slate-800/80 pt-2 text-[0.65rem]">
-                                    <span class="text-slate-400 font-mono">{{ p.score or 'Por empezar' }}</span>
-                                    
-                                    {% set eval_p = p.evaluation | default('') | string | lower %}
-                                    {% if 'ganador' in eval_p or 'se dio' in eval_p %}
-                                        <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ p.evaluation }}</span>
-                                    {% elif 'fallo' in eval_p or 'no se dio' in eval_p %}
-                                        <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{{ p.evaluation }}</span>
-                                    {% else %}
-                                        <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">{{ p.evaluation }}</span>
-                                    {% endif %}
-                                </div>
+                              <div class="flex justify-between items-center border-t border-slate-800/80 pt-2 text-[0.65rem]">
+                                <span class="text-slate-400 font-mono">{{ p.score or 'Por empezar' }}</span>
+                                
+                                {% set eval_p = p.evaluation | default('') | string | lower %}
+                                {% if 'ganador' in eval_p or 'se dio' in eval_p %}
+                                    <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{{ p.evaluation }}</span>
+                                {% elif 'fallo' in eval_p or 'no se dio' in eval_p %}
+                                    <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">{{ p.evaluation }}</span>
+                                {% else %}
+                                    <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">{{ p.evaluation }}</span>
+                                {% endif %}
+                            </div>
                             </div>
                             {% endfor %}
                         {% else %}
