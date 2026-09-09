@@ -603,12 +603,11 @@ return render_template(
             total_visitas=total_visitas
         )
 
+@app.route('/api/live-games')
+def api_live_games():
+    games = fetch_mlb_today_games()
+    return jsonify(games)
 
-    @app.route('/api/live-games')
-    def api_live_games():
-        games = fetch_mlb_today_games()
-        return jsonify(games)
 
-
-    if __name__ == '__main__':
-        app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
