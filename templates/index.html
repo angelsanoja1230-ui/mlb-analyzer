@@ -37,7 +37,7 @@
             <button onclick="switchTab('simulations')" id="btn-simulations" class="px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-slate-400 hover:text-slate-100 border border-slate-800/80 transition-all flex items-center gap-2 backdrop-blur-md hover:border-slate-700">
                 📊 Simulaciones Avanzadas
             </button>
-            <button onclick="switchTab('parley')" id="btn-parley" class="px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-amber-400 hover:text-amber-300 border border-amber-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-amber-500/60 shadow-lg shadow-amber-500/10">
+            <button onclick="switchTab('parley')" id="btn-parley" class="hidden px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-amber-400 hover:text-amber-300 border border-amber-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-amber-500/60 shadow-lg shadow-amber-500/10">
                 💰 Generador de Parley
             </button>
             <button onclick="switchTab('live')" id="btn-live" class="px-5 py-3 rounded-2xl font-bold text-sm bg-slate-900/80 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 transition-all flex items-center gap-2 backdrop-blur-md hover:border-emerald-500/60 shadow-lg shadow-emerald-500/10">
@@ -198,7 +198,7 @@
                 </div>
             </section>
 
-            <!-- Pestaña 3: Generador de Parley -->
+            <!-- Pestaña 3: Generador de Parley (Oculta) -->
             <section id="tab-parley" class="space-y-8 hidden">
                 <div class="bg-slate-900/90 border border-amber-500/40 rounded-3xl p-6 shadow-2xl">
                     <h3 class="text-lg font-black text-amber-400 mb-4 flex items-center gap-2">
@@ -283,7 +283,7 @@
                 </div>
             </section>
 
-            <!-- Pestaña 4: Partidos en Vivo (Contenedor requerido incluido) -->
+            <!-- Pestaña 4: Partidos en Vivo -->
             <section id="tab-live" class="space-y-6 hidden">
                 <div id="live-games-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Aquí se pintarán las tarjetas de los partidos en vivo automáticamente -->
@@ -321,7 +321,7 @@
 
         function actualizarPartidosEnVivo() {
             const container = document.getElementById('live-games-container');
-            if (!container) return; // Ya no dará error crítico, solo esperará a que el contenedor exista
+            if (!container) return;
 
             const games = Array.isArray(window.masterGamesList) ? window.masterGamesList : [];
             const badge = document.getElementById('live-status-badge');
