@@ -281,7 +281,7 @@
             </section>
 <!-- Script de actualización en vivo -->
 <script>
-    // 1. Función de control de pestañas segura
+    // 1. Control de pestañas
     function switchTab(tabId) {
         document.querySelectorAll('section[id^="tab-"]').forEach(sec => {
             sec.classList.add('hidden');
@@ -292,29 +292,37 @@
         }
     }
 
-    // 2. Control de partidos en vivo y programados
+    // 2. Control de partidos con depuración
     let masterGamesList = [];
 
     async function obtenerPartidosDesdeBackend() {
         try {
+            console.log("🔄 Consultando partidos a /api/live-games...");
             const response = await fetch('/api/live-games');
-            if (!response.ok) return;
+            if (!response.ok) {
+                console.error("❌ Error en la respuesta del servidor:", response.status);
+                return;
+            }
             const data = await response.json();
+            console.log("📥 Datos recibidos de la API:", data);
             
             if (Array.isArray(data)) {
                 masterGamesList = data;
-                if (typeof actualizarPartidosEnVivo === 'function') {
-                    actualizarPartidosEnVivo();
-                }
+                actualizarPartidosEnVivo();
+            } else {
+                console.warn("⚠️ Los datos recibidos no son un arreglo (Array):", data);
             }
         } catch (error) {
-            console.error("Error al actualizar partidos:", error);
+            console.error("❌ Error al conectar con la API:", error);
         }
     }
 
     function actualizarPartidosEnVivo() {
         const container = document.getElementById('live-games-container');
-        if (!container) return;
+        if (!container) {
+            console.error("❌ ERROR CRÍTICO: No se encontró el elemento con id='live-games-container' en tu HTML.");
+            return;
+        }
 
         const games = Array.isArray(masterGamesList) ? masterGamesList : [];
         const badge = document.getElementById('live-status-badge');
@@ -325,7 +333,7 @@
         if (games.length === 0) {
             container.innerHTML = `
                 <div class="text-center py-12 text-slate-500 text-xs col-span-full bg-slate-900/40 rounded-2xl border border-slate-800/80 p-6">
-                    No hay partidos programados para hoy.
+                    No hay partidos programados para hoy (o la API devolvió 0 elementos).
                 </div>
             `;
             return;
