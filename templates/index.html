@@ -286,14 +286,17 @@
     async function obtenerPartidosDesdeBackend() {
         try {
             const response = await fetch('/api/live-games');
+            if (!response.ok) return;
             const data = await response.json();
             
             if (Array.isArray(data)) {
                 masterGamesList = data;
-                actualizarPartidosEnVivo();
+                if (typeof actualizarPartidosEnVivo === 'function') {
+                    actualizarPartidosEnVivo();
+                }
             }
         } catch (error) {
-            console.error("Error al conectar con la API de Flask:", error);
+            console.error("Error al actualizar partidos:", error);
         }
     }
 
@@ -302,13 +305,12 @@
         if (!container) return;
 
         const games = Array.isArray(masterGamesList) ? masterGamesList : [];
-        
         const badge = document.getElementById('live-status-badge');
         if (badge) {
             badge.innerText = `Actualizado: ${new Date().toLocaleTimeString()} (${games.length} partidos hoy)`;
         }
 
-        if (!games || games.length === 0) {
+        if (games.length === 0) {
             container.innerHTML = `
                 <div class="text-center py-12 text-slate-500 text-xs col-span-full bg-slate-900/40 rounded-2xl border border-slate-800/80 p-6">
                     No hay partidos programados para hoy.
@@ -318,7 +320,6 @@
         }
 
         let htmlContent = '';
-
         games.forEach((game, index) => {
             if (!game || typeof game !== 'object') return;
 
