@@ -371,10 +371,10 @@
         }
     </script>
   
-         <!-- Pestaña 5: Semana y Resultados -->
-    <section id="tab-semana" class="space-y-6 hidden">
-        <div class="bg-slate-900/90 border border-teal-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl space-y-6">
-          <div class="border-b border-slate-800 pb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+<!-- Pestaña 5: Semana y Resultados -->
+<section id="tab-semana" class="space-y-6 hidden">
+    <div class="bg-slate-900/90 border border-teal-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl space-y-6">
+      <div class="border-b border-slate-800 pb-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
             <h3 class="text-xl font-black text-teal-400 flex items-center gap-2">
                 📅 Resultados y Pronósticos de la Semana
@@ -771,12 +771,13 @@
         const modal = document.getElementById('deep-dive-modal');
         if (e.target === modal) {
             closeDeepDive();
-   }
+        }
+    });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            obtenerPartidosDesdeBackend();
-            setInterval(obtenerPartidosDesdeBackend, 30000);
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchLiveMatchesIndependent();
+        setInterval(fetchLiveMatchesIndependent, 30000);
+    });
+</script>
 </body>
 </html>
