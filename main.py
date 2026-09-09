@@ -497,15 +497,18 @@ def fetch_mlb_week_games():
                         else:
                             evaluation = "Pendiente"
                             
-                        day_games_list.append(# En la función que alimenta los datos JSON de la pestaña en vivo:
-                                            {
-                               "away": away_team,
-                               "home": home_team,
-                               "away_score": away_runs,
-                               "home_score": home_runs,
-                               "inning_state": inning_text,  # <-- Necesario para el JS en vivo
-                               "count": count_text           # <-- Necesario para el JS en vivo
-                                   })
+                       day_games_list.append({
+            "game": f"{away_team} vs {home_team}",
+            "prediction": prediction,
+            "score": score_str,
+            "evaluation": evaluation,
+            "away": away_team,
+            "home": home_team,
+            "away_score": away_runs,
+            "home_score": home_runs,
+            "inning_state": inning_text,
+            "count": count_text
+        })
         except Exception as e:
             print(f"Aviso API semana ({day_name}): {e}")
             
