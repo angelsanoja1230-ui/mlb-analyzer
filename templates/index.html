@@ -304,7 +304,7 @@
     </div>
 </section>
 
-<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Con ordenamiento fijo para evitar saltos) -->
+<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Con posición fija por orden alfabético) -->
 <script>
 let lastFetchedData = '';
 
@@ -327,17 +327,17 @@ function actualizarPartidosEnVivo() {
                 return;
             }
             
-            // ORDEN ESTABLE: Ordenamos siempre por el nombre de los equipos o ID 
-            // para que las tarjetas nunca cambien de posición en la pantalla.
+            // ORDEN ESTABLE ABSOLUTO: Ordenamos estrictamente por nombre de los equipos.
+            // Esto garantiza que la tarjeta de un partido NUNCA cambie de lugar en la pantalla.
             games.sort((a, b) => {
-                const idA = (a.id || (a.away + '-' + a.home)).toString();
-                const idB = (b.id || (b.away + '-' + b.home)).toString();
-                return idA.localeCompare(idB);
+                const matchA = `${a.away || ''}_${a.home || ''}`.toLowerCase();
+                const matchB = `${b.away || ''}_${b.home || ''}`.toLowerCase();
+                return matchA.localeCompare(matchB);
             });
             
             const currentDataString = JSON.stringify(games);
             
-            // Si los datos ordenados son idénticos, no tocamos el DOM (cero parpadeos)
+            // Si los datos ordenados son idénticos, no tocamos el DOM para evitar parpadeos
             if (currentDataString === lastFetchedData) {
                 return;
             }
