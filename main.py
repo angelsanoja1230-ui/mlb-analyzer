@@ -652,8 +652,11 @@ import traceback
 
 @app.route('/api/live-games')
 def api_live_games():
-    raw_data = obtener_partidos_mlb_desde_api() # Tu función que consulta la data
-    clean_games = limpiar_partidos_mlb(raw_data)
-    return jsonify(clean_games)
+    try:
+        games = fetch_mlb_today_games()
+    except Exception as e:
+        print(f"Error al obtener partidos en vivo: {e}")
+        games = []
+    return jsonify(games)
 if __name__ == '__main__':
     app.run(debug=True)
