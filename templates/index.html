@@ -778,13 +778,12 @@
         const modal = document.getElementById('deep-dive-modal');
         if (e.target === modal) {
             closeDeepDive();
-        }
-    });
+   }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchLiveMatchesIndependent();
-        setInterval(fetchLiveMatchesIndependent, 5000);
-    });
-</script>
+        document.addEventListener('DOMContentLoaded', () => {
+            obtenerPartidosDesdeBackend();
+            setInterval(obtenerPartidosDesdeBackend, 30000);
+        });
+    </script>
 </body>
 </html>
