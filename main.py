@@ -277,10 +277,9 @@ def fetch_mlb_today_games():
                         outs = linescore.get('outs', 0)
                         count_text = f"B:{balls} S:{strikes} O:{outs}"
                         
-                        # --- EXTRACCIÓN BLINDADA Y ULTRA-ROBUSTA DE CORREDORES ---
+                        # --- EXTRACCIÓN Y SIMULACIÓN DE RESPALDO PARA PRUEBAS ---
                         offense = linescore.get('offense', {}) or {}
                         
-                        # Buscamos en todas las rutas posibles del JSON de MLB
                         r1 = offense.get('first') or linescore.get('first') or linescore.get('runnerOnFirst') or offense.get('runnerOnFirst')
                         r2 = offense.get('second') or linescore.get('second') or linescore.get('runnerOnSecond') or offense.get('runnerOnSecond')
                         r3 = offense.get('third') or linescore.get('third') or linescore.get('runnerOnThird') or offense.get('runnerOnThird')
@@ -289,12 +288,20 @@ def fetch_mlb_today_games():
                         has_2b = r2 is not None and r2 != False and r2 != {}
                         has_3b = r3 is not None and r3 != False and r3 != {}
                         
-                        r1_name = r1.get('fullName', '') if isinstance(r1, dict) else (str(r1) if r1 and r1 is not True else '')
-                        r2_name = r2.get('fullName', '') if isinstance(r2, dict) else (str(r2) if r2 and r2 is not True else '')
-                        r3_name = r3.get('fullName', '') if isinstance(r3, dict) else (str(r3) if r3 and r3 is not True else '')
+                        # Si el juego NO está en vivo (es Preview o Final) y quieres ver datos en pantalla para probar,
+                        # forzamos una simulación aleatoria de corredores basada en el ID del juego.
+                        if abstract_state.lower() != 'live':
+                            game_seed = game.get('gamePk', idx)
+                            has_1b = (game_seed % 3 == 0)
+                            has_2b = (game_seed % 5 == 0)
+                            has_3b = (game_seed % 7 == 0)
+                        
+                        r1_name = r1.get('fullName', 'Corredor 1B') if isinstance(r1, dict) else ('Corredor 1B' if has_1b else '')
+                        r2_name = r2.get('fullName', 'Corredor 2B') if isinstance(r2, dict) else ('Corredor 2B' if has_2b else '')
+                        r3_name = r3.get('fullName', 'Corredor 3B') if isinstance(r3, dict) else ('Corredor 3B' if has_3b else '')
                         
                         batter_obj = offense.get('batter', {}) or {} if isinstance(offense, dict) else {}
-                        batter_name = batter_obj.get('fullName', 'N/D') if isinstance(batter_obj, dict) else 'N/D'
+                        batter_name = batter_obj.get('fullName', 'Bateador en turno') if isinstance(batter_obj, dict) else 'Bateador en turno'
                         
                         game_info = {
                             'id': game.get('gamePk', idx),
@@ -318,7 +325,7 @@ def fetch_mlb_today_games():
                             'strikes': strikes,
                             'outs': outs,
                             
-                            # MAPEO COMPLETO PARA CUALQUIER VARIABLE QUE USE TU FRONTEND
+                            # MAPEO COMPLETO PARA CUALQUIER VARIABLE QUE USE TU HTML
                             'has_1b': has_1b,
                             'has_2b': has_2b,
                             'has_3b': has_3b,
@@ -366,6 +373,7 @@ def fetch_mlb_today_games():
         return local_games
 
     games = get_games_for_date(target_date)
+    # Resto de la función...
 
     today_str = now_local.strftime('%Y-%m-%d')
     if games and all(g.get('abstract_state', '').lower() == 'final' for g in games) and target_date != today_str:
