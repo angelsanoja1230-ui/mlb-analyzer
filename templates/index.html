@@ -304,16 +304,21 @@
     </div>
 </section>
 
-<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Actualización in-place sin destruir el DOM) -->
+<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Robusto y con respaldo de nombres) -->
 <script>
 function actualizarPartidosEnVivo() {
     fetch('/api/live-games')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error('Error en la red');
+            return response.json();
+        })
         .then(games => {
             const container = document.getElementById('live-games-container');
             const badge = document.getElementById('live-status-badge');
             
-            badge.innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
+            if (badge) {
+                badge.innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
+            }
             
             if (!games || games.length === 0) {
                 container.innerHTML = `
@@ -324,31 +329,36 @@ function actualizarPartidosEnVivo() {
                 return;
             }
             
-            // Si el contenedor tenía el mensaje de "Cargando" o "No hay partidos", lo limpiamos primero
+            // Si hay un mensaje de carga inicial, lo limpiamos con seguridad
             const placeholder = container.querySelector('.col-span-full');
             if (placeholder) {
                 container.innerHTML = '';
             }
             
-            // Conjunto para llevar el registro de los IDs activos en esta petición
             const activeGameIds = new Set();
             
             games.forEach(game => {
-                // ID único e inamovible basado en los equipos (ej: "Yankees_RedSox")
-                const gameId = (game.id || `${game.away}_${game.home}`).replace(/[^a-zA-Z0-9]/g, '_');
+                // Compatibilidad flexible con diferentes nombres de campos de la API
+                const awayTeam = game.away || game.away_team || 'Visitante';
+                const homeTeam = game.home || game.home_team || 'Local';
+                const awayRuns = (game.away_runs !== undefined) ? game.away_runs : (game.away_score || 0);
+                const homeRuns = (game.home_runs !== undefined) ? game.home_runs : (game.home_score || 0);
+                
+                // ID único y seguro para cada tarjeta
+                const rawId = game.id || `${awayTeam}_${homeTeam}`;
+                const gameId = String(rawId).replace(/[^a-zA-Z0-9]/g, '_');
                 activeGameIds.add(gameId);
                 
                 const base1Class = (game.has_1b || game.first) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 const base2Class = (game.has_2b || game.second) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 const base3Class = (game.has_3b || game.third) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 
-                // Contenido interno de la tarjeta
                 const cardInnerHtml = `
                     <!-- ENCABEZADO: Inning y Conteo -->
                     <div class="flex justify-between items-center mb-3 text-xs text-slate-400 border-b border-slate-800/60 pb-2">
                         <span class="font-bold text-emerald-400 flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            ${game.inning_state || 'Programado'}
+                            ${game.inning_state || game.status || 'En curso'}
                         </span>
                         <span class="text-amber-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
                             ${game.count || 'B:0 S:0 O:0'}
@@ -359,18 +369,18 @@ function actualizarPartidosEnVivo() {
                     <div class="flex justify-between items-center my-2">
                         <div class="flex items-center gap-2.5">
                             <img src="${game.logo_away || ''}" class="w-6 h-6 object-contain" alt="">
-                            <span class="text-sm font-bold text-white">${game.away}</span>
+                            <span class="text-sm font-bold text-white">${awayTeam}</span>
                         </div>
-                        <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${game.away_runs}</span>
+                        <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${awayRuns}</span>
                     </div>
                     
                     <!-- EQUIPO LOCAL -->
                     <div class="flex justify-between items-center mb-3">
                         <div class="flex items-center gap-2.5">
                             <img src="${game.logo_home || ''}" class="w-6 h-6 object-contain" alt="">
-                            <span class="text-sm font-bold text-white">${game.home}</span>
+                            <span class="text-sm font-bold text-white">${homeTeam}</span>
                         </div>
-                        <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${game.home_runs}</span>
+                        <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${homeRuns}</span>
                     </div>
                     
                     <!-- SECCIÓN INFERIOR -->
@@ -387,23 +397,21 @@ function actualizarPartidosEnVivo() {
                     </div>
                 `;
                 
-                // Buscamos si la tarjeta ya existe en la pantalla
+                // Actualización in-place sin destruir la tarjeta
                 let cardElement = document.getElementById(`live-card-${gameId}`);
                 
                 if (!cardElement) {
-                    // Si no existe, la creamos por primera vez y la agregamos al contenedor
                     cardElement = document.createElement('div');
                     cardElement.id = `live-card-${gameId}`;
                     cardElement.className = "bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl";
                     cardElement.innerHTML = cardInnerHtml;
                     container.appendChild(cardElement);
                 } else {
-                    // Si ya existe, solo actualizamos su HTML interno sin destruir el elemento del DOM (cero saltos)
                     cardElement.innerHTML = cardInnerHtml;
                 }
             });
             
-            // Eliminamos del DOM las tarjetas de partidos que ya no estén activos en la respuesta
+            // Remover partidos que ya terminaron o salieron de la lista
             const existingCards = container.querySelectorAll('[id^="live-card-"]');
             existingCards.forEach(card => {
                 const cardId = card.id.replace('live-card-', '');
@@ -413,12 +421,13 @@ function actualizarPartidosEnVivo() {
             });
         })
         .catch(err => {
-            console.error("Error al actualizar en vivo:", err);
-            document.getElementById('live-status-badge').innerText = "Error de conexión";
+            console.error("Error al actualizar partidos en vivo:", err);
+            const badge = document.getElementById('live-status-badge');
+            if (badge) badge.innerText = "Error de conexión";
         });
 }
 
-// Inicialización automática y ejecución cada 10 segundos
+// Inicialización automática y ejecución cada 10 segundos asegurada
 document.addEventListener('DOMContentLoaded', () => {
     actualizarPartidosEnVivo();
     setInterval(actualizarPartidosEnVivo, 10000);
