@@ -3,7 +3,7 @@ import requests
 import os
 import random
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
- 
+
 app = Flask(__name__)
 app.secret_key = "oraculo_mlb_clave_secreta_super_segura"
 
@@ -277,18 +277,21 @@ def fetch_mlb_today_games():
                         outs = linescore.get('outs', 0)
                         count_text = f"B:{balls} S:{strikes} O:{outs}"
                         
+                        # --- EXTRACCIÓN BLINDADA Y ULTRA-ROBUSTA DE CORREDORES ---
                         offense = linescore.get('offense', {}) or {}
-                        r1 = offense.get('first') if isinstance(offense, dict) else None
-                        r2 = offense.get('second') if isinstance(offense, dict) else None
-                        r3 = offense.get('third') if isinstance(offense, dict) else None
                         
-                        has_1b = r1 is not None
-                        has_2b = r2 is not None
-                        has_3b = r3 is not None
+                        # Buscamos en todas las rutas posibles del JSON de MLB
+                        r1 = offense.get('first') or linescore.get('first') or linescore.get('runnerOnFirst') or offense.get('runnerOnFirst')
+                        r2 = offense.get('second') or linescore.get('second') or linescore.get('runnerOnSecond') or offense.get('runnerOnSecond')
+                        r3 = offense.get('third') or linescore.get('third') or linescore.get('runnerOnThird') or offense.get('runnerOnThird')
                         
-                        r1_name = r1.get('fullName', '') if isinstance(r1, dict) else ''
-                        r2_name = r2.get('fullName', '') if isinstance(r2, dict) else ''
-                        r3_name = r3.get('fullName', '') if isinstance(r3, dict) else ''
+                        has_1b = r1 is not None and r1 != False and r1 != {}
+                        has_2b = r2 is not None and r2 != False and r2 != {}
+                        has_3b = r3 is not None and r3 != False and r3 != {}
+                        
+                        r1_name = r1.get('fullName', '') if isinstance(r1, dict) else (str(r1) if r1 and r1 is not True else '')
+                        r2_name = r2.get('fullName', '') if isinstance(r2, dict) else (str(r2) if r2 and r2 is not True else '')
+                        r3_name = r3.get('fullName', '') if isinstance(r3, dict) else (str(r3) if r3 and r3 is not True else '')
                         
                         batter_obj = offense.get('batter', {}) or {} if isinstance(offense, dict) else {}
                         batter_name = batter_obj.get('fullName', 'N/D') if isinstance(batter_obj, dict) else 'N/D'
@@ -315,7 +318,7 @@ def fetch_mlb_today_games():
                             'strikes': strikes,
                             'outs': outs,
                             
-                            # COMPATIBILIDAD TOTAL DE LLAVES PARA LAS BASES
+                            # MAPEO COMPLETO PARA CUALQUIER VARIABLE QUE USE TU FRONTEND
                             'has_1b': has_1b,
                             'has_2b': has_2b,
                             'has_3b': has_3b,
@@ -331,6 +334,12 @@ def fetch_mlb_today_games():
                             'on_first': has_1b,
                             'on_second': has_2b,
                             'on_third': has_3b,
+                            'firstBase': has_1b,
+                            'secondBase': has_2b,
+                            'thirdBase': has_3b,
+                            'base1': has_1b,
+                            'base2': has_2b,
+                            'base3': has_3b,
                             
                             'runner_1b_name': r1_name,
                             'runner_2b_name': r2_name,
@@ -339,6 +348,13 @@ def fetch_mlb_today_games():
                             'runner_second': r2_name,
                             'runner_third': r3_name,
                             
+                            'runners': {
+                                'first': has_1b, 'second': has_2b, 'third': has_3b,
+                                'first_name': r1_name, 'second_name': r2_name, 'third_name': r3_name
+                            },
+                            'offense': {
+                                'first': r1, 'second': r2, 'third': r3, 'batter': batter_obj
+                            },
                             'batter_name': batter_name
                         }
                         
@@ -387,38 +403,8 @@ def fetch_mlb_today_games():
                 'runner_1b_name': 'Corredor 1', 'runner_2b_name': '', 'runner_3b_name': 'Corredor 3',
                 'runner_first': 'Corredor 1', 'runner_second': '', 'runner_third': 'Corredor 3',
                 'batter_name': 'Aaron Judge'
-            },
-            {
-                'id': 102,
-                'time': '08:10 PM',
-                'stadium': 'Dodger Stadium',
-                'away': 'San Francisco Giants',
-                'home': 'Los Angeles Dodgers',
-                'starter_away': 'L. Webb',
-                'starter_home': 'Y. Yamamoto',
-                'logo_away': 'https://www.mlbstatic.com/team-logos/137.svg',
-                'logo_home': 'https://www.mlbstatic.com/team-logos/119.svg',
-                'abstract_state': 'Preview',
-                'detailed_state': 'Scheduled',
-                'inning_state': '',
-                'count': 'B:0 S:0 O:0',
-                'balls': 0,
-                'strikes': 0,
-                'outs': 0,
-                'away_runs': 0,
-                'home_runs': 0,
-                'away_score': 0,
-                'home_score': 0,
-                'has_1b': False, 'has_2b': False, 'has_3b': False,
-                'first': False, 'second': False, 'third': False,
-                'runner_1': False, 'runner_2': False, 'runner_3': False,
-                'runnerOnFirst': False, 'runnerOnSecond': False, 'runnerOnThird': False,
-                'runner_1b_name': '', 'runner_2b_name': '', 'runner_3b_name': '',
-                'runner_first': '', 'runner_second': '', 'runner_third': '',
-                'batter_name': 'N/D'
             }
         ]
-        
         for g in games:
             sim = advanced_simulate_game(g)
             g.update(sim)
@@ -431,12 +417,9 @@ def fetch_mlb_today_games():
 
     def get_game_priority(game):
         state = game.get('abstract_state', '').lower()
-        if state == 'live':
-            return 0
-        elif state == 'preview':
-            return 1
-        elif state == 'final':
-            return 2
+        if state == 'live': return 0
+        elif state == 'preview': return 1
+        elif state == 'final': return 2
         return 3
 
     games = sorted(games, key=get_game_priority)
@@ -506,17 +489,17 @@ def fetch_mlb_week_games():
                         count_text = f"B:{balls} S:{strikes} O:{outs}"
                         
                         offense = linescore.get('offense', {}) or {}
-                        r1 = offense.get('first') if isinstance(offense, dict) else None
-                        r2 = offense.get('second') if isinstance(offense, dict) else None
-                        r3 = offense.get('third') if isinstance(offense, dict) else None
+                        r1 = offense.get('first') or linescore.get('first') or linescore.get('runnerOnFirst') or offense.get('runnerOnFirst')
+                        r2 = offense.get('second') or linescore.get('second') or linescore.get('runnerOnSecond') or offense.get('runnerOnSecond')
+                        r3 = offense.get('third') or linescore.get('third') or linescore.get('runnerOnThird') or offense.get('runnerOnThird')
                         
-                        has_1b = r1 is not None
-                        has_2b = r2 is not None
-                        has_3b = r3 is not None
+                        has_1b = r1 is not None and r1 != False and r1 != {}
+                        has_2b = r2 is not None and r2 != False and r2 != {}
+                        has_3b = r3 is not None and r3 != False and r3 != {}
                         
-                        r1_name = r1.get('fullName', '') if isinstance(r1, dict) else ''
-                        r2_name = r2.get('fullName', '') if isinstance(r2, dict) else ''
-                        r3_name = r3.get('fullName', '') if isinstance(r3, dict) else ''
+                        r1_name = r1.get('fullName', '') if isinstance(r1, dict) else (str(r1) if r1 and r1 is not True else '')
+                        r2_name = r2.get('fullName', '') if isinstance(r2, dict) else (str(r2) if r2 and r2 is not True else '')
+                        r3_name = r3.get('fullName', '') if isinstance(r3, dict) else (str(r3) if r3 and r3 is not True else '')
                         
                         game_info = {
                             'id': game.get('gamePk', idx),
@@ -547,13 +530,9 @@ def fetch_mlb_week_games():
                             score_str = "Por empezar"
                         
                         if abstract_state == 'final':
-                            if away_runs > home_runs:
-                                actual_winner = away_team
-                            elif home_runs > away_runs:
-                                actual_winner = home_team
-                            else:
-                                actual_winner = None
-                            
+                            if away_runs > home_runs: actual_winner = away_team
+                            elif home_runs > away_runs: actual_winner = home_team
+                            else: actual_winner = None
                             evaluation = "Se dio" if winner_full == actual_winner else "No se dio"
                         elif abstract_state == 'live':
                             evaluation = "En juego..."
@@ -571,7 +550,7 @@ def fetch_mlb_week_games():
                             "home_score": home_runs,
                             "inning_state": inning_text,
                             "count": count_text,
-                            "has_1b": has_1b, 'has_2b': has_2b, 'has_3b': has_3b,
+                            'has_1b': has_1b, 'has_2b': has_2b, 'has_3b': has_3b,
                             'first': has_1b, 'second': has_2b, 'third': has_3b,
                             'runner_1': has_1b, 'runner_2': has_2b, 'runner_3': has_3b,
                             'runnerOnFirst': has_1b, 'runnerOnSecond': has_2b, 'runnerOnThird': has_3b,
@@ -623,20 +602,14 @@ def index():
     else:
         total_visitas = obtener_visitas_actuales()
     
-    try:
-        games = fetch_mlb_today_games()
-    except NameError:
-        games = []
+    try: games = fetch_mlb_today_games()
+    except NameError: games = []
         
-    try:
-        parley_data = generate_parley_system(games)
-    except NameError:
-        parley_data = {}
+    try: parley_data = generate_parley_system(games)
+    except NameError: parley_data = {}
         
-    try:
-        semana_data = fetch_mlb_week_games()
-    except NameError:
-        semana_data = {}
+    try: semana_data = fetch_mlb_week_games()
+    except NameError: semana_data = {}
         
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
     
@@ -650,11 +623,9 @@ def index():
                 for p in partidos:
                     eval_status = p.get('evaluation', '')
                     if eval_status == 'Se dio':
-                        total_wins += 1
-                        total_evaluados += 1
+                        total_wins += 1; total_evaluados += 1
                     elif eval_status == 'No se dio':
-                        total_losses += 1
-                        total_evaluados += 1
+                        total_losses += 1; total_evaluados += 1
 
     return render_template(
         'index.html', 
