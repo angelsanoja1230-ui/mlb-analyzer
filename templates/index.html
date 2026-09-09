@@ -294,14 +294,17 @@ function actualizarPartidosEnVivo() {
                 badge.innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
             }
             
-            // Verificamos si la respuesta viene envuelta en un objeto o es directamente el array
+            // Extracción segura del array de partidos sin importar cómo lo envíe Flask
             let games = [];
             if (Array.isArray(data)) {
                 games = data;
-            } else if (data && Array.isArray(data.games)) {
-                games = data.games;
-            } else if (data && Array.isArray(data.matches)) {
-                games = data.matches;
+            } else if (data && typeof data === 'object') {
+                const possibleArrayKey = Object.keys(data).find(key => Array.isArray(data[key]));
+                if (possibleArrayKey) {
+                    games = data[possibleArrayKey];
+                } else {
+                    games = Object.values(data);
+                }
             }
             
             if (!games || games.length === 0) {
@@ -321,10 +324,12 @@ function actualizarPartidosEnVivo() {
             const activeGameIds = new Set();
             
             games.forEach(game => {
-                const awayTeam = game.away || game.away_team || game.team_away || 'Visitante';
-                const homeTeam = game.home || game.home_team || game.team_home || 'Local';
-                const awayRuns = game.away_runs !== undefined ? game.away_runs : (game.away_score || 0);
-                const homeRuns = game.home_runs !== undefined ? game.home_runs : (game.home_score || 0);
+                if (!game || typeof game !== 'object') return;
+
+                const awayTeam = game.away || game.away_team || game.team_away || game.visitingTeam || 'Visitante';
+                const homeTeam = game.home || game.home_team || game.team_home || game.homeTeam || 'Local';
+                const awayRuns = game.away_runs !== undefined ? game.away_runs : (game.away_score !== undefined ? game.away_score : 0);
+                const homeRuns = game.home_runs !== undefined ? game.home_runs : (game.home_score !== undefined ? game.home_score : 0);
                 const inningState = game.inning_state || game.status || game.inning || 'En curso';
                 
                 let countText = game.count;
@@ -333,22 +338,24 @@ function actualizarPartidosEnVivo() {
                 }
                 countText = countText || 'B:0 S:0 O:0';
                 
+                // Mapeo exhaustivo del bateador
                 let batterName = 'N/D';
-                if (typeof game.batter_name === 'string') batterName = game.batter_name;
-                else if (typeof game.batter === 'string') batterName = game.batter;
-                else if (game.batter && game.batter.name) batterName = game.batter.name;
+                if (game.batter_name) batterName = game.batter_name;
+                else if (game.batter) batterName = (typeof game.batter === 'object' ? game.batter.name : game.batter);
                 else if (game.current_batter) batterName = game.current_batter;
+                else if (game.hitter) batterName = game.hitter;
 
+                // Mapeo exhaustivo de bases
                 const has1b = Boolean(
-                    game.has_1b || game.first || game.runner_1b || game.on_1b || 
+                    game.has_1b || game.first || game.runner_1b || game.on_1b || game.base1 ||
                     (game.bases && (game.bases.first || game.bases.b1))
                 );
                 const has2b = Boolean(
-                    game.has_2b || game.second || game.runner_2b || game.on_2b || 
+                    game.has_2b || game.second || game.runner_2b || game.on_2b || game.base2 ||
                     (game.bases && (game.bases.second || game.bases.b2))
                 );
                 const has3b = Boolean(
-                    game.has_3b || game.third || game.runner_3b || game.on_3b || 
+                    game.has_3b || game.third || game.runner_3b || game.on_3b || game.base3 ||
                     (game.bases && (game.bases.third || game.bases.b3))
                 );
                 
@@ -356,7 +363,7 @@ function actualizarPartidosEnVivo() {
                 const base2Class = has2b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 const base3Class = has3b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 
-                const rawId = game.id || `${awayTeam}_${homeTeam}`;
+                const rawId = game.id || game.game_pk || `${awayTeam}_${homeTeam}`;
                 const gameId = String(rawId).replace(/[^a-zA-Z0-9]/g, '_');
                 activeGameIds.add(gameId);
                 
@@ -373,7 +380,7 @@ function actualizarPartidosEnVivo() {
                     
                     <div class="flex justify-between items-center my-2">
                         <div class="flex items-center gap-2.5">
-                            <img src="${game.logo_away || ''}" class="w-6 h-6 object-contain" alt="">
+                            <img src="${game.logo_away || game.away_logo || ''}" class="w-6 h-6 object-contain" alt="">
                             <span class="text-sm font-bold text-white">${awayTeam}</span>
                         </div>
                         <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${awayRuns}</span>
@@ -381,7 +388,7 @@ function actualizarPartidosEnVivo() {
                     
                     <div class="flex justify-between items-center mb-3">
                         <div class="flex items-center gap-2.5">
-                            <img src="${game.logo_home || ''}" class="w-6 h-6 object-contain" alt="">
+                            <img src="${game.logo_home || game.home_logo || ''}" class="w-6 h-6 object-contain" alt="">
                             <span class="text-sm font-bold text-white">${homeTeam}</span>
                         </div>
                         <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${homeRuns}</span>
