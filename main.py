@@ -648,15 +648,27 @@ def index():
         total_visitas=total_visitas
     )
 
+import traceback
+
 @app.route('/api/live-games')
 def live_games_api():
     try:
-        # Llama a tu función existente que obtiene los datos de la MLB
+        # Asegúrate de que esta función se llame exactamente igual en tu código
         raw_data = fetch_mlb_today_games() 
+        
+        # Esto imprimirá en los logs de Render el tipo de dato que estás recibiendo
+        print("--- DEBUG RAW DATA ---")
+        print(type(raw_data), raw_data)
+        
         clean_games = limpiar_partidos_mlb(raw_data)
+        
+        print("--- DEBUG CLEAN GAMES ---")
+        print(clean_games)
+        
         return jsonify(clean_games)
     except Exception as e:
-        print(f"Error procesando juegos: {e}")
+        print("--- ERROR EN RUTA LIVE GAMES ---")
+        traceback.print_exc() # Imprime el error exacto en la terminal
         return jsonify([])
 if __name__ == '__main__':
     app.run(debug=True)
