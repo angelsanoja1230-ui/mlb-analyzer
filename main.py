@@ -591,7 +591,7 @@ def index():
                         total_evaluados += 1
 # ... (todo el código interno de tu función index) ...
 
-    return render_template(
+ return render_template(
         'index.html', 
         matches=games, 
         parley_data=parley_data, 
@@ -602,6 +602,15 @@ def index():
         total_evaluados=total_evaluados,
         total_visitas=total_visitas
     )
+
+
+# La nueva ruta debe ir alineada al margen izquierdo (sin sangría), igual que @app.route('/')
+@app.route('/api/live-games')
+def api_live_games():
+    games = fetch_mlb_today_games()
+    return jsonify(games)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
  
