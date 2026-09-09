@@ -281,6 +281,18 @@
             </section>
 <!-- Script de actualización en vivo -->
 <script>
+    // 1. Función de control de pestañas segura
+    function switchTab(tabId) {
+        document.querySelectorAll('section[id^="tab-"]').forEach(sec => {
+            sec.classList.add('hidden');
+        });
+        const target = document.getElementById('tab-' + tabId);
+        if (target) {
+            target.classList.remove('hidden');
+        }
+    }
+
+    // 2. Control de partidos en vivo y programados
     let masterGamesList = [];
 
     async function obtenerPartidosDesdeBackend() {
