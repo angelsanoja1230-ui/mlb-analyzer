@@ -211,7 +211,8 @@ def fetch_mlb_today_games():
     target_date = (now_local - timedelta(days=1) if now_local.hour < 7 else now_local).strftime('%Y-%m-%d')
     
     def get_games_for_date(d_str):
-        url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={d_str}&hydrate=probablePitcher,linescore"
+        # Se añade linescore(runners) para asegurar la lectura de corredores en base
+        url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={d_str}&hydrate=probablePitcher,linescore(runners)"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             "Accept": "application/json"
@@ -255,7 +256,7 @@ def fetch_mlb_today_games():
                         away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
                         home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
                         
-                        # --- EXTRACCIÓN DE DATOS EN VIVO (Inning y Conteo) ---
+                        # --- EXTRACCIÓN DE INNING, CONTEO Y BASES ---
                         inning_ordinal = linescore.get('currentInningOrdinal', '')
                         inning_state_raw = str(linescore.get('inningState', '')).strip()
                         
@@ -279,10 +280,20 @@ def fetch_mlb_today_games():
                         outs = linescore.get('outs', 0)
                         count_text = f"B:{balls} S:{strikes} O:{outs}"
                         
+                        # Extracción robusta de corredores en base (1ra, 2da, 3ra)
                         offense = linescore.get('offense', {}) or {}
-                        has_1b = offense.get('first') is not None
-                        has_2b = offense.get('second') is not None
-                        has_3b = offense.get('third') is not None
+                        runner_1 = offense.get('first')
+                        runner_2 = offense.get('second')
+                        runner_3 = offense.get('third')
+                        
+                        has_1b = runner_1 is not None
+                        has_2b = runner_2 is not None
+                        has_3b = runner_3 is not None
+                        
+                        runner_1_name = runner_1.get('fullName', '') if isinstance(runner_1, dict) else ''
+                        runner_2_name = runner_2.get('fullName', '') if isinstance(runner_2, dict) else ''
+                        runner_3_name = runner_3.get('fullName', '') if isinstance(runner_3, dict) else ''
+                        
                         batter_obj = offense.get('batter', {}) or {}
                         batter_name = batter_obj.get('fullName', 'N/D')
                         
@@ -310,6 +321,9 @@ def fetch_mlb_today_games():
                             'has_1b': has_1b,
                             'has_2b': has_2b,
                             'has_3b': has_3b,
+                            'runner_1b_name': runner_1_name,
+                            'runner_2b_name': runner_2_name,
+                            'runner_3b_name': runner_3_name,
                             'batter_name': batter_name
                         }
                         
@@ -354,6 +368,9 @@ def fetch_mlb_today_games():
                 'has_1b': True,
                 'has_2b': False,
                 'has_3b': True,
+                'runner_1b_name': 'Corredor 1',
+                'runner_2b_name': '',
+                'runner_3b_name': 'Corredor 3',
                 'batter_name': 'Aaron Judge'
             },
             {
@@ -380,6 +397,9 @@ def fetch_mlb_today_games():
                 'has_1b': False,
                 'has_2b': False,
                 'has_3b': False,
+                'runner_1b_name': '',
+                'runner_2b_name': '',
+                'runner_3b_name': '',
                 'batter_name': 'N/D'
             }
         ]
@@ -423,7 +443,8 @@ def fetch_mlb_week_games():
     for i, day_name in enumerate(days_names):
         d_obj = monday_date + timedelta(days=i)
         d_str = d_obj.strftime('%Y-%m-%d')
-        url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={d_str}&hydrate=probablePitcher,linescore"
+        # Se añade linescore(runners) también en la vista semanal
+        url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={d_str}&hydrate=probablePitcher,linescore(runners)"
         
         day_games_list = []
         try:
@@ -447,7 +468,7 @@ def fetch_mlb_week_games():
                         away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
                         home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
                         
-                        # --- EXTRACCIÓN DE DATOS EN VIVO (Inning y Conteo robusto) ---
+                        # --- EXTRACCIÓN DE INNING, CONTEO Y BASES ---
                         inning_ordinal = linescore.get('currentInningOrdinal', '')
                         inning_state = str(linescore.get('inningState', '')).strip()
                         
@@ -471,6 +492,19 @@ def fetch_mlb_week_games():
                         outs = linescore.get('outs', 0)
                         count_text = f"B:{balls} S:{strikes} O:{outs}"
                         
+                        offense = linescore.get('offense', {}) or {}
+                        runner_1 = offense.get('first')
+                        runner_2 = offense.get('second')
+                        runner_3 = offense.get('third')
+                        
+                        has_1b = runner_1 is not None
+                        has_2b = runner_2 is not None
+                        has_3b = runner_3 is not None
+                        
+                        runner_1_name = runner_1.get('fullName', '') if isinstance(runner_1, dict) else ''
+                        runner_2_name = runner_2.get('fullName', '') if isinstance(runner_2, dict) else ''
+                        runner_3_name = runner_3.get('fullName', '') if isinstance(runner_3, dict) else ''
+                        
                         game_info = {
                             'id': game.get('gamePk', idx),
                             'home': home_team,
@@ -479,7 +513,13 @@ def fetch_mlb_week_games():
                             'starter_away': teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar'),
                             'stadium': game.get('venue', {}).get('name', 'Estadio MLB'),
                             'inning_state': inning_text,
-                            'count': count_text
+                            'count': count_text,
+                            'has_1b': has_1b,
+                            'has_2b': has_2b,
+                            'has_3b': has_3b,
+                            'runner_1b_name': runner_1_name,
+                            'runner_2b_name': runner_2_name,
+                            'runner_3b_name': runner_3_name
                         }
                         
                         sim = advanced_simulate_game(game_info)
@@ -521,7 +561,13 @@ def fetch_mlb_week_games():
                             "away_score": away_runs,
                             "home_score": home_runs,
                             "inning_state": inning_text,
-                            "count": count_text
+                            "count": count_text,
+                            "has_1b": has_1b,
+                            "has_2b": has_2b,
+                            "has_3b": has_3b,
+                            "runner_1b_name": runner_1_name,
+                            "runner_2b_name": runner_2_name,
+                            "runner_3b_name": runner_3_name
                         })
         except Exception as e:
             print(f"Aviso API semana ({day_name}): {e}")
