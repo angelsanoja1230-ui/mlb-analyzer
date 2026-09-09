@@ -605,40 +605,41 @@ async function fetchLiveMatchesIndependent() {
             const predictionText = game.prediction || game.winner_full || game.winner || 'Por definir';
 
             if (isLive) {
-                // --- PARTIDO EN VIVO ---
-                const inningStateText = game.inning_state || game.inning || 'En curso';
-                const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs || 0);
-                const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs || 0);
-                
-                statusBadge = `<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase animate-pulse text-[10px]">🟢 En Vivo</span>`;
-                middleContent = `
-                    <div class="grid grid-cols-2 gap-1 text-center text-xs bg-slate-950/50 p-2 rounded-lg border border-slate-800">
-                        <div>
-                            <span class="text-slate-500 text-[10px] block">ESTADO</span>
-                            <span class="font-bold text-amber-400">${inningStateText}</span>
-                        </div>
-                        <div>
-                            <span class="text-slate-500 text-[10px] block">CONTEO</span>
-                            <span class="font-bold text-slate-200">${game.count || 'B:0 S:0 O:0'}</span>
-                        </div>
-                    </div>
-                `;
-                scoreDisplay = `
-                    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-                        <div class="flex items-center gap-2 truncate">
-                            ${logoAway}
-                            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.away || 'Visitante'}</span>
-                        </div>
-                        <span class="text-base font-black text-cyan-400 font-mono">${awayScore}</span>
-                    </div>
-                    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-                        <div class="flex items-center gap-2 truncate">
-                            ${logoHome}
-                            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.home || 'Local'}</span>
-                        </div>
-                        <span class="text-base font-black text-emerald-400 font-mono">${homeScore}</span>
-                    </div>
-                `;
+               // --- PARTIDO EN VIVO ---
+// Forzamos la detección del inning y el conteo de manera robusta
+const inningStateText = game.inning_state || game.inning || (game.status === 'Live' ? 'En juego' : 'En curso');
+const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs || 0);
+const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs || 0);
+
+statusBadge = `<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase animate-pulse text-[10px]">🟢 En Vivo</span>`;
+middleContent = `
+    <div class="grid grid-cols-2 gap-1 text-center text-xs bg-slate-950/50 p-2 rounded-lg border border-slate-800">
+        <div>
+            <span class="text-slate-500 text-[10px] block">ESTADO</span>
+            <span class="font-bold text-amber-400">${inningStateText}</span>
+        </div>
+        <div>
+            <span class="text-slate-500 text-[10px] block">CONTEO</span>
+            <span class="font-bold text-slate-200">${game.count || 'B:0 S:0 O:0'}</span>
+        </div>
+    </div>
+`;
+scoreDisplay = `
+    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+        <div class="flex items-center gap-2 truncate">
+            ${logoAway}
+            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.away || 'Visitante'}</span>
+        </div>
+        <span class="text-base font-black text-cyan-400 font-mono">${awayScore}</span>
+    </div>
+    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+        <div class="flex items-center gap-2 truncate">
+            ${logoHome}
+            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.home || 'Local'}</span>
+        </div>
+        <span class="text-base font-black text-emerald-400 font-mono">${homeScore}</span>
+    </div>
+`;
 
             } else if (isFinal) {
                 // --- PARTIDO FINALIZADO ---
