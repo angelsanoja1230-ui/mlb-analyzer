@@ -304,10 +304,8 @@
     </div>
 </section>
 
-<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Con posición fija por orden alfabético) -->
+<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Actualización in-place sin destruir el DOM) -->
 <script>
-let lastFetchedData = '';
-
 function actualizarPartidosEnVivo() {
     fetch('/api/live-games')
         .then(response => response.json())
@@ -323,80 +321,96 @@ function actualizarPartidosEnVivo() {
                         No hay partidos disponibles en este momento.
                     </div>
                 `;
-                lastFetchedData = '';
                 return;
             }
             
-            // ORDEN ESTABLE ABSOLUTO: Ordenamos estrictamente por nombre de los equipos.
-            // Esto garantiza que la tarjeta de un partido NUNCA cambie de lugar en la pantalla.
-            games.sort((a, b) => {
-                const matchA = `${a.away || ''}_${a.home || ''}`.toLowerCase();
-                const matchB = `${b.away || ''}_${b.home || ''}`.toLowerCase();
-                return matchA.localeCompare(matchB);
-            });
-            
-            const currentDataString = JSON.stringify(games);
-            
-            // Si los datos ordenados son idénticos, no tocamos el DOM para evitar parpadeos
-            if (currentDataString === lastFetchedData) {
-                return;
+            // Si el contenedor tenía el mensaje de "Cargando" o "No hay partidos", lo limpiamos primero
+            const placeholder = container.querySelector('.col-span-full');
+            if (placeholder) {
+                container.innerHTML = '';
             }
             
-            lastFetchedData = currentDataString;
+            // Conjunto para llevar el registro de los IDs activos en esta petición
+            const activeGameIds = new Set();
             
-            let html = '';
             games.forEach(game => {
+                // ID único e inamovible basado en los equipos (ej: "Yankees_RedSox")
+                const gameId = (game.id || `${game.away}_${game.home}`).replace(/[^a-zA-Z0-9]/g, '_');
+                activeGameIds.add(gameId);
+                
                 const base1Class = (game.has_1b || game.first) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 const base2Class = (game.has_2b || game.second) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 const base3Class = (game.has_3b || game.third) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 
-                html += `
-                    <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl transition-all duration-300">
-                        <!-- ENCABEZADO: Inning y Conteo -->
-                        <div class="flex justify-between items-center mb-3 text-xs text-slate-400 border-b border-slate-800/60 pb-2">
-                            <span class="font-bold text-emerald-400 flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                ${game.inning_state || 'Programado'}
-                            </span>
-                            <span class="text-amber-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                                ${game.count || 'B:0 S:0 O:0'}
-                            </span>
+                // Contenido interno de la tarjeta
+                const cardInnerHtml = `
+                    <!-- ENCABEZADO: Inning y Conteo -->
+                    <div class="flex justify-between items-center mb-3 text-xs text-slate-400 border-b border-slate-800/60 pb-2">
+                        <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            ${game.inning_state || 'Programado'}
+                        </span>
+                        <span class="text-amber-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                            ${game.count || 'B:0 S:0 O:0'}
+                        </span>
+                    </div>
+                    
+                    <!-- EQUIPO VISITANTE -->
+                    <div class="flex justify-between items-center my-2">
+                        <div class="flex items-center gap-2.5">
+                            <img src="${game.logo_away || ''}" class="w-6 h-6 object-contain" alt="">
+                            <span class="text-sm font-bold text-white">${game.away}</span>
                         </div>
-                        
-                        <!-- EQUIPO VISITANTE -->
-                        <div class="flex justify-between items-center my-2">
-                            <div class="flex items-center gap-2.5">
-                                <img src="${game.logo_away}" class="w-6 h-6 object-contain" alt="">
-                                <span class="text-sm font-bold text-white">${game.away}</span>
-                            </div>
-                            <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${game.away_runs}</span>
+                        <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${game.away_runs}</span>
+                    </div>
+                    
+                    <!-- EQUIPO LOCAL -->
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <img src="${game.logo_home || ''}" class="w-6 h-6 object-contain" alt="">
+                            <span class="text-sm font-bold text-white">${game.home}</span>
                         </div>
-                        
-                        <!-- EQUIPO LOCAL -->
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="flex items-center gap-2.5">
-                                <img src="${game.logo_home}" class="w-6 h-6 object-contain" alt="">
-                                <span class="text-sm font-bold text-white">${game.home}</span>
-                            </div>
-                            <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${game.home_runs}</span>
+                        <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${game.home_runs}</span>
+                    </div>
+                    
+                    <!-- SECCIÓN INFERIOR -->
+                    <div class="bg-slate-900/80 p-3 rounded-xl flex items-center justify-between border border-slate-800/60">
+                        <div class="text-[11px] text-slate-400 font-medium">
+                            Bateador: <span class="text-slate-200 font-semibold block mt-0.5">${game.batter_name || 'N/D'}</span>
                         </div>
-                        
-                        <!-- SECCIÓN INFERIOR -->
-                        <div class="bg-slate-900/80 p-3 rounded-xl flex items-center justify-between border border-slate-800/60">
-                            <div class="text-[11px] text-slate-400 font-medium">
-                                Bateador: <span class="text-slate-200 font-semibold block mt-0.5">${game.batter_name || 'N/D'}</span>
-                            </div>
-                            <!-- Mini diamante de bases -->
-                            <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
-                                <div class="absolute top-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
-                                <div class="absolute right-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
-                                <div class="absolute left-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
-                            </div>
+                        <!-- Mini diamante de bases -->
+                        <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
+                            <div class="absolute top-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
+                            <div class="absolute right-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
+                            <div class="absolute left-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
                         </div>
                     </div>
                 `;
+                
+                // Buscamos si la tarjeta ya existe en la pantalla
+                let cardElement = document.getElementById(`live-card-${gameId}`);
+                
+                if (!cardElement) {
+                    // Si no existe, la creamos por primera vez y la agregamos al contenedor
+                    cardElement = document.createElement('div');
+                    cardElement.id = `live-card-${gameId}`;
+                    cardElement.className = "bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl";
+                    cardElement.innerHTML = cardInnerHtml;
+                    container.appendChild(cardElement);
+                } else {
+                    // Si ya existe, solo actualizamos su HTML interno sin destruir el elemento del DOM (cero saltos)
+                    cardElement.innerHTML = cardInnerHtml;
+                }
             });
-            container.innerHTML = html;
+            
+            // Eliminamos del DOM las tarjetas de partidos que ya no estén activos en la respuesta
+            const existingCards = container.querySelectorAll('[id^="live-card-"]');
+            existingCards.forEach(card => {
+                const cardId = card.id.replace('live-card-', '');
+                if (!activeGameIds.has(cardId)) {
+                    card.remove();
+                }
+            });
         })
         .catch(err => {
             console.error("Error al actualizar en vivo:", err);
@@ -404,6 +418,7 @@ function actualizarPartidosEnVivo() {
         });
 }
 
+// Inicialización automática y ejecución cada 10 segundos
 document.addEventListener('DOMContentLoaded', () => {
     actualizarPartidosEnVivo();
     setInterval(actualizarPartidosEnVivo, 10000);
