@@ -281,27 +281,63 @@
             </section>
 
 <script>
-function renderizarPartidosEnVivo() {
+function diagnosticarYRenderizar() {
     const container = document.getElementById('live-games-container');
     const badge = document.getElementById('live-status-badge');
-    
     if (!container) return;
-    if (badge) badge.innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
 
-    // Usamos directamente la variable global BASE_MATCHES que inyecta tu servidor
-    const games = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [];
+    if (badge) badge.innerText = `Revisando... ${new Date().toLocaleTimeString()}`;
 
+    // Buscamos en múltiples nombres posibles de variables globales inyectadas por Flask
+    let games = [];
+    if (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) {
+        games = BASE_MATCHES;
+    } else if (typeof matches !== 'undefined' && Array.isArray(matches)) {
+        games = matches;
+    } else if (typeof window.games !== 'undefined' && Array.isArray(window.games)) {
+        games = window.games;
+    }
+
+    // Si no hay datos locales, intentamos hacer un fetch de emergencia al servidor
     if (games.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs col-span-full">No hay partidos disponibles en este momento.</div>`;
+        fetch('/api/live-games')
+            .then(res => res.json())
+            .then(data => {
+                const fetchedGames = Array.isArray(data) ? data : (data.games || data.matches || data.data || []);
+                if (fetchedGames.length > 0) {
+                    pintarPartidos(fetchedGames, container, badge);
+                } else {
+                    container.innerHTML = `
+                        <div class="col-span-full bg-slate-950 border border-red-500/30 rounded-2xl p-6 text-center text-xs text-red-400 space-y-2">
+                            <p class="font-bold">⚠️ No se encontraron partidos en BASE_MATCHES ni en la API.</p>
+                            <p class="text-slate-400">Verifica que tu backend en Flask esté pasando los partidos a la plantilla con el nombre correcto o que la ruta <code>/api/live-games</code> esté devolviendo elementos.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error("Error en fetch de emergencia:", err);
+                container.innerHTML = `
+                    <div class="col-span-full bg-slate-950 border border-red-500/30 rounded-2xl p-6 text-center text-xs text-red-400 space-y-2">
+                        <p class="font-bold">❌ Error de conexión o ruta no encontrada.</p>
+                        <p class="text-slate-400">Abre la consola del navegador (F12) para ver si la ruta <code>/api/live-games</code> devuelve error 404 o 500.</p>
+                    </div>
+                `;
+            });
         return;
     }
 
+    pintarPartidos(games, container, badge);
+}
+
+function pintarPartidos(games, container, badge) {
+    if (badge) badge.innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
     let html = '';
+    
     games.forEach((game, index) => {
-        // Clases dinámicas para las bases (si hay corredor se encienden en ámbar)
-        const base1Class = (game.runner_on_1b || game.base_1 || game.first) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-        const base2Class = (game.runner_on_2b || game.base_2 || game.second) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-        const base3Class = (game.runner_on_3b || game.base_3 || game.third) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+        const base1Class = (game.runner_on_1b || game.base_1 || game.first || game.has_1b) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+        const base2Class = (game.runner_on_2b || game.base_2 || game.second || game.has_2b) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+        const base3Class = (game.runner_on_3b || game.base_3 || game.third || game.has_3b) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
 
         const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs || 0);
         const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs || 0);
@@ -312,7 +348,6 @@ function renderizarPartidosEnVivo() {
 
         html += `
             <div onclick="openDeepDiveByIndex(${index})" class="bg-slate-950/90 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer transition-all space-y-3">
-                <!-- ENCABEZADO: Estado / Inning y Conteo -->
                 <div class="flex justify-between items-center text-xs text-slate-400 border-b border-slate-800/60 pb-3">
                     <span class="font-bold text-emerald-400 flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -323,7 +358,6 @@ function renderizarPartidosEnVivo() {
                     </span>
                 </div>
                 
-                <!-- EQUIPOS Y MARCADORES (Todo en una sola tarjeta unificada) -->
                 <div class="space-y-2 py-1">
                     <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
                         <div class="flex items-center gap-2.5 min-w-0 pr-2">
@@ -342,22 +376,17 @@ function renderizarPartidosEnVivo() {
                     </div>
                 </div>
                 
-                <!-- BATEADOR Y DIAMANTE DE BASES -->
                 <div class="bg-slate-900/90 p-3 rounded-xl flex items-center justify-between border border-slate-800/60">
                     <div class="text-[11px] text-slate-400 font-medium truncate pr-2">
                         Bateador: <span class="text-slate-200 font-semibold block truncate mt-0.5">${batter}</span>
                     </div>
                     <div class="relative w-9 h-9 flex items-center justify-center shrink-0 mr-1">
-                        <!-- 2B (Arriba) -->
                         <div class="absolute top-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
-                        <!-- 1B (Derecha) -->
                         <div class="absolute right-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
-                        <!-- 3B (Izquierda) -->
                         <div class="absolute left-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
                     </div>
                 </div>
 
-                <!-- PRONÓSTICO AL PIE -->
                 <div class="pt-2 border-t border-slate-800/60 text-[11px] text-slate-400 flex justify-between items-center">
                     <span>Pronóstico:</span>
                     <strong class="text-slate-200 truncate max-w-[150px]">${prediction}</strong>
@@ -368,11 +397,9 @@ function renderizarPartidosEnVivo() {
     container.innerHTML = html;
 }
 
-// Inicialización al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
-    renderizarPartidosEnVivo();
-    // Si tu app actualiza BASE_MATCHES de forma externa, esto repintará la tarjeta unificada cada 5s
-    setInterval(renderizarPartidosEnVivo, 5000);
+    diagnosticarYRenderizar();
+    setInterval(diagnosticarYRenderizar, 10000);
 });
 </script>
          <!-- Pestaña 5: Semana y Resultados -->
