@@ -279,32 +279,7 @@
                     {% endfor %}
                 </div>
             </section>
-
-<!-- Pestaña 4: Partidos en Vivo -->
-<section id="tab-live" class="space-y-6 hidden">
-    <div class="bg-slate-900/90 border border-emerald-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 border-b border-slate-800 pb-4">
-            <div>
-                <h3 class="text-xl font-black text-emerald-400 flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span> 
-                    Centro de Monitoreo en Vivo (Auto-refresh 10s)
-                </h3>
-                <p class="text-xs text-slate-400 mt-1">Actualización en tiempo real aislada del sistema principal.</p>
-            </div>
-            <div id="live-status-badge" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400">
-                Sincronizando...
-            </div>
-        </div>
-
-        <div id="live-games-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="text-center py-12 text-slate-500 text-xs col-span-full">
-                Cargando flujo en vivo...
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Robusto y con respaldo de nombres) -->
+<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Con mapeo profundo para bateador y bases) -->
 <script>
 function actualizarPartidosEnVivo() {
     fetch('/api/live-games')
@@ -329,7 +304,6 @@ function actualizarPartidosEnVivo() {
                 return;
             }
             
-            // Si hay un mensaje de carga inicial, lo limpiamos con seguridad
             const placeholder = container.querySelector('.col-span-full');
             if (placeholder) {
                 container.innerHTML = '';
@@ -338,30 +312,56 @@ function actualizarPartidosEnVivo() {
             const activeGameIds = new Set();
             
             games.forEach(game => {
-                // Compatibilidad flexible con diferentes nombres de campos de la API
-                const awayTeam = game.away || game.away_team || 'Visitante';
-                const homeTeam = game.home || game.home_team || 'Local';
-                const awayRuns = (game.away_runs !== undefined) ? game.away_runs : (game.away_score || 0);
-                const homeRuns = (game.home_runs !== undefined) ? game.home_runs : (game.home_score || 0);
+                const awayTeam = game.away || game.away_team || game.team_away || 'Visitante';
+                const homeTeam = game.home || game.home_team || game.team_home || 'Local';
+                const awayRuns = game.away_runs !== undefined ? game.away_runs : (game.away_score || 0);
+                const homeRuns = game.home_runs !== undefined ? game.home_runs : (game.home_score || 0);
+                const inningState = game.inning_state || game.status || game.inning || 'En curso';
                 
-                // ID único y seguro para cada tarjeta
+                let countText = game.count;
+                if (!countText && (game.balls !== undefined || game.strikes !== undefined)) {
+                    countText = `B:${game.balls || 0} S:${game.strikes || 0} O:${game.outs || 0}`;
+                }
+                countText = countText || 'B:0 S:0 O:0';
+                
+                // Extracción profunda del nombre del bateador (soporta textos o Sub-objetos)
+                let batterName = 'N/D';
+                if (typeof game.batter_name === 'string') batterName = game.batter_name;
+                else if (typeof game.batter === 'string') batterName = game.batter;
+                else if (game.batter && game.batter.name) batterName = game.batter.name;
+                else if (game.current_batter) batterName = game.current_batter;
+
+                // Extracción robusta de las bases (acepta booleanos, números o nombres de objetos)
+                const has1b = Boolean(
+                    game.has_1b || game.first || game.runner_1b || game.on_1b || 
+                    (game.bases && (game.bases.first || game.bases.b1))
+                );
+                const has2b = Boolean(
+                    game.has_2b || game.second || game.runner_2b || game.on_2b || 
+                    (game.bases && (game.bases.second || game.bases.b2))
+                );
+                const has3b = Boolean(
+                    game.has_3b || game.third || game.runner_3b || game.on_3b || 
+                    (game.bases && (game.bases.third || game.bases.b3))
+                );
+                
+                const base1Class = has1b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+                const base2Class = has2b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+                const base3Class = has3b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+                
                 const rawId = game.id || `${awayTeam}_${homeTeam}`;
                 const gameId = String(rawId).replace(/[^a-zA-Z0-9]/g, '_');
                 activeGameIds.add(gameId);
-                
-                const base1Class = (game.has_1b || game.first) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-                const base2Class = (game.has_2b || game.second) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-                const base3Class = (game.has_3b || game.third) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 
                 const cardInnerHtml = `
                     <!-- ENCABEZADO: Inning y Conteo -->
                     <div class="flex justify-between items-center mb-3 text-xs text-slate-400 border-b border-slate-800/60 pb-2">
                         <span class="font-bold text-emerald-400 flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            ${game.inning_state || game.status || 'En curso'}
+                            ${inningState}
                         </span>
                         <span class="text-amber-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                            ${game.count || 'B:0 S:0 O:0'}
+                            ${countText}
                         </span>
                     </div>
                     
@@ -386,7 +386,7 @@ function actualizarPartidosEnVivo() {
                     <!-- SECCIÓN INFERIOR -->
                     <div class="bg-slate-900/80 p-3 rounded-xl flex items-center justify-between border border-slate-800/60">
                         <div class="text-[11px] text-slate-400 font-medium">
-                            Bateador: <span class="text-slate-200 font-semibold block mt-0.5">${game.batter_name || 'N/D'}</span>
+                            Bateador: <span class="text-slate-200 font-semibold block mt-0.5">${batterName}</span>
                         </div>
                         <!-- Mini diamante de bases -->
                         <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
@@ -397,7 +397,6 @@ function actualizarPartidosEnVivo() {
                     </div>
                 `;
                 
-                // Actualización in-place sin destruir la tarjeta
                 let cardElement = document.getElementById(`live-card-${gameId}`);
                 
                 if (!cardElement) {
@@ -411,7 +410,6 @@ function actualizarPartidosEnVivo() {
                 }
             });
             
-            // Remover partidos que ya terminaron o salieron de la lista
             const existingCards = container.querySelectorAll('[id^="live-card-"]');
             existingCards.forEach(card => {
                 const cardId = card.id.replace('live-card-', '');
@@ -427,7 +425,6 @@ function actualizarPartidosEnVivo() {
         });
 }
 
-// Inicialización automática y ejecución cada 10 segundos asegurada
 document.addEventListener('DOMContentLoaded', () => {
     actualizarPartidosEnVivo();
     setInterval(actualizarPartidosEnVivo, 10000);
