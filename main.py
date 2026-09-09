@@ -550,12 +550,10 @@ def incrementar_visita():
     return visitas
 @app.route('/')
 def index():
-    # Si el usuario NO ha visitado la página en esta sesión, sumamos uno y guardamos la marca
     if not session.get('visitado'):
         total_visitas = incrementar_visita()
         session['visitado'] = True
     else:
-        # Si ya visitó la página y solo está recargando (F5), solo leemos el número actual sin sumar
         total_visitas = obtener_visitas_actuales()
     try:
         games = fetch_mlb_today_games()
@@ -589,25 +587,23 @@ def index():
                     elif eval_status == 'No se dio':
                         total_losses += 1
                         total_evaluados += 1
-# ... (todo el código interno de tu función index) ...
 
-return render_template(
-            'index.html', 
-            matches=games, 
-            parley_data=parley_data, 
-            semana_data=semana_data, 
-            current_time=current_time,
-            total_wins=total_wins,
-            total_losses=total_losses,
-            total_evaluados=total_evaluados,
-            total_visitas=total_visitas
-        )
+    return render_template(
+        'index.html', 
+        matches=games, 
+        parley_data=parley_data, 
+        semana_data=semana_data, 
+        current_time=current_time,
+        total_wins=total_wins,
+        total_losses=total_losses,
+        total_evaluados=total_evaluados,
+        total_visitas=total_visitas
+    )
 
 @app.route('/api/live-games')
 def api_live_games():
     games = fetch_mlb_today_games()
     return jsonify(games)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
