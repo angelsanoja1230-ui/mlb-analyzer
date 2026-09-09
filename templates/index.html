@@ -677,7 +677,8 @@ async function fetchLiveMatchesIndependent() {
     try {
         let htmlContent = '';
 
-        BASE_MATCHES.forEach((game) => {
+        // Se agregó 'index' aquí para poder identificar la tarjeta de forma unívoca
+        BASE_MATCHES.forEach((game, index) => {
             const status = (game.status || game.state || game.abstract_state || '').toLowerCase();
             const isLive = game.is_live === true || status === 'live' || status === 'en vivo' || status === 'in progress' || status === 'inprogress';
             const isFinal = status === 'final' || status === 'finalizado' || status === 'finalized';
@@ -689,48 +690,43 @@ async function fetchLiveMatchesIndependent() {
             const logoAway = game.logo_away ? `<img src="${game.logo_away}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">` : '';
             const logoHome = game.logo_home ? `<img src="${game.logo_home}" class="w-6 h-6 object-contain" onerror="this.style.display='none'">` : '';
 
-            // Obtener el pronóstico del juego (verifica diferentes nombres de propiedades posibles)
             const predictionText = game.prediction || game.winner_full || game.winner || 'Por definir';
 
             if (isLive) {
-               // --- PARTIDO EN VIVO ---
-// Forzamos la detección del inning y el conteo de manera robusta
-const inningStateText = game.inning_state || game.inning || (game.status === 'Live' ? 'En juego' : 'En curso');
-const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs || 0);
-const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs || 0);
+                const inningStateText = game.inning_state || game.inning || (game.status === 'Live' ? 'En juego' : 'En curso');
+                const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs || 0);
+                const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs || 0);
 
-statusBadge = `<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase animate-pulse text-[10px]">🟢 En Vivo</span>`;
-middleContent = `
-    <div class="grid grid-cols-2 gap-1 text-center text-xs bg-slate-950/50 p-2 rounded-lg border border-slate-800">
-        <div>
-            <span class="text-slate-500 text-[10px] block">ESTADO</span>
-            <span class="font-bold text-amber-400">${inningStateText}</span>
-        </div>
-        <div>
-            <span class="text-slate-500 text-[10px] block">CONTEO</span>
-            <span class="font-bold text-slate-200">${game.count || 'B:0 S:0 O:0'}</span>
-        </div>
-    </div>
-`;
-scoreDisplay = `
-    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-        <div class="flex items-center gap-2 truncate">
-            ${logoAway}
-            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.away || 'Visitante'}</span>
-        </div>
-        <span class="text-base font-black text-cyan-400 font-mono">${awayScore}</span>
-    </div>
-    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-        <div class="flex items-center gap-2 truncate">
-            ${logoHome}
-            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.home || 'Local'}</span>
-        </div>
-        <span class="text-base font-black text-emerald-400 font-mono">${homeScore}</span>
-    </div>
-`;
-
+                statusBadge = `<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold uppercase animate-pulse text-[10px]">🟢 En Vivo</span>`;
+                middleContent = `
+                    <div class="grid grid-cols-2 gap-1 text-center text-xs bg-slate-950/50 p-2 rounded-lg border border-slate-800">
+                        <div>
+                            <span class="text-slate-500 text-[10px] block">ESTADO</span>
+                            <span class="font-bold text-amber-400">${inningStateText}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 text-[10px] block">CONTEO</span>
+                            <span class="font-bold text-slate-200">${game.count || 'B:0 S:0 O:0'}</span>
+                        </div>
+                    </div>
+                `;
+                scoreDisplay = `
+                    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+                        <div class="flex items-center gap-2 truncate">
+                            ${logoAway}
+                            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.away || 'Visitante'}</span>
+                        </div>
+                        <span class="text-base font-black text-cyan-400 font-mono">${awayScore}</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+                        <div class="flex items-center gap-2 truncate">
+                            ${logoHome}
+                            <span class="text-xs font-bold text-white truncate max-w-[100px]">${game.home || 'Local'}</span>
+                        </div>
+                        <span class="text-base font-black text-emerald-400 font-mono">${homeScore}</span>
+                    </div>
+                `;
             } else if (isFinal) {
-                // --- PARTIDO FINALIZADO ---
                 const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs || 0);
                 const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs || 0);
                 
@@ -756,9 +752,7 @@ scoreDisplay = `
                         <span class="text-base font-bold text-slate-300 font-mono">${homeScore}</span>
                     </div>
                 `;
-
             } else {
-                // --- PARTIDO POR INICIAR ---
                 statusBadge = `<span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold uppercase text-[10px]">⏳ Por Iniciar</span>`;
                 middleContent = `
                     <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800 text-center text-xs">
@@ -784,8 +778,9 @@ scoreDisplay = `
                 `;
             }
 
+            // Aquí se añadió el onclick y los estilos de hover para que la tarjeta abra el Deep Dive
             htmlContent += `
-                <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-inner">
+                <div onclick="openDeepDiveByIndex(${index})" class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-inner cursor-pointer hover:border-emerald-500/50 transition-all">
                     <div class="flex justify-between items-center text-xs">
                         <span class="font-bold text-teal-400">🕒 ${game.time || 'N/A'}</span>
                         <span class="text-slate-400 truncate max-w-[130px]">🏟️ ${game.stadium || 'N/A'}</span>
