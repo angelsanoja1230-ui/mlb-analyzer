@@ -653,15 +653,11 @@ import traceback
 @app.route('/api/live-games')
 def api_live_games():
     try:
+        # Devolvemos todos los partidos del día (en espera, en vivo y finalizados)
         games = fetch_mlb_today_games()
-        # Filtrar estrictamente para enviar solo los que estén en vivo
-        live_games = [
-            g for g in games 
-            if str(g.get('abstract_state', '')).lower() in ['live', 'en vivo', 'in progress']
-        ]
     except Exception as e:
-        print(f"Error al obtener partidos en vivo: {e}")
-        live_games = []
-    return jsonify(live_games)
+        print(f"Error al obtener partidos: {e}")
+        games = []
+    return jsonify(games)
 if __name__ == '__main__':
     app.run(debug=True)
