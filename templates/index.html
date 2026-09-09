@@ -304,9 +304,9 @@
     </div>
 </section>
 
-<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Optimizado sin parpadeos innecesarios) -->
+<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Con ordenamiento fijo para evitar saltos) -->
 <script>
-let lastFetchedData = ''; // Variable para almacenar el estado anterior de los datos
+let lastFetchedData = '';
 
 function actualizarPartidosEnVivo() {
     fetch('/api/live-games')
@@ -327,27 +327,32 @@ function actualizarPartidosEnVivo() {
                 return;
             }
             
-            // Convertimos los datos nuevos a texto para compararlos con los anteriores
+            // ORDEN ESTABLE: Ordenamos siempre por el nombre de los equipos o ID 
+            // para que las tarjetas nunca cambien de posición en la pantalla.
+            games.sort((a, b) => {
+                const idA = (a.id || (a.away + '-' + a.home)).toString();
+                const idB = (b.id || (b.away + '-' + b.home)).toString();
+                return idA.localeCompare(idB);
+            });
+            
             const currentDataString = JSON.stringify(games);
             
-            // Si los datos son exactamente iguales a la última vez, NO redibujamos el DOM (evita el parpadeo)
+            // Si los datos ordenados son idénticos, no tocamos el DOM (cero parpadeos)
             if (currentDataString === lastFetchedData) {
                 return;
             }
             
-            // Actualizamos la referencia del último estado
             lastFetchedData = currentDataString;
             
             let html = '';
             games.forEach(game => {
-                // Clases dinámicas para las bases (si hay corredor se encienden en ámbar)
                 const base1Class = (game.has_1b || game.first) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 const base2Class = (game.has_2b || game.second) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 const base3Class = (game.has_3b || game.third) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 
                 html += `
                     <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl transition-all duration-300">
-                        <!-- ENCABEZADO: Inning y Conteo (Bolas, Strikes, Outs) -->
+                        <!-- ENCABEZADO: Inning y Conteo -->
                         <div class="flex justify-between items-center mb-3 text-xs text-slate-400 border-b border-slate-800/60 pb-2">
                             <span class="font-bold text-emerald-400 flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -358,7 +363,7 @@ function actualizarPartidosEnVivo() {
                             </span>
                         </div>
                         
-                        <!-- EQUIPO VISITANTE (Logo, Nombre y Carreras) -->
+                        <!-- EQUIPO VISITANTE -->
                         <div class="flex justify-between items-center my-2">
                             <div class="flex items-center gap-2.5">
                                 <img src="${game.logo_away}" class="w-6 h-6 object-contain" alt="">
@@ -367,7 +372,7 @@ function actualizarPartidosEnVivo() {
                             <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${game.away_runs}</span>
                         </div>
                         
-                        <!-- EQUIPO LOCAL (Logo, Nombre y Carreras) -->
+                        <!-- EQUIPO LOCAL -->
                         <div class="flex justify-between items-center mb-3">
                             <div class="flex items-center gap-2.5">
                                 <img src="${game.logo_home}" class="w-6 h-6 object-contain" alt="">
@@ -376,18 +381,15 @@ function actualizarPartidosEnVivo() {
                             <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80">${game.home_runs}</span>
                         </div>
                         
-                        <!-- SECCIÓN INFERIOR: Bateador en turno y Diamante de Bases -->
+                        <!-- SECCIÓN INFERIOR -->
                         <div class="bg-slate-900/80 p-3 rounded-xl flex items-center justify-between border border-slate-800/60">
                             <div class="text-[11px] text-slate-400 font-medium">
                                 Bateador: <span class="text-slate-200 font-semibold block mt-0.5">${game.batter_name || 'N/D'}</span>
                             </div>
                             <!-- Mini diamante de bases -->
                             <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
-                                <!-- 2B (Arriba) -->
                                 <div class="absolute top-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
-                                <!-- 1B (Derecha) -->
                                 <div class="absolute right-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
-                                <!-- 3B (Izquierda) -->
                                 <div class="absolute left-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
                             </div>
                         </div>
@@ -402,7 +404,6 @@ function actualizarPartidosEnVivo() {
         });
 }
 
-// Inicialización automática y ejecución cada 10 segundos
 document.addEventListener('DOMContentLoaded', () => {
     actualizarPartidosEnVivo();
     setInterval(actualizarPartidosEnVivo, 10000);
