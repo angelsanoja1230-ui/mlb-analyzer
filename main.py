@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
-import requests
-import re
 from datetime import datetime, timedelta
-import random
-import os  # <--- Agrégalo aquí
+import requests
+import os
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+
 app = Flask(__name__)
-app.secret_key = "oraculo_mlb_clave_secreta_super_segura" # Requerido para las sesiones
+app.secret_key = "oraculo_mlb_clave_secreta_super_segura"
+
 ALL_MLB_TEAMS = [
     {"name": "Arizona Diamondbacks", "id": 109},
     {"name": "Atlanta Braves", "id": 144},
@@ -93,7 +93,6 @@ def advanced_simulate_game(game_data):
     else:
         run_line = f"{away if winner_full == home else home} +1.5 (Protegido)"
 
-    # --- CÁLCULOS Y VALORES PARA EVITAR 'UNDEFINED' EN EL MODAL ---
     away_expected_runs = round(4.0 + (f5_away_prob - 50) * 0.05, 1)
     home_expected_runs = round(4.0 + (f5_home_prob - 50) * 0.05, 1)
     
@@ -126,7 +125,6 @@ def advanced_simulate_game(game_data):
         'over_under': over_under,
         'run_line': run_line,
         'value_index': f"{max(full_home_prob, full_away_prob)}% Confianza",
-        # Llaves añadidas para completar el modal del frontend:
         'away_expected_runs': away_expected_runs,
         'home_expected_runs': home_expected_runs,
         'starter_era_away': era_away,
@@ -255,7 +253,6 @@ def fetch_mlb_today_games():
                         away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
                         home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
                         
-                        # --- EXTRACCIÓN DE INNING Y CONTEO ---
                         inning_ordinal = linescore.get('currentInningOrdinal', '')
                         inning_state_raw = str(linescore.get('inningState', '')).strip()
                         
@@ -279,19 +276,19 @@ def fetch_mlb_today_games():
                         outs = linescore.get('outs', 0)
                         count_text = f"B:{balls} S:{strikes} O:{outs}"
                         
-                        # --- EXTRACCIÓN ROBUSTA DE BASES Y CORREDORES ---
+                        # --- EXTRACCIÓN TOTALMENTE COMPATIBLE DE CORREDORES ---
                         offense = linescore.get('offense', {}) or {}
-                        runner_1 = offense.get('first')
-                        runner_2 = offense.get('second')
-                        runner_3 = offense.get('third')
+                        r1 = offense.get('first')
+                        r2 = offense.get('second')
+                        r3 = offense.get('third')
                         
-                        has_1b = runner_1 is not None
-                        has_2b = runner_2 is not None
-                        has_3b = runner_3 is not None
+                        has_1b = r1 is not None
+                        has_2b = r2 is not None
+                        has_3b = r3 is not None
                         
-                        runner_1_name = runner_1.get('fullName', '') if isinstance(runner_1, dict) else ''
-                        runner_2_name = runner_2.get('fullName', '') if isinstance(runner_2, dict) else ''
-                        runner_3_name = runner_3.get('fullName', '') if isinstance(runner_3, dict) else ''
+                        r1_name = r1.get('fullName', '') if isinstance(r1, dict) else ''
+                        r2_name = r2.get('fullName', '') if isinstance(r2, dict) else ''
+                        r3_name = r3.get('fullName', '') if isinstance(r3, dict) else ''
                         
                         batter_obj = offense.get('batter', {}) or {}
                         batter_name = batter_obj.get('fullName', 'N/D')
@@ -317,7 +314,8 @@ def fetch_mlb_today_games():
                             'balls': balls,
                             'strikes': strikes,
                             'outs': outs,
-                            # Compatibilidad total de nombres de variables para las bases
+                            
+                            # CUBRE CUALQUIER POSIBLE NOMBRE QUE BUSQUE EL FRONTEND JS/HTML
                             'has_1b': has_1b,
                             'has_2b': has_2b,
                             'has_3b': has_3b,
@@ -327,12 +325,33 @@ def fetch_mlb_today_games():
                             'runner_1': has_1b,
                             'runner_2': has_2b,
                             'runner_3': has_3b,
-                            'runner_1b_name': runner_1_name,
-                            'runner_2b_name': runner_2_name,
-                            'runner_3b_name': runner_3_name,
-                            'runner_first': runner_1_name,
-                            'runner_second': runner_2_name,
-                            'runner_third': runner_3_name,
+                            'runnerOnFirst': has_1b,
+                            'runnerOnSecond': has_2b,
+                            'runnerOnThird': has_3b,
+                            'on_first': has_1b,
+                            'on_second': has_2b,
+                            'on_third': has_3b,
+                            'firstBase': has_1b,
+                            'secondBase': has_2b,
+                            'thirdBase': has_3b,
+                            'base1': has_1b,
+                            'base2': has_2b,
+                            'base3': has_3b,
+                            
+                            'runner_1b_name': r1_name,
+                            'runner_2b_name': r2_name,
+                            'runner_3b_name': r3_name,
+                            'runner_first': r1_name,
+                            'runner_second': r2_name,
+                            'runner_third': r3_name,
+                            
+                            'runners': {
+                                'first': has_1b, 'second': has_2b, 'third': has_3b,
+                                'first_name': r1_name, 'second_name': r2_name, 'third_name': r3_name
+                            },
+                            'offense': {
+                                'first': r1, 'second': r2, 'third': r3, 'batter': batter_obj
+                            },
                             'batter_name': batter_name
                         }
                         
@@ -374,63 +393,14 @@ def fetch_mlb_today_games():
                 'home_runs': 3,
                 'away_score': 4,
                 'home_score': 3,
-                'has_1b': True,
-                'has_2b': False,
-                'has_3b': True,
-                'first': True,
-                'second': False,
-                'third': True,
-                'runner_1': True,
-                'runner_2': False,
-                'runner_3': True,
-                'runner_1b_name': 'Corredor 1',
-                'runner_2b_name': '',
-                'runner_3b_name': 'Corredor 3',
-                'runner_first': 'Corredor 1',
-                'runner_second': '',
-                'runner_third': 'Corredor 3',
+                'has_1b': True, 'has_2b': False, 'has_3b': True,
+                'first': True, 'second': False, 'third': True,
+                'runner_1': True, 'runner_2': False, 'runner_3': True,
+                'runnerOnFirst': True, 'runnerOnSecond': False, 'runnerOnThird': True,
+                'runner_1b_name': 'Corredor 1', 'runner_2b_name': '', 'runner_3b_name': 'Corredor 3',
                 'batter_name': 'Aaron Judge'
-            },
-            {
-                'id': 102,
-                'time': '08:10 PM',
-                'stadium': 'Dodger Stadium',
-                'away': 'San Francisco Giants',
-                'home': 'Los Angeles Dodgers',
-                'starter_away': 'L. Webb',
-                'starter_home': 'Y. Yamamoto',
-                'logo_away': 'https://www.mlbstatic.com/team-logos/137.svg',
-                'logo_home': 'https://www.mlbstatic.com/team-logos/119.svg',
-                'abstract_state': 'Preview',
-                'detailed_state': 'Scheduled',
-                'inning_state': '',
-                'count': 'B:0 S:0 O:0',
-                'balls': 0,
-                'strikes': 0,
-                'outs': 0,
-                'away_runs': 0,
-                'home_runs': 0,
-                'away_score': 0,
-                'home_score': 0,
-                'has_1b': False,
-                'has_2b': False,
-                'has_3b': False,
-                'first': False,
-                'second': False,
-                'third': False,
-                'runner_1': False,
-                'runner_2': False,
-                'runner_3': False,
-                'runner_1b_name': '',
-                'runner_2b_name': '',
-                'runner_3b_name': '',
-                'runner_first': '',
-                'runner_second': '',
-                'runner_third': '',
-                'batter_name': 'N/D'
             }
         ]
-        
         for g in games:
             sim = advanced_simulate_game(g)
             g.update(sim)
@@ -443,12 +413,9 @@ def fetch_mlb_today_games():
 
     def get_game_priority(game):
         state = game.get('abstract_state', '').lower()
-        if state == 'live':
-            return 0
-        elif state == 'preview':
-            return 1
-        elif state == 'final':
-            return 2
+        if state == 'live': return 0
+        elif state == 'preview': return 1
+        elif state == 'final': return 2
         return 3
 
     games = sorted(games, key=get_game_priority)
@@ -456,7 +423,7 @@ def fetch_mlb_today_games():
 
 def fetch_mlb_week_games():
     now_local = datetime.utcnow() - timedelta(hours=4)
-    current_weekday = now_local.weekday()  # Lunes = 0, Domingo = 6
+    current_weekday = now_local.weekday()
     monday_date = now_local - timedelta(days=current_weekday)
     
     days_names = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
@@ -518,17 +485,17 @@ def fetch_mlb_week_games():
                         count_text = f"B:{balls} S:{strikes} O:{outs}"
                         
                         offense = linescore.get('offense', {}) or {}
-                        runner_1 = offense.get('first')
-                        runner_2 = offense.get('second')
-                        runner_3 = offense.get('third')
+                        r1 = offense.get('first')
+                        r2 = offense.get('second')
+                        r3 = offense.get('third')
                         
-                        has_1b = runner_1 is not None
-                        has_2b = runner_2 is not None
-                        has_3b = runner_3 is not None
+                        has_1b = r1 is not None
+                        has_2b = r2 is not None
+                        has_3b = r3 is not None
                         
-                        runner_1_name = runner_1.get('fullName', '') if isinstance(runner_1, dict) else ''
-                        runner_2_name = runner_2.get('fullName', '') if isinstance(runner_2, dict) else ''
-                        runner_3_name = runner_3.get('fullName', '') if isinstance(runner_3, dict) else ''
+                        r1_name = r1.get('fullName', '') if isinstance(r1, dict) else ''
+                        r2_name = r2.get('fullName', '') if isinstance(r2, dict) else ''
+                        r3_name = r3.get('fullName', '') if isinstance(r3, dict) else ''
                         
                         game_info = {
                             'id': game.get('gamePk', idx),
@@ -539,26 +506,15 @@ def fetch_mlb_week_games():
                             'stadium': game.get('venue', {}).get('name', 'Estadio MLB'),
                             'inning_state': inning_text,
                             'count': count_text,
-                            'has_1b': has_1b,
-                            'has_2b': has_2b,
-                            'has_3b': has_3b,
-                            'first': has_1b,
-                            'second': has_2b,
-                            'third': has_3b,
-                            'runner_1': has_1b,
-                            'runner_2': has_2b,
-                            'runner_3': has_3b,
-                            'runner_1b_name': runner_1_name,
-                            'runner_2b_name': runner_2_name,
-                            'runner_3b_name': runner_3_name,
-                            'runner_first': runner_1_name,
-                            'runner_second': runner_2_name,
-                            'runner_third': runner_3_name
+                            'has_1b': has_1b, 'has_2b': has_2b, 'has_3b': has_3b,
+                            'first': has_1b, 'second': has_2b, 'third': has_3b,
+                            'runner_1': has_1b, 'runner_2': has_2b, 'runner_3': has_3b,
+                            'runnerOnFirst': has_1b, 'runnerOnSecond': has_2b, 'runnerOnThird': has_3b,
+                            'runner_1b_name': r1_name, 'runner_2b_name': r2_name, 'runner_3b_name': r3_name
                         }
                         
                         sim = advanced_simulate_game(game_info)
                         winner_full = sim.get('winner_full')
-                        
                         prediction = f"Ganador: {winner_full}"
                         
                         if abstract_state == 'live':
@@ -569,17 +525,10 @@ def fetch_mlb_week_games():
                             score_str = "Por empezar"
                         
                         if abstract_state == 'final':
-                            if away_runs > home_runs:
-                                actual_winner = away_team
-                            elif home_runs > away_runs:
-                                actual_winner = home_team
-                            else:
-                                actual_winner = None
-                            
-                            if winner_full == actual_winner:
-                                evaluation = "Se dio"
-                            else:
-                                evaluation = "No se dio"
+                            if away_runs > home_runs: actual_winner = away_team
+                            elif home_runs > away_runs: actual_winner = home_team
+                            else: actual_winner = None
+                            evaluation = "Se dio" if winner_full == actual_winner else "No se dio"
                         elif abstract_state == 'live':
                             evaluation = "En juego..."
                         else:
@@ -596,21 +545,11 @@ def fetch_mlb_week_games():
                             "home_score": home_runs,
                             "inning_state": inning_text,
                             "count": count_text,
-                            "has_1b": has_1b,
-                            "has_2b": has_2b,
-                            "has_3b": has_3b,
-                            "first": has_1b,
-                            "second": has_2b,
-                            "third": has_3b,
-                            "runner_1": has_1b,
-                            "runner_2": has_2b,
-                            "runner_3": has_3b,
-                            "runner_1b_name": runner_1_name,
-                            "runner_2b_name": runner_2_name,
-                            "runner_3b_name": runner_3_name,
-                            "runner_first": runner_1_name,
-                            "runner_second": runner_2_name,
-                            "runner_third": runner_3_name
+                            "has_1b": has_1b, 'has_2b': has_2b, 'has_3b': has_3b,
+                            'first': has_1b, 'second': has_2b, 'third': has_3b,
+                            'runner_1': has_1b, 'runner_2': has_2b, 'runner_3': has_3b,
+                            'runnerOnFirst': has_1b, 'runnerOnSecond': has_2b, 'runnerOnThird': has_3b,
+                            "runner_1b_name": r1_name, "runner_2b_name": r2_name, "runner_3b_name": r3_name
                         })
         except Exception as e:
             print(f"Aviso API semana ({day_name}): {e}")
@@ -619,7 +558,6 @@ def fetch_mlb_week_games():
         
     return semana_data
 
-# --- CONFIGURACIÓN DE MANTENIMIENTO PRIVADO ---
 MODO_MANTENIMIENTO = False 
 TOKEN_SECRETO = "secreto123" 
 
@@ -658,20 +596,14 @@ def index():
     else:
         total_visitas = obtener_visitas_actuales()
     
-    try:
-        games = fetch_mlb_today_games()
-    except NameError:
-        games = []
+    try: games = fetch_mlb_today_games()
+    except NameError: games = []
         
-    try:
-        parley_data = generate_parley_system(games)
-    except NameError:
-        parley_data = {}
+    try: parley_data = generate_parley_system(games)
+    except NameError: parley_data = {}
         
-    try:
-        semana_data = fetch_mlb_week_games()
-    except NameError:
-        semana_data = {}
+    try: semana_data = fetch_mlb_week_games()
+    except NameError: semana_data = {}
         
     current_time = datetime.now().strftime('%d/%m/%Y %I:%M %p')
     
@@ -685,11 +617,9 @@ def index():
                 for p in partidos:
                     eval_status = p.get('evaluation', '')
                     if eval_status == 'Se dio':
-                        total_wins += 1
-                        total_evaluados += 1
+                        total_wins += 1; total_evaluados += 1
                     elif eval_status == 'No se dio':
-                        total_losses += 1
-                        total_evaluados += 1
+                        total_losses += 1; total_evaluados += 1
 
     return render_template(
         'index.html', 
