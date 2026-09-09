@@ -304,8 +304,10 @@
     </div>
 </section>
 
-<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO -->
+<!-- SCRIPT JS DE ACTUALIZACIÓN EN VIVO (Optimizado sin parpadeos innecesarios) -->
 <script>
+let lastFetchedData = ''; // Variable para almacenar el estado anterior de los datos
+
 function actualizarPartidosEnVivo() {
     fetch('/api/live-games')
         .then(response => response.json())
@@ -321,8 +323,20 @@ function actualizarPartidosEnVivo() {
                         No hay partidos disponibles en este momento.
                     </div>
                 `;
+                lastFetchedData = '';
                 return;
             }
+            
+            // Convertimos los datos nuevos a texto para compararlos con los anteriores
+            const currentDataString = JSON.stringify(games);
+            
+            // Si los datos son exactamente iguales a la última vez, NO redibujamos el DOM (evita el parpadeo)
+            if (currentDataString === lastFetchedData) {
+                return;
+            }
+            
+            // Actualizamos la referencia del último estado
+            lastFetchedData = currentDataString;
             
             let html = '';
             games.forEach(game => {
@@ -332,7 +346,7 @@ function actualizarPartidosEnVivo() {
                 const base3Class = (game.has_3b || game.third) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
                 
                 html += `
-                    <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
+                    <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl transition-all duration-300">
                         <!-- ENCABEZADO: Inning y Conteo (Bolas, Strikes, Outs) -->
                         <div class="flex justify-between items-center mb-3 text-xs text-slate-400 border-b border-slate-800/60 pb-2">
                             <span class="font-bold text-emerald-400 flex items-center gap-1.5">
