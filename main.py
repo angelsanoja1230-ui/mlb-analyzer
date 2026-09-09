@@ -433,14 +433,25 @@ def fetch_mlb_week_games():
                         away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
                         home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
                         
-                        # --- EXTRACCIÓN DE DATOS EN VIVO (Inning y Conteo) ---
+                        # --- EXTRACCIÓN DE DATOS EN VIVO (Inning y Conteo robusto) ---
                         inning_ordinal = linescore.get('currentInningOrdinal', '')
-                        inning_state = linescore.get('inningState', '') # Top, Bottom, Middle, End
+                        inning_state = str(linescore.get('inningState', '')).strip()
                         
-                        state_map = {"Top": "Alta del", "Bottom": "Baja del", "Middle": "Medio del", "End": "Fin del"}
+                        # Mapeo tolerante a mayúsculas y minúsculas que devuelve la API
+                        state_map = {
+                            "top": "Alta del", "bottom": "Baja del", "middle": "Medio del", "end": "Fin del",
+                            "Top": "Alta del", "Bottom": "Baja del", "Middle": "Medio del", "End": "Fin del"
+                        }
                         estado_esp = state_map.get(inning_state, inning_state)
                         
-                        inning_text = f"{estado_esp} {inning_ordinal}" if inning_ordinal else "En juego"
+                        if inning_ordinal and estado_esp:
+                            inning_text = f"{estado_esp} {inning_ordinal}"
+                        elif inning_ordinal:
+                            inning_text = f"Inning {inning_ordinal}"
+                        elif estado_esp:
+                            inning_text = estado_esp
+                        else:
+                            inning_text = "En juego"
                         
                         balls = linescore.get('balls', 0)
                         strikes = linescore.get('strikes', 0)
@@ -491,8 +502,8 @@ def fetch_mlb_week_games():
                             "prediction": prediction,
                             "score": score_str,
                             "evaluation": evaluation,
-                            "inning_state": inning_text,  # Enviado para el frontend
-                            "count": count_text           # Enviado para el frontend
+                            "inning_state": inning_text,  # Enviado correctamente al frontend
+                            "count": count_text           # Conteo enviado correctamente
                         })
         except Exception as e:
             print(f"Aviso API semana ({day_name}): {e}")
@@ -500,7 +511,6 @@ def fetch_mlb_week_games():
         semana_data[day_name] = day_games_list
         
     return semana_data
-
 # --- CONFIGURACIÓN DE MANTENIMIENTO PRIVADO ---
 # Cambia a True si quieres ocultar la página al público mientras editas  https://mlb-analyzer-1gku.onrender.com/?token=secreto123
 MODO_MANTENIMIENTO = False 
