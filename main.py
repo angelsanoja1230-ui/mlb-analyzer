@@ -3,6 +3,7 @@ import requests
 import os
 import random
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from utils import limpiar_partidos_mlb
 
 app = Flask(__name__)
 app.secret_key = "oraculo_mlb_clave_secreta_super_segura"
@@ -648,9 +649,14 @@ def index():
     )
 
 @app.route('/api/live-games')
-def api_live_games():
-    games = fetch_mlb_today_games()
-    return jsonify(games)
-
+def live_games_api():
+    try:
+        # Llama a tu función existente que obtiene los datos de la MLB
+        raw_data = fetch_mlb_today_games() 
+        clean_games = limpiar_partidos_mlb(raw_data)
+        return jsonify(clean_games)
+    except Exception as e:
+        print(f"Error procesando juegos: {e}")
+        return jsonify([])
 if __name__ == '__main__':
     app.run(debug=True)
