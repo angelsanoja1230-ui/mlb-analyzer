@@ -654,9 +654,14 @@ import traceback
 def api_live_games():
     try:
         games = fetch_mlb_today_games()
+        # Filtrar estrictamente para enviar solo los que estén en vivo
+        live_games = [
+            g for g in games 
+            if str(g.get('abstract_state', '')).lower() in ['live', 'en vivo', 'in progress']
+        ]
     except Exception as e:
         print(f"Error al obtener partidos en vivo: {e}")
-        games = []
-    return jsonify(games)
+        live_games = []
+    return jsonify(live_games)
 if __name__ == '__main__':
     app.run(debug=True)
