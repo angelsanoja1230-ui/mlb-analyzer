@@ -675,6 +675,21 @@ async function fetchLiveMatchesIndependent() {
     if (badge) badge.innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
     
     try {
+        // ORDENAMIENTO ESTABLE: Evita que las tarjetas cambien de lugar o salten al actualizar
+        BASE_MATCHES.sort((a, b) => {
+            const aStatus = (a.status || a.state || '').toLowerCase();
+            const bStatus = (b.status || b.state || '').toLowerCase();
+            const aIsLive = a.is_live === true || aStatus.includes('live') || aStatus.includes(' vivo');
+            const bIsLive = b.is_live === true || bStatus.includes('live') || bStatus.includes(' vivo');
+            
+            // Los partidos en vivo van primero
+            if (aIsLive && !bIsLive) return -1;
+            if (!aIsLive && bIsLive) return 1;
+            
+            // Si ambos son iguales, se ordenan por hora de forma fija
+            return (a.time || '').localeCompare(b.time || '');
+        });
+
         let htmlContent = '';
 
         BASE_MATCHES.forEach((game, index) => {
@@ -692,7 +707,6 @@ async function fetchLiveMatchesIndependent() {
             const batterName = game.current_batter || game.batter || 'N/A';
             const predictionText = game.prediction || game.winner_full || game.winner || 'Por definir';
 
-            // Clases para las bases del diamante
             const base1Class = game.runner_on_1b || game.base_1 ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800';
             const base2Class = game.runner_on_2b || game.base_2 ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800';
             const base3Class = game.runner_on_3b || game.base_3 ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800';
@@ -733,11 +747,8 @@ async function fetchLiveMatchesIndependent() {
                             <span class="text-xs font-bold text-slate-200 truncate block">${batterName}</span>
                         </div>
                         <div class="relative w-9 h-9 flex-shrink-0 flex items-center justify-center mr-1">
-                            <!-- 2B (Arriba) -->
                             <div class="absolute top-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
-                            <!-- 1B (Derecha) -->
                             <div class="absolute right-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
-                            <!-- 3B (Izquierda) -->
                             <div class="absolute left-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
                         </div>
                     </div>
@@ -748,7 +759,6 @@ async function fetchLiveMatchesIndependent() {
                 <div onclick="openDeepDiveByIndex(${index})" class="bg-slate-950/90 border border-slate-800/80 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer transition-all space-y-3">
                     ${topStatusHtml}
 
-                    <!-- Equipos y Marcadores limpios en una sola sección unificada -->
                     <div class="space-y-2 py-1">
                         <div class="flex items-center justify-between py-1 px-1">
                             <div class="flex items-center gap-2.5 min-w-0 pr-2">
@@ -768,7 +778,6 @@ async function fetchLiveMatchesIndependent() {
 
                     ${bottomExtraHtml}
 
-                    <!-- Pronóstico integrado al pie de la tarjeta -->
                     <div class="pt-2 border-t border-slate-800/60 text-[11px] text-slate-400 flex justify-between items-center">
                         <span>Pronóstico:</span>
                         <strong class="text-slate-200 truncate max-w-[150px]">${predictionText}</strong>
