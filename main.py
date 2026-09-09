@@ -573,7 +573,7 @@ def fetch_mlb_week_games():
         
     return semana_data
 
-MODO_MANTENIMIENTO = True 
+MODO_MANTENIMIENTO = TRUE 
 TOKEN_SECRETO = "secreto123" 
 
 @app.before_request
