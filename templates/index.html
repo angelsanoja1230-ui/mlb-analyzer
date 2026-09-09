@@ -556,7 +556,7 @@
         }
     }
 
-   function openDeepDive(game) {
+    function openDeepDive(game) {
         if (!game) return;
         const modal = document.getElementById('deep-dive-modal');
         const content = document.getElementById('modal-content');
@@ -595,7 +595,6 @@
 
         const ballparkText = game.park_factor || 'Neutral';
 
-        // Lógica de estado pura de JavaScript para evitar el error de Jinja
         const stateLower = (game.abstract_state || game.status || '').toLowerCase();
         let stateBadgeHtml = '';
         
@@ -712,135 +711,133 @@
         }
     }
 
-async function fetchLiveMatchesIndependent() {
-    const container = document.getElementById('live-games-container');
-    if (!container) return;
+    async function fetchLiveMatchesIndependent() {
+        const container = document.getElementById('live-games-container');
+        if (!container) return;
 
-    if (typeof BASE_MATCHES === 'undefined' || !Array.isArray(BASE_MATCHES) || BASE_MATCHES.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center text-slate-500 py-6 text-xs">Cargando cartelera de partidos...</div>';
-        return;
+        if (typeof BASE_MATCHES === 'undefined' || !Array.isArray(BASE_MATCHES) || BASE_MATCHES.length === 0) {
+            container.innerHTML = '<div class="col-span-full text-center text-slate-500 py-6 text-xs">Cargando cartelera de partidos...</div>';
+            return;
+        }
+
+        const badge = document.getElementById('live-status-badge');
+        if (badge) badge.innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
+        
+        try {
+            BASE_MATCHES.sort((a, b) => {
+                const aStatus = (a.status || a.state || '').toLowerCase();
+                const bStatus = (b.status || b.state || '').toLowerCase();
+                const aIsLive = a.is_live === true || aStatus.includes('live') || aStatus.includes(' vivo');
+                const bIsLive = b.is_live === true || bStatus.includes('live') || bStatus.includes(' vivo');
+                
+                if (aIsLive && !bIsLive) return -1;
+                if (!aIsLive && bIsLive) return 1;
+                
+                return (a.time || '').localeCompare(b.time || '');
+            });
+
+            let htmlContent = '';
+
+            BASE_MATCHES.forEach((game, index) => {
+                const status = (game.status || game.state || game.abstract_state || '').toLowerCase();
+                const isLive = game.is_live === true || status === 'live' || status === 'en vivo' || status === 'in progress' || status === 'inprogress';
+                const isFinal = status === 'final' || status === 'finalizado' || status === 'finalized';
+
+                const logoAway = game.logo_away ? `<img src="${game.logo_away}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'">` : '';
+                const logoHome = game.logo_home ? `<img src="${game.logo_home}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'">` : '';
+
+                const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs || 0);
+                const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs || 0);
+                const inningStateText = game.inning_state || game.inning || (isLive ? 'En juego' : (isFinal ? 'Finalizado' : 'Por iniciar'));
+                const countText = game.count || 'B:0 S:0 O:0';
+                const batterName = game.current_batter || game.batter || 'N/A';
+                const predictionText = game.prediction || game.winner_full || game.winner || 'Por definir';
+
+                const base1Class = game.runner_on_1b || game.base_1 ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800';
+                const base2Class = game.runner_on_2b || game.base_2 ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800';
+                const base3Class = game.runner_on_3b || game.base_3 ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800';
+
+                let topStatusHtml = '';
+                if (isLive) {
+                    topStatusHtml = `
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
+                            <span class="flex items-center gap-1.5 font-bold text-emerald-400">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                ${inningStateText}
+                            </span>
+                            <span class="font-mono bg-slate-900 px-2.5 py-1 rounded-md text-amber-400 border border-slate-800 font-bold text-[11px]">${countText}</span>
+                        </div>
+                    `;
+                } else if (isFinal) {
+                    topStatusHtml = `
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
+                            <span class="font-bold text-slate-400">🏁 Partido Finalizado</span>
+                            <span class="text-slate-500 text-[11px]">${game.stadium || ''}</span>
+                        </div>
+                    `;
+                } else {
+                    topStatusHtml = `
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
+                            <span class="font-bold text-amber-400">🕒 ${game.time || 'Por definir'}</span>
+                            <span class="text-slate-400 text-[11px] truncate max-w-[140px]">🏟️ ${game.stadium || 'N/A'}</span>
+                        </div>
+                    `;
+                }
+
+                let bottomExtraHtml = '';
+                if (isLive) {
+                    bottomExtraHtml = `
+                        <div class="bg-slate-900/90 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
+                            <div class="space-y-0.5 truncate pr-2">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-semibold">Bateador:</span>
+                                <span class="text-xs font-bold text-slate-200 truncate block">${batterName}</span>
+                            </div>
+                            <div class="relative w-9 h-9 flex-shrink-0 flex items-center justify-center mr-1">
+                                <div class="absolute top-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
+                                <div class="absolute right-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
+                                <div class="absolute left-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                htmlContent += `
+                    <div onclick="openDeepDiveByIndex(${index})" class="bg-slate-950/90 border border-slate-800/80 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer transition-all space-y-3">
+                        ${topStatusHtml}
+
+                        <div class="space-y-2 py-1">
+                            <div class="flex items-center justify-between py-1 px-1">
+                                <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                                    ${logoAway}
+                                    <span class="text-xs font-bold text-white truncate">${game.away || 'Visitante'}</span>
+                                </div>
+                                <span class="text-base font-black text-white font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 flex-shrink-0">${awayScore}</span>
+                            </div>
+                            <div class="flex items-center justify-between py-1 px-1">
+                                <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                                    ${logoHome}
+                                    <span class="text-xs font-bold text-white truncate">${game.home || 'Local'}</span>
+                                </div>
+                                <span class="text-base font-black text-white font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 flex-shrink-0">${homeScore}</span>
+                            </div>
+                        </div>
+
+                        ${bottomExtraHtml}
+
+                        <div class="pt-2 border-t border-slate-800/60 text-[11px] text-slate-400 flex justify-between items-center">
+                            <span>Pronóstico:</span>
+                            <strong class="text-slate-200 truncate max-w-[150px]">${predictionText}</strong>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = htmlContent;
+        } catch (error) {
+            console.error("Error al renderizar los partidos:", error);
+        }
     }
 
-    const badge = document.getElementById('live-status-badge');
-    if (badge) badge.innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
-    
-    try {
-        // ORDENAMIENTO ESTABLE: Evita que las tarjetas cambien de lugar o salten al actualizar
-        BASE_MATCHES.sort((a, b) => {
-            const aStatus = (a.status || a.state || '').toLowerCase();
-            const bStatus = (b.status || b.state || '').toLowerCase();
-            const aIsLive = a.is_live === true || aStatus.includes('live') || aStatus.includes(' vivo');
-            const bIsLive = b.is_live === true || bStatus.includes('live') || bStatus.includes(' vivo');
-            
-            // Los partidos en vivo van primero
-            if (aIsLive && !bIsLive) return -1;
-            if (!aIsLive && bIsLive) return 1;
-            
-            // Si ambos son iguales, se ordenan por hora de forma fija
-            return (a.time || '').localeCompare(b.time || '');
-        });
-
-        let htmlContent = '';
-
-        BASE_MATCHES.forEach((game, index) => {
-            const status = (game.status || game.state || game.abstract_state || '').toLowerCase();
-            const isLive = game.is_live === true || status === 'live' || status === 'en vivo' || status === 'in progress' || status === 'inprogress';
-            const isFinal = status === 'final' || status === 'finalizado' || status === 'finalized';
-
-            const logoAway = game.logo_away ? `<img src="${game.logo_away}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'">` : '';
-            const logoHome = game.logo_home ? `<img src="${game.logo_home}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'">` : '';
-
-            const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs || 0);
-            const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs || 0);
-            const inningStateText = game.inning_state || game.inning || (isLive ? 'En juego' : (isFinal ? 'Finalizado' : 'Por iniciar'));
-            const countText = game.count || 'B:0 S:0 O:0';
-            const batterName = game.current_batter || game.batter || 'N/A';
-            const predictionText = game.prediction || game.winner_full || game.winner || 'Por definir';
-
-            const base1Class = game.runner_on_1b || game.base_1 ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800';
-            const base2Class = game.runner_on_2b || game.base_2 ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800';
-            const base3Class = game.runner_on_3b || game.base_3 ? 'bg-amber-400 shadow-sm shadow-amber-400' : 'bg-slate-800';
-
-            let topStatusHtml = '';
-            if (isLive) {
-                topStatusHtml = `
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
-                        <span class="flex items-center gap-1.5 font-bold text-emerald-400">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                            ${inningStateText}
-                        </span>
-                        <span class="font-mono bg-slate-900 px-2.5 py-1 rounded-md text-amber-400 border border-slate-800 font-bold text-[11px]">${countText}</span>
-                    </div>
-                `;
-            } else if (isFinal) {
-                topStatusHtml = `
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
-                        <span class="font-bold text-slate-400">🏁 Partido Finalizado</span>
-                        <span class="text-slate-500 text-[11px]">${game.stadium || ''}</span>
-                    </div>
-                `;
-            } else {
-                topStatusHtml = `
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
-                        <span class="font-bold text-amber-400">🕒 ${game.time || 'Por definir'}</span>
-                        <span class="text-slate-400 text-[11px] truncate max-w-[140px]">🏟️ ${game.stadium || 'N/A'}</span>
-                    </div>
-                `;
-            }
-
-            let bottomExtraHtml = '';
-            if (isLive) {
-                bottomExtraHtml = `
-                    <div class="bg-slate-900/90 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between">
-                        <div class="space-y-0.5 truncate pr-2">
-                            <span class="text-[10px] uppercase tracking-wider text-slate-400 block font-semibold">Bateador:</span>
-                            <span class="text-xs font-bold text-slate-200 truncate block">${batterName}</span>
-                        </div>
-                        <div class="relative w-9 h-9 flex-shrink-0 flex items-center justify-center mr-1">
-                            <div class="absolute top-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
-                            <div class="absolute right-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
-                            <div class="absolute left-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            htmlContent += `
-                <div onclick="openDeepDiveByIndex(${index})" class="bg-slate-950/90 border border-slate-800/80 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer transition-all space-y-3">
-                    ${topStatusHtml}
-
-                    <div class="space-y-2 py-1">
-                        <div class="flex items-center justify-between py-1 px-1">
-                            <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                                ${logoAway}
-                                <span class="text-xs font-bold text-white truncate">${game.away || 'Visitante'}</span>
-                            </div>
-                            <span class="text-base font-black text-white font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 flex-shrink-0">${awayScore}</span>
-                        </div>
-                        <div class="flex items-center justify-between py-1 px-1">
-                            <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                                ${logoHome}
-                                <span class="text-xs font-bold text-white truncate">${game.home || 'Local'}</span>
-                            </div>
-                            <span class="text-base font-black text-white font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 flex-shrink-0">${homeScore}</span>
-                        </div>
-                    </div>
-
-                    ${bottomExtraHtml}
-
-                    <div class="pt-2 border-t border-slate-800/60 text-[11px] text-slate-400 flex justify-between items-center">
-                        <span>Pronóstico:</span>
-                        <strong class="text-slate-200 truncate max-w-[150px]">${predictionText}</strong>
-                    </div>
-                </div>
-            `;
-        });
-
-        container.innerHTML = htmlContent;
-    } catch (error) {
-        console.error("Error al renderizar los partidos:", error);
-    }
-}
     window.addEventListener('click', (e) => {
         const modal = document.getElementById('deep-dive-modal');
         if (e.target === modal) {
@@ -849,9 +846,6 @@ async function fetchLiveMatchesIndependent() {
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        console.log("¿Existe BASE_MATCHES?", typeof BASE_MATCHES !== 'undefined', window.BASE_MATCHES);
-        console.log("¿Existe el contenedor?", document.getElementById('live-games-container'));
-        
         fetchLiveMatchesIndependent();
         setInterval(fetchLiveMatchesIndependent, 5000);
     });
