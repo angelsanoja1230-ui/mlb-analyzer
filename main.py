@@ -251,15 +251,33 @@ def fetch_mlb_today_games():
                         detailed_state = status_obj.get('detailedState', 'Programado')
                         
                         linescore = game.get('linescore', {}) or {}
-                        current_inning = linescore.get('currentInning', 0)
-                        inning_state = linescore.get('inningState', '') or ''
-                        outs = linescore.get('outs', 0)
-                        balls = linescore.get('balls', 0)
-                        strikes = linescore.get('strikes', 0)
-                        
                         ls_teams = linescore.get('teams', {}) or {}
                         away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
                         home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
+                        
+                        # --- EXTRACCIÓN DE DATOS EN VIVO (Inning y Conteo) ---
+                        inning_ordinal = linescore.get('currentInningOrdinal', '')
+                        inning_state_raw = str(linescore.get('inningState', '')).strip()
+                        
+                        state_map = {
+                            "top": "Alta del", "bottom": "Baja del", "middle": "Medio del", "end": "Fin del",
+                            "Top": "Alta del", "Bottom": "Baja del", "Middle": "Medio del", "End": "Fin del"
+                        }
+                        estado_esp = state_map.get(inning_state_raw, inning_state_raw)
+                        
+                        if inning_ordinal and estado_esp:
+                            inning_text = f"{estado_esp} {inning_ordinal}"
+                        elif inning_ordinal:
+                            inning_text = f"Inning {inning_ordinal}"
+                        elif estado_esp:
+                            inning_text = estado_esp
+                        else:
+                            inning_text = "En juego"
+                        
+                        balls = linescore.get('balls', 0)
+                        strikes = linescore.get('strikes', 0)
+                        outs = linescore.get('outs', 0)
+                        count_text = f"B:{balls} S:{strikes} O:{outs}"
                         
                         offense = linescore.get('offense', {}) or {}
                         has_1b = offense.get('first') is not None
@@ -280,15 +298,15 @@ def fetch_mlb_today_games():
                             'logo_home': f"https://www.mlbstatic.com/team-logos/{home_id}.svg",
                             'abstract_state': abstract_state,
                             'detailed_state': detailed_state,
-                            'current_inning': current_inning,
-                            'inning_state': inning_state,
-                            'outs': outs,
-                            'balls': balls,
-                            'strikes': strikes,
                             'away_runs': away_runs,
                             'home_runs': home_runs,
                             'away_score': away_runs,
                             'home_score': home_runs,
+                            'inning_state': inning_text,
+                            'count': count_text,
+                            'balls': balls,
+                            'strikes': strikes,
+                            'outs': outs,
                             'has_1b': has_1b,
                             'has_2b': has_2b,
                             'has_3b': has_3b,
@@ -324,11 +342,11 @@ def fetch_mlb_today_games():
                 'logo_home': 'https://www.mlbstatic.com/team-logos/147.svg',
                 'abstract_state': 'Live',
                 'detailed_state': 'En Juego',
-                'current_inning': 5,
-                'inning_state': 'Top',
-                'outs': 1,
+                'inning_state': 'Alta del 5',
+                'count': 'B:2 S:1 O:1',
                 'balls': 2,
                 'strikes': 1,
+                'outs': 1,
                 'away_runs': 4,
                 'home_runs': 3,
                 'away_score': 4,
@@ -350,11 +368,11 @@ def fetch_mlb_today_games():
                 'logo_home': 'https://www.mlbstatic.com/team-logos/119.svg',
                 'abstract_state': 'Preview',
                 'detailed_state': 'Scheduled',
-                'current_inning': 0,
                 'inning_state': '',
-                'outs': 0,
+                'count': 'B:0 S:0 O:0',
                 'balls': 0,
                 'strikes': 0,
+                'outs': 0,
                 'away_runs': 0,
                 'home_runs': 0,
                 'away_score': 0,
@@ -369,17 +387,13 @@ def fetch_mlb_today_games():
         for g in games:
             sim = advanced_simulate_game(g)
             g.update(sim)
-# Forzar que todos los juegos tengan la clave 'winner_full' y 'over_under' por seguridad
+
     for g in games:
         if not g.get('winner_full'):
-            # Si por alguna razón la simulación no lo trajo, le asignamos el favorito local o visitante por defecto
             g['winner_full'] = f"🛡️ {g.get('home', 'Local')} (54%)"
         if not g.get('over_under'):
             g['over_under'] = "8.5 Altas"
 
-    
-    return games
-            
     def get_game_priority(game):
         state = game.get('abstract_state', '').lower()
         if state == 'live':
@@ -437,7 +451,6 @@ def fetch_mlb_week_games():
                         inning_ordinal = linescore.get('currentInningOrdinal', '')
                         inning_state = str(linescore.get('inningState', '')).strip()
                         
-                        # Mapeo tolerante a mayúsculas y minúsculas que devuelve la API
                         state_map = {
                             "top": "Alta del", "bottom": "Baja del", "middle": "Medio del", "end": "Fin del",
                             "Top": "Alta del", "Bottom": "Baja del", "Middle": "Medio del", "End": "Fin del"
@@ -463,18 +476,17 @@ def fetch_mlb_week_games():
                             'home': home_team,
                             'away': away_team,
                             'starter_home': teams.get('home', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar'),
-                           'starter_away': teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar'),
-                           'stadium': game.get('venue', {}).get('name', 'Estadio MLB'),
-                           'inning_state': inning_text,
-                           'count': count_text
-                               }
+                            'starter_away': teams.get('away', {}).get('probablePitcher', {}).get('fullName', 'Por anunciar'),
+                            'stadium': game.get('venue', {}).get('name', 'Estadio MLB'),
+                            'inning_state': inning_text,
+                            'count': count_text
+                        }
                         
                         sim = advanced_simulate_game(game_info)
                         winner_full = sim.get('winner_full')
                         
                         prediction = f"Ganador: {winner_full}"
                         
-                        # Definición del marcador según el estado del juego
                         if abstract_state == 'live':
                             score_str = f"{away_runs} - {home_runs} ({inning_text})"
                         elif abstract_state == 'final':
@@ -499,7 +511,7 @@ def fetch_mlb_week_games():
                         else:
                             evaluation = "Pendiente"
                             
-                    day_games_list.append({
+                        day_games_list.append({
                             "game": f"{away_team} vs {home_team}",
                             "prediction": prediction,
                             "score": score_str,
@@ -517,18 +529,18 @@ def fetch_mlb_week_games():
         semana_data[day_name] = day_games_list
         
     return semana_data
+
 # --- CONFIGURACIÓN DE MANTENIMIENTO PRIVADO ---
-# Cambia a True si quieres ocultar la página al público mientras editas  https://mlb-analyzer-1gku.onrender.com/?token=secreto123
 MODO_MANTENIMIENTO = False 
-TOKEN_SECRETO = "secreto123"  # Puedes cambiar esta palabra clave por la que prefieras
+TOKEN_SECRETO = "secreto123" 
 
 @app.before_request
 def verificar_mantenimiento():
     if MODO_MANTENIMIENTO:
-        # Permite el acceso si usas el enlace con el token correcto, ej: tuweb.onrender.com/?token=secreto123
         token = request.args.get('token')
         if token != TOKEN_SECRETO:
             return "🚧 Página en mantenimiento o actualización privada. Vuelve más tarde.", 503
+
 VISITAS_FILE = "visitas.txt"
 
 def obtener_visitas_actuales():
@@ -548,6 +560,7 @@ def incrementar_visita():
     except Exception as e:
         print(f"No se pudo guardar la visita: {e}")
     return visitas
+
 @app.route('/')
 def index():
     if not session.get('visitado'):
@@ -555,6 +568,7 @@ def index():
         session['visitado'] = True
     else:
         total_visitas = obtener_visitas_actuales()
+    
     try:
         games = fetch_mlb_today_games()
     except NameError:
