@@ -281,109 +281,130 @@
             </section>
 <!-- Script de actualización en vivo -->
 <script>
-function actualizarPartidosEnVivo() {
-    const container = document.getElementById('live-games-container');
-    if (!container) return;
+    let masterGamesList = [];
 
-    const games = Array.isArray(masterGamesList) ? masterGamesList : [];
-    
-    const badge = document.getElementById('live-status-badge');
-    if (badge) {
-        badge.innerText = `Actualizado: ${new Date().toLocaleTimeString()} (${games.length} partidos hoy)`;
+    async function obtenerPartidosDesdeBackend() {
+        try {
+            const response = await fetch('/api/live-games');
+            const data = await response.json();
+            
+            if (Array.isArray(data)) {
+                masterGamesList = data;
+                actualizarPartidosEnVivo();
+            }
+        } catch (error) {
+            console.error("Error al conectar con la API de Flask:", error);
+        }
     }
 
-    if (!games || games.length === 0) {
-        container.innerHTML = `
-            <div class="text-center py-12 text-slate-500 text-xs col-span-full bg-slate-900/40 rounded-2xl border border-slate-800/80 p-6">
-                No hay partidos programados para hoy.
-            </div>
-        `;
-        return;
-    }
+    function actualizarPartidosEnVivo() {
+        const container = document.getElementById('live-games-container');
+        if (!container) return;
 
-    let htmlContent = '';
-
-    games.forEach((game, index) => {
-        if (!game || typeof game !== 'object') return;
-
-        const awayTeam = game.away || game.away_team || 'Visitante';
-        const homeTeam = game.home || game.home_team || 'Local';
-        const awayRuns = game.away_runs !== undefined ? game.away_runs : (game.away_score || 0);
-        const homeRuns = game.home_runs !== undefined ? game.home_runs : (game.home_score || 0);
+        const games = Array.isArray(masterGamesList) ? masterGamesList : [];
         
-        const abstractState = (game.abstract_state || '').toLowerCase();
-        const isLive = abstractState === 'live' || abstractState === 'en vivo';
-        const isFinal = abstractState === 'final';
-
-        let statusText = game.inning_state || game.detailed_state || 'Programado';
-        if (!isLive && !isFinal) {
-            statusText = `⏰ ${game.time || 'Próximamente'}`;
-        } else if (isFinal) {
-            statusText = '🏁 Finalizado';
+        const badge = document.getElementById('live-status-badge');
+        if (badge) {
+            badge.innerText = `Actualizado: ${new Date().toLocaleTimeString()} (${games.length} partidos hoy)`;
         }
 
-        let countText = game.count || 'B:0 S:0 O:0';
-        if (!isLive && !isFinal) {
-            countText = game.winner_full ? 'Pronóstico listo' : 'Pendiente';
+        if (!games || games.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12 text-slate-500 text-xs col-span-full bg-slate-900/40 rounded-2xl border border-slate-800/80 p-6">
+                    No hay partidos programados para hoy.
+                </div>
+            `;
+            return;
         }
 
-        let batterName = game.batter_name || 'Por anunciar';
+        let htmlContent = '';
 
-        const has1b = Boolean(game.runner_on_1b || game.first || game.runner_1b);
-        const has2b = Boolean(game.runner_on_2b || game.second || game.runner_2b);
-        const has3b = Boolean(game.runner_on_3b || game.third || game.runner_3b);
+        games.forEach((game, index) => {
+            if (!game || typeof game !== 'object') return;
 
-        const base1Class = has1b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-        const base2Class = has2b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-        const base3Class = has3b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+            const awayTeam = game.away || game.away_team || 'Visitante';
+            const homeTeam = game.home || game.home_team || 'Local';
+            const awayRuns = game.away_runs !== undefined ? game.away_runs : (game.away_score || 0);
+            const homeRuns = game.home_runs !== undefined ? game.home_runs : (game.home_score || 0);
+            
+            const abstractState = (game.abstract_state || '').toLowerCase();
+            const isLive = abstractState === 'live' || abstractState === 'en vivo';
+            const isFinal = abstractState === 'final';
 
-        const rawId = game.id || game.game_pk || `${awayTeam}_${homeTeam}`;
-        const gameId = String(rawId).replace(/[^a-zA-Z0-9]/g, '_');
+            let statusText = game.inning_state || game.detailed_state || 'Programado';
+            if (!isLive && !isFinal) {
+                statusText = `⏰ ${game.time || 'Próximamente'}`;
+            } else if (isFinal) {
+                statusText = '🏁 Finalizado';
+            }
 
-        htmlContent += `
-            <div id="live-card-${gameId}" onclick="if(typeof openDeepDiveByIndex==='function') openDeepDiveByIndex(${index})" class="bg-slate-950/90 border border-slate-800/80 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer transition-all space-y-3">
-                <div class="flex justify-between items-center mb-3 text-xs text-slate-400 border-b border-slate-800/60 pb-2">
-                    <span class="font-bold ${isLive ? 'text-emerald-400 flex items-center gap-1.5' : 'text-slate-300'}">
-                        ${isLive ? '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>' : ''}
-                        ${statusText}
-                    </span>
-                    <span class="text-amber-400 font-mono text-[11px] bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                        ${countText}
-                    </span>
-                </div>
-                
-                <div class="flex justify-between items-center my-2">
-                    <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                        <img src="${game.logo_away || ''}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'">
-                        <span class="text-sm font-bold text-white truncate">${awayTeam}</span>
+            let countText = game.count || 'B:0 S:0 O:0';
+            if (!isLive && !isFinal) {
+                countText = game.winner_full ? 'Pronóstico listo' : 'Pendiente';
+            }
+
+            let batterName = game.batter_name || 'Por anunciar';
+
+            const has1b = Boolean(game.runner_on_1b || game.first || game.runner_1b);
+            const has2b = Boolean(game.runner_on_2b || game.second || game.runner_2b);
+            const has3b = Boolean(game.runner_on_3b || game.third || game.runner_3b);
+
+            const base1Class = has1b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+            const base2Class = has2b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+            const base3Class = has3b ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+
+            const rawId = game.id || game.game_pk || `${awayTeam}_${homeTeam}`;
+            const gameId = String(rawId).replace(/[^a-zA-Z0-9]/g, '_');
+
+            htmlContent += `
+                <div id="live-card-${gameId}" onclick="if(typeof openDeepDiveByIndex==='function') openDeepDiveByIndex(${index})" class="bg-slate-950/90 border border-slate-800/80 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer transition-all space-y-3">
+                    <div class="flex justify-between items-center mb-3 text-xs text-slate-400 border-b border-slate-800/60 pb-2">
+                        <span class="font-bold ${isLive ? 'text-emerald-400 flex items-center gap-1.5' : 'text-slate-300'}">
+                            ${isLive ? '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>' : ''}
+                            ${statusText}
+                        </span>
+                        <span class="text-amber-400 font-mono text-[11px] bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                            ${countText}
+                        </span>
                     </div>
-                    <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80 flex-shrink-0">${awayRuns}</span>
-                </div>
-                
-                <div class="flex justify-between items-center mb-3">
-                    <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                        <img src="${game.logo_home || ''}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'">
-                        <span class="text-sm font-bold text-white truncate">${homeTeam}</span>
+                    
+                    <div class="flex justify-between items-center my-2">
+                        <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                            <img src="${game.logo_away || ''}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'">
+                            <span class="text-sm font-bold text-white truncate">${awayTeam}</span>
+                        </div>
+                        <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80 flex-shrink-0">${awayRuns}</span>
                     </div>
-                    <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80 flex-shrink-0">${homeRuns}</span>
-                </div>
-                
-                <div class="bg-slate-900/80 p-3 rounded-xl flex items-center justify-between border border-slate-800/60">
-                    <div class="text-[11px] text-slate-400 font-medium truncate pr-2">
-                        Pitcher / Info: <span class="text-slate-200 font-semibold block mt-0.5 truncate">${game.starter_home || batterName}</span>
+                    
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                            <img src="${game.logo_home || ''}" class="w-6 h-6 object-contain flex-shrink-0" onerror="this.style.display='none'">
+                            <span class="text-sm font-bold text-white truncate">${homeTeam}</span>
+                        </div>
+                        <span class="text-lg font-black text-white font-mono bg-slate-900 px-2.5 py-0.5 rounded border border-slate-800/80 flex-shrink-0">${homeRuns}</span>
                     </div>
-                    <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
-                        <div class="absolute top-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
-                        <div class="absolute right-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
-                        <div class="absolute left-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
+                    
+                    <div class="bg-slate-900/80 p-3 rounded-xl flex items-center justify-between border border-slate-800/60">
+                        <div class="text-[11px] text-slate-400 font-medium truncate pr-2">
+                            Pitcher / Info: <span class="text-slate-200 font-semibold block mt-0.5 truncate">${game.starter_home || batterName}</span>
+                        </div>
+                        <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
+                            <div class="absolute top-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
+                            <div class="absolute right-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
+                            <div class="absolute left-0 w-3 h-3 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+        });
+
+        container.innerHTML = htmlContent;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        obtenerPartidosDesdeBackend();
+        setInterval(obtenerPartidosDesdeBackend, 30000);
     });
-
-    container.innerHTML = htmlContent;
-}
 </script>
          <!-- Pestaña 5: Semana y Resultados -->
     <section id="tab-semana" class="space-y-6 hidden">
