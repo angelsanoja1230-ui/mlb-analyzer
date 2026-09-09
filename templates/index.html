@@ -281,20 +281,21 @@
             </section>
 <script>
 function actualizarPartidosEnVivo() {
+    const container = document.getElementById('live-games-container');
+    if (!container) return; // Detiene la ejecución si el contenedor no está presente en la página actual
+
     fetch('/api/live-games')
         .then(response => {
             if (!response.ok) throw new Error('Error en la red');
             return response.json();
         })
         .then(data => {
-            const container = document.getElementById('live-games-container');
             const badge = document.getElementById('live-status-badge');
             
             if (badge) {
                 badge.innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
             }
             
-            // Extracción segura del array de partidos sin importar cómo lo envíe Flask
             let games = [];
             if (Array.isArray(data)) {
                 games = data;
@@ -338,14 +339,12 @@ function actualizarPartidosEnVivo() {
                 }
                 countText = countText || 'B:0 S:0 O:0';
                 
-                // Mapeo exhaustivo del bateador
                 let batterName = 'N/D';
                 if (game.batter_name) batterName = game.batter_name;
                 else if (game.batter) batterName = (typeof game.batter === 'object' ? game.batter.name : game.batter);
                 else if (game.current_batter) batterName = game.current_batter;
                 else if (game.hitter) batterName = game.hitter;
 
-                // Mapeo exhaustivo de bases
                 const has1b = Boolean(
                     game.has_1b || game.first || game.runner_1b || game.on_1b || game.base1 ||
                     (game.bases && (game.bases.first || game.bases.b1))
