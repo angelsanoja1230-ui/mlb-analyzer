@@ -281,103 +281,98 @@
             </section>
 
 <script>
-function actualizarPartidosEnVivo() {
-    fetch('/api/live-games')
-        .then(response => response.json())
-        .then(data => {
-            console.log("Respuesta cruda de /api/live-games:", data);
-            const container = document.getElementById('live-games-container');
-            const badge = document.getElementById('live-status-badge');
-            
-            if (!container) return;
-            if (badge) badge.innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
-            
-            // Extrae el array sin importar si viene directo o dentro de una propiedad (games, matches, data)
-            const games = Array.isArray(data) ? data : (data.games || data.matches || data.data || []);
-            
-            if (!games || games.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs col-span-full">No hay partidos disponibles en este momento.</div>`;
-                return;
-            }
+function renderizarPartidosEnVivo() {
+    const container = document.getElementById('live-games-container');
+    const badge = document.getElementById('live-status-badge');
+    
+    if (!container) return;
+    if (badge) badge.innerText = `Sincronizado: ${new Date().toLocaleTimeString()}`;
 
-            // Ordenamiento estable para fijar las tarjetas
-            games.sort((a, b) => {
-                const aStatus = (a.inning_state || a.status || '').toLowerCase();
-                const bStatus = (b.inning_state || b.status || '').toLowerCase();
-                const aIsLive = !aStatus.includes('final') && !aStatus.includes('programado');
-                const bIsLive = !bStatus.includes('final') && !bStatus.includes('programado');
-                
-                if (aIsLive && !bIsLive) return -1;
-                if (!aIsLive && bIsLive) return 1;
-                
-                return (a.away || '').localeCompare(b.away || '');
-            });
-            
-            let html = '';
-            games.forEach((game, index) => {
-                const base1Class = (game.has_1b || game.first || game.runner_on_1b) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-                const base2Class = (game.has_2b || game.second || game.runner_on_2b) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-                const base3Class = (game.has_3b || game.third || game.runner_on_3b) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
-                
-                const awayScore = game.away_runs !== undefined ? game.away_runs : (game.away_score || 0);
-                const homeScore = game.home_runs !== undefined ? game.home_runs : (game.home_score || 0);
-                const batter = game.batter_name || game.current_batter || 'N/D';
+    // Usamos directamente la variable global BASE_MATCHES que inyecta tu servidor
+    const games = (typeof BASE_MATCHES !== 'undefined' && Array.isArray(BASE_MATCHES)) ? BASE_MATCHES : [];
 
-                html += `
-                    <div onclick="openDeepDiveByIndex(${index})" class="bg-slate-950/90 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer transition-all space-y-3">
-                        <div class="flex justify-between items-center text-xs text-slate-400 border-b border-slate-800/60 pb-3">
-                            <span class="font-bold text-emerald-400 flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                ${game.inning_state || game.status || 'Programado'}
-                            </span>
-                            <span class="text-amber-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                                ${game.count || 'B:0 S:0 O:0'}
-                            </span>
+    if (games.length === 0) {
+        container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs col-span-full">No hay partidos disponibles en este momento.</div>`;
+        return;
+    }
+
+    let html = '';
+    games.forEach((game, index) => {
+        // Clases dinámicas para las bases (si hay corredor se encienden en ámbar)
+        const base1Class = (game.runner_on_1b || game.base_1 || game.first) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+        const base2Class = (game.runner_on_2b || game.base_2 || game.second) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+        const base3Class = (game.runner_on_3b || game.base_3 || game.third) ? 'bg-amber-400 shadow-[0_0_10px_#fbbf24]' : 'bg-slate-800 border border-slate-700';
+
+        const awayScore = game.away_score !== undefined ? game.away_score : (game.away_runs || 0);
+        const homeScore = game.home_score !== undefined ? game.home_score : (game.home_runs || 0);
+        const batter = game.current_batter || game.batter || game.batter_name || 'N/D';
+        const inningState = game.inning_state || game.inning || game.status || 'Programado';
+        const count = game.count || 'B:0 S:0 O:0';
+        const prediction = game.prediction || game.winner_full || game.winner || 'Por definir';
+
+        html += `
+            <div onclick="openDeepDiveByIndex(${index})" class="bg-slate-950/90 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer transition-all space-y-3">
+                <!-- ENCABEZADO: Estado / Inning y Conteo -->
+                <div class="flex justify-between items-center text-xs text-slate-400 border-b border-slate-800/60 pb-3">
+                    <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        ${inningState}
+                    </span>
+                    <span class="text-amber-400 font-mono font-bold bg-slate-900 px-2.5 py-1 rounded border border-slate-800">
+                        ${count}
+                    </span>
+                </div>
+                
+                <!-- EQUIPOS Y MARCADORES (Todo en una sola tarjeta unificada) -->
+                <div class="space-y-2 py-1">
+                    <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+                        <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                            <img src="${game.logo_away || ''}" class="w-6 h-6 object-contain flex-shrink-0" alt="" onerror="this.style.display='none'">
+                            <span class="text-xs font-bold text-white truncate">${game.away || 'Visitante'}</span>
                         </div>
-                        
-                        <div class="space-y-2 py-1">
-                            <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-                                <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                                    <img src="${game.logo_away || ''}" class="w-6 h-6 object-contain flex-shrink-0" alt="" onerror="this.style.display='none'">
-                                    <span class="text-xs font-bold text-white truncate">${game.away || 'Visitante'}</span>
-                                </div>
-                                <span class="text-base font-black text-cyan-400 font-mono flex-shrink-0">${awayScore}</span>
-                            </div>
-                            
-                            <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
-                                <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                                    <img src="${game.logo_home || ''}" class="w-6 h-6 object-contain flex-shrink-0" alt="" onerror="this.style.display='none'">
-                                    <span class="text-xs font-bold text-white truncate">${game.home || 'Local'}</span>
-                                </div>
-                                <span class="text-base font-black text-emerald-400 font-mono flex-shrink-0">${homeScore}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-slate-900/90 p-3 rounded-xl flex items-center justify-between border border-slate-800/60">
-                            <div class="text-[11px] text-slate-400 font-medium truncate pr-2">
-                                Bateador: <span class="text-slate-200 font-semibold block truncate mt-0.5">${batter}</span>
-                            </div>
-                            <div class="relative w-9 h-9 flex items-center justify-center shrink-0 mr-1">
-                                <div class="absolute top-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
-                                <div class="absolute right-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
-                                <div class="absolute left-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
-                            </div>
-                        </div>
+                        <span class="text-base font-black text-cyan-400 font-mono flex-shrink-0">${awayScore}</span>
                     </div>
-                `;
-            });
-            container.innerHTML = html;
-        })
-        .catch(err => {
-            console.error("Error crítico en fetch /api/live-games:", err);
-            const badge = document.getElementById('live-status-badge');
-            if (badge) badge.innerText = "Error de conexión";
-        });
+                    
+                    <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/50">
+                        <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                            <img src="${game.logo_home || ''}" class="w-6 h-6 object-contain flex-shrink-0" alt="" onerror="this.style.display='none'">
+                            <span class="text-xs font-bold text-white truncate">${game.home || 'Local'}</span>
+                        </div>
+                        <span class="text-base font-black text-emerald-400 font-mono flex-shrink-0">${homeScore}</span>
+                    </div>
+                </div>
+                
+                <!-- BATEADOR Y DIAMANTE DE BASES -->
+                <div class="bg-slate-900/90 p-3 rounded-xl flex items-center justify-between border border-slate-800/60">
+                    <div class="text-[11px] text-slate-400 font-medium truncate pr-2">
+                        Bateador: <span class="text-slate-200 font-semibold block truncate mt-0.5">${batter}</span>
+                    </div>
+                    <div class="relative w-9 h-9 flex items-center justify-center shrink-0 mr-1">
+                        <!-- 2B (Arriba) -->
+                        <div class="absolute top-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base2Class}"></div>
+                        <!-- 1B (Derecha) -->
+                        <div class="absolute right-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base1Class}"></div>
+                        <!-- 3B (Izquierda) -->
+                        <div class="absolute left-0 w-2.5 h-2.5 rotate-45 rounded-sm transition-all duration-300 ${base3Class}"></div>
+                    </div>
+                </div>
+
+                <!-- PRONÓSTICO AL PIE -->
+                <div class="pt-2 border-t border-slate-800/60 text-[11px] text-slate-400 flex justify-between items-center">
+                    <span>Pronóstico:</span>
+                    <strong class="text-slate-200 truncate max-w-[150px]">${prediction}</strong>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
 }
 
+// Inicialización al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
-    actualizarPartidosEnVivo();
-    setInterval(actualizarPartidosEnVivo, 10000);
+    renderizarPartidosEnVivo();
+    // Si tu app actualiza BASE_MATCHES de forma externa, esto repintará la tarjeta unificada cada 5s
+    setInterval(renderizarPartidosEnVivo, 5000);
 });
 </script>
          <!-- Pestaña 5: Semana y Resultados -->
