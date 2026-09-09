@@ -433,6 +433,20 @@ def fetch_mlb_week_games():
                         away_runs = ls_teams.get('away', {}).get('runs', 0) if ls_teams else 0
                         home_runs = ls_teams.get('home', {}).get('runs', 0) if ls_teams else 0
                         
+                        # --- EXTRACCIÓN DE DATOS EN VIVO (Inning y Conteo) ---
+                        inning_ordinal = linescore.get('currentInningOrdinal', '')
+                        inning_state = linescore.get('inningState', '') # Top, Bottom, Middle, End
+                        
+                        state_map = {"Top": "Alta del", "Bottom": "Baja del", "Middle": "Medio del", "End": "Fin del"}
+                        estado_esp = state_map.get(inning_state, inning_state)
+                        
+                        inning_text = f"{estado_esp} {inning_ordinal}" if inning_ordinal else "En juego"
+                        
+                        balls = linescore.get('balls', 0)
+                        strikes = linescore.get('strikes', 0)
+                        outs = linescore.get('outs', 0)
+                        count_text = f"B:{balls} S:{strikes} O:{outs}"
+                        
                         game_info = {
                             'id': game.get('gamePk', idx),
                             'home': home_team,
@@ -446,7 +460,14 @@ def fetch_mlb_week_games():
                         winner_full = sim.get('winner_full')
                         
                         prediction = f"Ganador: {winner_full}"
-                        score_str = f"{away_runs} - {home_runs}" if abstract_state != 'preview' else "Por empezar"
+                        
+                        # Definición del marcador según el estado del juego
+                        if abstract_state == 'live':
+                            score_str = f"{away_runs} - {home_runs} ({inning_text})"
+                        elif abstract_state == 'final':
+                            score_str = f"{away_runs} - {home_runs} (Final)"
+                        else:
+                            score_str = "Por empezar"
                         
                         if abstract_state == 'final':
                             if away_runs > home_runs:
@@ -469,7 +490,9 @@ def fetch_mlb_week_games():
                             "game": f"{away_team} vs {home_team}",
                             "prediction": prediction,
                             "score": score_str,
-                            "evaluation": evaluation
+                            "evaluation": evaluation,
+                            "inning_state": inning_text,  # Enviado para el frontend
+                            "count": count_text           # Enviado para el frontend
                         })
         except Exception as e:
             print(f"Aviso API semana ({day_name}): {e}")
